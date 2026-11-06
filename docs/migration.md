@@ -231,10 +231,10 @@ started the launcher, and jobs inherit it, so the same holds for gnoto. `lint`'s
 in phase 3 should say so when it fails, and the systemd templates already take `command -v
 sbatch` at setup for this reason.
 
-**Cluster runs.** Until phase 5, the code goes over as a tarball of the working tree and the
-image as the `.sif` the test bed built. On the login node, in a new install directory:
+**Cluster runs.** The install directory is a clone of `cmmr/gnoto`, updated with `git pull`.
+Until phase 5, the image goes over as the `.sif` the test bed built. On the login node:
 
-1. Unpack the tarball, copy `config.example.yaml` to `config.yaml` at mode 660, and fill in
+1. Clone the repo, copy `config.example.yaml` to `config.yaml` at mode 660, and fill in
    `core.data_dir`, plus `core.apptainer_home` if `apptainer` isn't on `PATH` and
    `core.apptainer_binds` for any other path containers need.
 2. Put the `.sif` in `<data_dir>/images/` under the name `IMAGE` gives, then check that
