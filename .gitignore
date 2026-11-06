@@ -1,0 +1,19 @@
+# Settings and secrets. Copy config.example.yaml to config.yaml.
+config.yaml
+
+# core.data_dir's default: runs, caches, logs and generated.yaml
+/data/
+
+# Local scratch
+/tmp/
+/scratch/
+
+# Build outputs
+result
+result-*
+*.sif
+/site/
+__pycache__/
+
+.claude/
+CLAUDE.md

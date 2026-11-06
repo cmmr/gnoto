@@ -1,0 +1,201 @@
+#!/bin/sh
+#
+# gnoto - The gnoto launcher: runs a gnoto command inside the gnoto image.
+#
+# Run by:    people, Slurm (the head job runs it through sbatch --wrap) and the
+#            systemd units
+# Usage:     gnoto <command> [arguments]
+# Requires:  POSIX sh, awk, mktemp, mkfifo, flock and Apptainer on the host
+#
+# Before the image can start, it needs four settings, which it reads from
+# config.yaml with its own awk: core.apptainer_home, core.data_dir, core.db_dir
+# and core.apptainer_binds. Only lines written as   key: "value"   under core:
+# count.
+#
+# It finds or pulls the image IMAGE names, starts host/helper.sh on a FIFO in a
+# private directory, and runs lib/main.sh in the image with --cleanenv. Inside,
+# a stand-in for each command in host/allowed/ comes first on PATH and passes
+# calls to the helper.
+#
+# SIGTERM, SIGINT and SIGHUP are passed to Apptainer as SIGTERM, and the helper
+# keeps running until Apptainer exits, because Nextflow cancels its tasks
+# through the scancel stand-in as it shuts down.
+
+set -eu
+umask 002
+
+die() {
+    printf 'gnoto: %s\n' "$*" >&2
+    exit 1
+}
+
+SELF=$(readlink -f -- "$0" 2> /dev/null) || SELF=$0
+CODE_DIR=$(cd -P -- "$(dirname -- "$SELF")" && pwd -P)
+INSTALL_DIR=$CODE_DIR
+CONFIG=$INSTALL_DIR/config.yaml
+
+[ -r "$CONFIG" ] ||
+    die "can't read $CONFIG. Copy config.example.yaml to config.yaml and fill it in."
+
+# Prints core.<key> from config.yaml, or nothing if it's unset. Exits 2 if the
+# key is there but not written as   key: "value"
+bootstrap_setting() {
+    awk -v key="$1" '
+        /^[^ #]/ { in_core = ($0 ~ /^core:[ ]*(#.*)?$/); next }
+        !in_core || index($0, "  " key ":") != 1 { next }
+        {
+            prefix = "  " key ": \""
+            if (index($0, prefix) != 1) { bad = 1; exit }
+            rest = substr($0, length(prefix) + 1)
+            end = index(rest, "\"")
+            if (end == 0 || substr(rest, end + 1) !~ /^[ ]*(#.*)?$/) { bad = 1; exit }
+            print substr(rest, 1, end - 1)
+            exit
+        }
+        END { if (bad) exit 2 }
+    ' "$CONFIG"
+}
+
+for KEY in apptainer_home data_dir db_dir apptainer_binds; do
+    VALUE=$(bootstrap_setting "$KEY") ||
+        die "config.yaml: write core.$KEY as   $KEY: \"value\"   with the value in double quotes"
+    case $KEY in
+        apptainer_home) APPTAINER_HOME=$VALUE ;;
+        data_dir) DATA_DIR=${VALUE:-$INSTALL_DIR/data} ;;
+        db_dir) DB_DIR=$VALUE ;;
+        apptainer_binds) BINDS=$VALUE ;;
+    esac
+done
+DB_DIR=${DB_DIR:-$DATA_DIR/db}
+
+if [ -n "$APPTAINER_HOME" ]; then
+    PATH=$APPTAINER_HOME/bin:$PATH
+    export PATH
+fi
+command -v apptainer > /dev/null ||
+    die "apptainer isn't on PATH. Install it, or set core.apptainer_home in config.yaml."
+
+mkdir -p "$DATA_DIR/images" "$DB_DIR" ||
+    die "can't create $DATA_DIR/images and $DB_DIR"
+
+BASE=${TMPDIR:-/tmp}
+[ -d "$BASE" ] || BASE=/tmp
+
+# Apptainer's layer cache can't be shared between users, so it's per user and
+# on node-local storage, as is the space it builds a .sif in, which /tmp may be
+# too small for. Only finished .sif files go in <data_dir>/images.
+APPTAINER_CACHEDIR=$BASE/gnoto-apptainer-$(id -u)/cache
+APPTAINER_TMPDIR=$BASE/gnoto-apptainer-$(id -u)/tmp
+export APPTAINER_CACHEDIR APPTAINER_TMPDIR
+mkdir -p "$APPTAINER_CACHEDIR" "$APPTAINER_TMPDIR" ||
+    die "can't create $APPTAINER_CACHEDIR and $APPTAINER_TMPDIR"
+
+# Pulls an image to a temporary name under a lock, then renames it
+pull_image() {
+    (
+        flock 9 || exit 1
+        [ -f "$2" ] && exit 0
+        rm -f "$2.tmp"
+        apptainer pull "$2.tmp" "$1" >&2 || exit 1
+        mv -f "$2.tmp" "$2"
+    ) 9> "$2.lock" || die "can't pull the gnoto image $1"
+}
+
+IMAGE=
+IFS= read -r IMAGE < "$CODE_DIR/IMAGE" || [ -n "$IMAGE" ] || die "can't read $CODE_DIR/IMAGE"
+case $IMAGE in
+    docker://*@sha256:*)
+        NAME=${IMAGE#docker://}
+        NAME=${NAME%%@*}
+        NAME=${NAME##*/}
+        SIF=$DATA_DIR/images/$NAME-${IMAGE##*@sha256:}.sif
+        [ -f "$SIF" ] || pull_image "$IMAGE" "$SIF"
+        ;;
+    */* | .*) die "IMAGE must name docker://<image>@sha256:<digest>, or a .sif in $DATA_DIR/images" ;;
+    *.sif)
+        SIF=$DATA_DIR/images/$IMAGE
+        [ -f "$SIF" ] || die "the gnoto image $SIF is missing"
+        ;;
+    *) die "IMAGE must name docker://<image>@sha256:<digest>, or a .sif in $DATA_DIR/images" ;;
+esac
+
+# A FIFO only works within one machine, so this is node-local
+PRIVATE=$(mktemp -d "$BASE/gnoto.XXXXXX") || die "can't make a directory in $BASE"
+HELPER_PID=
+
+cleanup() {
+    if [ -n "$HELPER_PID" ]; then
+        kill -KILL "$HELPER_PID" 2> /dev/null || :
+        wait "$HELPER_PID" 2> /dev/null || :
+    fi
+    rm -rf "$PRIVATE"
+}
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+mkdir "$PRIVATE/bin" "$PRIVATE/req"
+mkfifo "$PRIVATE/requests"
+for LIST in "$CODE_DIR"/host/allowed/*; do
+    while IFS= read -r NAME || [ -n "$NAME" ]; do
+        case $NAME in
+            '' | '#'*) continue ;;
+            *[!a-z0-9_-]*) die "bad command name in $LIST: $NAME" ;;
+        esac
+        ln -s "$CODE_DIR/host/standin.sh" "$PRIVATE/bin/$NAME"
+    done < "$LIST"
+done
+
+# Only what's set here reaches the image. APPTAINERENV_ variables survive
+# --cleanenv, so any the caller set are dropped first.
+for VAR in $(env | sed -n -e 's/^\(APPTAINERENV_[A-Za-z0-9_]*\)=.*/\1/p' \
+    -e 's/^\(SINGULARITYENV_[A-Za-z0-9_]*\)=.*/\1/p'); do
+    unset "$VAR"
+done
+APPTAINERENV_PREPEND_PATH=$PRIVATE/bin
+APPTAINERENV_GNOTO_CODE_DIR=$CODE_DIR
+APPTAINERENV_GNOTO_INSTALL_DIR=$INSTALL_DIR
+APPTAINERENV_GNOTO_DATA_DIR=$DATA_DIR
+APPTAINERENV_GNOTO_DB_DIR=$DB_DIR
+APPTAINERENV_GNOTO_HELPER_DIR=$PRIVATE
+APPTAINERENV_USER=$(id -un)
+export APPTAINERENV_PREPEND_PATH APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_INSTALL_DIR \
+    APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_HELPER_DIR \
+    APPTAINERENV_USER
+if [ -n "${TERM-}" ]; then
+    export APPTAINERENV_TERM="$TERM"
+fi
+if [ -n "${SLURM_JOB_ID-}" ]; then
+    export APPTAINERENV_SLURM_JOB_ID="$SLURM_JOB_ID"
+fi
+
+sh "$CODE_DIR/host/helper.sh" "$PRIVATE" < /dev/null &
+HELPER_PID=$!
+
+# Every path is bound at its host path, so a path means the same inside and out
+set -- "$SIF" /bin/bash "$CODE_DIR/lib/main.sh" "$@"
+if [ -n "$BINDS" ]; then
+    set -- -B "$BINDS" "$@"
+fi
+set -- exec --cleanenv -B "$CODE_DIR" -B "$DATA_DIR" -B "$DB_DIR" -B "$PRIVATE" "$@"
+
+# In the background, so a signal can be passed on while it runs. An
+# asynchronous command reads /dev/null unless told otherwise.
+if (exec 4<&0) 2> /dev/null; then
+    exec 4<&0
+else
+    exec 4< /dev/null
+fi
+apptainer "$@" <&4 4<&- &
+CHILD_PID=$!
+exec 4<&-
+
+trap 'kill -TERM "$CHILD_PID" 2> /dev/null || :' HUP INT TERM
+
+while :; do
+    STATUS=0
+    wait "$CHILD_PID" || STATUS=$?
+    kill -0 "$CHILD_PID" 2> /dev/null || break
+done
+exit "$STATUS"

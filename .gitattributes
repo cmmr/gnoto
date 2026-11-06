@@ -1,0 +1,16 @@
+# Line endings are LF everywhere. These scripts run on a Linux cluster, where a
+# CR at the end of a shebang or an assignment is part of the value, so a file
+# that picks up CRLF on a Windows checkout - or from an editor or a tool that
+# rewrites it - is a file that no longer runs. Committing LF is not enough on
+# its own: eol=lf makes the checkout LF too, so the working copy matches what
+# runs.
+#
+# text=auto lets git decide what is text; the image rules below keep it from
+# having to guess.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gz  binary
+*.qza binary
+*.rds binary

@@ -1,0 +1,2 @@
+# Host commands the helper runs for the Apptainer backend, one per line.
+apptainer

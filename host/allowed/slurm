@@ -1,0 +1,7 @@
+# Host commands the helper runs for the Slurm backend, one per line.
+# The launcher links host/standin.sh under each name inside the image.
+sbatch
+squeue
+scancel
+sinfo
+sacct

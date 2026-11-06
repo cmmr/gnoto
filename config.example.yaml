@@ -1,0 +1,47 @@
+# Copy to config.yaml, set its group, fill in, then run: gnoto lint
+# Empty means unset. An integration with nothing set is skipped.
+
+core:
+  data_dir: ""            # Runs, caches, logs. Default: <install directory>/data
+  db_dir: ""              # Reference databases. Default: <data_dir>/db
+  executor: "slurm"       # slurm or local
+  slurm_partition: ""
+  slurm_account: ""
+  max_cpus: ""            # Largest single task, e.g. 32
+  max_memory: ""          # e.g. 900.GB
+  max_time: ""            # e.g. 24.h
+  job_time: ""            # Limit for a whole run, e.g. 7-00:00:00. Default: the partition's
+  apptainer_binds: ""     # Paths containers must see, e.g. /data
+  input_roots: ""         # Form requests may read FASTQs only under these, e.g. /data/seq
+  apptainer_home: ""      # Only if apptainer isn't on PATH
+  nextflow_config: ""     # Optional extra Nextflow config for this site
+  expiration_notice_days: 14   # Warning period, and the shortest time results are kept
+  keep_run_days: 14       # How long a failed run's logs, or a --debug run's directory, stay
+
+wrike:
+  api_token: ""           # Secret
+  webhook_secret: ""      # Secret, chosen by you. Signs webhook deliveries. Only with SQS
+  poll_minutes: 5         # Scans Wrike for changes, with or without SQS. 0 turns it off
+
+aws:
+  access_key_id: ""       # Secret. Shared by S3 and SQS
+  secret_access_key: ""   # Secret
+  region: ""
+  # Published results: a bucket served through CloudFront. For one you set up
+  # yourself, fill in both. To have gnoto build it, fill in s3_bucket and run:
+  # gnoto setup s3 --deploy --profile <admin>
+  s3_bucket: ""
+  results_base_url: ""    # e.g. https://d1234abcd.cloudfront.net. Default: what --deploy built
+  run_prefix: ""          # Default: gnoto
+  # Wrike webhook delivery. For a queue you set up yourself, fill in both. To have
+  # gnoto build it, run: gnoto setup sqs --deploy --profile <admin>
+  sqs_queue_url: ""       # Default: what --deploy built
+  webhook_url: ""         # Where Wrike posts, in front of the queue. Default: what --deploy built
+
+globus:
+  dir: ""
+  uuid: ""
+  url: ""
+  run_prefix: ""          # Default: gnoto
+  cli_client_id: ""       # Secret
+  cli_client_secret: ""   # Secret

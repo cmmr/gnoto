@@ -1,0 +1,3 @@
+# Host commands the helper runs for systemd, one per line.
+systemctl
+loginctl
