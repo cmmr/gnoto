@@ -4,10 +4,11 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-06: **phase 1 is done.** ampliseq ran the `16s-v4` fixture under Slurm through
-the helper, in the local test bed and on the cluster, and every phase 1 check passes on both. The
-next step is phase 2. The [phase 1 notes](#phase-1-image-and-helper) record what's built, every
-test result, and the two determinism probes still to run.
+Status on 2026-11-06: **phases 1 and 2 are done.** ampliseq ran the `16s-v4` fixture under Slurm
+through the helper, in the local test bed and on the cluster. Phase 2's restructure passes its
+tests in the test bed. The next step is phase 3. The [phase 1](#phase-1-image-and-helper) and
+[phase 2](#phase-2-restructure) notes record what's built and every test result, and phase 1's
+notes list the two determinism probes still to run.
 
 ## Where the old code is
 
@@ -45,11 +46,11 @@ Each phase has a test that shows it's finished.
 | --- | --- | --- |
 | 1. Image and helper | The `gnoto` image, launcher, helper and stand-ins | One fixture job, such as `16s-v4` from [fixtures.md](fixtures.md), runs under Slurm through the helper, with no tool taken from the host except Slurm and Apptainer |
 | 2. Restructure | New repo layout, `lib/env.sh`, `config.yaml`, `generated.yaml`, `databases.yaml`, `references.yaml`, `pipelines/<name>/` replacing the `_01` files, no hard-coded paths, unexported secrets | No tracked file names `/data/prod/nextflow`, and scripts load their settings from any install path |
-| 3. Job core | `lib/job.sh`, `options.yaml`, `new`, `lint job.yaml`, `start`, `start --debug`, `status`, `cancel`, input checksums, `history/`, core `setup` and config `lint`, and the three job stages, with Publish a stub until phase 7 | A CLI job finishes with no Wrike, AWS or Globus configured, and leaves a full dashboard in `results/` |
+| 3. Job core | `lib/job.sh`, `options.yaml`, `new`, `lint job.yaml`, `start`, `start --debug`, `status`, `cancel`, input checksums, `history/`, core `config` and config `lint`, and the three job stages, with Publish a stub until phase 7 | A CLI job finishes with no Wrike, AWS or Globus configured, and leaves a full dashboard in `results/` |
 | 4. Version cache | `pipeline@ref`, `start record.yaml`, `<data_dir>/current`, `gnoto upgrade` and `gnoto prune` | A job re-runs correctly from its own commit after `main` has moved on, and an upgrade while a job runs leaves that job on its own code |
 | 5. Lock files | Image digests, GHCR images, `containers.config`, `db:` names, database digests and `lint --deep` | CI on `main` rejects an image address by tag, and a re-run pulls only by digest |
 | 6. Determinism | `gnoto selftest`, seeds, `stable-files`, and the numeric comparison of core tables | A re-run reports its core tables as identical |
-| 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, `remove`, `setup` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
+| 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, `remove`, `config` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
 | 8. Public release | README, tarball CI, Zenodo, docs rewrite | A full rollout works from the published tarball using only the README, starting from a complete teardown |
 
 Phase 1 comes first because the helper is the riskiest part of the design and everything
@@ -114,7 +115,7 @@ GHCR, by digest, once the image is stable, and no later than phase 5.
 because they run before any image tools exist. The stand-in is one bash script,
 `host/standin.sh`, which runs inside the image. At launch, the launcher links it under each name
 in `host/allowed/`, in its private directory, which goes first on `PATH` inside the image. The
-repo itself holds no symlinks. The launcher reads its four bootstrap settings from
+repo itself holds no symlinks. The launcher reads its bootstrap settings from
 `config.yaml` with its own awk, as [design.md](design.md#host-and-image) describes. Inside the
 image, `lib/main.sh` is the entry point. Its only command so far is `gnoto exec <command>`, a
 development aid.
@@ -124,7 +125,7 @@ The protocol as built and tested:
 1. The launcher makes a private directory at mode 700 on node-local storage (`$TMPDIR`, else
    `/tmp`), because a FIFO only works within one machine. It starts the helper on a `requests`
    FIFO there, then runs `apptainer exec --cleanenv`, binding the install directory, the data and
-   database directories, `core.apptainer_binds` and the private directory at their host paths.
+   database directories, `apptainer.binds` and the private directory at their host paths.
    What reaches the image is set through `APPTAINERENV_` variables, after dropping any the caller
    set, because those survive `--cleanenv`.
 2. For each call, a stand-in makes a request directory holding `request`, which sets `cwd` and
@@ -236,11 +237,11 @@ sbatch` at setup for this reason.
 **Cluster runs.** The install directory is a clone of `cmmr/gnoto`, updated with `git pull`.
 Until phase 5, the image goes over as the `.sif` the test bed built. On the login node:
 
-1. Clone the repo, copy `config.example.yaml` to `config.yaml` at mode 660, and fill in
-   `core.data_dir`, plus `core.apptainer_home` if `apptainer` isn't on `PATH` and
-   `core.apptainer_binds` for any other path containers need.
-2. Put the `.sif` in `<data_dir>/images/` under the name `IMAGE` gives, then check that
-   `./gnoto exec true` exits 0.
+1. Clone the repo, and put the `.sif` in `<data_dir>/images/` under the name `IMAGE` gives.
+   Without `config.yaml`, the data directory is `<install>/data`.
+2. With Slurm's module loaded, run `./gnoto config slurm --on`, which takes what `sinfo`
+   suggests, and `./gnoto config core` from a terminal if the data directory is elsewhere.
+   Then check that `./gnoto exec true` exits 0.
 3. Run the same checks as the test bed. Where Slurm's defaults will do, as on CMMR's cluster,
    they need no options:
    - `bash test/testbed/checks/launcher.sh`
@@ -254,7 +255,7 @@ Until phase 5, the image goes over as the `.sif` the test bed built. On the logi
 
 The helper's fixed environment drops `SBATCH_*` and `SLURM_*` defaults set in a user's shell,
 so a site that needs a partition or account says so explicitly. In gnoto proper, that's
-`core.slurm_partition` and `core.slurm_account`.
+`slurm.partition` and `slurm.account`.
 
 **Alongside phase 1,** run two determinism probes, so that phase 6 starts with answers. Neither
 needs any gnoto code:
@@ -273,12 +274,97 @@ Follow the [file map](#file-map). The main work:
   comes from the script's location and data from `core.data_dir`. `/data/prod/nextflow`
   appears on 44 lines in 35 tracked files outside the docs, and on 74 lines in 47 files with
   them, mostly as `source /data/prod/nextflow/.env` at the top of each script. `-B /data`
-  in six scripts becomes `core.apptainer_binds`.
+  in six scripts becomes `apptainer.binds`.
 - **Settings.** `lib/env.sh` reads `config.yaml` and `generated.yaml` with `yq`, exports only
   non-secret settings, and sources the helper scripts.
 - **Pipelines.** `pipelines/<NAME>_01.sh` becomes `pipelines/<name>/pipeline.sh`, and the
   `<NAME>.sh` shortcuts go. Change `PIPELINE_NAME` handling to match, and remove the rule in
   the old `docs/pipelines/index.md` that a version file is immutable.
+
+What's built:
+
+- **`lib/env.sh`** finds the code from its own location, and the install directory from the
+  launcher. It reads `config.yaml`, and `generated.yaml` from the data directory, with `yq` and
+  `jq`, never by sourcing. `core.data_dir` becomes `DATA_DIR`, any other section's key takes
+  the section as a prefix (`SLURM_MAX_CPUS`), and a nested key joins with underscores.
+  `config.yaml` wins over `generated.yaml`. `lib/config/<section>.sh` declares the settings a
+  version knows and their defaults, so `config.yaml`'s other keys are ignored, and a top-level
+  key such as `PATH` can't overwrite a variable. Secrets are set but never exported. It also sets the `NXF_*`
+  paths and `umask 002`, and sources the helpers. Every step sources it again, because
+  functions don't pass to a child process.
+- **`config.yaml` is optional and holds only the sections a site adds.** Without it, the
+  launcher and `lib/env.sh` use the defaults: data in `<install>/data`, Slurm off, and
+  Apptainer and Slurm from `PATH`. The launcher stops only when it can't find `apptainer`,
+  and passes the image where it found `apptainer` and `sbatch`, and `SLURM_CONF`. Where
+  Apptainer isn't on `PATH`, `gnoto init --apptainer=<path>`, in the launcher alone, writes
+  a `config.yaml` holding only an `apptainer` section. `lib/config/<section>.sh` declares
+  each section (`core`, `apptainer`, `slurm`, `wrike`, `aws` and `globus`), and
+  `lib/config.sh` runs `gnoto config`: the list of sections, one section's questions, or
+  `--on` and `--off`. A section it adds is written whole, and a new file is mode 660 in the
+  user's own group. Each answer replaces the value on its line, keeping the line's comment
+  in its column, and a key the section lacks goes at its end; `yq` handles only what that
+  can't place. It writes into the existing file, because the image's user namespace may not
+  map the file's group and so can't give a new file that group. Every section but `core`
+  starts with `enabled`, which replaces `core.scheduler` and `core.container_engine`. The
+  launcher reads `slurm.enabled` and `apptainer.enabled` among its bootstrap settings.
+  Wrike, AWS and Globus get their questions now, and their own setup in phase 7.
+- **Helpers.** `lib/utilities.sh`, `lib/run_state.sh` and `lib/params.sh` are ported, and
+  `lib/containers.sh` and `lib/scheduler.sh` are new, so each kind of call has one place. A
+  state write that can't get its lock now fails. `run_state.json` is never published. Template
+  rendering and the results address move to `present/` and the integrations with their callers
+  in phases 3 and 7.
+- **Parameters** are held as JSON, so a list or a map from a job file keeps its shape, and a
+  shell value of `true`, `false`, `null` or a number is written bare. A database is named
+  `db:<path under core.db_dir>`. The record keeps the name, and the params file Nextflow reads
+  gets the path.
+- **Reference choices.** An entry in `conf/databases.yaml` can carry a `choice`, such as
+  `dada_ref_taxonomy` `silva=138.2`, with the `*_ref_tax_custom` files that replace it.
+  `params_reference` swaps one for the other, so ampliseq downloads no reference, and a choice
+  without an entry fails.
+- **Step containers** run through `container_exec`: `--cleanenv`, `LC_ALL=C.UTF-8`, `TZ=UTC`,
+  and an empty home directory bound at `/home/gnoto`, from the run directory, as phase 1's
+  two-user check asked. Their images are pinned by digest in `pipelines/<name>/lock.yaml`,
+  beside the upstream commit, which replaces each pipeline file's `-r` revision. vsearch moves
+  from 2.31.0 to 2.32.0, the latest.
+- **`conf/databases.yaml` and `references.yaml`** replace the JSON files. The retired sylph
+  entry and the two old `test-fastq` sets are gone, SILVA 138.2 has an entry with its md5s, and
+  the fixtures block from [fixtures.md](fixtures.md) is at the end.
+- **Steps, modules, workflows and resources.** The eight phase 2 steps and the two R scripts
+  are in `steps/` and `steps/R/`, the modules and the biobakery and HUMAnN workflows in
+  `modules/` and `workflows/`, and the resource requests in `conf/<name>/resources.config`,
+  without the site settings (executor, Apptainer cache and binds, CPU, memory and time caps).
+  `/tmp` still reaches task containers, because Apptainer binds it by default.
+
+Tested on 2026-11-06, all passing:
+
+- `test/lib/lib-test.sh`, in the real image: settings and their defaults, secrets kept out of
+  child processes, `generated.yaml`, a config syntax error with its line, typed parameters and
+  `db:` names, run state under 20 concurrent writers, a lock that can't be had, the text helpers,
+  and a step container's clean environment and empty home, run from the user's home directory.
+- `test/lib/pipelines-test.sh`: each `pipeline.sh` with different answers, its revision from
+  `lock.yaml`, its steps present, and its params file resolving `db:` names.
+- `test/steps/steps-test.sh`, on the `16s-v4` fixture in the test bed: the three samplesheet
+  steps with gzip and bzip2 inputs and a sample name ampliseq rejects, region detection failing
+  cleanly without its reference, and pruning a small tree with the real gotree image.
+- `test/helper/launcher-test.sh`, with a stub `apptainer`: running without `config.yaml`,
+  stopping without `apptainer`, passing in where `apptainer` and `sbatch` were found,
+  `gnoto init` with no `apptainer` on `PATH` and its refusals, and Slurm's settings counting
+  only while `slurm.enabled` is `true`.
+- `test/lib/lib-test.sh` also covers `config_set`: a line changed in place with its comment's
+  column kept, a missing `enabled` first and another missing key last, bare numbers and
+  booleans, and `yq` adding a missing section; and the list of sections.
+- `test/testbed/checks/config.sh`, as `alice` on a copy with no `config.yaml`: the defaults,
+  the list, `gnoto init`, `slurm --on` adding what `sinfo` and the launcher found, `--off`
+  keeping it, questions for `apptainer`, `core`, `slurm` and `wrike` with their suggestions,
+  refusals, and only the sections asked for, at mode 660 in `alice`'s group.
+- Both tests from a second install path, where every path follows the install directory.
+- No tracked file names `/data/prod/nextflow` but this one, which describes the old repo.
+
+Two things the port found in the old code: rerunning the ampliseq samplesheet step in the same
+run directory wrote through a leftover link into the requester's own input file, and a failed
+prune left an empty `.tmp` behind. Both are fixed. vsearch 2.32.0 gave hit tables identical to
+2.31.0's on synthetic fixtures. Region detection on real reads needs the 16S landmarks that
+phase 5's builder makes.
 
 ### Phase 3: job core
 
@@ -298,6 +384,23 @@ Follow the [file map](#file-map). The main work:
   `scripts/wrike_task_handler.sh:172`, which is what stops duplicate submissions.
 - Split each `*_upload.sh` into compute, present and publish. Composition, `prune_results` and
   the methods page are currently called from inside them.
+- Left over from phase 2's port:
+  - The run's `taxprofiler_database.csv` now holds real paths, and the old upload published
+    it. Publish a copy with `db:` names, or without that column.
+  - `steps/biobakery_disk_check.sh` counts the download against `globus.dir` only, but the zip
+    now stays in the run directory when neither Globus nor S3 is set.
+  - `steps/taxprofiler_humann.sh` runs its own Nextflow, which needs the same site config
+    (executor, resource limits, `core.nextflow_config`) as the job's main run. The command
+    record it publishes beside the HUMAnN tables holds run paths, which the published copy
+    should leave out.
+  - HUMANN_PROFILE asks for 48 hours. Its own `resourceLimits` went in phase 2, because repo
+    config mustn't override the site's caps, so a `slurm.max_time` under 48 hours now clips
+    it. `lint` should flag that, as it does a `slurm.max_cpus` below a fixed CPU count.
+  - The job sets `INSTRUMENT_PLATFORM` when a job file overrides the measured platform, which
+    the taxprofiler samplesheet step reads.
+  - ampliseq's report abstract names CMMR. Decide how another site words its own.
+  - Steps that note a missing database name the old fetch scripts. In gnoto, `lint` offers the
+    fetch, so point to that instead.
 
 ### Phases 4 to 6
 
@@ -315,7 +418,7 @@ Follow the [file map](#file-map). The main work:
 - Build the three CloudFormation stacks (IAM user, S3, SQS) from the settings saved during
   [teardown](#teardown).
 - `docs/wrike/responses.md` in the old repo has the live definitions of the workflow, custom
-  fields and request form. Use it for `setup wrike` and the form checklist, and don't copy its
+  fields and request form. Use it for `config wrike` and the form checklist, and don't copy its
   IDs.
 - The webhook's events must stay in step with the listener's `case` statement, because an
   unsubscribed event simply never arrives. See `docs/wrike/webhook_bridge.md`, which also
@@ -366,7 +469,7 @@ Follow the [file map](#file-map). The main work:
 | The listener reads only the first event in each payload, and deletes the SQS message before handling it (`scripts/wrike_sqs_listener.sh:79-96`) | Handle every event, and delete a message only after handling it |
 | `scripts/run_state.sh:95-99` writes unlocked when `flock` fails (`flock 9 \|\| true`) | A write that can't get its lock fails |
 | The log paths are fixed in `scripts/wrike_job.sh:6-7` and `scripts/wrike_followup.sh:6-7` | Move to the `sbatch` command line |
-| `scripts/wrike_job.sh:2-7` hard-codes `--time=60:00:00` and sets neither `--no-requeue` nor `--signal` | Submit with `--no-requeue`, `--signal=B:TERM@300` and `--time` from `core.job_time` |
+| `scripts/wrike_job.sh:2-7` hard-codes `--time=60:00:00` and sets neither `--no-requeue` nor `--signal` | Submit with `--no-requeue`, `--signal=B:TERM@300` and `--time` from `slurm.job_time` |
 | `scancel --user="$(whoami)"` (`scripts/wrike_delete_handler.sh:81`) can't cancel another user's job | Write a cancel file that the job's progress watcher acts on |
 | The Lambda and CloudFront function exist only as code blocks in `docs/wrike/webhook_bridge.md` and `docs/results/cloudfront.md` | Real files under `service/aws/`, with the IAM policies, so a site can attach them itself or let `--deploy` build the stacks |
 | The results address assumes the bucket name is a domain (`run_results_url` in `scripts/utilities.sh`) | Use `aws.results_base_url` |
@@ -397,7 +500,7 @@ in step.
 | `.gitattributes` | `.gitattributes` | 1 | Copied unchanged on 2026-11-05. It enforces LF |
 | `.gitignore` | `.gitignore` | 1 | Rewrite, adding `config.yaml` |
 | `run` | `gnoto` | 1, 3 | Rewritten. Its task creation moves to `service/wrike/` |
-| `.env` | `config.example.yaml`, `lib/env.sh` | 2 | Settings and sourcing split. Don't copy the values |
+| `.env` | `lib/config/`, `lib/env.sh` | 2 | Settings and sourcing split. Don't copy the values |
 | `README.md` | `README.md` | 8 | Rewritten around the install steps |
 | `dev.md` | Not copied | | Holds emails and rule IDs. Move anything useful into `docs/` |
 | `mkdocs.yml`, `docs_hooks.py`, `requirements-docs.txt`, `.github/workflows/docs.yml` | Same paths | 8 | Update the repo name and URLs |
@@ -471,7 +574,7 @@ in step.
 | `docs/conventions.md` | The uid, state file and message-bus conventions. Read this before phase 3 |
 | `docs/pipelines/*.md` | Why each pipeline is set up as it is, and most of the science reasoning. Keep these |
 | `docs/results/*.md` | How the dashboard works, including composition and browsable folders. Keep these |
-| `docs/operations/nix.md`, `databases.md`, `expiration.md`, `daemon.md`, `cluster-requirements.md`, `running-by-hand.md`, `index.md` | Rewrite for gnoto, because `setup`, `lint` and `status` replace many of the manual steps |
+| `docs/operations/nix.md`, `databases.md`, `expiration.md`, `daemon.md`, `cluster-requirements.md`, `running-by-hand.md`, `index.md` | Rewrite for gnoto, because `config`, `lint` and `status` replace many of the manual steps |
 | `docs/operations/globus.md`, `docs/wrike/*.md` | Rewrite, removing IDs, addresses and hostnames |
 | `docs/index.md`, `layout.md`, `configuration.md` | Rewrite against [design.md](design.md) |
 
@@ -487,7 +590,7 @@ Daniel plans to tear down everything in place and roll out gnoto as an external 
 - **Keep `db/` and Apptainer until phase 6 is done,** because phases 1 to 6 test against them.
   The fixtures in [fixtures.md](fixtures.md) are public and can be fetched again at any time.
   The Wrike, AWS, Globus and systemd pieces can go at any time after the AWS settings are saved.
-- **Finish the teardown before the rollout test.** `setup` adopts any object it finds by name,
+- **Finish the teardown before the rollout test.** `config` adopts any object it finds by name,
   so a leftover custom field or an earlier "gnoto Jobs" folder would hide a bug in the code
   that creates it. Removing `db/` as well also tests the download offers in `lint`.
 - **Scan the old repo's history for real credentials.** `cmmr/nextflow` is public and hasn't

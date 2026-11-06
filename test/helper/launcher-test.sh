@@ -36,6 +36,8 @@ if [[ $1 == pull ]]; then
 fi
 printf 'arg %s\n' "$@"
 env | grep '^APPTAINERENV_' | sort | sed 's/^/env /'
+echo "host PATH=$PATH"
+echo "host SLURM_CONF=${SLURM_CONF-}"
 EOF
 chmod +x "$WORK/stub/bin/apptainer"
 
@@ -76,8 +78,14 @@ DIR=$(install_case settings 'wrike:
 core:
   data_dir: "'"$WORK"'/elsewhere"   # with a comment
   db_dir: "'"$WORK"'/db dir"
-  apptainer_binds: "/a,/b"
     nested: "/ignored"
+apptainer:
+  enabled: true
+  binds: "/a,/b"
+slurm:
+  enabled: true    # with a comment
+  bin_dir: "/opt/slurm/bin"
+  conf: "/etc/site/slurm.conf"
 aws:
   region: ""')
 mkdir -p "$WORK/elsewhere/images"
@@ -87,10 +95,24 @@ PRIVATE=$(sed -n 's/^env APPTAINERENV_GNOTO_HELPER_DIR=//p' <<< "$OUT")
 check "settings: binds" "$DIR $WORK/elsewhere $WORK/db dir $PRIVATE /a,/b" "$(binds <<< "$OUT")"
 check "settings: data directory passed in" "env APPTAINERENV_GNOTO_DATA_DIR=$WORK/elsewhere" \
     "$(grep '^env APPTAINERENV_GNOTO_DATA_DIR=' <<< "$OUT")"
+check "settings: slurm.bin_dir first on the host PATH" "host PATH=/opt/slurm/bin:$WORK/stub/bin:/usr/bin:/bin" \
+    "$(grep '^host PATH=' <<< "$OUT")"
+check "settings: slurm.conf becomes SLURM_CONF" "host SLURM_CONF=/etc/site/slurm.conf" \
+    "$(grep '^host SLURM_CONF=' <<< "$OUT")"
+
+sed -i 's/^  enabled: true    # with a comment$/  enabled: false/' "$DIR/config.yaml"
+OUT=$(launch "$DIR")
+check "slurm off: its bin_dir and conf don't count" "host PATH=$WORK/stub/bin:/usr/bin:/bin host SLURM_CONF=" \
+    "$(grep '^host ' <<< "$OUT" | tr '\n' ' ' | sed 's/ $//')"
+sed -i '/^apptainer:$/,/^slurm:$/s/^  enabled: true$/  enabled: false/' "$DIR/config.yaml"
+check "apptainer off" "gnoto: apptainer.enabled is false in $DIR/config.yaml, and gnoto has no other container engine yet. Set it to true." \
+    "$(launch "$DIR")"
+sed -i 's/^  enabled: false$/  enabled: yes/' "$DIR/config.yaml"
+check "enabled that isn't true or false" "1" "$(launch "$DIR" > /dev/null; echo $?)"
 
 DIR=$(install_case unquoted 'core:
   data_dir: /unquoted')
-check "unquoted value refused" "gnoto: config.yaml: write core.data_dir as   data_dir: \"value\"   with the value in double quotes" \
+check "unquoted value refused" "gnoto: config.yaml: write core.data_dir as   data_dir: \"value\"   under core:, with the value in double quotes, or true or false" \
     "$(launch "$DIR")"
 
 DIR=$(install_case trailing 'core:
@@ -101,12 +123,12 @@ DIR=$(install_case caller-env 'core:
   data_dir: ""')
 OUT=$(launch "$DIR" APPTAINERENV_LEAK=1 SINGULARITYENV_LEAK=1)
 check "caller's APPTAINERENV_ variables dropped" "" "$(grep -E 'LEAK' <<< "$OUT")"
-check "image environment" "APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_HELPER_DIR APPTAINERENV_GNOTO_INSTALL_DIR APPTAINERENV_PREPEND_PATH APPTAINERENV_USER" \
+check "image environment" "APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR APPTAINERENV_GNOTO_HELPER_DIR APPTAINERENV_GNOTO_INSTALL_DIR APPTAINERENV_PREPEND_PATH APPTAINERENV_USER" \
     "$(sed -n 's/^env \(APPTAINERENV_[A-Z_]*\)=.*/\1/p' <<< "$OUT" | tr '\n' ' ' | sed 's/ $//')"
 
-DIR=$(install_case home "core:
-  apptainer_home: \"$WORK/stub\"")
-check "apptainer_home puts apptainer on PATH" "0" \
+DIR=$(install_case home "apptainer:
+  bin_dir: \"$WORK/stub/bin\"")
+check "apptainer.bin_dir puts apptainer on PATH" "0" \
     "$(env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" exec true > /dev/null 2>&1; echo $?)"
 
 DIR=$(install_case pull 'core:
@@ -127,7 +149,55 @@ DIR=$(install_case path 'core:
   data_dir: ""' '../outside.sif')
 check "IMAGE with a path refused" "1" "$(launch "$DIR" > /dev/null; echo $?)"
 
+# Without config.yaml, everything is at its default, with Apptainer from PATH
+DIR=$(install_case no-config 'unused')
 rm "$DIR/config.yaml"
-check "missing config.yaml" "1" "$(launch "$DIR" > /dev/null; echo $?)"
+OUT=$(launch "$DIR")
+PRIVATE=$(sed -n 's/^env APPTAINERENV_GNOTO_HELPER_DIR=//p' <<< "$OUT")
+check "no config.yaml: defaults" "$DIR $DIR/data $DIR/data/db $PRIVATE" "$(binds <<< "$OUT")"
+check "no config.yaml: runs main.sh" "yes" "$(grep -qx "arg $DIR/lib/main.sh" <<< "$OUT" && echo yes || echo no)"
+check "and writes none" "no" "$([[ -e $DIR/config.yaml ]] && echo yes || echo no)"
+check "where apptainer was found is passed in" "env APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR=$WORK/stub/bin" \
+    "$(grep '^env APPTAINERENV_GNOTO_FOUND_APPTAINER' <<< "$OUT")"
+check "no config.yaml and no apptainer" \
+    "gnoto: can't find apptainer. Put its directory on PATH, or run: gnoto init --apptainer=/path/to/apptainer" \
+    "$(env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" exec true 2>&1)"
+
+mkdir -p "$WORK/slurm/bin"
+printf '#!/bin/sh\n' > "$WORK/slurm/bin/sbatch"
+chmod +x "$WORK/slurm/bin/sbatch"
+OUT=$(env -i PATH="$WORK/stub/bin:$WORK/slurm/bin:/usr/bin:/bin" HOME="$WORK" TMPDIR="$WORK" \
+    SLURM_CONF=/etc/site/slurm.conf dash "$DIR/gnoto" exec true 2>&1)
+check "where sbatch was found, and SLURM_CONF, are passed in" \
+    $'env APPTAINERENV_GNOTO_FOUND_SLURM_BIN_DIR='"$WORK"$'/slurm/bin\nenv APPTAINERENV_GNOTO_FOUND_SLURM_CONF=/etc/site/slurm.conf' \
+    "$(grep '^env APPTAINERENV_GNOTO_FOUND_SLURM' <<< "$OUT")"
+
+# gnoto init, with no apptainer on PATH: it writes only the apptainer section
+init_with() {
+    (cd "$WORK" && env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" init "$@" 2>&1)
+}
+OUT=$(init_with --apptainer="$WORK/stub/bin/apptainer")
+check "init: says what it wrote" \
+    "Wrote $DIR/config.yaml, with apptainer.bin_dir \"$WORK/stub/bin\". gnoto config lists the other sections." "$OUT"
+check "init: the apptainer section and nothing else" \
+    $'# This install\'s settings. gnoto config lists the sections, and adds or changes one.\n\napptainer:\n  enabled: true\n  bin_dir: "'"$WORK"'/stub/bin"' \
+    "$(cat "$DIR/config.yaml")"
+check "init: mode 660, the user's group" "660 $(id -gn)" "$(stat -c '%a %G' "$DIR/config.yaml")"
+OUT=$(env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" exec true 2>&1)
+check "init: then gnoto runs without apptainer on PATH" "host PATH=$WORK/stub/bin:/usr/bin:/bin" \
+    "$(grep '^host PATH=' <<< "$OUT")"
+check "init: refused when config.yaml exists" \
+    "gnoto: $DIR/config.yaml already exists. Edit it by hand, or run gnoto config." \
+    "$(init_with --apptainer="$WORK/stub/bin/apptainer")"
+rm "$DIR/config.yaml"
+init_with --apptainer=stub/bin/ > /dev/null
+check "init: a relative directory" "  bin_dir: \"$WORK/stub/bin\"" "$(grep bin_dir "$DIR/config.yaml")"
+rm "$DIR/config.yaml"
+check "init: no option" "gnoto: Usage: gnoto init --apptainer=/path/to/apptainer" "$(init_with)"
+check "init: another option" "gnoto: gnoto init takes --apptainer=/path/to/apptainer, not --podman=/x" \
+    "$(init_with --podman=/x)"
+check "init: no apptainer there" "gnoto: there's no apptainer command at /usr/bin/apptainer" \
+    "$(init_with --apptainer=/usr/bin/apptainer)"
+check "init: and writes nothing" "no" "$([[ -e $DIR/config.yaml ]] && echo yes || echo no)"
 
 exit $FAILED

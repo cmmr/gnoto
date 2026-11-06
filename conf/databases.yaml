@@ -1,0 +1,335 @@
+# databases.yaml - Every database and reference gnoto reads, by its path under
+# core.db_dir. Each entry says what reads it, what it's built from, the command
+# that builds it, the dataset DOI where there is one, and the references.yaml ids
+# to cite it by. A pipeline names one as db:<path>.
+#
+# An entry with a choice stands in for a reference a pipeline would otherwise
+# download, such as ampliseq's dada_ref_taxonomy: the job passes its params
+# instead, as local files.
+#
+# fixtures, at the end, are the public test data from docs/fixtures.md, fetched
+# into fixtures/<name>/v1/.
+
+databases:
+  - path: dada2/silva-138.2
+    name: SILVA 138.2 for DADA2
+    release: "138.2"
+    description: The DADA2-formatted SILVA 138.2 prokaryotic SSU training set, to species, and its species-assignment set.
+    used_by:
+      - 'ampliseq: dada_ref_tax_custom, dada_ref_tax_custom_sp'
+    choice:
+      parameter: dada_ref_taxonomy
+      value: "silva=138.2"
+      params:
+        dada_ref_tax_custom: db:dada2/silva-138.2/silva_nr99_v138.2_toSpecies_trainset.fa.gz
+        dada_ref_tax_custom_sp: db:dada2/silva-138.2/silva_v138.2_assignSpecies.fa.gz
+        dada_assign_taxlevels: Domain,Phylum,Class,Order,Family,Genus,Species
+    files:
+      - url: https://zenodo.org/records/14169026/files/silva_nr99_v138.2_toSpecies_trainset.fa.gz
+        md5: e0455a1a7de820039d684aad2053e937
+        bytes: 141016498
+      - url: https://zenodo.org/records/14169026/files/silva_v138.2_assignSpecies.fa.gz
+        md5: 62fd939bd1aa9832d2089847f9f0b87d
+        bytes: 69899323
+    doi: 10.5281/zenodo.14169026
+    cite:
+      - callahan2024
+      - quast2013
+  - path: kraken2/pluspf_20260626
+    name: Kraken2/Bracken PlusPF
+    release: "2026-06-26"
+    description: RefSeq archaea, bacteria, viruses, plasmids, human, UniVec_Core, protozoa and fungi, with nodes.dmp and names.dmp and Bracken distributions for 50-300-mers.
+    used_by:
+      - 'taxprofiler: pipelines/taxprofiler/database.csv (kraken2, bracken), taxpasta_taxonomy_dir'
+    setup: steps/fetch_taxprofiler_db.sh kraken2
+    manifest: kraken2/pluspf_20260626.manifest.json
+    sources:
+      - url: https://genome-idx.s3.amazonaws.com/kraken/k2_pluspf_20260626.tar.gz
+        checksums: https://genome-idx.s3.amazonaws.com/kraken/pluspf_20260626/pluspf.md5
+    homepage: https://benlangmead.github.io/aws-indexes/k2
+    doi: null
+    cite:
+      - wood2019
+      - lu2017
+  - path: metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403
+    name: MetaPhlAn mpa_vJun23_CHOCOPhlAnSGB_202403
+    release: mpa_vJun23_CHOCOPhlAnSGB_202403
+    description: 'MetaPhlAn 4 SGB marker database: the bowtie2 index, the pickled marker metadata, and the SGB phylogeny (.nwk). The newest release MetaPhlAn 4.1.1 reads, and the one HUMAnN 3.9 accepts profiles from.'
+    used_by:
+      - 'taxprofiler: pipelines/taxprofiler/database.csv (metaphlan)'
+      - 'biobakery: metaphlan_db'
+    setup: steps/fetch_taxprofiler_db.sh metaphlan
+    manifest: metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403.manifest.json
+    sources:
+      - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/bowtie2_indexes/mpa_vJun23_CHOCOPhlAnSGB_202403_bt2.tar
+      - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_vJun23_CHOCOPhlAnSGB_202403.tar
+      - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_vJun23_CHOCOPhlAnSGB_202403.nwk
+    doi: null
+    cite:
+      - blancomiguez2023
+  - path: motus/db_mOTU_v3.1.0
+    name: mOTUs db_mOTU_v3.1.0
+    release: 3.1.0
+    description: The database motus downloadDB installs for mOTUs 3.1.0, with the db_mOTU_versions file that command writes.
+    used_by:
+      - 'taxprofiler: pipelines/taxprofiler/database.csv (motus)'
+      - 'biobakery: motus_db'
+    setup: steps/fetch_taxprofiler_db.sh motus
+    manifest: motus/db_mOTU_v3.1.0.manifest.json
+    sources:
+      - url: https://zenodo.org/record/7778108/files/db_mOTU_v3.1.0.tar.gz
+        md5: f841c36150025af837f7a9a358c9a3c3
+    doi: 10.5281/zenodo.7778108
+    cite:
+      - ruscheweyh2022
+  - path: esviritu/v3.2.4
+    name: EsViritu virus pathogen
+    release: v3.2.4
+    description: '19,925 human, animal and plant virus genome assemblies in 63 families: virus_pathogen_database.fna, its minimap2 index (.mmi) and virus_pathogen_database.all_metadata.tsv, the taxonomy EsViritu names each by. EsViritu 1.0.0 and later read v3.1.0 or later.'
+    used_by:
+      - 'biobakery: esviritu_db'
+    setup: steps/fetch_taxprofiler_db.sh esviritu
+    manifest: esviritu/v3.2.4.manifest.json
+    sources:
+      - url: https://zenodo.org/records/17716199/files/esviritu_db_v3.2.4.tar.gz
+        md5: 24d85c1ec3cbffff12e921d2f39c91b2
+    doi: 10.5281/zenodo.17716199
+    cite:
+      - tisza2023
+  - path: markermagu/v1.1
+    name: Marker-MAGu marker gene
+    release: v1.1
+    description: 'Marker-MAGu_markerDB.fna, a 10.5 GB multi-FASTA of species-level marker genes: MetaPhlAn 4''s vOct22 markers for bacteria, archaea and microeukaryotes, with marker genes of the 49,111 phage taxa of the Trove of Gut Virus Genomes v1.1 added. Each header reads gene_name;lineage;genome_name.'
+    used_by:
+      - 'biobakery: markermagu_db'
+    setup: steps/fetch_taxprofiler_db.sh markermagu
+    manifest: markermagu/v1.1.manifest.json
+    sources:
+      - url: https://zenodo.org/records/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz
+        md5: e0947cb1d4a3df09829e98627021e0dd
+    doi: 10.5281/zenodo.8342581
+    cite:
+      - tisza2025
+  - path: humann/v201901b
+    name: HUMAnN 3 databases
+    release: v201901b
+    description: The three databases HUMAnN 3.9 reads, one directory each.
+    components:
+      chocophlan:
+        name: ChocoPhlAn
+        release: v201901_v31
+        url: http://huttenhower.sph.harvard.edu/humann_data/chocophlan/full_chocophlan.v201901_v31.tar.gz
+      uniref90:
+        name: UniRef90
+        release: v201901b
+        url: http://huttenhower.sph.harvard.edu/humann_data/uniprot/uniref_annotated/uniref90_annotated_v201901b_full.tar.gz
+        cite:
+          - suzek2015
+      utility_mapping:
+        name: HUMAnN utility mapping
+        release: v201901b
+        url: http://huttenhower.sph.harvard.edu/humann_data/full_mapping_v201901b.tar.gz
+    used_by:
+      - 'taxprofiler: humann_chocophlan, humann_uniref, humann_utility_mapping (workflows/humann)'
+      - 'biobakery: humann_chocophlan, humann_uniref, humann_utility_mapping'
+    setup: steps/fetch_taxprofiler_db.sh humann
+    manifest: humann/v201901b.manifest.json
+    doi: null
+    cite:
+      - beghini2021
+  - path: hostremoval/phix
+    name: PhiX
+    description: bowtie2 index (phix/), FASTA (phix.fa) and minimap2 map-ont index (phix.mmi).
+    used_by:
+      - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
+      - 'biobakery: kneaddata_db'
+    setup: steps/build_host_reference.sh phix GCF_000819615.1
+    manifest: hostremoval/phix.manifest.json
+    sources:
+      - label: bacteriophage phiX174
+        accession: GCF_000819615.1
+        assembly: ViralProj14015
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+    doi: null
+    cite:
+      - oleary2016
+  - path: hostremoval/chm13v2phix
+    name: Human T2T-CHM13v2.0 + PhiX
+    description: bowtie2 index (chm13v2phix/), FASTA (chm13v2phix.fa) and minimap2 map-ont index (chm13v2phix.mmi).
+    used_by:
+      - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
+      - 'biobakery: kneaddata_db'
+    setup: steps/build_host_reference.sh chm13v2phix GCF_009914755.1 GCF_000819615.1
+    manifest: hostremoval/chm13v2phix.manifest.json
+    sources:
+      - label: human T2T-CHM13v2.0
+        accession: GCF_009914755.1
+        assembly: T2T-CHM13v2.0
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/
+        cite:
+          - nurk2022
+      - label: bacteriophage phiX174
+        accession: GCF_000819615.1
+        assembly: ViralProj14015
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+    doi: null
+    cite:
+      - oleary2016
+  - path: hostremoval/grcm39phix
+    name: Mouse GRCm39 + PhiX
+    description: bowtie2 index (grcm39phix/), FASTA (grcm39phix.fa) and minimap2 map-ont index (grcm39phix.mmi).
+    used_by:
+      - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
+      - 'biobakery: kneaddata_db'
+    setup: steps/build_host_reference.sh grcm39phix GCF_000001635.27 GCF_000819615.1
+    manifest: hostremoval/grcm39phix.manifest.json
+    sources:
+      - label: mouse GRCm39
+        accession: GCF_000001635.27
+        assembly: GRCm39
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/635/
+      - label: bacteriophage phiX174
+        accession: GCF_000819615.1
+        assembly: ViralProj14015
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+    doi: null
+    cite:
+      - oleary2016
+  - path: pplace
+    name: SBDI GTDB bacterial 16S placement reference
+    release: sbdi-gtdb-sativa R11-RS232-1 bac120
+    description: bac16s.alnfna, the aligned 16S of each GTDB species representative, and bac16s.newick, the tree built from it (GTR+F+I+G4).
+    used_by:
+      - 'ampliseq: pplace_aln, pplace_tree'
+    setup: steps/build_pplace_reference.sh
+    manifest: pplace/manifest.json
+    sources:
+      - file: bac16s.alnfna
+        url: https://ndownloader.figshare.com/files/64711224
+      - file: bac16s.newick
+        url: https://ndownloader.figshare.com/files/64711197
+    doi: 10.17044/scilifelab.14869077
+    cite:
+      - sbdi2021
+      - parks2022
+  - path: 16s
+    name: 16S landmark reference
+    description: The 16S rRNA gene of eight RefSeq genomes (landmarks.fasta), each aligned to E. coli K-12 MG1655 (landmarks.sam), and every landmark base in E. coli numbering (ecoli_positions.tsv). Built here rather than downloaded.
+    used_by:
+      - 'ampliseq: steps/ampliseq_detect_region.sh'
+    setup: steps/build_16s_reference.sh
+    manifest: 16s/manifest.json
+    sources:
+      - label: Escherichia coli K-12 MG1655
+        accession: GCF_000005845.2
+      - label: Pseudomonas aeruginosa PAO1
+        accession: GCF_000006765.1
+      - label: Bacillus subtilis 168
+        accession: GCF_000009045.1
+      - label: Staphylococcus aureus NCTC 8325
+        accession: GCF_000013425.1
+      - label: Bacteroides fragilis NCTC 9343
+        accession: GCF_000025985.1
+      - label: Bifidobacterium longum NCC2705
+        accession: GCF_000007525.1
+      - label: Akkermansia muciniphila BAA-835
+        accession: GCF_000020225.1
+      - label: Methanobrevibacter smithii ATCC 35061
+        accession: GCF_000016525.1
+    doi: null
+    cite:
+      - oleary2016
+
+fixtures:
+  16s-v4:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR173/042/SRR17380142/SRR17380142_1.fastq.gz
+      md5: f73c4461d0e1674ccb357f55e985e120
+      bytes: 1201431
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR173/042/SRR17380142/SRR17380142_2.fastq.gz
+      md5: f63251aa1deb2aa16433ccb301ff6761
+      bytes: 1723469
+  16s-v1v3:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR132/040/SRR13272540/SRR13272540_1.fastq.gz
+      md5: 7d47ec5f865ef8b3787c012ef0438eef
+      bytes: 5361392
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR132/040/SRR13272540/SRR13272540_2.fastq.gz
+      md5: 4508a636f785b6002ddac1d73901ef2e
+      bytes: 6221968
+  16s-v3v5:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR763/004/SRR7636994/SRR7636994_1.fastq.gz
+      md5: 014896f07e13528d4600dfc24336bd27
+      bytes: 3748238
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR763/004/SRR7636994/SRR7636994_2.fastq.gz
+      md5: 9c63357d7a47fc0d73c893474d78fc35
+      bytes: 4306606
+  16s-v5v6:
+    - url: https://sra-pub-run-odp.s3.amazonaws.com/sra/SRR24187307/SRR24187307
+      md5: eb02a54d3c9c69a0519438aee3c11f87
+      bytes: 77927688
+  16s-single:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/ERR500/000/ERR5002560/ERR5002560.fastq.gz
+      md5: ce45ed942eefc9adef40822f8871af74
+      bytes: 1220577
+  16s-ont:
+    # nf-core/test-datasets at commit 3cc618ea14e87fd944c30dd37acbef08ad01d590
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Std1_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz
+      md5: eaf977dbbdfef44a115f0ded70b96633
+      bytes: 1208593
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Std2_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz
+      md5: 91cb0c83a259ec4539fb40e5a7718b13
+      bytes: 1204156
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Std3_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz
+      md5: bff8af75614ecaf2ccc76695760b0dea
+      bytes: 1197241
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Log1_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz
+      md5: d2884a8a471be6908d201bb3246e5baa
+      bytes: 3134294
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Log2_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz
+      md5: a5c9f628ddd2c8c36d029d234d1a1d86
+      bytes: 3131051
+    - url: https://raw.githubusercontent.com/nf-core/test-datasets/3cc618ea14e87fd944c30dd37acbef08ad01d590/testdata/Log3_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz
+      md5: 0cfa25354e6ef88ac79a81a2bc1c9a93
+      bytes: 3126648
+  wgs-human:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR325/049/SRR32527649/SRR32527649_1.fastq.gz
+      md5: 3485b3da3b46320446869e3ea92e98eb
+      bytes: 62126670
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR325/049/SRR32527649/SRR32527649_2.fastq.gz
+      md5: 25cfa9266662162cd7da63a42bc867a3
+      bytes: 64266568
+  wgs-mouse:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/011/SRR19086211/SRR19086211_1.fastq.gz
+      md5: c8a9398dedfd5a0e50432d1a2e1f5ce3
+      bytes: 74021626
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/011/SRR19086211/SRR19086211_2.fastq.gz
+      md5: ea092a898b1e5305c8c62668f318908c
+      bytes: 74523317
+  wgs-mock:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR378/054/SRR37882354/SRR37882354_1.fastq.gz
+      md5: c32a32cd54500a9a93a8ae854ba1364e
+      bytes: 136341100
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR378/054/SRR37882354/SRR37882354_2.fastq.gz
+      md5: 84316bc33efec6f4d7272f4c9126aa42
+      bytes: 147404388
+  wgs-virus:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR244/034/SRR24403534/SRR24403534_1.fastq.gz
+      md5: 66f6db75de206e9ba7a929b601c24eee
+      bytes: 184506113
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR244/034/SRR24403534/SRR24403534_2.fastq.gz
+      md5: c80aeb7957b34612174ad00dfa56372d
+      bytes: 187858336
+  wgs-phix:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR353/SRR353672/SRR353672_1.fastq.gz
+      md5: fd9f5200e8e2820b794883891f5cb0ad
+      bytes: 21083237
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR353/SRR353672/SRR353672_2.fastq.gz
+      md5: 7c40c0756a53af18a6c63cb09ca62d2f
+      bytes: 20987851
+  wgs-single:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR229/074/SRR22959674/SRR22959674.fastq.gz
+      md5: 9d14a1c6a46a1f165088a0a1822f751c
+      bytes: 28049214
+  wgs-ont:
+    - url: https://ftp.sra.ebi.ac.uk/vol1/fastq/ERR307/001/ERR3078231/ERR3078231.fastq.gz
+      md5: 192cf5f6b89b9122bcc14ab3a7da7095
+      bytes: 47756094

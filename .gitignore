@@ -1,5 +1,6 @@
-# Settings and secrets. Copy config.example.yaml to config.yaml.
+# Settings and secrets, which gnoto config writes
 config.yaml
+config.yaml.*
 
 # core.data_dir's default: runs, caches, logs and generated.yaml
 /data/

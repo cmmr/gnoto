@@ -7,10 +7,19 @@
 # Usage:     gnoto <command> [arguments]
 # Requires:  POSIX sh, awk, mktemp, mkfifo, flock and Apptainer on the host
 #
-# Before the image can start, it needs four settings, which it reads from
-# config.yaml with its own awk: core.apptainer_home, core.data_dir, core.db_dir
-# and core.apptainer_binds. Only lines written as   key: "value"   under core:
-# count.
+# Before the image can start, it needs eight settings, which it reads from
+# config.yaml with its own awk: core.data_dir, core.db_dir, and apptainer's and
+# slurm's enabled and bin_dir, apptainer.binds and slurm.conf. Only lines
+# written as   key: "value",   key: true   or   key: false   under their section
+# count. config.yaml is optional: without it, or for a setting it leaves unset,
+# the data directory is <install>/data, and Apptainer and Slurm come from PATH.
+# Slurm's settings count only when slurm.enabled is true. gnoto config writes
+# config.yaml, in the image.
+#
+# gnoto init --apptainer=<path> runs here alone, before Apptainer can be found:
+# it writes a config.yaml holding only an apptainer section that says where it
+# is, for a machine where Apptainer isn't on PATH, and refuses if there's a
+# config.yaml already.
 #
 # It finds or pulls the image IMAGE names, starts host/helper.sh on a FIFO in a
 # private directory, and runs lib/main.sh in the image with --cleanenv. Inside,
@@ -34,16 +43,21 @@ CODE_DIR=$(cd -P -- "$(dirname -- "$SELF")" && pwd -P)
 INSTALL_DIR=$CODE_DIR
 CONFIG=$INSTALL_DIR/config.yaml
 
-[ -r "$CONFIG" ] ||
-    die "can't read $CONFIG. Copy config.example.yaml to config.yaml and fill it in."
-
-# Prints core.<key> from config.yaml, or nothing if it's unset. Exits 2 if the
-# key is there but not written as   key: "value"
+# Prints <section>.<key> from config.yaml, or nothing if it's unset. Exits 2 if
+# the key is there but not written as   key: "value",   key: true   or
+#   key: false
 bootstrap_setting() {
-    awk -v key="$1" '
-        /^[^ #]/ { in_core = ($0 ~ /^core:[ ]*(#.*)?$/); next }
-        !in_core || index($0, "  " key ":") != 1 { next }
+    awk -v section="$1" -v key="$2" '
+        /^[^ #]/ { here = ($0 ~ ("^" section ":[ ]*(#.*)?$")); next }
+        !here || index($0, "  " key ":") != 1 { next }
         {
+            rest = substr($0, length(key) + 4)
+            if (rest ~ /^ +(true|false)[ ]*(#.*)?$/) {
+                sub(/^ +/, "", rest)
+                sub(/[ ]*(#.*)?$/, "", rest)
+                print rest
+                exit
+            }
             prefix = "  " key ": \""
             if (index($0, prefix) != 1) { bad = 1; exit }
             rest = substr($0, length(prefix) + 1)
@@ -56,24 +70,92 @@ bootstrap_setting() {
     ' "$CONFIG"
 }
 
-for KEY in apptainer_home data_dir db_dir apptainer_binds; do
-    VALUE=$(bootstrap_setting "$KEY") ||
-        die "config.yaml: write core.$KEY as   $KEY: \"value\"   with the value in double quotes"
-    case $KEY in
-        apptainer_home) APPTAINER_HOME=$VALUE ;;
-        data_dir) DATA_DIR=${VALUE:-$INSTALL_DIR/data} ;;
-        db_dir) DB_DIR=$VALUE ;;
-        apptainer_binds) BINDS=$VALUE ;;
-    esac
-done
-DB_DIR=${DB_DIR:-$DATA_DIR/db}
+# gnoto init: writes config.yaml with where the container engine is. Apptainer
+# is the only engine so far.
+init() {
+    ENGINE=
+    ENGINE_PATH=
+    for OPTION in "$@"; do
+        case $OPTION in
+            --apptainer=?*) ENGINE=apptainer; ENGINE_PATH=${OPTION#*=} ;;
+            *) die "gnoto init takes --apptainer=/path/to/apptainer, not $OPTION" ;;
+        esac
+    done
+    [ -n "$ENGINE" ] || die "Usage: gnoto init --apptainer=/path/to/apptainer"
+    [ ! -e "$CONFIG" ] || die "$CONFIG already exists. Edit it by hand, or run gnoto config."
 
-if [ -n "$APPTAINER_HOME" ]; then
-    PATH=$APPTAINER_HOME/bin:$PATH
-    export PATH
+    case $ENGINE_PATH in /*) ;; *) ENGINE_PATH=$PWD/$ENGINE_PATH ;; esac
+    ENGINE_DIR=${ENGINE_PATH%/}
+    [ -d "$ENGINE_DIR" ] || ENGINE_DIR=${ENGINE_DIR%/*}
+    [ -f "$ENGINE_DIR/$ENGINE" ] && [ -x "$ENGINE_DIR/$ENGINE" ] ||
+        die "there's no $ENGINE command at $ENGINE_PATH"
+    case $ENGINE_DIR in *'"'*) die "a path with a double quote can't go in config.yaml: $ENGINE_DIR" ;; esac
+
+    (set -C; printf '%s\n' "# This install's settings. gnoto config lists the sections, and adds or changes one." \
+        "" "$ENGINE:" "  enabled: true" "  bin_dir: \"$ENGINE_DIR\"" > "$CONFIG") 2> /dev/null ||
+        die "can't write $CONFIG"
+    chgrp "$(id -g)" "$CONFIG" && chmod 660 "$CONFIG" || die "can't set the group and mode of $CONFIG"
+    printf 'Wrote %s, with %s.bin_dir "%s". gnoto config lists the other sections.\n' \
+        "$CONFIG" "$ENGINE" "$ENGINE_DIR"
+}
+
+if [ "${1:-}" = init ]; then
+    shift
+    init "$@"
+    exit 0
 fi
-command -v apptainer > /dev/null ||
-    die "apptainer isn't on PATH. Install it, or set core.apptainer_home in config.yaml."
+
+DATA_DIR=$INSTALL_DIR/data
+DB_DIR=
+APPTAINER_ENABLED=
+APPTAINER_BIN_DIR=
+BINDS=
+SLURM_ENABLED=
+SLURM_BIN_DIR=
+SLURM_CONF_SETTING=
+if [ -e "$CONFIG" ]; then
+    [ -r "$CONFIG" ] || die "can't read $CONFIG"
+    for SETTING in core.data_dir core.db_dir apptainer.enabled apptainer.bin_dir apptainer.binds \
+        slurm.enabled slurm.bin_dir slurm.conf; do
+        VALUE=$(bootstrap_setting "${SETTING%%.*}" "${SETTING#*.}") ||
+            die "config.yaml: write $SETTING as   ${SETTING#*.}: \"value\"   under ${SETTING%%.*}:, with the value in double quotes, or true or false"
+        case $SETTING in
+            core.data_dir) DATA_DIR=${VALUE:-$INSTALL_DIR/data} ;;
+            core.db_dir) DB_DIR=$VALUE ;;
+            apptainer.enabled) APPTAINER_ENABLED=$VALUE ;;
+            apptainer.bin_dir) APPTAINER_BIN_DIR=$VALUE ;;
+            apptainer.binds) BINDS=$VALUE ;;
+            slurm.enabled) SLURM_ENABLED=$VALUE ;;
+            slurm.bin_dir) SLURM_BIN_DIR=$VALUE ;;
+            slurm.conf) SLURM_CONF_SETTING=$VALUE ;;
+        esac
+    done
+fi
+DB_DIR=${DB_DIR:-$DATA_DIR/db}
+[ "$APPTAINER_ENABLED" != false ] ||
+    die "apptainer.enabled is false in $CONFIG, and gnoto has no other container engine yet. Set it to true."
+if [ "$SLURM_ENABLED" != true ]; then
+    SLURM_BIN_DIR=
+    SLURM_CONF_SETTING=
+fi
+
+# The helper runs host commands with this PATH and SLURM_CONF, so they don't
+# depend on what the caller's shell has loaded
+for DIR in "$SLURM_BIN_DIR" "$APPTAINER_BIN_DIR"; do
+    if [ -n "$DIR" ]; then
+        PATH=$DIR:$PATH
+    fi
+done
+export PATH
+if [ -n "$SLURM_CONF_SETTING" ]; then
+    SLURM_CONF=$SLURM_CONF_SETTING
+    export SLURM_CONF
+fi
+if ! APPTAINER=$(command -v apptainer); then
+    [ -e "$CONFIG" ] || die "can't find apptainer. Put its directory on PATH, or run: gnoto init --apptainer=/path/to/apptainer"
+    die "can't find apptainer. Put its directory on PATH, or set apptainer.bin_dir in $CONFIG."
+fi
+SBATCH=$(command -v sbatch) || SBATCH=
 
 mkdir -p "$DATA_DIR/images" "$DB_DIR" ||
     die "can't create $DATA_DIR/images and $DB_DIR"
@@ -166,8 +248,20 @@ export APPTAINERENV_PREPEND_PATH APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_
 if [ -n "${TERM-}" ]; then
     export APPTAINERENV_TERM="$TERM"
 fi
-if [ -n "${SLURM_JOB_ID-}" ]; then
-    export APPTAINERENV_SLURM_JOB_ID="$SLURM_JOB_ID"
+for VAR in SLURM_JOB_ID SLURM_CPUS_PER_TASK SLURM_CPUS_ON_NODE; do
+    eval "VALUE=\${$VAR-}"
+    if [ -n "$VALUE" ]; then
+        export "APPTAINERENV_$VAR=$VALUE"
+    fi
+done
+
+# What's in effect here, which gnoto config suggests when it writes config.yaml
+export APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR="${APPTAINER%/*}"
+if [ -n "$SBATCH" ]; then
+    export APPTAINERENV_GNOTO_FOUND_SLURM_BIN_DIR="${SBATCH%/*}"
+fi
+if [ -n "${SLURM_CONF-}" ]; then
+    export APPTAINERENV_GNOTO_FOUND_SLURM_CONF="$SLURM_CONF"
 fi
 
 sh "$CODE_DIR/host/helper.sh" "$PRIVATE" < /dev/null &

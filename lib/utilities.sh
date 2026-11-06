@@ -1,0 +1,138 @@
+#
+# utilities.sh - The log, warn and fail helpers every script reports through,
+# the uid helpers, and text formatting for the pages.
+#
+# Sourced by:  lib/env.sh
+# Defines:     log, warn, fail, escape_html, escape_url, human_size, human_count,
+#              group_count, is_valid_uid, derive_uid
+# Requires:    state_present and state_set from lib/run_state.sh, for fail; openssl,
+#              for derive_uid
+# Env:         RUN_ID_SALT, from generated.yaml, for derive_uid
+#
+# log writes to stdout and warn and fail to stderr, so stdout stays free for a
+# function's return value.
+
+log() {
+    echo "[$(date)] $*"
+}
+
+warn() {
+    echo "[$(date)] WARNING: $*" >&2
+}
+
+# Also records the message as the run's .message, when there's a run state.
+# Overwritten rather than appended: the first failure explains the run.
+fail() {
+    echo "[$(date)] ERROR: $*" >&2
+    if state_present; then
+        state_set message "$*" > /dev/null 2>&1 || true
+    fi
+    exit 1
+}
+
+# Makes a string safe in HTML text. Each ampersand in a replacement is
+# backslashed, because bash 5.2 reads a bare one as the text that matched.
+escape_html() {
+    local s="$1"
+    s="${s//&/\&amp;}"
+    s="${s//</\&lt;}"
+    s="${s//>/\&gt;}"
+    s="${s//\"/\&quot;}"
+    s="${s//\'/\&#39;}"
+    printf '%s' "$s"
+}
+
+# Percent-encodes a path for an href, byte by byte. Slashes are left alone.
+escape_url() {
+    local LC_ALL=C
+    local s="$1" out="" i c
+
+    for (( i = 0; i < ${#s}; i++ )); do
+        c=${s:i:1}
+        case "$c" in
+            [A-Za-z0-9._~/-]) out+="$c" ;;
+            *) out+=$(printf '%%%02X' "'$c") ;;
+        esac
+    done
+    printf '%s' "$out"
+}
+
+# Bytes, in the units a download is read in
+human_size() {
+    LC_ALL=C awk -v b="$1" 'BEGIN {
+        split("B KB MB GB TB PB", unit, " ")
+        i = 1
+        while (b >= 1024 && i < 6) { b /= 1024; i++ }
+        if (i == 1) printf "%d %s", b, unit[i]
+        else        printf "%.1f %s", b, unit[i]
+    }'
+}
+
+# A count to at least two significant digits: 16600 is 17k, 4404860 is 4.4M.
+# Under a thousand, it's written out. A shortened count carries its exact figure
+# as \034<count>\035<shortened>\036, which the pages turn into a tooltip.
+human_count() {
+    LC_ALL=C awk -v n="$1" 'BEGIN {
+        split("k M G", unit, " ")
+        if (n < 1000) { printf "%d", n; exit }
+
+        exact = sprintf("%d", n)
+        i = 0
+        while (n >= 1000 && i < 3) { n /= 1000; i++ }
+
+        if (n < 9.95) {
+            text = sprintf("%.1f", n)
+        } else {
+            text = sprintf("%d", n + 0.5)
+            if (text + 0 >= 1000 && i < 3) {
+                n /= 1000
+                i++
+                text = sprintf("%.1f", n)
+            }
+        }
+        printf "\034%s\035%s%s\036", exact, text, unit[i]
+    }'
+}
+
+# A count in full, grouped in threes: 2906 is 2,906
+group_count() {
+    LC_ALL=C awk -v n="$1" 'BEGIN {
+        digits = sprintf("%d", n)
+        out = ""
+        while (length(digits) > 3) {
+            out = "," substr(digits, length(digits) - 2) out
+            digits = substr(digits, 1, length(digits) - 3)
+        }
+        printf "%s%s", digits, out
+    }'
+}
+
+# A uid names a run everywhere but Wrike: eight lowercase base32 characters.
+# Checked before it reaches a path, because several paths built from one are
+# deleted recursively.
+is_valid_uid() {
+    [[ "$1" =~ ^[a-z2-7]{8}$ ]]
+}
+
+# A Wrike task ID's uid. An HMAC, so knowing a task ID isn't enough to find
+# where its results are published. Warns and returns rather than failing,
+# because callers read it through $(...).
+derive_uid() {
+    if [[ -z "${RUN_ID_SALT:-}" ]]; then
+        warn "RUN_ID_SALT isn't set, so there's no uid for task $1."
+        return 1
+    fi
+
+    local uid
+    uid=$(printf '%s' "$1" |
+        openssl dgst -sha256 -hmac "$RUN_ID_SALT" -binary |
+        base32 -w 0 |
+        tr 'A-Z' 'a-z' |
+        cut -c1-8)
+
+    if ! is_valid_uid "$uid"; then
+        warn "Derived an unusable uid from \"$1\"."
+        return 1
+    fi
+    printf '%s' "$uid"
+}

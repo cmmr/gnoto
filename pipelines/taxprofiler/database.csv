@@ -1,0 +1,5 @@
+tool,db_name,db_params,db_type,db_path
+kraken2,pluspf_20260626,--confidence 0.1,short;long,db:kraken2/pluspf_20260626
+bracken,pluspf_20260626_bracken,--confidence 0.1;-r 150,short,db:kraken2/pluspf_20260626
+metaphlan,mpa_vJun23_CHOCOPhlAnSGB_202403,--unclassified_estimation -t rel_ab_w_read_stats,short,db:metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403
+motus,db_mOTU_v3.1.0,,short;long,db:motus/db_mOTU_v3.1.0/db_mOTU

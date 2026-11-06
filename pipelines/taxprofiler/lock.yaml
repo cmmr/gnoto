@@ -1,0 +1,5 @@
+# What a commit pins for taxprofiler
+schema: 1
+upstream:
+  repository: "nf-core/taxprofiler"
+  commit: "70ecc15e49b4f1fcf79d876643b5d14b65c66178"   # 2.0.1

@@ -97,7 +97,9 @@ install() {
     docker exec "$TESTBED" bash -c "
         set -e
         cd $dest.new
-        sed 's|^  data_dir: \"\"|  data_dir: \"/data/gnoto\"|' config.example.yaml > config.yaml
+        # Data in /data/gnoto, and Slurm on
+        printf '%s\n' 'core:' '  data_dir: \"/data/gnoto\"' '' 'apptainer:' '  enabled: true' \
+            '  bin_dir: \"/usr/bin\"' '' 'slurm:' '  enabled: true' '  bin_dir: \"/usr/bin\"' > config.yaml
         chown -R root:gnoto .
         find . -type d -exec chmod 2775 {} +
         find . -type f -exec chmod 664 {} +

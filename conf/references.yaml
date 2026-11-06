@@ -1,0 +1,455 @@
+# references.yaml - Citations for the tools and databases the pipelines run,
+# keyed by the id a methods text cites them by ([@id]), as databases.yaml lists
+# them. An author is "Family, Initials", or an organisation as written, and et_al
+# marks a list cut short. The pages derive the author-year citation, the
+# formatted reference and the BibTeX entry from these fields. cite overrides the
+# citation where the authors can't give it.
+
+references:
+  andrews2010:
+    type: misc
+    author:
+      - Andrews, S
+    title: 'FastQC: a quality control tool for high throughput sequence data'
+    publisher: Babraham Bioinformatics
+    year: 2010
+    url: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+  beghini2021:
+    type: article
+    author:
+      - Beghini, F
+      - McIver, LJ
+      - Blanco-MÃ­guez, A
+      - Dubois, L
+      - Asnicar, F
+      - Maharjan, S
+    et_al: true
+    title: Integrating taxonomic, functional, and strain-level profiling of diverse microbial communities with bioBakery 3
+    journal: eLife
+    journal_abbrev: eLife
+    year: 2021
+    volume: "10"
+    pages: e65088
+    doi: 10.7554/eLife.65088
+  benson1999:
+    type: article
+    author:
+      - Benson, G
+    title: 'Tandem repeats finder: a program to analyze DNA sequences'
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 1999
+    volume: "27"
+    number: "2"
+    pages: 573â€“580
+    doi: 10.1093/nar/27.2.573
+  blancomiguez2023:
+    type: article
+    author:
+      - Blanco-MÃ­guez, A
+      - Beghini, F
+      - Cumbo, F
+      - McIver, LJ
+      - Thompson, KN
+      - Zolfo, M
+    et_al: true
+    title: Extending and improving metagenomic taxonomic profiling with uncharacterized species using MetaPhlAn 4
+    journal: Nature Biotechnology
+    journal_abbrev: Nat Biotechnol
+    year: 2023
+    volume: "41"
+    number: "11"
+    pages: 1633â€“1644
+    doi: 10.1038/s41587-023-01688-w
+  bolger2014:
+    type: article
+    author:
+      - Bolger, AM
+      - Lohse, M
+      - Usadel, B
+    title: 'Trimmomatic: a flexible trimmer for Illumina sequence data'
+    journal: Bioinformatics
+    journal_abbrev: Bioinformatics
+    year: 2014
+    volume: "30"
+    number: "15"
+    pages: 2114â€“2120
+    doi: 10.1093/bioinformatics/btu170
+  buchfink2021:
+    type: article
+    author:
+      - Buchfink, B
+      - Reuter, K
+      - Drost, HG
+    title: Sensitive protein alignments at tree-of-life scale using DIAMOND
+    journal: Nature Methods
+    journal_abbrev: Nat Methods
+    year: 2021
+    volume: "18"
+    number: "4"
+    pages: 366â€“368
+    doi: 10.1038/s41592-021-01101-x
+  callahan2016:
+    type: article
+    author:
+      - Callahan, BJ
+      - McMurdie, PJ
+      - Rosen, MJ
+      - Han, AW
+      - Johnson, AJA
+      - Holmes, SP
+    title: 'DADA2: high-resolution sample inference from Illumina amplicon data'
+    journal: Nature Methods
+    journal_abbrev: Nat Methods
+    year: 2016
+    volume: "13"
+    number: "7"
+    pages: 581â€“583
+    doi: 10.1038/nmeth.3869
+  callahan2024:
+    type: misc
+    author:
+      - Callahan, B
+    title: Silva taxonomic training data formatted for DADA2 (Silva version 138.2)
+    publisher: Zenodo
+    year: 2024
+    doi: 10.5281/zenodo.14169026
+  caspi2020:
+    type: article
+    author:
+      - Caspi, R
+      - Billington, R
+      - Keseler, IM
+      - Kothari, A
+      - Krummenacker, M
+      - Midford, PE
+    et_al: true
+    title: The MetaCyc database of metabolic pathways and enzymes - a 2019 update
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 2020
+    volume: "48"
+    number: D1
+    pages: D445â€“D453
+    doi: 10.1093/nar/gkz862
+  daveigaleprevost2017:
+    type: article
+    author:
+      - da Veiga Leprevost, F
+      - GrÃ¼ning, BA
+      - Alves Aflitos, S
+      - RÃ¶st, HL
+      - Uszkoreit, J
+      - Barsnes, H
+    et_al: true
+    title: 'BioContainers: an open-source and community-driven framework for software standardization'
+    journal: Bioinformatics
+    journal_abbrev: Bioinformatics
+    year: 2017
+    volume: "33"
+    number: "16"
+    pages: 2580â€“2582
+    doi: 10.1093/bioinformatics/btx192
+  ditommaso2017:
+    type: article
+    author:
+      - Di Tommaso, P
+      - Chatzou, M
+      - Floden, EW
+      - Barja, PP
+      - Palumbo, E
+      - Notredame, C
+    title: Nextflow enables reproducible computational workflows
+    journal: Nature Biotechnology
+    journal_abbrev: Nat Biotechnol
+    year: 2017
+    volume: "35"
+    number: "4"
+    pages: 316â€“319
+    doi: 10.1038/nbt.3820
+  ewels2016:
+    type: article
+    author:
+      - Ewels, P
+      - Magnusson, M
+      - Lundin, S
+      - KÃ¤ller, M
+    title: 'MultiQC: summarize analysis results for multiple tools and samples in a single report'
+    journal: Bioinformatics
+    journal_abbrev: Bioinformatics
+    year: 2016
+    volume: "32"
+    number: "19"
+    pages: 3047â€“3048
+    doi: 10.1093/bioinformatics/btw354
+  kanehisa2000:
+    type: article
+    author:
+      - Kanehisa, M
+      - Goto, S
+    title: 'KEGG: Kyoto Encyclopedia of Genes and Genomes'
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 2000
+    volume: "28"
+    number: "1"
+    pages: 27â€“30
+    doi: 10.1093/nar/28.1.27
+  langmead2012:
+    type: article
+    author:
+      - Langmead, B
+      - Salzberg, SL
+    title: Fast gapped-read alignment with Bowtie 2
+    journal: Nature Methods
+    journal_abbrev: Nat Methods
+    year: 2012
+    volume: "9"
+    number: "4"
+    pages: 357â€“359
+    doi: 10.1038/nmeth.1923
+  lu2017:
+    type: article
+    author:
+      - Lu, J
+      - Breitwieser, FP
+      - Thielen, P
+      - Salzberg, SL
+    title: 'Bracken: estimating species abundance in metagenomics data'
+    journal: PeerJ Computer Science
+    journal_abbrev: PeerJ Comput Sci
+    year: 2017
+    volume: "3"
+    pages: e104
+    doi: 10.7717/peerj-cs.104
+  li2018:
+    type: article
+    author:
+      - Li, H
+    title: 'Minimap2: pairwise alignment for nucleotide sequences'
+    journal: Bioinformatics
+    journal_abbrev: Bioinformatics
+    year: 2018
+    volume: "34"
+    number: "18"
+    pages: 3094â€“3100
+    doi: 10.1093/bioinformatics/bty191
+  mcdonald2012:
+    type: article
+    author:
+      - McDonald, D
+      - Clemente, JC
+      - Kuczynski, J
+      - Rideout, JR
+      - Stombaugh, J
+      - Wendel, D
+    et_al: true
+    title: 'The Biological Observation Matrix (BIOM) format or: how I learned to stop worrying and love the ome-ome'
+    journal: GigaScience
+    journal_abbrev: GigaScience
+    year: 2012
+    volume: "1"
+    number: "1"
+    pages: "7"
+    doi: 10.1186/2047-217X-1-7
+  nurk2022:
+    type: article
+    author:
+      - Nurk, S
+      - Koren, S
+      - Rhie, A
+      - Rautiainen, M
+      - Bzikadze, AV
+      - Mikheenko, A
+    et_al: true
+    title: The complete sequence of a human genome
+    journal: Science
+    journal_abbrev: Science
+    year: 2022
+    volume: "376"
+    number: "6588"
+    pages: 44â€“53
+    doi: 10.1126/science.abj6987
+  oleary2016:
+    type: article
+    author:
+      - O'Leary, NA
+      - Wright, MW
+      - Brister, JR
+      - Ciufo, S
+      - Haddad, D
+      - McVeigh, R
+    et_al: true
+    title: 'Reference sequence (RefSeq) database at NCBI: current status, taxonomic expansion, and functional annotation'
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 2016
+    volume: "44"
+    number: D1
+    pages: D733â€“D745
+    doi: 10.1093/nar/gkv1189
+  parks2022:
+    type: article
+    author:
+      - Parks, DH
+      - Chuvochina, M
+      - Rinke, C
+      - Mussig, AJ
+      - Chaumeil, PA
+      - Hugenholtz, P
+    title: 'GTDB: an ongoing census of bacterial and archaeal diversity through a phylogenetically consistent, rank normalized and complete genome-based taxonomy'
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 2022
+    volume: "50"
+    number: D1
+    pages: D785â€“D794
+    doi: 10.1093/nar/gkab776
+  quast2013:
+    type: article
+    author:
+      - Quast, C
+      - Pruesse, E
+      - Yilmaz, P
+      - Gerken, J
+      - Schweer, T
+      - Yarza, P
+    et_al: true
+    title: 'The SILVA ribosomal RNA gene database project: improved data processing and web-based tools'
+    journal: Nucleic Acids Research
+    journal_abbrev: Nucleic Acids Res
+    year: 2013
+    volume: "41"
+    number: D1
+    pages: D590â€“D596
+    doi: 10.1093/nar/gks1219
+  rodriguezr2018:
+    type: article
+    author:
+      - Rodriguez-R, LM
+      - Gunturu, S
+      - Tiedje, JM
+      - Cole, JR
+      - Konstantinidis, KT
+    title: 'Nonpareil 3: fast estimation of metagenomic coverage and sequence diversity'
+    journal: mSystems
+    journal_abbrev: mSystems
+    year: 2018
+    volume: "3"
+    number: "3"
+    pages: e00039-18
+    doi: 10.1128/mSystems.00039-18
+  ruscheweyh2022:
+    type: article
+    author:
+      - Ruscheweyh, HJ
+      - Milanese, A
+      - Paoli, L
+    et_al: true
+    title: Cultivation-independent genomes greatly expand taxonomic-profiling capabilities of mOTUs across various environments
+    journal: Microbiome
+    journal_abbrev: Microbiome
+    year: 2022
+    volume: "10"
+    number: "1"
+    pages: "212"
+    doi: 10.1186/s40168-022-01410-z
+  sbdi2021:
+    type: misc
+    author:
+      - Swedish Biodiversity Infrastructure (SBDI)
+    cite: SBDI, 2021
+    title: SBDI Sativa curated 16S GTDB database
+    publisher: SciLifeLab Data Repository
+    year: 2021
+    doi: 10.17044/scilifelab.14869077
+  shaw2024:
+    type: article
+    author:
+      - Shaw, J
+      - Yu, YW
+    title: Rapid species-level metagenome profiling and containment estimation with sylph
+    journal: Nature Biotechnology
+    journal_abbrev: Nat Biotechnol
+    year: 2024
+    doi: 10.1038/s41587-024-02412-y
+  suzek2015:
+    type: article
+    author:
+      - Suzek, BE
+      - Wang, Y
+      - Huang, H
+      - McGarvey, PB
+      - Wu, CH
+      - UniProt Consortium
+    title: 'UniRef clusters: a comprehensive and scalable alternative for improving sequence similarity searches'
+    journal: Bioinformatics
+    journal_abbrev: Bioinformatics
+    year: 2015
+    volume: "31"
+    number: "6"
+    pages: 926â€“932
+    doi: 10.1093/bioinformatics/btu739
+  tisza2023:
+    type: article
+    author:
+      - Tisza, M
+      - Javornik Cregeen, S
+      - Avadhanula, V
+      - Zhang, P
+      - Ayvaz, T
+      - Feliz, K
+    et_al: true
+    title: Wastewater sequencing reveals community and variant dynamics of the collective human virome
+    journal: Nature Communications
+    journal_abbrev: Nat Commun
+    year: 2023
+    volume: "14"
+    number: "1"
+    pages: "6878"
+    doi: 10.1038/s41467-023-42064-1
+  tisza2025:
+    type: article
+    author:
+      - Tisza, MJ
+      - Lloyd, RE
+      - Hoffman, K
+      - Smith, DP
+      - Rewers, M
+      - Javornik Cregeen, SJ
+    et_al: true
+    title: Longitudinal phage-bacteria dynamics in the early life gut microbiome
+    journal: Nature Microbiology
+    journal_abbrev: Nat Microbiol
+    year: 2025
+    volume: "10"
+    number: "2"
+    pages: 420â€“430
+    doi: 10.1038/s41564-024-01906-4
+  wood2019:
+    type: article
+    author:
+      - Wood, DE
+      - Lu, J
+      - Langmead, B
+    title: Improved metagenomic analysis with Kraken 2
+    journal: Genome Biology
+    journal_abbrev: Genome Biol
+    year: 2019
+    volume: "20"
+    number: "1"
+    pages: "257"
+    doi: 10.1186/s13059-019-1891-0
+  ye2009:
+    type: article
+    author:
+      - Ye, Y
+      - Doak, TG
+    title: A parsimony approach to biological pathway reconstruction/inference for genomes and metagenomes
+    journal: PLoS Computational Biology
+    journal_abbrev: PLoS Comput Biol
+    year: 2009
+    volume: "5"
+    number: "8"
+    pages: e1000465
+    doi: 10.1371/journal.pcbi.1000465

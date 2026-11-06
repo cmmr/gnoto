@@ -1,8 +1,8 @@
 # gnoto design
 
-Status on 2026-11-06: the design is agreed, and phase 1, the image and the helper, is
-built and tested in a local Slurm test bed and on CMMR's cluster. This file describes the
-target. [migration.md](migration.md) says how to get there
+Status on 2026-11-06: the design is agreed. Phase 1, the image and the helper, is built and
+tested in a local Slurm test bed and on CMMR's cluster, and phase 2, the restructure, in the
+test bed. This file describes the target. [migration.md](migration.md) says how to get there
 from the old repo, and [decisions.md](decisions.md) records why things are the
 way they are.
 
@@ -15,9 +15,10 @@ AWS, Globus and systemd are optional parts around that core.
 One rule decides most questions below: **site config says where a job runs and
 where its results go, never what the results are.**
 
-- **Install:** download a release tarball, extract it, copy the example config to
-  `config.yaml`, and fill it in.
-- **Interface:** one `gnoto` command with `lint`, `setup`, `status`, `new`,
+- **Install:** download a release tarball and extract it. With Apptainer on `PATH`, gnoto
+  runs as it is. Otherwise `gnoto init --apptainer=<path>` says where it is.
+  `gnoto config <section>` adds a section of settings when a site wants one.
+- **Interface:** one `gnoto` command with `init`, `config`, `lint`, `status`, `new`,
   `start`, `wrike`, `publish`, `cancel`, `extend`, `remove`, `prune`, `upgrade` and
   `selftest`.
 - **Jobs:** `new` writes a skeleton, `lint` checks it, and `start` turns it into a
@@ -28,9 +29,9 @@ where its results go, never what the results are.**
   systemd, which a small helper runs on the host.
 
 Nothing is in production, so there's no compatibility or cutover work. The one piece
-of Wrike configuration `setup` can't automate is the request form: it prints a
+of Wrike configuration `config` can't automate is the request form: it prints a
 checklist for it, then checks the result. The other steps done by hand are listed
-under "Setup, by integration".
+under "Configuring integrations".
 
 ## Architecture
 
@@ -56,7 +57,7 @@ flowchart TD
 Both routes end in the same job file and the same submission. Compute is
 highlighted because it's the only stage that makes results. The dashed line shows
 that settings reach Publish but not Compute. Settings also choose the scheduler,
-but not what the job calculates. `core.max_cpus` and `core.nextflow_config` are the
+but not what the job calculates. `slurm.max_cpus` and `core.nextflow_config` are the
 settings to watch, as covered under "What same output means" and "Configuration".
 
 **The job's three stages:**
@@ -77,9 +78,9 @@ settings to watch, as covered under "What same output means" and "Configuration"
 gnoto                 launcher: a small sh script
 IMAGE                 the gnoto image's address, by digest
 CHANGELOG.md          release notes, shown by gnoto upgrade
-config.example.yaml   every setting, copied to config.yaml
 host/                 host helper, the stand-in, and allowed/, the host commands per backend
-lib/                  entry point in the image, settings loader, job runner, run state,
+lib/                  entry point in the image, settings loader, gnoto config and config/,
+                      which declares each config.yaml section, job runner, run state,
                       parameters, scheduler and container calls, helpers
 pipelines/<name>/     definition, options.yaml, lock.yaml, containers.config, stable-files,
                       selftest.yaml, and taxprofiler's database.csv
@@ -157,13 +158,13 @@ host binaries expect.
   through the helper, so containers never nest.
   [Nesting often works, but only with non-setuid installs](https://apptainer.org/docs/admin/main/user_namespace.html).
 - **AWS and Globus:** these need only network and files, so they run in the image.
-- **systemd:** the units start the launcher, and `setup` reaches `systemctl`
+- **systemd:** the units start the launcher, and `config` reaches `systemctl`
   through the helper.
 
 **Rules that follow:**
 
 - **Same paths inside and outside.** The install directory, `core.data_dir`,
-  `core.db_dir`, `globus.dir`, `core.apptainer_binds` and every FASTQ are bound at their
+  `core.db_dir`, `globus.dir`, `apptainer.binds` and every FASTQ are bound at their
   host paths, and `lint` checks this.
 - **Code stays out of the image.** It's bound in from the version cache, so a
   script change needs no new image.
@@ -177,16 +178,22 @@ host binaries expect.
   the same awk, `jq` and Nextflow. `IMAGE` is a plain one-line file because the
   `sh` launcher has to read it before it can use `yq`.
 - **Bootstrap settings.** Before it can start the image, the launcher also needs
-  `core.apptainer_home`, `core.data_dir`, `core.db_dir` and `core.apptainer_binds`. It
-  reads just those with a small awk that accepts only `key: "value"` lines under `core:`,
-  and `lint` checks with `yq` that both parsers agree. It pulls the image to a temporary
-  name in `<data_dir>/images/` under a lock, then renames it.
+  `core.data_dir`, `core.db_dir`, `apptainer.enabled`, `apptainer.bin_dir`,
+  `apptainer.binds`, `slurm.enabled`, `slurm.bin_dir` and `slurm.conf`. It reads just those
+  with a small awk that accepts only `key: "value"`, `key: true` and `key: false` lines
+  under their section, and `lint` checks with `yq` that both parsers agree. It puts the two
+  bin directories first on the `PATH` the helper runs commands with, and sets `SLURM_CONF`,
+  so gnoto works from a shell that hasn't loaded a site's Slurm module. Slurm's two count
+  only when `slurm.enabled` is `true`. Without `config.yaml`, or for a setting it leaves
+  unset, the data directory is `<install>/data` and both commands come from `PATH`. The
+  launcher stops if it can't find `apptainer`, or if `apptainer.enabled` is `false`. It pulls the image to a temporary name in `<data_dir>/images/` under a lock, then renames
+  it.
 
 Apptainer needs
 [unprivileged user namespaces or a setuid install, plus FUSE](https://apptainer.org/docs/admin/main/installation.html).
 Tasks already run in Apptainer, so this adds no new requirement.
 
-**Fallback.** If Nextflow misbehaves in the image, `setup` downloads Java and
+**Fallback.** If Nextflow misbehaves in the image, gnoto downloads Java and
 Nextflow into `core.data_dir`, and the helper runs them on the host. Users still
 install nothing beyond Apptainer.
 
@@ -203,8 +210,12 @@ rather than a rewrite:
 - **Nextflow covers its own part.** Config chooses its executor and container engine, so
   pipeline resource requests stay generic: CPUs, memory and time, with no partition or
   `clusterOptions`.
-- **A setting picks the backend.** `core.executor` does this already. A container setting
-  gets added when a second runtime is supported.
+- **A section picks the backend.** Each backend has a section of its own in `config.yaml`
+  for its paths and limits, as `slurm:` and `apptainer:` do now, and its `enabled` says
+  whether it's in use. Jobs go to Slurm when `slurm.enabled` is `true`, and run on this
+  machine otherwise. `apptainer.enabled` picks the container engine. Two schedulers or two
+  engines on at once is an error. `gnoto config <backend>` asks for a backend's settings,
+  suggesting what the launcher finds on `PATH`.
 
 Some parts already assume neither: images are OCI, `status` reads state files, and
 cancelling uses a cancel file.
@@ -217,21 +228,21 @@ GitHub's source archive. An asset can have a fixed name, which gives a permanent
 It can also have a published checksum, because
 [source archive bytes can change](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives).
 
-The README's setup section:
+The README's install section:
 
 ```bash
 curl -fsSL https://github.com/cmmr/gnoto/releases/latest/download/gnoto.tar.gz | tar -xz
-cd gnoto
-cp config.example.yaml config.yaml
-chgrp <group> config.yaml   # the group that shares this install
-chmod 660 config.yaml
-# edit config.yaml
-./gnoto lint
-./gnoto setup
+gnoto/gnoto lint
 ```
 
-The group set on `config.yaml` becomes gnoto's group, as the command line section
-describes. On a single-user install, the user's own group will do.
+gnoto needs no configuration to start. With `apptainer` on `PATH`, it keeps its data in
+`<install>/data` and runs jobs on the machine it's started on. Without Apptainer it stops and
+says to put it on `PATH` or run `gnoto init --apptainer=/path/to/apptainer`. That writes a
+`config.yaml` holding only an `apptainer` section that says where it is, runs nothing in the
+image, and refuses if there's a `config.yaml` already. A later version can take another
+container engine in place of `--apptainer`. `gnoto config` lists the other sections, and
+`gnoto config slurm --on`, for one, adds Slurm with what it finds: its commands and
+`SLURM_CONF` from the launcher's `PATH`, and its default partition and limits from `sinfo`.
 
 Pinned installs swap `latest/download` for `download/v1.2.0`, with
 `gnoto.tar.gz.sha256` beside each asset. On every version tag, a GitHub Actions job
@@ -242,10 +253,10 @@ GitHub's `latest` URL
 so a failed upload never reaches users. The release checks run in CI on `main`, before
 anyone tags.
 
-**First run.** The first command pulls the image named in the tarball's `IMAGE`, then
+**First run.** The first command pulls the image named in the tarball's `IMAGE`. It
 records the tarball's commit, from `VERSION`, as the current release in
-`<data_dir>/current`, and fetches that commit into `versions/` with the image's `git`. So
-it takes a while. `curl` and `tar` are needed only for the download.
+`<data_dir>/current`, and fetches that commit into `versions/` with the image's `git`. So it
+takes a while. `curl` and `tar` are needed only for the download.
 
 **The install directory's launcher and `config.yaml` are the only files there that gnoto
 uses.** Every command runs from
@@ -270,68 +281,74 @@ gnoto's systemd units. Otherwise it prints the command for that account to run.
 
 ## Configuration
 
-Settings and secrets live in `config.yaml`, which is gitignored from the start.
-The repo ships `config.example.yaml`. `lint` compares `config.yaml` with the current
-release's copy, so it can report settings an upgrade added.
+Settings and secrets live in `config.yaml` in the install directory, which is gitignored
+from the start. It's kept minimal, so opening it shows what's in effect: gnoto runs without
+it, with every setting at its default, and it holds only the sections a site has added.
+`lib/config/<section>.sh` declares each section: its settings, their types and defaults, the
+question `gnoto config` asks for each, and how to find a better suggestion, such as from
+`sinfo`. Each version carries its own declarations, so they live under `versions/` like the
+rest of the code, and a setting missing from `config.yaml` takes that version's default.
+`lint` reports the settings an upgrade added.
 
-```yaml
-# Copy to config.yaml, set its group, fill in, then run: gnoto lint
-# Empty means unset. An integration with nothing set is skipped.
+`gnoto config` prints each section and what it's for, one per line:
 
-core:
-  data_dir: ""            # Runs, caches, logs. Default: <install directory>/data
-  db_dir: ""              # Reference databases. Default: <data_dir>/db
-  executor: "slurm"       # slurm or local
-  slurm_partition: ""
-  slurm_account: ""
-  max_cpus: ""            # Largest single task, e.g. 32
-  max_memory: ""          # e.g. 900.GB
-  max_time: ""            # e.g. 24.h
-  job_time: ""            # Limit for a whole run, e.g. 7-00:00:00. Default: the partition's
-  apptainer_binds: ""     # Paths containers must see, e.g. /data
-  input_roots: ""         # Form requests may read FASTQs only under these, e.g. /data/seq
-  apptainer_home: ""      # Only if apptainer isn't on PATH
-  nextflow_config: ""     # Optional extra Nextflow config for this site
-  expiration_notice_days: 14   # Warning period, and the shortest time results are kept
-  keep_run_days: 14       # How long a failed run's logs, or a --debug run's directory, stay
-
-wrike:
-  api_token: ""           # Secret
-  webhook_secret: ""      # Secret, chosen by you. Signs webhook deliveries. Only with SQS
-  poll_minutes: 5         # Scans Wrike for changes, with or without SQS. 0 turns it off
-
-aws:
-  access_key_id: ""       # Secret. Shared by S3 and SQS
-  secret_access_key: ""   # Secret
-  region: ""
-  # Published results: a bucket served through CloudFront. For one you set up
-  # yourself, fill in both. To have gnoto build it, fill in s3_bucket and run:
-  # gnoto setup s3 --deploy --profile <admin>
-  s3_bucket: ""
-  results_base_url: ""    # e.g. https://d1234abcd.cloudfront.net. Default: what --deploy built
-  run_prefix: ""          # Default: gnoto
-  # Wrike webhook delivery. For a queue you set up yourself, fill in both. To have
-  # gnoto build it, run: gnoto setup sqs --deploy --profile <admin>
-  sqs_queue_url: ""       # Default: what --deploy built
-  webhook_url: ""         # Where Wrike posts, in front of the queue. Default: what --deploy built
-
-globus:
-  dir: ""
-  uuid: ""
-  url: ""
-  run_prefix: ""          # Default: gnoto
-  cli_client_id: ""       # Secret
-  cli_client_secret: ""   # Secret
+```text
+core       Where gnoto keeps its runs, caches and databases, and for how long
+apptainer  Where Apptainer is, and the paths containers must see
+slurm      Run jobs on a Slurm cluster, rather than on this machine
+wrike      Take job requests from a Wrike form, and report each job's progress there
+aws        Publish results through S3 and CloudFront, and take Wrike's webhook through SQS
+globus     Deliver results through a Globus guest collection
 ```
 
+`gnoto config <section>` asks for each of the section's settings, suggesting what its
+declaration finds, or else the current value. `--on` and `--off` set the section's `enabled`
+without asking. When `config.yaml` doesn't have the section yet, either way adds the whole
+section, with the answers or with every suggestion, and only that section. Asking turns a
+new section on.
+
+Each section but `core` starts with `enabled`, so a section can be set up but not used. A
+section is on only when `enabled` is `true`, and code that uses a section checks that first.
+`apptainer` is the exception: it's on unless it says `false`, because it's the only container
+engine so far, so `gnoto config apptainer --off` refuses. `core` is always on.
+
+On a cluster, `gnoto config slurm --on` and then `gnoto config apptainer` might leave:
+
+```yaml
+# This install's settings. gnoto config lists the sections, and adds or changes one.
+
+slurm:
+  enabled: true
+  bin_dir: "/opt/slurm/current/bin"
+  conf: ""
+  partition: "main"
+  account: ""
+  max_cpus: 32
+  max_memory: "900.GB"
+  max_time: "168.h"
+  job_time: ""
+
+apptainer:
+  enabled: true
+  bin_dir: "/opt/apptainer/bin"
+  binds: "/data"
+```
+
+Strings are double-quoted, and `enabled` is `true` or `false`, so the launcher's awk can read
+its bootstrap settings. An answer replaces the value on its line and keeps the line's comment
+in its column, and a key the section lacks goes at its end, so hand edits survive. The image
+can't check a host path, so those answers are taken as given.
+
 1. **It's read with `yq`, never sourced.** A stray command can't run on every
-   compute node, and the loader decides what gets exported. The launcher's four
+   compute node, and the loader decides what gets exported. The launcher's eight
    bootstrap settings are the one exception, as covered under "Host and image". `lint`
    reports a syntax error with its line number. The current release's `lint` also flags
    an unknown key as a likely typo, but no other version does, as covered under
    "Compatibility".
-2. **Settings become shell variables inside the code.** `core.max_cpus` becomes
-   `MAX_CPUS`, and `wrike.api_token` becomes `WRIKE_API_TOKEN`.
+2. **Settings become shell variables inside the code.** `core.data_dir` becomes
+   `DATA_DIR`, and every other section's keys take the section as a prefix:
+   `slurm.max_cpus` becomes `SLURM_MAX_CPUS`, and `wrike.api_token` becomes
+   `WRIKE_API_TOKEN`.
 3. **Secrets are never exported.**
    [Apptainer passes host variables into containers by default](https://apptainer.org/docs/user/main/environment_and_metadata.html),
    so an exported AWS key would reach every third-party tool. Small `aws` and
@@ -352,11 +369,12 @@ globus:
    exists, because Nextflow loads that file into every run, and gnoto launches Nextflow
    from the run directory so that no stray `nextflow.config` is loaded.
 
-**Machine-written values go in a second file.** `setup` writes Wrike object IDs,
-custom field and status IDs, `RUN_ID_SALT` and the outputs of any stack it deploys to
-`<data_dir>/generated.yaml`, with the same mode and group as `config.yaml`, so
-`config.yaml` is never rewritten and every group member can read both. Losing the salt
-loses no results, because the output location can still be listed to find them.
+**Machine-written values go in a second file.** `config` writes the site's answers into
+`config.yaml`, but Wrike object IDs, custom field and status IDs, `RUN_ID_SALT` and the
+outputs of any stack it deploys go to `<data_dir>/generated.yaml`, with the same mode and
+group as `config.yaml`, so every group member can read both. A value in `config.yaml` wins.
+Losing the salt loses no results, because the output location can still be listed to find
+them.
 
 ## The command line
 
@@ -367,9 +385,10 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 
 | Command | What it does | Changes anything? |
 | --- | --- | --- |
+| `gnoto init --apptainer=<path>` | Writes a `config.yaml` holding only `apptainer.bin_dir`, without needing Apptainer on `PATH` or starting the image. Refuses if `config.yaml` exists | Writes one file |
 | `gnoto lint` | Checks `config.yaml` and every configured integration | Only temporary test files. As the first command, it also pulls the image and records the current release |
 | `gnoto lint [--deep] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--yes` accepts a database download | Only if you accept a database download |
-| `gnoto setup [wrike\|s3\|sqs\|systemd\|globus] [--deploy] [--profile <name>] [--move] [--dry-run]` | Does one-time configuration, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
+| `gnoto config [<section> [--on\|--off]] [--deploy] [--profile <name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them, adding the section if it's new, or with `--on` or `--off` turns it on or off, adding it with what's found if it's new. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
 | `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
 | `gnoto new ampliseq[@ref]` | Writes a job skeleton to `ampliseq.yaml` in the current directory, and refuses to overwrite one | Writes one file |
 | `gnoto start [--debug] [--dev] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree | Yes |
@@ -385,8 +404,8 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto exec <command>` | For development: runs any command in the image, with the stand-ins on `PATH` | Whatever the command does |
 
 **`lint`.** Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit
-code. Before `setup` has run, `lint` reports what's missing as a WARN that says which
-`setup` step to run, so a correct `config.yaml` passes its first `lint`. An integration
+code. Before `config` has run, `lint` reports what's missing as a WARN that says which
+`config` step to run, so a correct `config.yaml` passes its first `lint`. An integration
 whose settings are only partly filled in is a FAIL that says what to add.
 
 - **Local:** Apptainer version, the image pull, file modes, and that
@@ -444,7 +463,7 @@ link. Without either, the same dashboard pages and the deliverables zip stay in
 
 **The head job** is submitted with `--no-requeue`, because by default Slurm restarts a
 batch job from the top after a node failure, over a run directory that's already in use.
-Its time limit is `core.job_time`, which `lint` checks against the partition's MaxTime,
+Its time limit is `slurm.job_time`, which `lint` checks against the partition's MaxTime,
 and `--signal=B:TERM@300` gives Nextflow five minutes to cancel its tasks before that
 limit. The followup runs whatever happens, and cancels any task the trace still shows as
 running.
@@ -477,10 +496,12 @@ daily timer does these delayed deletions, so without it nothing is cleared.
 **Jobs run as the calling user,** so Slurm accounting and file ownership follow
 that person.
 
-**One group owns everything.** The group set on `config.yaml` is gnoto's group.
-`setup` gives it the install directory, `core.data_dir` and `core.db_dir`, makes every
-file and directory in them group-readable and group-writable, and sets setgid on the
-directories so new files inherit the group. Every gnoto command and job runs under
+**One group owns everything.** The group on `config.yaml`, or on the install directory
+before there is one, is gnoto's group. `gnoto init` and `gnoto config` write `config.yaml`
+in the user's own group, which suits a single user. To share an install, `chgrp -R` the install directory,
+`core.data_dir` and `core.db_dir` to a shared group. gnoto reads the group whenever it sets
+permissions: every file and directory it makes is group-readable and group-writable,
+and directories get setgid so new files inherit the group. Every gnoto command and job runs under
 `umask 002`. Before it exits, each job runs `chmod -R g+rwX` on what it leaves behind,
 because a umask can't add permissions to files a tool creates with fixed modes. `lint`
 reports any file with another group or without group read and write. The one exception
@@ -672,7 +693,7 @@ later upgrade can't change what an existing job file means.
 at the top level or in the pipeline's section, and its Wrike title, allowed answers,
 default and help text. A form answer can carry its own label, such as `Yes` for
 `picrust: true`. It produces the skeleton, the Wrike form's
-questions, the checks `gnoto wrike` makes, and the fields `setup wrike` creates. Other
+questions, the checks `gnoto wrike` makes, and the fields `config wrike` creates. Other
 parameters can still be added to a job file by hand, and `lint` checks them against the
 pipeline's schema. Pipeline definitions read answers through `form_answer`, a helper that
 returns an option's value whichever route set it, so they don't care where the answers
@@ -860,7 +881,7 @@ when a job needs it, so job files kept elsewhere don't have to be found first.
   nextflow/            NXF_HOME and NXF_ASSETS
   images/              shared .sif files
   logs/                service logs and heartbeats, rotated by the daily timer
-  generated.yaml       written by setup, same mode as config.yaml
+  generated.yaml       written by config, same mode as config.yaml
 ```
 
 **Image files.** `images/` holds only finished `.sif` files, shared by every user:
@@ -888,9 +909,9 @@ keeps layers out of home directories.
 - **Jobs start with `sbatch --wrap`.** Slurm runs a copy of a batch script from its
   spool directory, so `$0` can't locate the code.
 
-## Setup, by integration
+## Configuring integrations
 
-`setup` does all the one-time configuration except creating the Wrike request form,
+`gnoto config` does all the one-time configuration except creating the Wrike request form,
 because
 [Wrike's API can read and submit forms but not create them](https://developers.wrike.com/llms.txt).
 
@@ -898,14 +919,17 @@ Every step is safe to repeat. It looks for the object by name and adopts it if i
 exists. Otherwise it shows the plan, asks before creating the object, and records
 its ID in `generated.yaml`. `--dry-run` stops after the plan.
 
-Steps run in this order, and an unset integration is skipped:
+Each step is `gnoto config <name>`. S3 and SQS share the `aws` section and each has its own
+step, and systemd has no section. An integration whose section is off or missing is skipped:
 
-| Integration | `setup` does | Done by hand |
+| Integration | `config` does | Done by hand |
 | --- | --- | --- |
-| Core | Creates the directories, pulls the image, generates `RUN_ID_SALT` | Install Apptainer if missing |
+| Core | Asks for the data and database directories and how long runs are kept, creates the directories, generates `RUN_ID_SALT` | Install Apptainer if missing. Off `PATH`, run `gnoto init --apptainer=<path>` first |
+| Slurm | Asks where Slurm's commands and `slurm.conf` are, then for the partition, account, largest task and run time limit, suggesting what `sinfo` reports. `--on` takes every suggestion | Load Slurm's module first, so its commands are suggested |
+| Apptainer | Asks where Apptainer is and for the paths containers must see | None |
 | S3 | Checks access to the bucket and the results address. With `--deploy`, builds the S3 stack: bucket, CloudFront and its function, and the bucket policy for gnoto's IAM user | Set up the bucket and CloudFront yourself, or supply admin credentials once for `--deploy`. A custom domain needs its own certificate and DNS |
 | SQS | Checks access to the queue. With `--deploy`, builds the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, and the queue policy for gnoto's IAM user | Set up the queue and webhook endpoint yourself, or supply admin credentials once for `--deploy` |
-| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `setup` adopts it by name. Build the request form |
+| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
 | Globus | With the client credentials in `config.yaml`, creates the run folder and grants the anonymous read permission | Create the guest collection and a client for gnoto, and put the collection's UUID and URL and the client's ID and secret in `config.yaml` |
 
@@ -918,22 +942,22 @@ Steps run in this order, and an unset integration is skipped:
   is `amReadWriteWorkflow`, and
   [Wrike's Help Center](https://help.wrike.com/hc/en-us/articles/1500005219382-Default-vs-Custom-Workflows)
   says only admins on Business plans and above can create custom workflows. If the bot
-  isn't an admin, an admin creates the workflow and `setup` adopts it by name.
+  isn't an admin, an admin creates the workflow and `config` adopts it by name.
 - **Custom fields:** [`POST /customfields`](https://developers.wrike.com/reference/postcustomfieldsempty.md)
   comes from `options.yaml`, with `allowOtherValues` turned off, since it defaults to
-  on for dropdowns. `setup` also creates the Expiration date field that holds each run's
+  on for dropdowns. `config` also creates the Expiration date field that holds each run's
   removal time. Lookups stay inside the space, because an account can hold many fields
   that share a title.
 - **Webhook:** it subscribes to `TaskCreated` for new requests, `TaskDeleted`, and
   `TaskCustomFieldChanged` for edits to the Expiration date. Webhooks can't be edited, so
-  `setup` compares the events and replaces the webhook if they differ, deleting the old one
+  `config` compares the events and replaces the webhook if they differ, deleting the old one
   first to avoid double delivery.
-- **Request form:** `setup` prints a checklist from `options.yaml`, giving each
+- **Request form:** `config` prints a checklist from `options.yaml`, giving each
   question's title, type and answers. It then finds the form through the
   [read endpoints](https://developers.wrike.com/llms.txt), compares its questions
   with `options.yaml`, and records its ID. `lint` repeats the comparison and warns on
   drift.
-- **Statuses:** `setup` creates these in the workflow.
+- **Statuses:** `config` creates these in the workflow.
 
   | Status | Wrike group | Set by |
   | --- | --- | --- |
@@ -950,17 +974,17 @@ no new tool to install. S3 publishes results, and SQS delivers Wrike's webhook t
 listener.
 
 - **Two ways to set up.** A site that runs its own bucket and CloudFront, or its own
-  queue, fills in those settings, and `setup` only checks them. `service/aws/` ships what
+  queue, fills in those settings, and `config` only checks them. `service/aws/` ships what
   such a site attaches itself: the CloudFront function that serves directory pages, the
   Lambda that checks Wrike's signature, and the IAM policies gnoto's keys need. `--deploy`
   builds the same pieces as stacks instead. Most sites are expected to set up S3 and
   CloudFront themselves.
 - **One IAM user:** with `--deploy`, a small third stack holds gnoto's least-privilege IAM
-  user, deployed by whichever of `setup s3 --deploy` and `setup sqs --deploy` runs first.
+  user, deployed by whichever of `config s3 --deploy` and `config sqs --deploy` runs first.
   The S3 and SQS stacks each attach their own policy to it, so the keys in `config.yaml`
   cover whichever of the two is set up. Removing a stack removes its permissions.
 - **Two sets of credentials:** admin keys are used only during `--deploy`, through
-  `--profile`. `setup` prints the IAM user's new access key once, for the user to paste
+  `--profile`. `config` prints the IAM user's new access key once, for the user to paste
   into `config.yaml`, which it never rewrites.
 - **Stack outputs,** such as the CloudFront address and the queue and webhook URLs, go to
   `generated.yaml`. A value in `config.yaml` overrides them.
@@ -969,7 +993,7 @@ listener.
 - **Results URL:** `aws.results_base_url` sets the address, so the bucket name doesn't
   have to be a domain.
 
-**systemd.** Unit templates are filled from `command -v sbatch` and `SLURM_CONF`,
+**systemd.** Unit templates are filled from `slurm.bin_dir` and `slurm.conf`,
 because a user unit doesn't read the login shell. The listener installs only when
 Wrike and SQS are both configured. The polling timer for `gnoto wrike` installs whenever
 Wrike is configured, unless `wrike.poll_minutes` is 0. The daily timer,
@@ -977,11 +1001,11 @@ Wrike is configured, unless `wrike.poll_minutes` is 0. The daily timer,
 It runs the expiry check, `lint` for the health file, Wrike replays, delayed deletions and
 log rotation. Every unit runs as the service account, which also owns form jobs.
 
-Units and linger belong to one host, so `generated.yaml` records which one. `setup
+Units and linger belong to one host, so `generated.yaml` records which one. `config
 systemd` refuses to install on another host unless given `--move`, and `status` shows the
 host. Each unit checks that `generated.yaml` names its own host before doing anything, so
 after a move the old host's units do nothing. The account the units run as, usually a
-service account, runs `setup systemd` from its own login session, because
+service account, runs `config systemd` from its own login session, because
 `systemctl --user` needs that account's session bus, which `sudo -u` doesn't provide.
 
 **Globus.** Every Globus call uses the client credentials in `config.yaml`,
@@ -1103,7 +1127,7 @@ Each pipeline lists its core tables in `pipelines/<name>/stable-files`. That lis
 from a test:
 
 1. Run each pipeline on its fixtures, the public datasets listed in [fixtures.md](fixtures.md).
-2. Run it again unchanged, then once more with a different `core.max_cpus`.
+2. Run it again unchanged, then once more with a different `slurm.max_cpus`.
 3. Compare checksums, and sort each output into stable, stable after removing a
    timestamp, or unstable with a known cause.
 
@@ -1126,9 +1150,9 @@ returns at once, a followup job writes the report, and `status` shows it. A fres
 needs every pipeline's databases first, which come to hundreds of GB, so `selftest` offers
 the fetch with sizes per pipeline. `gnoto selftest ampliseq` is the quick check.
 
-**CPU limits could break the rule.** `core.max_cpus` lives in site config. If the test
+**CPU limits could break the rule.** `slurm.max_cpus` lives in site config. If the test
 shows that thread count changes a core table, that task's CPU count gets fixed in the
-pipeline's own config, and `lint` refuses a `core.max_cpus` below it. The fix covers every
+pipeline's own config, and `lint` refuses a `slurm.max_cpus` below it. The fix covers every
 retry as well, because nf-core's retries often raise `task.cpus` with `task.attempt`.
 
 ## Public release
