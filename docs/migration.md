@@ -4,9 +4,10 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-05: **phase 1 is under way.** Its prototype works in the local test bed, where
-ampliseq ran the `16s-v4` fixture under Slurm through the helper. The cluster runs come next.
-The [phase 1 notes](#phase-1-image-and-helper) record what's built and every test result.
+Status on 2026-11-06: **phase 1 is done.** ampliseq ran the `16s-v4` fixture under Slurm through
+the helper, in the local test bed and on the cluster, and every phase 1 check passes on both. The
+next step is phase 2. The [phase 1 notes](#phase-1-image-and-helper) record what's built, every
+test result, and the two determinism probes still to run.
 
 ## Where the old code is
 
@@ -198,10 +199,10 @@ then the cluster. Results so far, all from 2026-11-05:
 | `apptainer pull docker://…@sha256:…`, because Apptainer's docs don't cover pulls by digest | Pass with Apptainer 1.5.5 |
 | Which environment `sbatch` passes to tasks, since the helper's environment reaches them | The helper's fixed set plus Slurm's own variables. The caller's `TMPDIR` and an outer job's Slurm variables don't arrive. Nextflow then starts each container with `env - PATH=…`, passing only `TMP`, `TMPDIR` and `NXF_TASK_WORKDIR`, with `--no-home --pid` |
 | Two users running the same step container, each printing `env` and R's `Sys.getlocale()`, which must give the same output | Locale, time zone and R's library paths match. `HOME` and `R_LIBS_USER` name each user's home, which isn't mounted, but Apptainer does mount it when it's the current directory. So `lib/containers.sh` should run steps from the run directory and give containers a fixed `HOME` |
-| One real pipeline on its fixtures from [fixtures.md](fixtures.md) | Pass in the test bed: ampliseq 3.1.0 on `16s-v4` ran 31 tasks in 10 minutes and found 22 ASVs, with the mock's genera |
+| One real pipeline on its fixtures from [fixtures.md](fixtures.md) | Pass in the test bed: ampliseq 3.1.0 on `16s-v4` ran 31 tasks in 10 minutes and found 22 ASVs, with the mock's genera. Pass on the cluster on 2026-11-06, with the same 22 ASVs, in 51 minutes on a busy queue. `ASV_table.tsv`, `ASV_tax.user.tsv`, `ASV_seqs.fasta` and `DADA2_table.tsv` were byte-identical on the two. Both capped tasks at 4 CPUs, so thread count is still phase 6's question |
 | Each pinned pipeline's own `test` profile on the pinned Nextflow. taxprofiler 2.0.1 was released for Nextflow 25.10, so this is the first check that it runs on 26.10 | Pass in the test bed: ampliseq 3.1.0 ran 130 tasks, and taxprofiler 2.0.1 ran 179, the last 5 after `-resume` because a DNS lookup in Docker Desktop timed out during MultiQC's image pull. The stand-in passed Apptainer's error and exit status back. They ran as `alice` and `bob`, sharing `images/` and `NXF_HOME` |
 | `-resume`, and cancelling a run, which should cancel its tasks through the `scancel` stand-in | Pass: a resumed run cached 29 of 31 tasks, and SIGTERM to an interactive run left no task 3 seconds later |
-| `scancel` on the head job, and the head job hitting its time limit, which should both leave no task running | Pass: no task left 2 seconds after `scancel`, and the `--signal=B:TERM` warning reached Nextflow through the launcher |
+| `scancel` on the head job, and the head job hitting its time limit, which should both leave no task running | Pass: no task left 2 seconds after `scancel`, and the `--signal=B:TERM` warning reached Nextflow through the launcher. Pass on the cluster on 2026-11-06, with all three tasks running each time, along with SIGTERM to an interactive run on a login node |
 | Building the image twice, which should give the same digest | Pass: `nix-build --check` rebuilds the tarball byte for byte. The registry digest waits for phase 5 |
 | `nextflow -version` with an empty `NXF_HOME`, which should download nothing | Pass, once the dist file is executable |
 
@@ -215,8 +216,9 @@ an el8 build, with unprivileged user namespaces enabled. `TMPDIR` is unset on lo
 including jobs submitted through the helper from a compute node, so munge works across nodes.
 They also showed jobs inheriting the login session's `XDG_RUNTIME_DIR` and
 `DBUS_SESSION_BUS_ADDRESS`. Those are now kept for `systemctl` and `loginctl` only, which a
-rerun on the cluster confirmed. The `16s-v4` and
-cancellation checks are still to run there, along with login-node limits.
+rerun on the cluster confirmed. The `16s-v4` and cancellation checks passed there too, the latter
+running Nextflow on a login node for a few minutes without hitting its limits. The first pull of
+the image from a registry waits for phase 5.
 
 On a busy queue, tasks can stay pending past the head job's warning signal, so `cancel.sh`
 waits for the tasks to be submitted, not running, and reports how many ran. Nextflow cancels

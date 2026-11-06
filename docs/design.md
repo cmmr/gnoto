@@ -1,7 +1,8 @@
 # gnoto design
 
-Status on 2026-11-05: the design is agreed, and phase 1, the image and the helper, is
-built and tested in a local Slurm test bed. This file describes the target. [migration.md](migration.md) says how to get there
+Status on 2026-11-06: the design is agreed, and phase 1, the image and the helper, is
+built and tested in a local Slurm test bed and on CMMR's cluster. This file describes the
+target. [migration.md](migration.md) says how to get there
 from the old repo, and [decisions.md](decisions.md) records why things are the
 way they are.
 
@@ -1155,9 +1156,8 @@ test results are in the phase 1 notes there.
 - **The helper:** running Nextflow's driver in the image through stand-ins isn't the
   usual setup, and
   [the common advice keeps it on the host](https://docs.seqera.io/nextflow/executor/slurm).
-  It works in the local Slurm and Apptainer test bed, signals and environment included, and
-  ampliseq runs through it. It still needs the cluster: munge across nodes, real partitions,
-  the cluster's own Apptainer setup and login-node limits.
+  It works in the local Slurm and Apptainer test bed and on CMMR's cluster, signals and
+  environment included, and ampliseq runs through it on both.
 - **Image size:** the AWS CLI and Java are large. The image is 760 MB as a `.sif`, and its
   first pull on the cluster hasn't been timed.
 - **Digest pinning:** running ampliseq and taxprofiler through Nextflow and Apptainer
@@ -1185,7 +1185,9 @@ test results are in the phase 1 notes there.
   CMMR's own rollout isn't affected, because Daniel administers its Wrike, AWS and GitHub
   accounts.
 - **Reproducibility itself:** which outputs are stable, including how thread count affects
-  them, and whether built references rebuild identically.
+  them, and whether built references rebuild identically. A first sign: ampliseq's DADA2 tables
+  for `16s-v4` came out byte-identical in the local test bed and on the cluster, with the same
+  CPU limits.
 - **Trademark outside the US:** a USPTO search on 2026-11-05 found no GNOTO mark. The
   nearest was GNOTO-SAFE, a live registration for cardboard containers held by Charles
   River Laboratories. That was a knockout search, not a legal clearance, and no other
