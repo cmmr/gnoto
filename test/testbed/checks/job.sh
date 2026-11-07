@@ -91,6 +91,7 @@ if [[ $CANCEL == true ]]; then
     echo "gnoto cancel on a running job"
     UID_=$($GNOTO start job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
     check "start prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
+    [[ -n $UID_ ]] || exit 1
     for (( i = 0; i < 360; i++ )); do
         [[ $(run_status "$UID_") == Running ]] && break
         sleep 5
@@ -111,6 +112,7 @@ fi
 echo "gnoto start, to the end"
 UID_=$($GNOTO start job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
 check "start prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
+[[ -n $UID_ ]] || exit 1
 RUN=$DATA_DIR/runs/$UID_
 check "it ends as Completed" "Completed" "$(wait_for "$UID_" 120)"
 

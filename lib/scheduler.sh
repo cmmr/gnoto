@@ -3,7 +3,7 @@
 # launcher, the helper and the systemd templates.
 #
 # Sourced by:  lib/env.sh
-# Defines:     scheduler_kind, scheduler_submit, scheduler_cancel,
+# Defines:     scheduler_kind, slurm_time, scheduler_submit, scheduler_cancel,
 #              scheduler_job_state, scheduler_local_alive, run_cpu_seconds,
 #              cancel_run_tasks
 # Requires:    sbatch, squeue, sacct and scancel, through their stand-ins, when
@@ -25,6 +25,28 @@ scheduler_kind() {
         echo slurm
     else
         echo local
+    fi
+}
+
+# A time limit as sbatch --time takes it. Slurm's own forms, such as 2-00:00:00,
+# 48:00:00 or UNLIMITED, pass as they are, and Nextflow's, such as 48.h or 2.d,
+# which slurm.max_time uses, become days-hours:minutes:seconds. Prints nothing
+# for nothing, and fails on anything else.
+slurm_time() {
+    local value=$1 seconds
+    if [[ -z $value || $value =~ ^([0-9]+-)?[0-9]+(:[0-9]{1,2}){0,2}$ || $value =~ ^(UNLIMITED|INFINITE)$ ]]; then
+        printf '%s' "$value"
+    elif [[ $value =~ ^([0-9]+)\.(s|m|h|d)$ ]]; then
+        seconds=${BASH_REMATCH[1]}
+        case ${BASH_REMATCH[2]} in
+            m) seconds=$((seconds * 60)) ;;
+            h) seconds=$((seconds * 3600)) ;;
+            d) seconds=$((seconds * 86400)) ;;
+        esac
+        printf '%d-%02d:%02d:%02d' $((seconds / 86400)) $((seconds % 86400 / 3600)) \
+            $((seconds % 3600 / 60)) $((seconds % 60))
+    else
+        return 1
     fi
 }
 

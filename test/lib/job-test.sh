@@ -196,5 +196,11 @@ check "a word with a space is refused" "1" \
     "$( (GNOTO_HELPER_DIR=$WORK/helper SLURM_ENABLED=false scheduler_submit --name x --dir "$WORK/run" \
         --log "$WORK/run/job.out" -- _local "$WORK/a b") > /dev/null 2>&1; echo $?)"
 check "lint_hours reads both forms" "48 168 2" "$(lint_hours 48.h) $(lint_hours 7-00:00:00) $(lint_hours 2:00:00)"
+check "slurm_time turns Nextflow's form into Slurm's" "2-00:00:00 0-01:30:00 3-00:00:00" \
+    "$(slurm_time 48.h) $(slurm_time 90.m) $(slurm_time 3.d)"
+check "and passes Slurm's own as they are" "2-00:00:00|48:00:00|90|UNLIMITED|" \
+    "$(slurm_time 2-00:00:00)|$(slurm_time 48:00:00)|$(slurm_time 90)|$(slurm_time UNLIMITED)|$(slurm_time "")"
+check "and refuses anything else" "1 1 1" \
+    "$(slurm_time 48h > /dev/null; echo $?) $(slurm_time 1.5.h > /dev/null; echo $?) $(slurm_time 'two days' > /dev/null; echo $?)"
 
 exit $FAILED

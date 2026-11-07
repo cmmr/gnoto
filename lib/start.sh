@@ -67,6 +67,10 @@ start_main() {
 # fetches, if any.
 start_run() {
     local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_id followup_id
+    local job_time
+
+    job_time=$(slurm_time "${SLURM_JOB_TIME:-}") ||
+        fail "Not started: slurm.job_time is \"$SLURM_JOB_TIME\". Write it as Slurm does, such as 2-00:00:00, or as 48.h."
 
     mkdir -p "$DATA_DIR/runs" || fail "Can't create $DATA_DIR/runs."
     chmod g+s "$DATA_DIR/runs" 2> /dev/null || :
@@ -129,7 +133,7 @@ start_run() {
             -- _local "$run_dir" > /dev/null || start_failed "Couldn't start the job on this machine."
     else
         job_id=$(scheduler_submit --name "gnoto-$uid" --dir "$run_dir" --log "$run_dir/job.out" \
-            --cpus "$HEAD_JOB_CPUS" --mem "$HEAD_JOB_MEM" --time "${SLURM_JOB_TIME:-}" \
+            --cpus "$HEAD_JOB_CPUS" --mem "$HEAD_JOB_MEM" --time "$job_time" \
             --signal B:TERM@300 --after "$fetch_after" -- _job "$run_dir") ||
             start_failed "Slurm refused the job; sbatch's message is above."
         state_set scheduler.job_id "$job_id"

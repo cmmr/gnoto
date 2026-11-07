@@ -39,7 +39,7 @@ lint_fail() {
 lint_hours() {
     local value=$1
     case $value in
-        UNLIMITED | infinite) echo 1000000 ;;
+        UNLIMITED | INFINITE | unlimited | infinite) echo 1000000 ;;
         *.d) awk -v n="${value%.d}" 'BEGIN { printf "%d", n * 24 }' ;;
         *.h) awk -v n="${value%.h}" 'BEGIN { printf "%d", n }' ;;
         *.m) awk -v n="${value%.m}" 'BEGIN { printf "%d", n / 60 }' ;;
@@ -224,9 +224,11 @@ Slurm's module may not be loaded in the shell gnoto started from. Load it, or se
         return
     fi
     if [[ -n ${SLURM_JOB_TIME:-} ]]; then
-        hours=$(lint_hours "$SLURM_JOB_TIME")
+        hours=$(slurm_time "$SLURM_JOB_TIME") && hours=$(lint_hours "$hours") || hours=""
         limit=$(lint_hours "$time_limit")
-        if [[ -n $hours && -n $limit ]] && (( hours > limit )); then
+        if [[ -z $hours ]]; then
+            lint_fail "slurm.job_time: \"$SLURM_JOB_TIME\" isn't a time sbatch takes. Write it as Slurm does, such as 2-00:00:00, or as 48.h"
+        elif [[ -n $limit ]] && (( hours > limit )); then
             lint_fail "slurm.job_time: $SLURM_JOB_TIME is longer than partition $partition allows, $time_limit"
         else
             lint_ok "slurm.job_time: $SLURM_JOB_TIME, within partition $partition's $time_limit"
