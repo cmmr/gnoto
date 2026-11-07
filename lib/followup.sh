@@ -60,25 +60,19 @@ slurm_end_message() {
     esac
 }
 
-# The work directory of the task that failed, from Nextflow's error report
-failed_task_dir() {
-    awk '/^Work dir:/ { getline; sub(/^ +/, ""); print; exit }' nextflow.out 2> /dev/null
-}
-
-# What went wrong, kept in history after the run directory goes
+# What went wrong, kept in history after the run directory goes: the message,
+# then Nextflow's report on the failing task, or else the end of its output
 write_error_summary() {
-    local out=$1 dir
+    local out=$1 block
     {
         echo "Run ${PWD##*/}, $(state_get version), ended $(state_get ended_utc) as $(get_run_status)"
         echo
         state_get message
-        dir=$(failed_task_dir)
-        if [[ -n $dir && -r $dir/.command.err ]]; then
+        block=$(nextflow_error_block nextflow.out)
+        if [[ -n $block ]]; then
             echo
-            echo "The last 20 lines of the failing task's .command.err, in $dir:"
-            tail -n 20 "$dir/.command.err"
-        fi
-        if [[ -r nextflow.out ]]; then
+            printf '%s\n' "$block"
+        elif [[ -r nextflow.out ]]; then
             echo
             echo "The end of nextflow.out:"
             tail -n 40 nextflow.out

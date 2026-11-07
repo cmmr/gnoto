@@ -185,6 +185,40 @@ check "but --debug still has its cleanup" "none 2026-11-20T12:00:00Z" \
 write_expiry abcdefgh Failed 2026-11-06T12:00:00Z
 check "a failed run goes after keep_run_days" "2026-11-20T12:00:00Z" "$(yq .remove_utc "$WORK/data/expiry/abcdefgh")"
 
+echo "Nextflow's failure reports"
+# As taxprofiler's ended on the cluster: other tasks were let finish, so the
+# log has no "Session aborted", and the command's error is only warnings
+cat > nf.out << 'EOF'
+[7e/e056d6] Submitted process > NFCORE_TAXPROFILER:TAXPROFILER:STANDARDISATION_PROFILES:TAXPASTA_STANDARDISE (motus|db)
+ERROR ~ Error executing process > 'NFCORE_TAXPROFILER:TAXPROFILER:STANDARDISATION_PROFILES:TAXPASTA_STANDARDISE (metaphlan|db)'
+
+Caused by:
+  Process `NFCORE_TAXPROFILER:TAXPROFILER:STANDARDISATION_PROFILES:TAXPASTA_STANDARDISE (metaphlan|db)` terminated with an error exit status (1)
+
+Command output:
+  CRITICAL Unexpected report format. It has 5 columns but only 4 are expected.
+
+Command error:
+  FutureWarning: Importing pandas-specific classes and functions from the
+
+Work dir:
+  /data/runs/x/work/be/518582
+
+Tip: you can replicate the issue by changing to the process work dir
+Execution cancelled -- Finishing pending tasks before exit
+ERROR ~ Pipeline failed. Please refer to troubleshooting docs for common issues
+EOF
+: > nf.log
+check "the cause, from Caused by: when the log has none" \
+    "Process \`NFCORE_TAXPROFILER:TAXPROFILER:STANDARDISATION_PROFILES:TAXPASTA_STANDARDISE (metaphlan|db)\` terminated with an error exit status (1)" \
+    "$(nextflow_cause nf.out nf.log)"
+echo "Session aborted -- Cause: from the log" > nf.log
+check "or from the log when it has one" "from the log" "$(nextflow_cause nf.out nf.log)"
+BLOCK=$(nextflow_error_block nf.out)
+check "the error report holds the tool's own message" "yes" "$(has "$BLOCK" "CRITICAL Unexpected report format")"
+check "and ends at the work directory" "  /data/runs/x/work/be/518582" "$(tail -n 1 <<< "$BLOCK")"
+check "and is empty without a failed task" "" "$(nextflow_error_block nf.log)"
+
 echo "the scheduler"
 check "sh_quote round trip" "it's a \"test\" \$HOME" "$(sh -c "printf '%s' $(sh_quote "it's a \"test\" \$HOME")")"
 mkdir -p "$WORK/helper"

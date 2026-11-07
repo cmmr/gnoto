@@ -4,7 +4,8 @@
 #
 # Sourced by:  lib/env.sh
 # Defines:     log, warn, fail, escape_html, escape_url, human_size, human_count,
-#              group_count, is_valid_uid, derive_uid
+#              group_count, nextflow_cause, nextflow_error_block, is_valid_uid,
+#              derive_uid
 # Requires:    state_present and state_set from lib/run_state.sh, for fail; openssl,
 #              for derive_uid
 # Env:         RUN_ID_SALT, from generated.yaml, for derive_uid
@@ -105,6 +106,31 @@ group_count() {
         }
         printf "%s%s", digits, out
     }'
+}
+
+# Why a Nextflow run failed, in one line: the cause its log gives when the run
+# aborted, or else the line after "Caused by:" in its console output, which a
+# run that lets its other tasks finish first writes alone. Prints nothing when
+# neither says: nextflow_cause <console output> <log>
+nextflow_cause() {
+    local cause
+    cause=$(sed -n 's/.*Session aborted -- Cause: //p' "$2" 2> /dev/null | head -1) || cause=""
+    [[ -n "$cause" ]] ||
+        cause=$(awk '/^Caused by:/ { getline; sub(/^ +/, ""); print; exit }' "$1" 2> /dev/null) || cause=""
+    printf '%s' "${cause:0:300}"
+}
+
+# Nextflow's report on the task that failed, from its console output: from
+# "ERROR ~ Error executing process" to the task's work directory, at most 60
+# lines. Its command's output and error come before the work directory, so this
+# holds the task's own message. Prints nothing when there's no such report.
+nextflow_error_block() {
+    awk '
+        /^ERROR ~ Error executing process/ { on = 1 }
+        on { print; n++ }
+        on && /^Work dir:/ { if ((getline line) > 0) print line; exit }
+        n >= 60 { exit }
+    ' "$1" 2> /dev/null
 }
 
 # A uid names a run everywhere but Wrike: eight lowercase base32 characters.

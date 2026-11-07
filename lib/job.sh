@@ -316,7 +316,7 @@ compute() {
     job_check_signal
     if (( status != 0 )); then
         set_step_state "$NEXTFLOW_STEP" failed
-        cause=$(sed -n 's/.*Session aborted -- Cause: //p' nextflow.log 2> /dev/null | head -1 | cut -c1-300)
+        cause=$(nextflow_cause nextflow.out nextflow.log)
         fail "The Nextflow pipeline failed${cause:+: $cause}. Its output is in nextflow.out."
     fi
     set_step_state "$NEXTFLOW_STEP" done

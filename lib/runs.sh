@@ -167,7 +167,7 @@ status_all() {
 }
 
 status_one() {
-    local uid=$1 dir state_dir status kind task_dir file stage logs
+    local uid=$1 dir state_dir status kind task_dir file stage logs block
     is_valid_uid "$uid" || fail "\"$uid\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
     dir=$DATA_DIR/runs/$uid
     if [[ -r $dir/$RUN_STATE_FILE ]]; then
@@ -218,9 +218,16 @@ status_one() {
     [[ -z $(state_get message) ]] || printf '  %-10s %s\n' Message "$(state_get message)"
     state_get_json notes | jq -r '.[]? | "  Note       \(.)"'
 
+    # Nextflow's own report on the failing task holds its command's output and
+    # error, where a tool's message is, while the end of .command.err can be
+    # warnings alone
     if [[ $status != Completed && -d $dir ]]; then
+        block=$(nextflow_error_block "$dir/nextflow.out")
         task_dir=$(awk '/^Work dir:/ { getline; sub(/^ +/, ""); print; exit }' "$dir/nextflow.out" 2> /dev/null)
-        if [[ -n $task_dir && -r $task_dir/.command.err ]]; then
+        if [[ -n $block ]]; then
+            echo
+            printf '%s\n' "$block" | sed 's/^/  /'
+        elif [[ -n $task_dir && -r $task_dir/.command.err ]]; then
             echo
             echo "The failing task's .command.err, last 20 lines, in $task_dir:"
             tail -n 20 "$task_dir/.command.err" | sed 's/^/  /'

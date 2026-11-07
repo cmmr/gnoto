@@ -459,8 +459,12 @@ write a heartbeat file in `<data_dir>/logs/`, so any user's `status` can report 
 although their systemd units belong to one account.
 
 `status <uid>` shows one run in detail: its state and stage, its Slurm job IDs, its run
-directory and log paths, the error message, and the last 20 lines of the failing task's
-`.command.err`.
+directory and log paths, the error message, and Nextflow's report on the failing task: its
+command, exit status, output and error, where a tool's own message is. The end of
+`.command.err` alone can be warnings, as taxpasta's was on the cluster, so that's shown
+only when there's no report. The message gives Nextflow's cause, from its log when the run
+aborted, or else from the report, because a run that lets its other tasks finish first
+logs none.
 
 ```text
 Integrations, checked by the daily lint 3 h ago

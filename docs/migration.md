@@ -544,9 +544,22 @@ images copied over by `scp`:
 - `job.sh` ran ampliseq on `16s-v4` to Completed with the full pplace reference, and passed
   all 18 checks. `job.sh --cancel` passed.
 
-Still to do there: taxprofiler and biobakery end to end, against the old shotgun databases,
-linked into gnoto's database directory, whose relative paths match, on the `wgs-mock` reads
-from ENA.
+Then taxprofiler and biobakery, against the old shotgun databases, linked into gnoto's
+database directory, whose relative paths match, with `apptainer.binds` set to the old
+directory so containers can follow the links. `lint` found all 6 and all 7. Each ran one
+job on the `wgs-mock` reads from ENA:
+
+- biobakery completed in 22 minutes, with every page, the methods page and a 7.3 MB zip.
+- taxprofiler failed after 6 minutes, in `TAXPASTA_STANDARDISE` on MetaPhlAn's profile:
+  taxpasta 0.7.0 reads the four columns `-t rel_ab` writes, not the fifth that
+  `-t rel_ab_w_read_stats` adds. The old config let `TAXPASTA_MERGE` fail on MetaPhlAn,
+  because nothing reads that table, but a run of one sample standardises rather than merges.
+  `conf/taxprofiler/resources.config` now lets either fail on MetaPhlAn.
+- That run's message had no cause, because a run that lets its other tasks finish logs no
+  "Session aborted", and `status` showed the end of `.command.err`, which was pandera's
+  warnings alone. Both now come from Nextflow's report on the failing task.
+
+Still to do there: taxprofiler again, with that fix.
 
 ### Phases 4 to 6
 
