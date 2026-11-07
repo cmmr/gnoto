@@ -54,10 +54,11 @@ check "the clock is UTC, whatever the host's time zone" "UTC" "$($GNOTO exec dat
 check "stand-ins come first" "sbatch squeue scancel sinfo sacct apptainer systemctl loginctl" \
     "$($GNOTO exec bash -c 'for c in sbatch squeue scancel sinfo sacct apptainer systemctl loginctl; do [[ $(command -v $c) == $GNOTO_HELPER_DIR/bin/$c ]] && printf "%s " $c; done' | sed 's/ $//')"
 
+# Names, not env's lines: a value can span lines, as GNOTO_BOOTSTRAP does
 MARK=host-only APPTAINERENV_MARK=leaked SINGULARITYENV_MARK2=leaked \
-    $GNOTO exec env > "$OUT/image_env.txt"
-check "host variables stay out" "" "$(grep -E '^MARK2?=' "$OUT/image_env.txt")"
-echo "      image environment: $(cut -d= -f1 "$OUT/image_env.txt" | sort | tr '\n' ' ')"
+    $GNOTO exec bash -c 'compgen -e' > "$OUT/image_env.txt"
+check "host variables stay out" "" "$(grep -E '^MARK2?$' "$OUT/image_env.txt")"
+echo "      image environment: $(sort "$OUT/image_env.txt" | tr '\n' ' ')"
 
 check "sinfo through the helper" "0" "$($GNOTO exec sinfo -h -o %P > /dev/null; echo $?)"
 

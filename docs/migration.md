@@ -4,10 +4,10 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-07: **phases 1 and 2 are done, and phase 3 is built and passes its tests in
-the test bed.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full dashboard in
-`results/`, with no Wrike, AWS or Globus, under Slurm and on the machine itself. Phase 3's
-cluster run is next, then phase 4. The [phase 1](#phase-1-image-and-helper),
+Status on 2026-11-07: **phases 1 and 2 are done, and phase 3 passes in the test bed and, for
+ampliseq, on the cluster.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full
+dashboard in `results/`, with no Wrike, AWS or Globus, under Slurm and on the machine itself.
+taxprofiler and biobakery end to end on the cluster are next, then phase 4. The [phase 1](#phase-1-image-and-helper),
 [phase 2](#phase-2-restructure) and [phase 3](#phase-3-job-core) notes record what's built and
 every test result, and phase 1's notes list the two determinism probes still to run.
 
@@ -528,14 +528,25 @@ Tested on 2026-11-07, in the test bed:
 The test bed's node can't hold EPA-NG on the full pplace reference, so its end-to-end runs use
 `db:test/pplace-small`, 2,000 tips cut from it with gotree, made by hand there.
 
-**On the cluster, still to do.** Phase 3 has to be committed and pushed first, because the
-install updates with `git pull`. The `gnoto-rbiom` image goes over by `scp`, from the test
-bed's `/data/gnoto/images/` to `<data_dir>/images/`. Then, on a login node with Slurm's
-module loaded: `./gnoto lint`; `bash test/testbed/checks/job.sh`, which fetches the pplace
-and 16S references as Slurm jobs through `lint --yes`, and runs with the full pplace
-reference; and `job.sh --cancel`. For taxprofiler and biobakery, link the old shotgun
-databases into gnoto's database directory, whose relative paths match, and run a job on the
-`wgs-mock` reads from ENA.
+**On the cluster, 2026-11-07,** from its install, a git clone, with the gnoto and `gnoto-rbiom`
+images copied over by `scp`:
+
+- `./gnoto lint` passed every check, the compute node job included.
+- The first `bash test/testbed/checks/job.sh` fetched the pplace and 16S references as Slurm
+  jobs through `lint --yes`, then stopped at `sbatch`: `slurm.job_time` was `48.h`, which
+  `lint` had read but `sbatch --time` refused. `c4289c3` now turns Nextflow's form into
+  Slurm's, has `lint` and `start` refuse anything else, and stops `job.sh` when `start`
+  fails.
+- `test/testbed/checks/launcher.sh` passed, its new checks included: C.UTF-8 takes effect,
+  and the clock is UTC under the host's Central time. It listed the image's environment by
+  reading `env` line by line, so `GNOTO_BOOTSTRAP`'s lines looked like variables of their own;
+  it now lists names with `compgen -e`.
+- `job.sh` ran ampliseq on `16s-v4` to Completed with the full pplace reference, and passed
+  all 18 checks. `job.sh --cancel` passed.
+
+Still to do there: taxprofiler and biobakery end to end, against the old shotgun databases,
+linked into gnoto's database directory, whose relative paths match, on the `wgs-mock` reads
+from ENA.
 
 ### Phases 4 to 6
 
