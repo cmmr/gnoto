@@ -7,9 +7,9 @@
 # Env:     GNOTO_CODE_DIR, GNOTO_INSTALL_DIR, GNOTO_DATA_DIR, GNOTO_DB_DIR and
 #          GNOTO_HELPER_DIR, from the launcher
 #
-# People's commands are config, lint, new, start, status, cancel, and exec, a
-# development aid that runs any command in the image with the stand-ins on PATH
-# and the settings loaded. gnoto init never reaches the image. The commands
+# People's commands are config, lint, new, run, start, status, cancel, and exec,
+# a development aid that runs any command in the image with the stand-ins on
+# PATH and the settings loaded. gnoto init never reaches the image. The commands
 # starting with an underscore are jobs, which lib/start.sh and lib/databases.sh
 # submit: _job, the head job; _followup; _local, which runs both one after the
 # other on this machine; and _fetch, which fetches a database.
@@ -17,14 +17,16 @@
 set -euo pipefail
 
 source "${BASH_SOURCE[0]%/*}/env.sh"
+source "$CODE_DIR/lib/args.sh"
 
 usage() {
     echo "Usage: gnoto init --apptainer=/path/to/apptainer" >&2
-    echo "       gnoto config [<section> [--on|--off]]" >&2
+    echo "       gnoto config [<section> [--on|--off] [--<key>=<value> ...]]" >&2
     echo "       gnoto config slurm --probe" >&2
     echo "       gnoto lint [--yes] [job.yaml]" >&2
-    echo "       gnoto new <pipeline>[@<version>]" >&2
-    echo "       gnoto start [--debug] [--yes] job.yaml" >&2
+    echo "       gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" >&2
+    echo "       gnoto run [--debug] [--yes] job.yaml" >&2
+    echo "       gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]" >&2
     echo "       gnoto status [uid]" >&2
     echo "       gnoto cancel <uid>" >&2
     echo "       gnoto exec <command> [arguments]" >&2
@@ -48,12 +50,12 @@ case $COMMAND in
         source "$CODE_DIR/lib/jobfile.sh"
         job_new "$@"
         ;;
-    start)
+    run | start)
         source "$CODE_DIR/lib/lint.sh"
         source "$CODE_DIR/lib/jobfile.sh"
         source "$CODE_DIR/lib/databases.sh"
         source "$CODE_DIR/lib/start.sh"
-        start_main "$@"
+        "${COMMAND}_main" "$@"
         ;;
     status)
         source "$CODE_DIR/lib/runs.sh"

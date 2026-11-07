@@ -47,8 +47,8 @@ Each phase has a test that shows it's finished.
 | --- | --- | --- |
 | 1. Image and helper | The `gnoto` image, launcher, helper and stand-ins | One fixture job, such as `16s-v4` from [fixtures.md](fixtures.md), runs under Slurm through the helper, with no tool taken from the host except Slurm and Apptainer |
 | 2. Restructure | New repo layout, `lib/env.sh`, `config.yaml`, `generated.yaml`, `databases.yaml`, `references.yaml`, `pipelines/<name>/` replacing the `_01` files, no hard-coded paths, unexported secrets | No tracked file names `/data/prod/nextflow`, and scripts load their settings from any install path |
-| 3. Job core | `lib/job.sh`, `options.yaml`, `new`, `lint job.yaml`, `start`, `start --debug`, `status`, `cancel`, input checksums, `history/`, core `config` and config `lint`, and the three job stages, with Publish a stub until phase 7 | A CLI job finishes with no Wrike, AWS or Globus configured, and leaves a full dashboard in `results/` |
-| 4. Version cache | `pipeline@ref`, `start record.yaml`, `<data_dir>/current`, `gnoto upgrade`, `gnoto prune`, and `gnoto resume` with the cleanup that keeps a failed run's cache | A job re-runs correctly from its own commit after `main` has moved on, an upgrade while a job runs leaves that job on its own code, and a run that failed resumes from its own commit with its finished tasks cached |
+| 3. Job core | `lib/job.sh`, `options.yaml`, `new`, `lint job.yaml`, `run`, `run --debug`, `start`, `status`, `cancel`, input checksums, `history/`, core `config` and config `lint`, and the three job stages, with Publish a stub until phase 7 | A CLI job finishes with no Wrike, AWS or Globus configured, and leaves a full dashboard in `results/` |
+| 4. Version cache | `pipeline@ref`, `run record.yaml`, `<data_dir>/current`, `gnoto upgrade`, `gnoto prune`, and `gnoto resume` with the cleanup that keeps a failed run's cache | A job re-runs correctly from its own commit after `main` has moved on, an upgrade while a job runs leaves that job on its own code, and a run that failed resumes from its own commit with its finished tasks cached |
 | 5. Lock files | Image digests, GHCR images, `containers.config`, `db:` names, database digests and `lint --deep` | CI on `main` rejects an image address by tag, and a re-run pulls only by digest |
 | 6. Determinism | `gnoto selftest`, seeds, `stable-files`, and the numeric comparison of core tables | A re-run reports its core tables as identical |
 | 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, `remove`, `config` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
@@ -442,12 +442,23 @@ What's built:
 
 - **Job files.** `pipelines/<name>/options.yaml` lists each pipeline's options, as
   [design.md](design.md#job-files) describes. `lib/jobfile.sh` holds `gnoto new`, the job
-  file checks `lint` and `start` share, and `record.yaml`. A section's keys that aren't
+  file checks `lint`, `run` and `start` share, and `record.yaml`. A section's keys that aren't
   options are checked against the pipeline's `nextflow_schema.json` at its pinned commit,
   fetched with git into `<data_dir>/schemas/`; gnoto's biobakery workflow carries its own
   schema. `pipeline.sh` is evaluated with the job's answers in a scratch run directory, which
   catches its own refusals and gives the owned keys, the parameters and the databases. A
   value naming gnoto's own file is a `code:` name, as `db:` names a database.
+- **The command line,** changed after phase 3's commit at Daniel's request (2026-11-07).
+  `gnoto start job.yaml` became `gnoto run job.yaml`. `gnoto new` prints the job file to
+  stdout, with no `<pipeline>.yaml` written and nothing refused for being there, and takes
+  any of the file's keys as `--<key>=<value>`, typed from `options.yaml` or the schema.
+  `gnoto start <pipeline>` takes the same arguments and runs the file they make, from a
+  temporary file, through `run`'s checks and submission, so a relative `--samplesheet` is
+  made absolute against the current directory. `gnoto config <section>` takes settings as
+  `--<key>=<value>` and then asks nothing. `lib/args.sh` parses every command's arguments in
+  the image, `--<key>=<value>` or `--<key> <value>`, and the launcher parses `gnoto init`'s the
+  same way. [design.md](design.md#the-command-line) has the rules, and
+  [decisions.md](decisions.md) the two rows for them.
 - **`lint` with no job file** checks `config.yaml` and the scheduler, as
   [design.md](design.md#the-command-line) lists. The launcher passes what it read of its eight
   bootstrap settings as `GNOTO_BOOTSTRAP`, for `lint` to compare with `yq`.
@@ -524,6 +535,9 @@ Tested on 2026-11-07, in the test bed:
 | `gnoto start --debug` under Slurm | Completed, with the work directory and staged reads kept, and `cleanup_utc` 14 days out beside `remove_utc` in the expiry file |
 | ampliseq on `16s-v4` with the full pplace reference | EPA-NG was killed for memory at the test bed's 14 GB cap, which the run reported with the task's `.command.err`. The cluster's nodes have room |
 | `test/testbed/checks/job.sh --small` under Slurm, as `alice`, and without Slurm, as `bob` | Pass both ways, 18 checks each: Completed, the dashboard, no network loads from gnoto's pages, the feature table (22 ASVs), the zip, the published job file and record with checksums, batch and primers and no site path, cleanup, history, expiry a month out, group-writable, listed by `status`. About 8 minutes each |
+| The command line, after phase 3: `job-test.sh` with `gnoto new`'s values (a space and `=` in one, the space form, an empty value, a relative samplesheet, options and parameters typed) and refusals (an unknown key, a section option without its section, another pipeline's key, an unknown parameter, a word for a number, a value not offered, a key with no value or a value starting with `--`, a key given twice, a single dash); `lib-test.sh` with `gnoto config`'s arguments and refusals; `launcher-test.sh` with `gnoto init`'s, in `debian:13-slim`, since neither the image nor the test bed has `dash` | Pass: 74, 58 and 42 checks |
+| `config.sh` on its own install, now with `gnoto config slurm --max_cpus=4 --max_memory=14.GB --max_time 4.h` off a terminal, an unknown setting, and a `globus` section added from arguments | Pass, 28 checks |
+| A fresh install set up with no prompt by `gnoto config core --data_dir=… --db_dir=…`, `gnoto config apptainer --binds=…` and `gnoto config slurm --max_cpus=4 --max_memory=14.GB --max_time=4.h`, then `job.sh --small`, which writes its job file with `gnoto new` and runs it with `gnoto start`, under Slurm and after `gnoto config slurm --off`; then `job.sh --small --cancel`, which runs that file with `gnoto run`, without Slurm | Pass: 19 checks each way, the job file in history naming the samplesheet in full, and the cancel's 5 |
 
 The test bed's node can't hold EPA-NG on the full pplace reference, so its end-to-end runs use
 `db:test/pplace-small`, 2,000 tips cut from it with gotree, made by hand there.
@@ -650,7 +664,7 @@ once `lint` or a launch failure has listed it.
 | `*_upload.sh` scripts mix compute, dashboard pages and publishing | Split into the three job stages |
 | The run directory is deleted on success (`scripts/wrike_followup.sh:419`) | Copy `job.yaml`, the record and the final state to `history/<uid>/` first. Delete the whole directory only when Globus or S3 is set and the zip, and with S3 the pages, are confirmed there. Otherwise keep `results/` and the zip, and delete the rest |
 | The deliverables zip goes only to Globus, and the upload fails without it (`scripts/ampliseq_upload.sh:477-479`) | Keep the zip in exactly one place: Globus if it's set, otherwise S3, otherwise the run directory |
-| `run` builds a Wrike task, stages it in a Personal space and waits for the webhook | `start` creates the task and submits the job itself |
+| `run` builds a Wrike task, stages it in a Personal space and waits for the webhook | `gnoto run` and `gnoto start` create the task and submit the job themselves |
 | The listener runs the task handler itself, so form requests need SQS | The listener calls `gnoto wrike <task_id>`. In both modes, a user timer runs the `gnoto wrike` reconciliation scan every `wrike.poll_minutes`, or a person does |
 | The listener reads only the first event in each payload, and deletes the SQS message before handling it (`scripts/wrike_sqs_listener.sh:79-96`) | Handle every event, and delete a message only after handling it |
 | `scripts/run_state.sh:95-99` writes unlocked when `flock` fails (`flock 9 \|\| true`) | A write that can't get its lock fails |

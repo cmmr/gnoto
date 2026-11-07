@@ -2,7 +2,7 @@
 # databases.sh - The databases a job needs: which are missing, offering to fetch
 # them, and the fetch job itself.
 #
-# Sourced by:  lib/main.sh, for lint, start and the _fetch job
+# Sourced by:  lib/main.sh, for lint, run, start and the _fetch job
 # Defines:     databases_check, databases_offer, databases_wait, fetch_main
 # Requires:    yq, jq and flock; the settings and helpers from lib/env.sh, and
 #              lint_ok, lint_warn and lint_fail from lib/lint.sh
@@ -15,9 +15,9 @@
 # database appears whole or not at all. A failed fetch leaves nothing.
 #
 # A fetch runs as a job, through the scheduler. While it runs, <path>.fetching
-# names it, so a second lint reports it rather than starting another, and start
-# makes the job wait for it: with Slurm through --dependency=afterok, and on
-# this machine by watching the marker.
+# names it, so a second lint reports it rather than starting another, and a run
+# waits for it: with Slurm through --dependency=afterok, and on this machine by
+# watching the marker.
 
 # The conf/databases.yaml entry a db: name falls under, as its path, or nothing
 db_entry_for() {

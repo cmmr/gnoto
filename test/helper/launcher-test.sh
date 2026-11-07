@@ -193,7 +193,18 @@ rm "$DIR/config.yaml"
 init_with --apptainer=stub/bin/ > /dev/null
 check "init: a relative directory" "  bin_dir: \"$WORK/stub/bin\"" "$(grep bin_dir "$DIR/config.yaml")"
 rm "$DIR/config.yaml"
+init_with --apptainer stub/bin/apptainer > /dev/null
+check "init: the space form" "  bin_dir: \"$WORK/stub/bin\"" "$(grep bin_dir "$DIR/config.yaml")"
+rm "$DIR/config.yaml"
 check "init: no option" "gnoto: Usage: gnoto init --apptainer=/path/to/apptainer" "$(init_with)"
+check "init: no value" "gnoto: --apptainer needs a value, as --apptainer=/path/to/apptainer" \
+    "$(init_with --apptainer)"
+check "init: an empty value" "gnoto: --apptainer needs a value, as --apptainer=/path/to/apptainer" \
+    "$(init_with --apptainer=)"
+check "init: a value after a space can't start with --" \
+    "gnoto: --apptainer needs a value, as --apptainer=/path/to/apptainer" "$(init_with --apptainer --x)"
+check "init: given twice" "gnoto: --apptainer is given twice" \
+    "$(init_with --apptainer="$WORK/stub/bin/apptainer" --apptainer "$WORK/stub/bin/apptainer")"
 check "init: another option" "gnoto: gnoto init takes --apptainer=/path/to/apptainer, not --podman=/x" \
     "$(init_with --podman=/x)"
 check "init: no apptainer there" "gnoto: there's no apptainer command at /usr/bin/apptainer" \

@@ -1,17 +1,20 @@
 #
-# start.sh - gnoto start: lints a job file, creates its run directory, and
-# submits the job and its followup.
+# start.sh - gnoto run and gnoto start: lints a job, creates its run directory,
+# and submits the job and its followup.
 #
-# Sourced by:  lib/main.sh, for start
-# Defines:     start_main, start_run
-# Requires:    the settings and helpers from lib/env.sh; job_check and
-#              record_write from lib/jobfile.sh; lint_ok, lint_warn,
-#              lint_fail and nodes_prescan from lib/lint.sh; databases_offer
-#              from lib/databases.sh
+# Sourced by:  lib/main.sh, for run and start
+# Defines:     run_main, start_main, start_run
+# Requires:    the settings and helpers from lib/env.sh; args_parse from
+#              lib/args.sh; job_check, job_yaml and record_write from
+#              lib/jobfile.sh; lint_ok, lint_warn, lint_fail and nodes_prescan
+#              from lib/lint.sh; databases_offer from lib/databases.sh
 #
-# Usage:  gnoto start [--debug] [--yes] job.yaml
-#         --debug keeps the whole run directory for core.keep_run_days. --yes
-#         accepts fetching missing databases, which the job then waits for.
+# Usage:  gnoto run [--debug] [--yes] job.yaml
+#         gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]
+#         run starts a job file. start makes the job file gnoto new would print,
+#         in a temporary file, and starts that. --debug keeps the whole run
+#         directory for core.keep_run_days. --yes accepts fetching missing
+#         databases, which the job then waits for.
 #
 # Once the job file passes, and before anything is submitted, the check before
 # each job asks Slurm's nodes over ssh whether they can run it, so that the
@@ -39,23 +42,34 @@ new_uid() {
     head -c 5 /dev/urandom | base32 | tr 'A-Z' 'a-z'
 }
 
+run_main() {
+    local usage="Usage: gnoto run [--debug] [--yes] job.yaml"
+
+    args_parse "$usage" "debug yes" "$@"
+    [[ ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto run takes --debug and --yes, not --${ARG_KEYS[0]}. $usage"
+    [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
+    run_job "${ARG_WORDS[0]}"
+}
+
 start_main() {
-    local debug=false yes=false file="" fetch_after=""
+    local usage="Usage: gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]" yaml
 
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --debug) debug=true; shift ;;
-            --yes) yes=true; shift ;;
-            -*) fail "Usage: gnoto start [--debug] [--yes] job.yaml" ;;
-            *)
-                [[ -z $file ]] || fail "Usage: gnoto start [--debug] [--yes] job.yaml"
-                file=$1
-                shift
-                ;;
-        esac
-    done
-    [[ -n $file ]] || fail "Usage: gnoto start [--debug] [--yes] job.yaml"
+    args_parse "$usage" "debug yes" "$@"
+    [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
+    yaml=$(job_yaml "${ARG_WORDS[0]}") || exit 1
+    START_JOB_FILE=$(mktemp "${TMPDIR:-/tmp}/gnoto-job.XXXXXX") ||
+        fail "Can't write the job file in ${TMPDIR:-/tmp}."
+    trap 'rm -f "$START_JOB_FILE"' EXIT
+    printf '%s\n' "$yaml" > "$START_JOB_FILE" || fail "Can't write the job file $START_JOB_FILE."
+    run_job "$START_JOB_FILE"
+}
 
+# Checks a job file and starts it, with --debug and --yes from ARG_FLAGS
+run_job() {
+    local file=$1 fetch_after="" debug=false yes=false
+
+    [[ -z ${ARG_FLAGS[debug]:-} ]] || debug=true
+    [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
     job_check "$file"
     if (( LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )); then
         nodes_prescan
@@ -75,8 +89,10 @@ start_main() {
 # fetches, if any.
 start_run() {
     local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_id followup_id
-    local job_time
+    local job_time job_file=$JOB_FILE
 
+    # gnoto start's job file is temporary, so the state names none
+    [[ -z ${START_JOB_FILE:-} ]] || job_file=""
     job_time=$(slurm_time "${SLURM_JOB_TIME:-}") ||
         fail "Not started: slurm.job_time is \"$SLURM_JOB_TIME\". Write it as Slurm does, such as 2-00:00:00, or as 48.h."
 
@@ -121,7 +137,7 @@ start_run() {
         --arg owner "$(id -un)" \
         --arg samplesheet "$JOB_SAMPLESHEET" \
         --argjson databases "$(printf '%s\n' "${JOB_DATABASES:-}" | jq -R . | jq -s 'map(select(length > 0))')" \
-        --arg job_file "$JOB_FILE" \
+        --arg job_file "$job_file" \
         --arg nextflow_config "$nextflow_config" \
         --arg nextflow_sha "$nextflow_sha" \
         --arg kind "$(scheduler_kind)" '

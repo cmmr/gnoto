@@ -2,13 +2,14 @@
 # lint.sh - gnoto lint: checks a job file, or with none, this install's
 # settings and what they point at.
 #
-# Sourced by:  lib/main.sh, for lint and start; lib/config.sh, for gnoto config
-#              slurm --probe
+# Sourced by:  lib/main.sh, for lint, run and start; lib/config.sh, for gnoto
+#              config slurm --probe
 # Defines:     lint_main, lint_ok, lint_warn, lint_fail, lint_list, LINT_FAILS,
 #              LINT_WARNS
-# Requires:    the settings and helpers from lib/env.sh, and job_check from
-#              lib/jobfile.sh, databases_offer from lib/databases.sh; sinfo
-#              through its stand-in, with Slurm; lib/nodes.sh, which it sources
+# Requires:    the settings and helpers from lib/env.sh, args_parse from
+#              lib/args.sh, job_check from lib/jobfile.sh, and databases_offer
+#              from lib/databases.sh; sinfo through its stand-in, with Slurm;
+#              lib/nodes.sh, which it sources
 #
 # Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit code.
 
@@ -301,19 +302,13 @@ lint_config() {
 
 # gnoto lint [--yes] [job.yaml]. --yes accepts fetching missing databases.
 lint_main() {
-    local yes=false file=""
+    local usage="Usage: gnoto lint [--yes] [job.yaml]" yes=false file=""
 
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --yes) yes=true; shift ;;
-            -*) fail "Usage: gnoto lint [--yes] [job.yaml]" ;;
-            *)
-                [[ -z $file ]] || fail "Usage: gnoto lint [--yes] [job.yaml]"
-                file=$1
-                shift
-                ;;
-        esac
-    done
+    args_parse "$usage" "yes" "$@"
+    [[ ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto lint takes --yes, not --${ARG_KEYS[0]}. $usage"
+    [[ ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
+    [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
+    file=${ARG_WORDS[0]:-}
     if [[ -z $file ]]; then
         lint_config
     else
@@ -322,7 +317,7 @@ lint_main() {
         if (( LINT_FAILS > 0 && LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )) &&
             [[ $yes == true || -t 0 ]]; then
             databases_offer "$yes" > /dev/null || return 1
-            echo "Once the fetches finish, gnoto start runs this job. Started now, it waits for them."
+            echo "Once the fetches finish, gnoto run starts this job. Started now, it waits for them."
             return 1
         fi
     fi

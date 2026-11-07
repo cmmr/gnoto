@@ -17,12 +17,14 @@ where its results go, never what the results are.**
 
 - **Install:** download a release tarball and extract it. With Apptainer on `PATH`, gnoto
   runs as it is. Otherwise `gnoto init --apptainer=<path>` says where it is.
-  `gnoto config <section>` adds a section of settings when a site wants one.
+  `gnoto config <section>` adds a section of settings when a site wants one, asking for
+  them or taking them as `--<key>=<value>`.
 - **Interface:** one `gnoto` command with `init`, `config`, `lint`, `status`, `new`,
-  `start`, `wrike`, `publish`, `cancel`, `resume`, `extend`, `remove`, `prune`, `upgrade`
-  and `selftest`.
-- **Jobs:** `new` writes a skeleton, `lint` checks it, and `start` turns it into a
-  record that can re-run the job.
+  `run`, `start`, `wrike`, `publish`, `cancel`, `resume`, `extend`, `remove`, `prune`,
+  `upgrade` and `selftest`.
+- **Jobs:** `new` prints a job file, with any values given as `--<key>=<value>`, `lint`
+  checks it, and `run` turns it into a record that can re-run the job. `start` does
+  `new` and `run` in one step.
 - **Versions:** `ampliseq` uses the current release, and `ampliseq@1.2.0` that
   release. Every job runs from a read-only copy of its commit.
 - **Tools:** a pinned `gnoto` image holds every tool except Slurm, Apptainer and
@@ -41,15 +43,15 @@ lives under `core.data_dir`, and settings live in `config.yaml`.
 ```mermaid
 flowchart TD
     form["Wrike request form<br/>gnoto wrike writes the job file"] --> start
-    new["gnoto new, then job.yaml<br/>filled in by a person"] --> start
-    start["gnoto lint, then start<br/>same checks and submission for both routes"] --> code
+    new["gnoto new, then job.yaml<br/>filled in by a person, or gnoto start<br/>with the values as arguments"] --> start
+    start["gnoto lint, then run<br/>same checks and submission for both routes"] --> code
     code["Code at the job's commit<br/>read-only copy, fetched with git on the login node<br/>IMAGE and lock.yaml pin the gnoto image, tool images and databases"] --> compute
     subgraph job["The job, on Slurm or locally"]
         compute["Compute<br/>core tables, always runs"] --> present["Present<br/>dashboard pages, no cloud needed"]
         present --> publish["Publish<br/>S3 and Globus, skipped if unset"]
     end
     compute --> record["record.yaml<br/>commit, input checksums, every parameter<br/>published with the results"]
-    record -. "gnoto start record.yaml repeats the run exactly" .-> start
+    record -. "gnoto run record.yaml repeats the run exactly" .-> start
     config["config.yaml<br/>where it runs and where results go,<br/>never what the results are"] -.-> publish
     style compute stroke-width:3px
 ```
@@ -79,9 +81,9 @@ gnoto                 launcher: a small sh script
 IMAGE                 the gnoto image's address, by digest
 CHANGELOG.md          release notes, shown by gnoto upgrade
 host/                 host helper, the stand-in, and allowed/, the host commands per backend
-lib/                  entry point in the image, settings loader, gnoto config and config/,
-                      which declares each config.yaml section, job runner, run state,
-                      parameters, scheduler and container calls, helpers
+lib/                  entry point in the image, argument parser, settings loader, gnoto
+                      config and config/, which declares each config.yaml section, job
+                      runner, run state, parameters, scheduler and container calls, helpers
 pipelines/<name>/     definition, options.yaml, lock.yaml, containers.config, stable-files,
                       selftest.yaml, and taxprofiler's database.csv
 workflows/, modules/  Nextflow code
@@ -220,11 +222,11 @@ rather than a rewrite:
   engines on at once is an error. `gnoto config <backend>` asks for a backend's settings,
   suggesting what the launcher finds on `PATH`.
 - **Jobs on this machine run detached on the host.** A process started inside the image
-  would lose the image, and the helper, when the command that started it ended. So `start`
-  queues the job in the launcher's private directory, and once the image has exited, the
-  launcher starts it with `setsid nohup` as another run of itself, which only ever runs a
-  gnoto job. The job and its followup run one after the other in that one process, and
-  `status` checks it by host and process ID. Its tasks run under Nextflow's local executor,
+  would lose the image, and the helper, when the command that started it ended. So `run`
+  and `start` queue the job in the launcher's private directory, and once the image has
+  exited, the launcher starts it with `setsid nohup` as another run of itself, which only
+  ever runs a gnoto job. The job and its followup run one after the other in that one
+  process, and `status` checks it by host and process ID. Its tasks run under Nextflow's local executor,
   capped at the machine's CPUs and memory.
 
 Some parts already assume neither: images are OCI, `status` reads state files, and
@@ -253,6 +255,8 @@ image, and refuses if there's a `config.yaml` already. A later version can take 
 container engine in place of `--apptainer`. `gnoto config` lists the other sections, and
 `gnoto config slurm --on`, for one, adds Slurm with what it finds: its commands and
 `SLURM_CONF` from the launcher's `PATH`, and its default partition and limits from `sinfo`.
+`gnoto config slurm --max_cpus=32`, given a setting, adds it the same way, with that setting
+in place of what's found.
 
 Pinned installs swap `latest/download` for `download/v1.2.0`, with
 `gnoto.tar.gz.sha256` beside each asset. On every version tag, a GitHub Actions job
@@ -312,11 +316,17 @@ globus     Deliver results through a Globus guest collection
 ```
 
 `gnoto config <section>` asks for each of the section's settings, suggesting what its
-declaration finds, or else the current value. `--on` and `--off` set the section's `enabled`
-without asking. When `config.yaml` doesn't have the section yet, either way adds the whole
-section, with the answers or with every suggestion, and only that section. Asking turns a
-new section on. `gnoto config slurm --probe` checks every compute node instead, as the notes
-on nodes gnoto's jobs avoid say, and writes nothing to `config.yaml`.
+declaration finds, or else the current value. Given settings as arguments, as in
+`gnoto config slurm --max_time=48.h`, it sets those and asks nothing, so a script can run
+it. Each is checked as an answer would be, an empty value clears one, and a key the section
+doesn't declare is refused, with the ones it does. A list, such as `apptainer.binds`, is
+comma-separated in one value. `--on` and `--off` set the section's `enabled`, alone or with
+settings, and are the only way to set it. When `config.yaml` doesn't have the section yet,
+any of these adds the whole section, with the answers, or with the settings given and
+suggestions for the rest, and only that section. A new section is on unless `--off` is
+given. A secret given as an argument stays in the shell's history, while one typed at the
+prompt isn't shown. `gnoto config slurm --probe` checks every compute node instead, as the
+notes on nodes gnoto's jobs avoid say, and writes nothing to `config.yaml`.
 
 Each section but `core` starts with `enabled`, so a section can be set up but not used. A
 section is on only when `enabled` is `true`, and code that uses a section checks that first.
@@ -390,7 +400,7 @@ them.
 
 ## The command line
 
-The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` and
+The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `run`, `start` and
 `publish` run from the version the job names. Every other command, `status`, `cancel`,
 `extend` and `remove` included, runs from the current release, named in
 `<data_dir>/current`.
@@ -400,12 +410,13 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto init --apptainer=<path>` | Writes a `config.yaml` holding only `apptainer.bin_dir`, without needing Apptainer on `PATH` or starting the image. Refuses if `config.yaml` exists | Writes one file |
 | `gnoto lint` | Checks `config.yaml` and every configured integration | Only temporary test files. As the first command, it also pulls the image and records the current release |
 | `gnoto lint [--deep] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--yes` accepts a database download | Only if you accept a database download |
-| `gnoto config [<section> [--on\|--off]] [--deploy] [--profile <name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them, adding the section if it's new, or with `--on` or `--off` turns it on or off, adding it with what's found if it's new. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
+| `gnoto config [<section> [--on\|--off] [--<key>=<value> ...]] [--deploy] [--profile=<name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
 | `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
 | `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
-| `gnoto new ampliseq[@ref]` | Writes a job skeleton to `ampliseq.yaml` in the current directory, and refuses to overwrite one | Writes one file |
-| `gnoto start [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree. `--yes` accepts a database download, which the job then waits for | Yes |
-| `gnoto start record.yaml --inputs <dir>` | Re-runs a recorded job exactly | Yes |
+| `gnoto new ampliseq[@ref] [--<key>=<value> ...]` | Prints a job file, with any values given, for redirecting to a file | No |
+| `gnoto run [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree. `--yes` accepts a database download, which the job then waits for | Yes |
+| `gnoto start ampliseq[@ref] [--debug] [--dev] [--yes] [--<key>=<value> ...]` | `new` and `run` in one step: makes the job file from its arguments, then lints and submits it | Yes |
+| `gnoto run record.yaml --inputs=<dir>` | Re-runs a recorded job exactly | Yes |
 | `gnoto wrike [task_id]` | Starts that Wrike task if it's waiting. Without a task ID, runs the reconciliation scan: starts every waiting task in "gnoto Jobs", removes runs whose task is gone, copies Expiration dates and reactivates a suspended webhook | Yes |
 | `gnoto publish <uid>` | Runs Present and Publish again for a run whose Compute finished. Safe to repeat | Yes |
 | `gnoto cancel <uid>` | Cancels a job | Yes |
@@ -416,6 +427,13 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto upgrade [version]` | Fetches a release into `versions/`, shows its release notes, then makes it current | Yes |
 | `gnoto selftest [--dev] [pipeline]` | Runs the fixture jobs from [fixtures.md](fixtures.md) and checks their core tables against the current release's checksums. `--dev` compares a working tree with the last release instead | Only its own runs, and any database fetch you accept |
 | `gnoto exec <command>` | For development: runs any command in the image, with the stand-ins on `PATH` | Whatever the command does |
+
+**Arguments.** Every command takes them the same way, as GNU tools do: `--<key>=<value>`,
+or `--<key> <value>`, which the docs and examples leave aside. A value can be empty or hold
+spaces and `=`, but after a space it can't start with `--`. A command's own flags, such as
+`--debug`, `--yes`, `--on` and `--off`, take no value, and every other option takes one, so
+a boolean is written `--x=true`. A key given twice is refused. `lib/args.sh` parses them
+for every command in the image, and the launcher applies the same rules to `gnoto init`.
 
 **`lint`.** Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit
 code. Before `config` has run, `lint` reports what's missing as a WARN that says which
@@ -538,8 +556,8 @@ Finished in the last 7 days
   R2ZD8H6W  ampliseq@1.1.0   Failed           Oct 30   DADA2 removed every read
 ```
 
-**`start`.** It lints, checks the compute nodes over `ssh` (below), creates the run
-directory, submits the job, prints the uid and exits. If S3 or Globus is configured, the job publishes to it and `status` shows the
+**`run` and `start`.** Each lints, checks the compute nodes over `ssh` (below), creates the
+run directory, submits the job, prints the uid and exits. If S3 or Globus is configured, the job publishes to it and `status` shows the
 link. Without either, the same dashboard pages and the deliverables zip stay in
 `<data_dir>/runs/<uid>/`.
 
@@ -581,7 +599,7 @@ the zip and the record, as a run with no publishing does, and `status` shows "Pu
 failed". `gnoto publish <uid>` submits Present and Publish again as a job, and is safe to
 repeat.
 
-**`--debug`.** `gnoto start --debug` keeps the whole run directory for
+**`--debug`.** `gnoto run --debug`, or `start`, keeps the whole run directory for
 `core.keep_run_days`, whatever the outcome. The usual cleanup happens after that. The
 daily timer does these delayed deletions, so without it nothing is cleared.
 
@@ -600,25 +618,25 @@ reports any file with another group or without group read and write. The one exc
 is the files in `versions/`, which stay read-only, as covered under "Versions and the
 code cache". Teardown reports anything it couldn't delete.
 
-**CLI jobs get a Wrike task when Wrike is configured.** `start` creates the task in
+**CLI jobs get a Wrike task when Wrike is configured.** `run` or `start` creates the task in
 "gnoto Jobs" before submitting. Its title comes from the job's `title`, its
 description names the caller, and `job.yaml` is attached.
 
 - **Same behavior as a form request:** the uid comes from the task ID, so status
   updates, the results comment, expiry and deleting the task all work the same way.
-- **No double submission:** the webhook still fires for the new task, but `start`
-  creates it directly in the `Running` status, which
+- **No double submission:** the webhook still fires for the new task, but it's
+  created directly in the `Running` status, which
   [task creation accepts](https://developers.wrike.com/reference/postfolderssingletasks.md).
   It's never waiting, so `gnoto wrike` passes it by. If the submission then fails, the
   task moves to `Failed`.
 - **Wrike stays optional:** with no `wrike` section the uid is random. If Wrike is
-  configured but can't be reached, `start` refuses the job and says why, so every
+  configured but can't be reached, the job is refused with the reason, so every
   job gets its task.
 
 **`wrike`.** This is the form route's way in. A task is waiting when it sits in
 "gnoto Jobs" with the status `Submitted`, and has no run directory or history yet. For
 each waiting task, `wrike` turns the task's answers into a job file and calls the same
-lint and submit code as `start`. A rejection sets the task to `Failed` with the reason in
+lint and submit code as `run`. A rejection sets the task to `Failed` with the reason in
 a comment, which also takes it off the waiting list. Missing databases are fetched
 without asking, and the job waits for those fetches to succeed. Given a task ID, it
 handles only that task. Without one, it scans the folder. The `mkdir` guard on the run
@@ -710,7 +728,7 @@ exist. A Wrike task, if there is one, moves to `Expired`.
 **Locking.** Every command that acts on one run takes that run's lock: `cancel`,
 `extend`, `remove`, `publish`, the expiry check and the job's own cleanup. So an extension
 can't land in the middle of a teardown. `prune` takes the cache lock exclusively, and
-`start` holds it shared until the run's state names its commit, so `prune` can't delete a
+`run` holds it shared until the run's state names its commit, so `prune` can't delete a
 version that a starting job has just resolved. A write that can't get its lock fails, and
 never goes ahead unlocked.
 
@@ -720,18 +738,18 @@ Three files define a run, and each has one author.
 
 | File | Written by | Holds | Lives in |
 | --- | --- | --- | --- |
-| `job.yaml` | A person, starting from `new` | Pipeline and version, title, samplesheet, options | Anywhere, with a copy without paths in the run's results |
-| `record.yaml` | `start` and the job itself | Commit, input checksums, every resolved parameter | The run's results, published beside them |
+| `job.yaml` | A person, starting from `new`, or `start` from its arguments | Pipeline and version, title, samplesheet, options | Anywhere, with a copy without paths in the run's results |
+| `record.yaml` | `run` or `start`, and the job itself | Commit, input checksums, every resolved parameter | The run's results, published beside them |
 | `lock.yaml` | The release process | Upstream commit, tool image digests, database digests | `pipelines/<name>/` in the repo |
 
 **`job.yaml`** keeps gnoto's own settings at the top level, including options that aren't
 upstream parameters, such as which reads a taxprofiler job delivers. A section named for
 the pipeline holds the parameters passed to it, so `mergepairs_strategy` is
 `ampliseq.mergepairs_strategy`. Comments sit on their own lines. `gnoto new ampliseq`
-writes:
+prints:
 
 ```yaml
-# Check with: gnoto lint <this file>
+# Check with: gnoto lint <this file>. Run with: gnoto run <this file>
 pipeline: ampliseq@1.2.0
 
 # Names the results
@@ -760,6 +778,31 @@ ampliseq:
 The section's keys and values are the pipeline's own, so the upstream documentation
 describes them. A taxprofiler job has a `taxprofiler` section and a biobakery job has
 a `biobakery` section, which work the same way.
+
+**Values as arguments.** `gnoto new` prints only the job file, so it can be redirected
+anywhere, and its messages go to stderr. It takes any key of the file as
+`--<key>=<value>`: `--title`, `--samplesheet` and gnoto's other options at the top, and
+`--<pipeline>.<key>` for the pipeline's section, which takes its options and any parameter
+in its schema:
+
+```bash
+gnoto new taxprofiler --title="wgs-mock taxprofiler" --samplesheet=mock.tsv \
+    --taxprofiler.instrument_platform=ILLUMINA > job.yaml
+```
+
+Each value is written with its type: an option's as the `values` in `options.yaml` are, so
+`--ampliseq.picrust=true` writes `picrust: true`, and a parameter's as its schema says, so
+`--ampliseq.trunclenf=230` is a number. A `multiple: true` option takes several values
+comma-separated, as `--ampliseq.exclude_taxa=mitochondria,chloroplast`. An empty value
+leaves an option at gnoto's default. A relative `--samplesheet` is made absolute against
+the current directory, as any path on a command line is, while a samplesheet written into
+a job file by hand is relative to the file. A key that's neither an option nor a parameter
+in the schema, a value an option doesn't offer, or one a parameter's type doesn't fit is
+refused, with what's allowed. `lint` makes its other checks when the file runs.
+
+`gnoto start` takes the same arguments, and `--debug` and `--yes` as `run` does, and runs
+the job file they make at once, through the same checks and submission as `gnoto run`. The
+file goes in the run directory as `job.yaml`, as `run`'s does.
 
 **How values combine.** `pipeline.sh` sets defaults for the pipeline's parameters and
 declares the keys gnoto owns, such as `input`, `outdir` and `metadata`. A job's section
@@ -868,7 +911,7 @@ inputs:
 - **No site paths.** `db:` names resolve against `core.db_dir`, and `code:` names against
   the code directory. Hosts, the Wrike task ID, timings, the host's Apptainer version and
   the CPU model stay in `run_state.json`.
-- **Written twice.** `start` writes a first record, from the parameters `pipeline.sh`
+- **Written twice.** `run` writes a first record, from the parameters `pipeline.sh`
   gives before anything is measured, so a run that fails early still has one. The job
   rewrites it once the parameters are final, and again at the end of Compute, when it
   also copies it, and `job.yaml` with its samplesheet reduced to the file's name, into
@@ -876,11 +919,11 @@ inputs:
   checkout nor a release, has `dev: true` and an empty `commit`.
 - **Inputs are found by checksum.** `--inputs <dir>` names where a re-run looks for
   its FASTQs, subfolders included, and each file is matched to the record by its SHA-256,
-  so names and paths can differ from the original run. To keep `start` fast on the login
+  so names and paths can differ from the original run. To keep `run` fast on the login
   node, it shortlists files by size, which the record also holds. The job then checks each
   SHA-256 while staging, and fails on a mismatch or a missing file.
 - **Input checksums** are taken from the files as given, on the compute node during
-  staging, so `start` stays fast on the login node.
+  staging, so `run` stays fast on the login node.
 - **Measured values are recorded.** Detected primers and the sequencing platform land in
   the pipeline section. Each input's batch, which ampliseq uses to train DADA2's error
   model, lands in its `run` field. A re-run skips detection and keeps the original batches,
@@ -893,8 +936,8 @@ inputs:
 
 | You want | Command | What's reused | What's checked |
 | --- | --- | --- | --- |
-| The same run again | `gnoto start record.yaml --inputs <dir>` | Commit, inputs, parameters | Inputs and databases match their checksums, and outputs are compared with the record's at the end |
-| The same recipe on new samples | `cp job.yaml new.yaml`, edit its samplesheet, then `gnoto start new.yaml` | Pinned version and answers | The new samples lint like any other job, and primers are measured again |
+| The same run again | `gnoto run record.yaml --inputs=<dir>` | Commit, inputs, parameters | Inputs and databases match their checksums, and outputs are compared with the record's at the end |
+| The same recipe on new samples | `cp job.yaml new.yaml`, edit its samplesheet, then `gnoto run new.yaml` | Pinned version and answers | The new samples lint like any other job, and primers are measured again |
 
 Wrike's `prev_run_id`, a request-form question naming an earlier run's uid, does the
 second: it reads that run's `job.yaml` from
@@ -1006,7 +1049,7 @@ naming what it couldn't reach, and stops the job with that command's error, rath
 leaving a later step to fail on a missing file. Wrike updates are the exception, as the
 command line section describes.
 
-`gnoto start --dev` runs from a working tree for development. It marks the record
+`gnoto run --dev` runs from a working tree for development. It marks the record
 `dev: true`, and that record can't be re-run.
 
 **Pruning.** `versions/` and `images/` only grow. `gnoto prune` removes the versions and
@@ -1106,9 +1149,9 @@ step, and systemd has no section. An integration whose section is off or missing
   | Status | Wrike group | Set by |
   | --- | --- | --- |
   | `Submitted` | Active | The request form |
-  | `Running` | Active | `gnoto wrike` once the job is submitted, or `start`, which creates CLI tasks in this status |
+  | `Running` | Active | `gnoto wrike` once the job is submitted, or `run`, which creates CLI tasks in this status |
   | `Completed` | Completed | The followup, on success |
-  | `Failed` | Cancelled | The followup, on failure, including a failed publish or a run Slurm lost. Also `gnoto wrike` on a rejected request, and `start` when a CLI job's submission fails |
+  | `Failed` | Cancelled | The followup, on failure, including a failed publish or a run Slurm lost. Also `gnoto wrike` on a rejected request, and `run` when a CLI job's submission fails |
   | `Cancelled` | Cancelled | The followup, after a cancel |
   | `Expired` | Completed | The teardown |
 
@@ -1240,7 +1283,7 @@ submits the job with an `afterok` dependency on the fetch jobs.
 **Fetching safely.** Each fetch writes into `<name>.tmp.<jobid>` under a lock for that
 database, and renames it into place only on success. A marker, `<name>.fetching`, names
 the fetch job, so a second `lint` reports "being fetched by job N" rather than starting
-another fetch, and `start` submits with `--dependency=afterok:N`, and with
+another fetch, and `run` submits with `--dependency=afterok:N`, and with
 `--kill-on-invalid-dep=yes`, since a failed fetch would otherwise leave the job queued
 for good. The followup then says which fetch failed. A marker whose job has gone is
 removed. Without Slurm, the fetch runs on this machine like a job, and the job

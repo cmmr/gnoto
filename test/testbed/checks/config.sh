@@ -2,7 +2,8 @@
 #
 # config.sh - Checks that gnoto runs without config.yaml, that gnoto init writes
 # only an apptainer section, and that gnoto config lists the sections, adds one
-# at a time, asks for one's settings, and turns one on and off, in the test bed.
+# at a time, asks for one's settings or takes them as arguments, and turns one
+# on and off, in the test bed.
 #
 # Run by:  a developer, as alice, on a copy of the install with no config.yaml:
 #          docker exec gnoto-testbed runuser -l alice -c 'bash /srv/configtest/gnoto/test/testbed/checks/config.sh'
@@ -70,6 +71,12 @@ $GNOTO config slurm --off > /dev/null 2>&1
 check "slurm --off keeps its settings" "false 6" "$($GNOTO exec bash -c 'echo $SLURM_ENABLED $SLURM_MAX_CPUS')"
 $GNOTO config slurm --on > /dev/null 2>&1
 check "slurm --on again" "true" "$($GNOTO exec bash -c 'echo $SLURM_ENABLED')"
+$GNOTO config slurm --max_cpus=4 --max_memory=14.GB --max_time 4.h < /dev/null > slurm-args.log 2>&1
+check "slurm settings as arguments, off a terminal" "true 4 14.GB 4.h" \
+    "$($GNOTO exec bash -c 'echo $SLURM_ENABLED $SLURM_MAX_CPUS $SLURM_MAX_MEMORY $SLURM_MAX_TIME')"
+check "and says so" "yes" "$(grep -q '^slurm is on' slurm-args.log && echo yes || cat slurm-args.log)"
+check "an unknown setting is refused" "yes" \
+    "$($GNOTO config slurm --max_cpu=4 2>&1 | grep -q 'slurm has no setting max_cpu. Its settings are bin_dir, conf' && echo yes)"
 
 # apptainer: where init said, and one bind, added to the section init wrote
 answering "" /srv -- config apptainer > apptainer.log 2>&1
@@ -88,7 +95,7 @@ check "core has no on or off" "yes" "$($GNOTO config core --on 2>&1 | grep -q 'c
 
 # slurm asked for again, suggesting its current values, with a job time
 answering "" "" "" "" "" "" "" 2-00:00:00 "" -- config slurm > slurm.log 2>&1
-check "config slurm: suggestions" "[/usr/bin] [none] [main] [none] [6] [23.GB] [168.h] [none] [50.GB]" "$(suggestions slurm.log)"
+check "config slurm: suggestions" "[/usr/bin] [none] [main] [none] [4] [14.GB] [4.h] [none] [50.GB]" "$(suggestions slurm.log)"
 check "config slurm: changed in place" "2-00:00:00 true" "$($GNOTO exec yq '.slurm.job_time + " " + (.slurm.enabled | tostring)' "$CONFIG")"
 
 # wrike off, from nothing, then asked for
@@ -99,7 +106,13 @@ answering t0ken "" "" -- config wrike > wrike.log 2>&1
 check "config wrike: a secret, still off" "t0ken false" \
     "$($GNOTO exec yq '.wrike.api_token + " " + (.wrike.enabled | tostring)' "$CONFIG")"
 
-check "only the sections asked for, in that order" "apptainer slurm core wrike" \
+# globus, from nothing, with settings as arguments: on, since --off isn't given
+$GNOTO config globus --run_prefix="lab runs" --dir= < /dev/null > globus.log 2>&1
+check "globus with settings adds it on" \
+    '{"enabled":true,"dir":"","uuid":"","url":"","run_prefix":"lab runs","cli_client_id":"","cli_client_secret":""}' \
+    "$(section globus)"
+
+check "only the sections asked for, in that order" "apptainer slurm core wrike globus" \
     "$($GNOTO exec yq 'keys | join(" ")' "$CONFIG")"
 check "still 660, in alice's own group" "660 alice" "$(stat -c '%a %G' "$CONFIG")"
 echo "      config.yaml:"

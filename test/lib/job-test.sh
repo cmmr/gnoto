@@ -49,21 +49,69 @@ for ref in dada2/silva-138.2 pplace/v1 16s/v1; do
 done
 export GNOTO_INSTALL_DIR=$WORK/install
 source "$CODE/lib/env.sh" || exit 1
+source "$CODE/lib/args.sh"
 source "$CODE/lib/lint.sh"
 source "$CODE/lib/jobfile.sh"
 source "$CODE/lib/databases.sh"
 source "$CODE/lib/followup.sh"
 cd "$WORK/jobs" || exit 1
 
+# gnoto new's message when it refuses, without the date
+new_error() {
+    (job_new "$@" 2>&1 > /dev/null) | sed 's/^\[[^]]*\] ERROR: //'
+}
+
 echo "gnoto new"
-job_new ampliseq > /dev/null 2>&1
-check "writes ampliseq.yaml" "yes" "$([[ -f ampliseq.yaml ]] && echo yes)"
+(job_new ampliseq) > ampliseq.yaml 2> new.err
+check "prints the job file, and nothing else" "ampliseq.yaml new.err" "$(ls | paste -sd ' ')"
 check "with every option" "title samplesheet retention dada_ref_taxonomy picrust exclude_taxa mergepairs_strategy" \
     "$(yq -o=json . ampliseq.yaml | jq -r '[keys_unsorted[] | select(. != "pipeline" and . != "ampliseq")]
         + (.ampliseq | keys_unsorted) | join(" ")')"
 check "retention defaults to 3 Months" "3 Months" "$(yq .retention ampliseq.yaml)"
-check "refuses to overwrite" "1" "$( (job_new ampliseq) > /dev/null 2>&1; echo $?)"
+check "and its help as comments" "yes" "$(has "$(cat ampliseq.yaml)" "# The default is silva=138.2")"
 check "refuses an unknown pipeline" "1" "$( (job_new nothing) > /dev/null 2>&1; echo $?)"
+check "needs a pipeline" "Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" "$(new_error)"
+
+echo "gnoto new, with values"
+(job_new ampliseq --title="Mock = 16S, run 2" --samplesheet good.tsv --retention "1 Month" \
+    --ampliseq.picrust=true --ampliseq.exclude_taxa=mitochondria,chloroplast --ampliseq.mergepairs_strategy= \
+    --ampliseq.trunclenf=230 --ampliseq.trunclenr 160 --ampliseq.skip_fastqc=true) > set.yaml 2> new.err
+check "a space and = in a value" "Mock = 16S, run 2" "$(yq .title set.yaml)"
+check "the space form" "1 Month" "$(yq .retention set.yaml)"
+check "a relative samplesheet made absolute" "$WORK/jobs/good.tsv" "$(yq .samplesheet set.yaml)"
+check "nothing on stderr" "" "$(cat new.err)"
+check "the section, typed: options as their values are, parameters as the schema says, after the options" \
+    "picrust true boolean|exclude_taxa mitochondria,chloroplast string|mergepairs_strategy  string|trunclenf 230 number|trunclenr 160 number|skip_fastqc true boolean" \
+    "$(yq -o=json .ampliseq set.yaml | jq -r 'to_entries[1:][] | "\(.key) \(.value) \(.value | type)"' | paste -sd '|')"
+check "numbers and booleans bare, an empty value quoted" '  picrust: true|  mergepairs_strategy: ""|  trunclenf: 230|  skip_fastqc: true' \
+    "$(grep -E '^  (picrust|mergepairs_strategy|trunclenf|skip_fastqc):' set.yaml | paste -sd '|')"
+(job_new ampliseq --title "Mock 16S" --samplesheet="$WORK/jobs/good.tsv" --ampliseq.picrust false) > set2.yaml
+check "an absolute samplesheet as given, and a false" "$WORK/jobs/good.tsv false" \
+    "$(yq '.samplesheet + " " + (.ampliseq.picrust | tostring)' set2.yaml)"
+
+echo "gnoto new, refused"
+check "an unknown key" "--colour isn't an option for ampliseq. Its options are --title, --samplesheet, --retention, --ampliseq.dada_ref_taxonomy, --ampliseq.picrust, --ampliseq.exclude_taxa, --ampliseq.mergepairs_strategy, and any ampliseq parameter goes as --ampliseq.<parameter>." \
+    "$(new_error ampliseq --colour=blue)"
+check "a section option without its section" "--picrust goes in ampliseq's section, as --ampliseq.picrust." \
+    "$(new_error ampliseq --picrust=true)"
+check "another pipeline's parameter" "--taxprofiler.x: this job runs ampliseq, so its parameters go as --ampliseq.<parameter>." \
+    "$(new_error ampliseq --taxprofiler.x=1)"
+check "an unknown parameter" "--ampliseq.not_a_parameter: ampliseq has no parameter not_a_parameter at its pinned commit." \
+    "$(new_error ampliseq --ampliseq.not_a_parameter=1)"
+check "a word for a number" "--ampliseq.trunclenf takes a whole number." "$(new_error ampliseq --ampliseq.trunclenf=x)"
+check "an empty value for a boolean" "--ampliseq.skip_fastqc takes true or false." "$(new_error ampliseq --ampliseq.skip_fastqc=)"
+check "a value the option doesn't offer" "--ampliseq.picrust takes one of: false, true, not maybe" \
+    "$(new_error ampliseq --ampliseq.picrust=maybe)"
+check "one of several it doesn't offer" \
+    "--ampliseq.exclude_taxa takes some of: mitochondria, chloroplast, Francisella, not nothing" \
+    "$(new_error ampliseq --ampliseq.exclude_taxa="chloroplast, nothing")"
+check "a key with no value" "--title needs a value, as --title=<value>. Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" \
+    "$(new_error ampliseq --title)"
+check "a value after a space can't start with --" "yes" \
+    "$(has "$(new_error ampliseq --title --ampliseq.picrust=true)" "--title needs a value")"
+check "a key given twice" "--title is given twice." "$(new_error ampliseq --title=a --title=b)"
+check "a single dash" "yes" "$(has "$(new_error ampliseq -t x)" "-t isn't an option.")"
+check "two pipelines" "yes" "$(has "$(new_error ampliseq taxprofiler)" "Usage: gnoto new")"
 
 printf '%s\t%s\t%s\n' S1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380142_2.fastq.gz" > good.tsv
 cat > good.yaml << EOF
@@ -91,6 +139,7 @@ OUT=$(lint_job good.yaml)
 check "no failures" "yes" "$(has "$OUT" "fails=0")"
 check "answers read" "yes" "$(has "$OUT" "picrust true")"
 check "the samplesheet is counted" "yes" "$(has "$OUT" "1 sample, 2 FASTQ files")"
+check "gnoto new's job file, with values, passes" "yes" "$(has "$(lint_job set.yaml)" "fails=0")"
 
 echo "lint, mistakes"
 cat > bad.yaml << EOF

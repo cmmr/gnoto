@@ -2,8 +2,9 @@
 #
 # job.sh - Runs an ampliseq job on the 16s-v4 fixture from start to finish
 # through gnoto start, then checks what it leaves: the dashboard, the record,
-# the zip, history, expiry and cleanup. With --cancel, it cancels a second job
-# instead, and checks that it stops and leaves no task running.
+# the zip, history, expiry and cleanup. With --cancel, it runs the job file
+# gnoto new printed through gnoto run instead, cancels it, and checks that it
+# stops and leaves no task running.
 #
 # Run by:  a developer, as any user, in the test bed or on the cluster:
 #          bash <install>/test/testbed/checks/job.sh [--cancel] [--small]
@@ -70,14 +71,16 @@ wait_for() {
 mkdir -p "$WORK"
 cd "$WORK" || exit 1
 printf '%s\t%s\t%s\n' mock1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380142_2.fastq.gz" > v4.tsv
-{
-    printf 'pipeline: ampliseq\ntitle: "16S V4 mock"\nsamplesheet: "v4.tsv"\nretention: "1 Month"\nampliseq:\n'
-    printf '  mergepairs_strategy: merge\n'
-    if [[ $SMALL == true ]]; then
-        printf '  pplace_tree: db:test/pplace-small/bac16s.newick\n'
-        printf '  pplace_aln: db:test/pplace-small/bac16s.alnfna\n'
-    fi
-} > job.yaml
+JOB=(ampliseq --title="16S V4 mock" --samplesheet=v4.tsv --retention="1 Month" --ampliseq.mergepairs_strategy=merge)
+if [[ $SMALL == true ]]; then
+    JOB+=(--ampliseq.pplace_tree=db:test/pplace-small/bac16s.newick)
+    JOB+=(--ampliseq.pplace_aln=db:test/pplace-small/bac16s.alnfna)
+fi
+if ! $GNOTO new "${JOB[@]}" > job.yaml 2> new.log; then
+    echo "FAIL  gnoto new:"
+    sed 's/^/      /' new.log
+    exit 1
+fi
 
 # Missing databases are fetched as jobs, which the job then waits for
 if ! $GNOTO lint --yes job.yaml > lint.log 2>&1 && ! grep -q '^Fetching db:' lint.log; then
@@ -89,8 +92,8 @@ grep '^Fetching db:' lint.log | sed 's/^/      /'
 
 if [[ $CANCEL == true ]]; then
     echo "gnoto cancel on a running job"
-    UID_=$($GNOTO start job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
-    check "start prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
+    UID_=$($GNOTO run job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
+    check "run prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
     [[ -n $UID_ ]] || exit 1
     for (( i = 0; i < 360; i++ )); do
         [[ $(run_status "$UID_") == Running ]] && break
@@ -110,7 +113,7 @@ if [[ $CANCEL == true ]]; then
 fi
 
 echo "gnoto start, to the end"
-UID_=$($GNOTO start job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
+UID_=$($GNOTO start "${JOB[@]}" | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
 check "start prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
 [[ -n $UID_ ]] || exit 1
 RUN=$DATA_DIR/runs/$UID_
@@ -135,6 +138,8 @@ check "the work directory went" "no" "$([[ -e $RUN/work ]] && echo yes || echo n
 check "the staged inputs went" "no" "$([[ -e $RUN/raw-sequences ]] && echo yes || echo no)"
 check "history has the job, record and state" "job.yaml record.yaml state.json" \
     "$(cd "$DATA_DIR/history/$UID_" 2> /dev/null && ls job.yaml record.yaml state.json | paste -sd ' ')"
+check "and the job start made, with the samplesheet in full" "$WORK/v4.tsv" \
+    "$(sed -n 's/^samplesheet: *"*\([^"]*\)"*$/\1/p' "$DATA_DIR/history/$UID_/job.yaml" 2> /dev/null)"
 check "expiry about a month away" "yes" "$(grep -q "remove_utc: \"$(date -u -d '+1 month' +%Y-%m)" \
     "$DATA_DIR/expiry/$UID_" 2> /dev/null && echo yes)"
 check "everything left is group-writable" "" "$(find "$RUN" ! -perm -g+w 2> /dev/null | head -3)"

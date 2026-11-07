@@ -20,14 +20,15 @@
 # gnoto init --apptainer=<path> runs here alone, before Apptainer can be found:
 # it writes a config.yaml holding only an apptainer section that says where it
 # is, for a machine where Apptainer isn't on PATH, and refuses if there's a
-# config.yaml already.
+# config.yaml already. It takes --apptainer <path> too, as lib/args.sh parses
+# the other commands.
 #
 # It finds or pulls the image IMAGE names, starts host/helper.sh on a FIFO in a
 # private directory, and runs lib/main.sh in the image with --cleanenv. Inside,
 # a stand-in for each command in host/allowed/ comes first on PATH and passes
-# calls to the helper. Without Slurm, gnoto start queues its job in the private
-# directory, and this starts it once the image has exited, detached, as
-# another run of this launcher.
+# calls to the helper. Without Slurm, gnoto run and gnoto start queue their job
+# in the private directory, and this starts it once the image has exited,
+# detached, as another run of this launcher.
 #
 # SIGTERM, SIGINT and SIGHUP are passed to Apptainer as SIGTERM, and the helper
 # keeps running until Apptainer exits, because Nextflow cancels its tasks
@@ -78,11 +79,21 @@ bootstrap_setting() {
 init() {
     ENGINE=
     ENGINE_PATH=
-    for OPTION in "$@"; do
-        case $OPTION in
-            --apptainer=?*) ENGINE=apptainer; ENGINE_PATH=${OPTION#*=} ;;
-            *) die "gnoto init takes --apptainer=/path/to/apptainer, not $OPTION" ;;
+    while [ $# -gt 0 ]; do
+        case $1 in
+            --apptainer=*) OPTION=${1%%=*}; VALUE=${1#*=}; shift ;;
+            --apptainer)
+                OPTION=$1
+                case ${2-} in --*) VALUE= ;; *) VALUE=${2-} ;; esac
+                shift
+                [ -z "$VALUE" ] || shift
+                ;;
+            *) die "gnoto init takes --apptainer=/path/to/apptainer, not $1" ;;
         esac
+        [ -n "$VALUE" ] || die "$OPTION needs a value, as $OPTION=/path/to/apptainer"
+        [ -z "$ENGINE" ] || die "$OPTION is given twice"
+        ENGINE=${OPTION#--}
+        ENGINE_PATH=$VALUE
     done
     [ -n "$ENGINE" ] || die "Usage: gnoto init --apptainer=/path/to/apptainer"
     [ ! -e "$CONFIG" ] || die "$CONFIG already exists. Edit it by hand, or run gnoto config."

@@ -1,7 +1,7 @@
-# options.yaml - The options gnoto offers for taxprofiler. gnoto new writes a job
-# skeleton from it, lint checks a job's answers against it, and pipeline.sh reads
-# the answers through form_answer. Phase 7's config wrike makes the request
-# form's fields from it.
+# options.yaml - The options gnoto offers for taxprofiler. gnoto new and start
+# write a job file from it, lint checks a job's answers against it, and
+# pipeline.sh reads the answers through form_answer. Phase 7's config wrike
+# makes the request form's fields from it.
 #
 # Each option has a key, and:
 #   in        top, for gnoto's own options, or section, for those under the
@@ -11,8 +11,8 @@
 #   values    the allowed answers, when they're limited. With multiple: true,
 #             an answer can name several, comma-separated
 #   labels    what the form shows for a value, where that differs
-#   default   what gnoto new writes. Empty means gnoto's default, which help
-#             names
+#   default   what gnoto new writes when it isn't given. Empty means gnoto's
+#             default, which help names
 #   required  true when every job must answer it
 #   measured  true when the job measures it if it's unanswered, and records
 #             what it measured

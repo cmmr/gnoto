@@ -1,24 +1,28 @@
 #
 # config.sh - gnoto config: lists the sections of config.yaml, asks for one
-# section's settings, or turns a section on or off.
+# section's settings or takes them as arguments, or turns a section on or off.
 #
-# Sourced by:  lib/main.sh, for gnoto config [<section> [--on|--off]] and
+# Sourced by:  lib/main.sh, for
+#              gnoto config [<section> [--on|--off] [--<key>=<value> ...]] and
 #              gnoto config slurm --probe
 # Defines:     config_main, config_set
 # Requires:    yq, flock; the settings and helpers from lib/env.sh, which loads
-#              each section's declarations from lib/config/
+#              each section's declarations from lib/config/; args_parse from
+#              lib/args.sh
 # Env:         INSTALL_DIR and the current settings, from lib/env.sh;
 #              GNOTO_FOUND_APPTAINER_BIN_DIR, GNOTO_FOUND_SLURM_BIN_DIR and
 #              GNOTO_FOUND_SLURM_CONF, what the launcher found on the host
 #
 # gnoto config prints each section and what it's for. gnoto config <section>
 # asks for each of its settings, suggesting what the section's own suggest
-# function finds, or else the current value. --on and --off set its enabled
-# without asking. When config.yaml doesn't have the section yet, either way adds
-# the whole section, and only that section, so config.yaml holds only what a
-# site has chosen. Asking turns a new section on. gnoto config slurm --probe
-# checks every compute node with a Slurm job, from lib/nodes.sh, and writes
-# nothing to config.yaml.
+# function finds, or else the current value. Given settings as --<key>=<value>,
+# it sets those and asks nothing, and an empty value clears one. --on and --off
+# set its enabled. When config.yaml doesn't have the section yet, any of these
+# adds the whole section, with what's given and suggestions for the rest, and
+# only that section, so config.yaml holds only what a site has chosen. A new
+# section is on unless --off says otherwise. gnoto config slurm --probe checks
+# every compute node with a Slurm job, from lib/nodes.sh, and writes nothing to
+# config.yaml.
 #
 # Strings are written double-quoted, because the launcher reads its bootstrap
 # settings with an awk that accepts only   key: "value", true or false.
@@ -156,26 +160,27 @@ config_suggest() {
     printf '%s' "${!name}"
 }
 
-# Says what's wrong with a value for a type of setting, if anything
+# Prints what's wrong with a value for a type of setting, and returns 1, or
+# prints nothing
 config_check() {
     local type=$1 value=$2
-    if [[ $value == *'"'* ]]; then
-        echo "  A double quote can't go in config.yaml." >&2
+    if [[ $value == *'"'* || $value == *$'\n'* ]]; then
+        echo "A double quote or a line break can't go in config.yaml."
         return 1
     fi
     case $type in
-        int) [[ -z $value || $value =~ ^[0-9]+$ ]] || { echo "  Give a whole number." >&2; return 1; } ;;
-        path) [[ -z $value || $value == /* ]] || { echo "  Give an absolute path, or none." >&2; return 1; } ;;
+        int) [[ -z $value || $value =~ ^[0-9]+$ ]] || { echo "Give a whole number."; return 1; } ;;
+        path) [[ -z $value || $value == /* ]] || { echo "Give an absolute path."; return 1; } ;;
         paths)
             [[ -z $value || ",$value," =~ ^(,/[^,]+)+,$ ]] ||
-                { echo "  Give absolute paths, separated by commas, or none." >&2; return 1; }
+                { echo "Give absolute paths, separated by commas."; return 1; }
             ;;
         dir)
             if [[ $value != /* ]]; then
-                echo "  Give an absolute path." >&2
+                echo "Give an absolute path."
                 return 1
             elif [[ -d $value && ! -w $value ]]; then
-                echo "  You can't write to $value." >&2
+                echo "You can't write to $value."
                 return 1
             fi
             ;;
@@ -186,7 +191,7 @@ config_check() {
 # and sets ANSWER. Enter keeps the suggestion, and "none" clears it. A secret
 # isn't shown, as it's typed or as a suggestion.
 config_ask() {
-    local section=$1 key=$2 suggestion=$3 type=${CONFIG_TYPE[$1.$2]} shown
+    local section=$1 key=$2 suggestion=$3 type=${CONFIG_TYPE[$1.$2]} shown why
 
     while :; do
         printf '%s\n' "${CONFIG_QUESTION[$section.$key]}" >&2
@@ -200,58 +205,86 @@ config_ask() {
         fi
         ANSWER=${ANSWER:-$suggestion}
         [[ $ANSWER != none ]] || ANSWER=""
-        config_check "$type" "$ANSWER" && return 0
+        why=$(config_check "$type" "$ANSWER") && return 0
+        echo "  $why" >&2
     done
 }
 
 # Fills CONFIG_NEW with a value for each of a section's settings but enabled:
-# asked for, or with $2 empty, the suggestions as they are
+# what CONFIG_GIVEN holds, then asked for, or with $2 empty, the suggestions as
+# they are. Each value can shape the suggestions after it.
 config_walk() {
-    local section=$1 ask=$2 key
+    local section=$1 ask=$2 key why
 
     for key in ${CONFIG_KEYS[$section]}; do
         [[ $key != enabled ]] || continue
-        if [[ -n $ask ]]; then
+        if [[ -n ${CONFIG_GIVEN[$key]+set} ]]; then
+            ANSWER=${CONFIG_GIVEN[$key]}
+        elif [[ -n $ask ]]; then
             config_ask "$section" "$key" "$(config_suggest "$section" "$key")"
         else
             ANSWER=$(config_suggest "$section" "$key")
-            config_check "${CONFIG_TYPE[$section.$key]}" "$ANSWER" ||
-                fail "Can't use \"$ANSWER\" for $section.$key, so nothing was written."
+            why=$(config_check "${CONFIG_TYPE[$section.$key]}" "$ANSWER") ||
+                fail "Can't use \"$ANSWER\" for $section.$key, so nothing was written: $why"
         fi
         CONFIG_NEW[$key]=$ANSWER
     done
 }
 
 config_main() {
-    local section=${1:-} option=${2:-} present="" enabled key
+    local usage="Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe"
+    local section option="" present="" enabled key settings i why
 
-    if [[ -z $section ]]; then
+    args_parse "$usage" "on off probe" "$@"
+    if [[ ${#ARG_WORDS[@]} -eq 0 ]]; then
+        [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_FLAGS[@]} -eq 0 ]] || fail "$usage"
         for section in "${CONFIG_SECTIONS[@]}"; do
             printf '%-10s %s\n' "$section" "${CONFIG_ABOUT[$section]}"
         done
         return 0
     fi
+    [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
+    section=${ARG_WORDS[0]}
     [[ -n ${CONFIG_ABOUT[$section]-} ]] || fail "gnoto config has no section $section. Run gnoto config to list them."
-    [[ $# -le 2 ]] || fail "gnoto config $section takes --on or --off, and nothing else."
-    case $option in
-        "") [[ -t 0 ]] || fail "gnoto config $section asks questions, so run it from a terminal, or give --on or --off." ;;
-        --probe)
-            [[ $section == slurm ]] || fail "--probe is for gnoto config slurm, which checks every compute node."
-            source "$CODE_DIR/lib/lint.sh"
-            nodes_probe
-            return
-            ;;
-        --on | --off)
-            [[ $section != core ]] || fail "core is always on. Run gnoto config core to change its settings."
-            [[ $section != apptainer || $option == --on ]] ||
-                fail "Apptainer is gnoto's only container engine, so it can't be turned off."
-            ;;
-        *) fail "gnoto config $section takes --on or --off, not $option." ;;
-    esac
+    if [[ -n ${ARG_FLAGS[probe]:-} ]]; then
+        [[ $section == slurm ]] || fail "--probe is for gnoto config slurm, which checks every compute node."
+        [[ ${#ARG_FLAGS[@]} -eq 1 && ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto config slurm --probe takes nothing else."
+        source "$CODE_DIR/lib/lint.sh"
+        nodes_probe
+        return
+    fi
+    [[ -z ${ARG_FLAGS[on]:-} || -z ${ARG_FLAGS[off]:-} ]] || fail "Give --on or --off, not both."
+    [[ -z ${ARG_FLAGS[on]:-} ]] || option=--on
+    [[ -z ${ARG_FLAGS[off]:-} ]] || option=--off
+    if [[ -n $option ]]; then
+        [[ $section != core ]] || fail "core is always on. Run gnoto config core to change its settings."
+        [[ $section != apptainer || $option == --on ]] ||
+            fail "Apptainer is gnoto's only container engine, so it can't be turned off."
+    fi
+
+    # Settings given as arguments, each checked as an answer would be
+    declare -gA CONFIG_GIVEN=()
+    settings=$(for key in ${CONFIG_KEYS[$section]}; do [[ $key == enabled ]] || printf '%s ' "$key"; done)
+    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+        key=${ARG_KEYS[i]}
+        [[ $key != enabled || $section == core ]] ||
+            fail "--enabled: turn $section on or off with --on or --off."
+        if [[ " $settings" != *" $key "* ]]; then
+            settings=${settings% }
+            fail "--$key: $section has no setting $key. Its settings are ${settings// /, }."
+        fi
+        why=$(config_check "${CONFIG_TYPE[$section.$key]}" "${ARG_VALUES[i]}") || fail "--$key: $why"
+        CONFIG_GIVEN[$key]=${ARG_VALUES[i]}
+    done
+    if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && ! -t 0 ]]; then
+        fail "gnoto config $section asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
+    fi
 
     declare -gA CONFIG_NEW=()
     ! config_has_section "$section" || present=1
-    if [[ -z $option ]]; then
+    enabled=true
+    [[ $option != --off ]] || enabled=false
+    if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option ]]; then
         echo "Press Enter to keep a suggestion, or type none to clear it." >&2
         config_walk "$section" ask
         if [[ -z $present ]]; then
@@ -261,15 +294,14 @@ config_main() {
                 [[ $key == enabled ]] || config_set "$section" "$key" "${CONFIG_NEW[$key]}"
             done
         fi
+    elif [[ -z $present ]]; then
+        config_walk "$section" ""
+        config_add_section "$section" "$enabled"
     else
-        enabled=false
-        [[ $option == --off ]] || enabled=true
-        if [[ -z $present ]]; then
-            config_walk "$section" ""
-            config_add_section "$section" "$enabled"
-        else
-            config_set "$section" enabled "$enabled"
-        fi
+        [[ -z $option ]] || config_set "$section" enabled "$enabled"
+        for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+            config_set "$section" "${ARG_KEYS[i]}" "${ARG_VALUES[i]}"
+        done
     fi
 
     if [[ $section == core ]]; then

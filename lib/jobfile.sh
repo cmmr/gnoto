@@ -1,13 +1,14 @@
 #
 # jobfile.sh - Job files and records: the options a pipeline offers, gnoto new,
-# the checks gnoto lint and gnoto start make on a job file, and record.yaml.
+# the checks gnoto lint, run and start make on a job file, and record.yaml.
 #
-# Sourced by:  lib/main.sh, for new, lint <job.yaml> and start, and by
+# Sourced by:  lib/main.sh, for new, lint <job.yaml>, run and start, and by
 #              lib/job.sh, for the record
-# Defines:     code_version, options_json, job_new, job_check, pipeline_eval,
-#              record_write, and the JOB_* variables job_check sets
-# Requires:    yq, jq, git, df and stat; the settings and helpers from
-#              lib/env.sh, and lint_ok, lint_warn and lint_fail from lib/lint.sh
+# Defines:     code_version, options_json, job_yaml, job_new, job_check,
+#              pipeline_eval, record_write, and the JOB_* variables job_check sets
+# Requires:    yq, jq, git, df, stat and realpath; the settings and helpers from
+#              lib/env.sh, args_parse from lib/args.sh, and lint_ok, lint_warn and
+#              lint_fail from lib/lint.sh
 #
 # A job file names a pipeline and version, gnoto's own options at the top level,
 # and the pipeline's parameters in a section named for it. pipelines/<name>/
@@ -95,25 +96,64 @@ yaml_quote() {
     jq -cn --arg value "$1" '$value'
 }
 
-# One option of a skeleton, with its help and allowed values as comments above
-# it: write_option <indent> <option as JSON>
+# One option of a job file, with its help and allowed values as comments above
+# it: write_option <indent> <option as JSON> <value as YAML>
 write_option() {
-    local indent=$1 option=$2 key help values default
+    local indent=$1 option=$2 value=$3 key help values
     key=$(jq -r .key <<< "$option")
     help=$(jq -r '.help // empty' <<< "$option")
     values=$(jq -r '.values // empty | map(tostring) | join(", ")' <<< "$option")
-    default=$(jq -r '.default // "" | tostring' <<< "$option")
     [[ -z $help ]] || printf '%s# %s\n' "$indent" "$help"
     [[ -z $values ]] || printf '%s# %s\n' "$indent" "$values"
-    printf '%s%s: %s\n' "$indent" "$key" "$(yaml_quote "$default")"
+    printf '%s%s: %s\n' "$indent" "$key" "$value"
 }
 
-# gnoto new <pipeline>[@<version>]: writes a skeleton to <pipeline>.yaml here,
-# with the version pinned to this code's commit
-job_new() {
-    local spec=${1:-} name ref="" file pinned why options section_help count i option
+# A value given as --<key> for an option, as JSON of the type of the option's
+# values. Fails with a message when the option has values and this isn't one,
+# or, with multiple, when a comma-separated part isn't.
+option_value() {
+    local out
+    out=$(jq -cn --argjson option "$1" --arg key "$2" --arg raw "$3" '
+        ($option.values // null) as $values
+        | ($values // [] | map(tostring) | join(", ")) as $allowed
+        | if $raw == "" or $values == null then $raw
+          elif $option.multiple // false then
+              [$raw | split(",")[] | sub("^ +"; "") | sub(" +$"; "") | select(. != "")
+                  | select(. as $part | $values | map(tostring) | index($part) | not)] as $bad
+              | if $bad == [] then $raw
+                else "--\($key) takes some of: \($allowed), not \($bad | join(", "))" | halt_error(1) end
+          else [$values[] | select(tostring == $raw)]
+              | if length > 0 then .[0]
+                else "--\($key) takes one of: \($allowed), not \($raw)" | halt_error(1) end
+          end' 2>&1) || fail "$out"
+    printf '%s' "$out"
+}
 
-    [[ -n $spec && $# -eq 1 ]] || fail "Usage: gnoto new <pipeline>[@<version>]"
+# A value given as --<pipeline>.<parameter>, as JSON of the type its schema entry
+# names: true or false for a boolean, a number for an integer or number, and
+# otherwise text
+param_value() {
+    jq -cn --argjson spec "$1" --arg raw "$2" '
+        ([$spec.type // "string"] | flatten) as $types
+        | if ($types | index("boolean")) and ($raw == "true" or $raw == "false") then $raw == "true"
+          elif ($types | index("integer")) and ($raw | test("^-?[0-9]+$")) then $raw | tonumber
+          elif ($types | index("number")) and ($raw | test("^-?([0-9]+[.]?[0-9]*|[.][0-9]+)([eE][-+]?[0-9]+)?$"))
+              then $raw | tonumber
+          else $raw end'
+}
+
+# The job file gnoto new prints and gnoto start runs, for <pipeline>[@<version>]
+# and the --<key>=<value> pairs in ARG_KEYS and ARG_VALUES, with the version
+# pinned to this code's commit. Keys follow the file: --title and gnoto's other
+# options at the top, and --<pipeline>.<key> for the pipeline's section, which
+# takes its options and any parameter its schema has. A relative samplesheet is
+# made absolute against the current directory, as any path given on a command
+# line is.
+job_yaml() {
+    local spec=$1 name ref="" why pinned options option i key raw param schema="" spec_json value
+    local -A top=() section=()
+    local param_keys=() param_values=()
+
     name=${spec%%@*}
     [[ $spec != *@* ]] || ref=${spec#*@}
     if [[ ! $name =~ ^[a-z][a-z0-9_]*$ || ! -f $CODE_DIR/pipelines/$name/pipeline.sh ]]; then
@@ -123,37 +163,76 @@ job_new() {
     why=$(version_check "$ref") || fail "Can't pin $spec: $why."
     pinned=$name
     [[ -z $CODE_COMMIT ]] || pinned=$name@$CODE_COMMIT
-
-    file=$PWD/$name.yaml
-    [[ ! -e $file ]] || fail "$file already exists, and gnoto new won't overwrite it."
     options=$(options_json "$name")
-    section_help=$(yq -o=json '.section_help // []' "$CODE_DIR/pipelines/$name/options.yaml")
-    count=$(jq length <<< "$options")
 
-    {
-        printf '# Check with: gnoto lint <this file>\n'
-        printf 'pipeline: %s\n' "$pinned"
-        for (( i = 0; i < count; i++ )); do
-            option=$(jq -c ".[$i]" <<< "$options")
-            [[ $(jq -r .in <<< "$option") == top ]] || continue
-            printf '\n'
-            write_option "" "$option"
-        done
+    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+        key=${ARG_KEYS[i]}
+        raw=${ARG_VALUES[i]}
+        if [[ $key == "$name".* ]]; then
+            param=${key#*.}
+            option=$(jq -c --arg key "$param" '.[] | select(.in == "section" and .key == $key)' <<< "$options")
+            if [[ -n $option ]]; then
+                section[$param]=$(option_value "$option" "$key" "$raw") || exit 1
+                continue
+            fi
+            [[ $param =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || fail "--$key: $param isn't a parameter name."
+            if [[ -z $schema ]]; then
+                schema=$(pipeline_schema "$name") || fail "Can't check --$key against $name's parameters."
+            fi
+            spec_json=$(jq -c --arg key "$param" '.[$key] // null' <<< "$schema")
+            [[ $spec_json != null ]] || fail "--$key: $name has no parameter $param at its pinned commit."
+            value=$(param_value "$spec_json" "$raw")
+            why=$(schema_mismatch "$spec_json" "$value")
+            [[ -z $why ]] || fail "--$key $why."
+            param_keys+=("$param")
+            param_values+=("$value")
+            continue
+        fi
+        option=$(jq -c --arg key "$key" '.[] | select(.in == "top" and .key == $key)' <<< "$options")
+        if [[ -n $option ]]; then
+            top[$key]=$(option_value "$option" "$key" "$raw") || exit 1
+            if [[ $key == samplesheet && -n $raw && $raw != /* ]]; then
+                top[$key]=$(yaml_quote "$(realpath -ms -- "$raw")")
+            fi
+            continue
+        fi
+        if jq -e --arg key "$key" 'any(.[]; .in == "section" and .key == $key)' <<< "$options" > /dev/null; then
+            fail "--$key goes in $name's section, as --$name.$key."
+        elif [[ $key == *.* && -f $CODE_DIR/pipelines/${key%%.*}/pipeline.sh ]]; then
+            fail "--$key: this job runs $name, so its parameters go as --$name.<parameter>."
+        fi
+        why=$(jq -r --arg name "$name" '
+            map(if .in == "top" then "--\(.key)" else "--\($name).\(.key)" end) | join(", ")' <<< "$options")
+        fail "--$key isn't an option for $name. Its options are $why, and any $name parameter goes as --$name.<parameter>."
+    done
+
+    printf '# Check with: gnoto lint <this file>. Run with: gnoto run <this file>\n'
+    printf 'pipeline: %s\n' "$pinned"
+    while IFS= read -r option; do
+        key=$(jq -r .key <<< "$option")
         printf '\n'
-        jq -r '.[] | "# \(.)"' <<< "$section_help"
-        printf '%s:\n' "$name"
-        for (( i = 0; i < count; i++ )); do
-            option=$(jq -c ".[$i]" <<< "$options")
-            [[ $(jq -r .in <<< "$option") == section ]] || continue
-            write_option "  " "$option"
-        done
-    } > "$file.tmp.$$" || fail "Can't write $file."
-    if ! (set -C; cat "$file.tmp.$$" > "$file") 2> /dev/null; then
-        rm -f "$file.tmp.$$"
-        fail "Can't write $file, or it was made meanwhile."
-    fi
-    rm -f "$file.tmp.$$"
-    echo "Wrote $file. Fill it in, then run: gnoto lint $name.yaml"
+        write_option "" "$option" "${top[$key]:-$(jq -c '.default // "" | tostring' <<< "$option")}"
+    done < <(jq -c '.[] | select(.in == "top")' <<< "$options")
+    printf '\n'
+    yq -o=json '.section_help // []' "$CODE_DIR/pipelines/$name/options.yaml" | jq -r '.[] | "# \(.)"'
+    printf '%s:\n' "$name"
+    while IFS= read -r option; do
+        key=$(jq -r .key <<< "$option")
+        write_option "  " "$option" "${section[$key]:-$(jq -c '.default // "" | tostring' <<< "$option")}"
+    done < <(jq -c '.[] | select(.in == "section")' <<< "$options")
+    for (( i = 0; i < ${#param_keys[@]}; i++ )); do
+        printf '  %s: %s\n' "${param_keys[i]}" "${param_values[i]}"
+    done
+}
+
+# gnoto new <pipeline>[@<version>] [--<key>=<value> ...]: prints a job file
+job_new() {
+    local usage="Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" yaml
+
+    args_parse "$usage" "" "$@"
+    [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
+    yaml=$(job_yaml "${ARG_WORDS[0]}") || exit 1
+    printf '%s\n' "$yaml"
 }
 
 # A pipeline's parameter schema as one JSON object of name: {type, format, enum,
@@ -264,8 +343,8 @@ pipeline_eval() {
     return $status
 }
 
-# The checks lint and start make on a job file. Prints a line for each, counts
-# failures in LINT_FAILS, and sets, for start:
+# The checks lint, run and start make on a job file. Prints a line for each,
+# counts failures in LINT_FAILS, and sets, for run and start:
 #   JOB_FILE          the job file's absolute path
 #   JOB_PIPELINE      the pipeline's name, and JOB_VERSION what the file asked for
 #   JOB_TOP           gnoto's own top-level answers, as JSON

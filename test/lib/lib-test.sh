@@ -152,7 +152,57 @@ check "config_set: enabled first, a number bare, a new key last" \
 with_env "$DIR" 'source "$CODE/lib/config.sh"; config_set slurm enabled false'
 check "config_set: enabled in place" "  enabled: false" "$(grep enabled "$DIR/config.yaml")"
 check "config: lists the sections" "core apptainer slurm wrike aws globus" \
-    "$(with_env "$DIR" 'source "$CODE/lib/config.sh"; config_main' | awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
+    "$(with_env "$DIR" 'source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main' |
+        awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
+
+# Runs gnoto config with arguments and no terminal, printing what it says,
+# without the date
+config_args() {
+    local dir=$1
+    shift
+    (GNOTO_INSTALL_DIR=$dir; source "$CODE/lib/env.sh" || exit 1; source "$CODE/lib/args.sh"
+        source "$CODE/lib/config.sh"; config_main "$@") < /dev/null 2>&1 | sed 's/^\[[^]]*\] ERROR: //'
+}
+
+# gnoto config with settings as arguments: each set in place, nothing asked,
+# and a section that's missing added whole
+DIR=$(install config-args 'slurm:
+  enabled: false
+  partition: "short"     # Queue
+  account: "lab"')
+OUT=$(config_args "$DIR" slurm --account="my lab=2" --partition= --max_cpus 4)
+check "config: settings in place, with a space and = in one, and one emptied" \
+    "$(printf '%s\n' 'slurm:' '  enabled: false' "$(printf '%-25s# Queue' '  partition: ""')" \
+        '  account: "my lab=2"' '  max_cpus: 4')" "$(cat "$DIR/config.yaml")"
+check "config: and enabled left as it was" "yes" "$(grep -q '^slurm is off' <<< "$OUT" && echo yes || echo "$OUT")"
+config_args "$DIR" slurm --on --job_time=48.h > /dev/null
+check "config: --on with a setting" "true 48.h" "$(yq '(.slurm.enabled | tostring) + " " + .slurm.job_time' "$DIR/config.yaml")"
+config_args "$DIR" wrike --poll_minutes=0 > /dev/null
+check "config: a new section with a setting is on" '{"enabled":true,"api_token":"","webhook_secret":"","poll_minutes":0}' \
+    "$(yq -o=json -I=0 .wrike "$DIR/config.yaml")"
+config_args "$DIR" globus --off --run_prefix=lab > /dev/null
+check "config: unless --off says otherwise" "false lab" \
+    "$(yq '(.globus.enabled | tostring) + " " + .globus.run_prefix' "$DIR/config.yaml")"
+config_args "$DIR" core --data_dir="$WORK/d2" > /dev/null
+check "config: a given value shapes the suggestions after it" "$WORK/d2 $WORK/d2/db 14" \
+    "$(yq '.core.data_dir + " " + .core.db_dir + " " + (.core.keep_run_days | tostring)' "$DIR/config.yaml")"
+cp "$DIR/config.yaml" "$WORK/config-before.yaml"
+for case in "slurm --max_cpu=4|--max_cpu: slurm has no setting max_cpu. Its settings are bin_dir, conf, partition, account, max_cpus, max_memory, max_time, job_time, min_tmp." \
+    "slurm --max_cpus=four|--max_cpus: Give a whole number." \
+    "slurm --bin_dir=bin|--bin_dir: Give an absolute path." \
+    "slurm --account=a\"b|--account: A double quote or a line break can't go in config.yaml." \
+    "slurm --enabled=true|--enabled: turn slurm on or off with --on or --off." \
+    "slurm --on --off|Give --on or --off, not both." \
+    "core --on|core is always on. Run gnoto config core to change its settings." \
+    "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe" \
+    "slurm|gnoto config slurm asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>." \
+    "core --probe|--probe is for gnoto config slurm, which checks every compute node." \
+    "slurm --probe --on|gnoto config slurm --probe takes nothing else." \
+    "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe"; do
+    read -r -a args <<< "${case%%|*}"
+    check "config: refuses ${case%%|*}" "${case#*|}" "$(config_args "$DIR" "${args[@]}")"
+done
+check "config: and wrote nothing" "" "$(diff "$WORK/config-before.yaml" "$DIR/config.yaml")"
 
 # Parameters
 DIR=$(install params 'core:
