@@ -1,0 +1,72 @@
+# options.yaml - The options gnoto offers for ampliseq. gnoto new writes a job
+# skeleton from it, lint checks a job's answers against it, and pipeline.sh reads
+# the answers through form_answer. Phase 7's config wrike makes the request
+# form's fields from it.
+#
+# Each option has a key, and:
+#   in        top, for gnoto's own options, or section, for those under the
+#             pipeline's own section of the job file
+#   question  its title on the Wrike request form
+#   help      the comment gnoto new writes above it
+#   values    the allowed answers, when they're limited. With multiple: true,
+#             an answer can name several, comma-separated
+#   labels    what the form shows for a value, where that differs
+#   default   what gnoto new writes. Empty means gnoto's default, which help
+#             names
+#   required  true when every job must answer it
+#   measured  true when the job measures it if it's unanswered, and records
+#             what it measured
+#
+# A reference choice is offered only once conf/databases.yaml has an entry for
+# it, because gnoto fetches it and passes it as local files.
+
+schema: 1
+
+section_help:
+  - "Passed to nf-core/ampliseq. Leave a value empty for gnoto's default."
+  - "gnoto fetches the reference chosen here and passes it as local files."
+  - "Any other ampliseq parameter can be added here as well."
+
+options:
+  - key: title
+    in: top
+    question: "Title"
+    help: "Names the results"
+    required: true
+
+  - key: samplesheet
+    in: top
+    question: "Samplesheet"
+    help: "Tab-separated, no header: sample, fastq1, fastq2. Omit fastq2 for single-end."
+    required: true
+
+  - key: retention
+    in: top
+    question: "Dashboard Retention"
+    values: ["1 Month", "3 Months", "6 Months", "12 Months", "24 Months", "Unlimited"]
+    default: "3 Months"
+
+  - key: dada_ref_taxonomy
+    in: section
+    question: "Ampliseq --dada_ref_taxonomy"
+    help: "The default is silva=138.2"
+    values: ["silva=138.2"]
+
+  - key: picrust
+    in: section
+    question: "Ampliseq --picrust"
+    values: [false, true]
+    labels: {false: "No", true: "Yes"}
+
+  - key: exclude_taxa
+    in: section
+    question: "Ampliseq --exclude_taxa"
+    help: "The default excludes all three"
+    values: ["mitochondria", "chloroplast", "Francisella"]
+    multiple: true
+
+  - key: mergepairs_strategy
+    in: section
+    question: "Ampliseq --mergepairs_strategy"
+    help: "How read pairs are joined. The default is merge. V3-V5 pairs barely overlap"
+    values: ["merge", "concatenate", "consensus"]

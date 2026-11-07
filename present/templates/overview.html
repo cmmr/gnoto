@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<!--
+  overview.html - The Overview view of a run, read inside dashboard.html.
+
+  Rendered by present/dashboard.sh into results/overview.html, fitted to the
+  frame it's read in: on a wide screen nothing scrolls, and the plot panel takes
+  whatever height is left.
+
+  The panel draws the run's composition and diversity from the data the
+  composition step wrote. Its tab links choose between the two, and the selects
+  choose the rank, the index and the sample order. Both charts draw to a canvas,
+  because a run of a few thousand samples is too many elements for SVG. A run
+  with no data leaves the panel on its empty state. The indices offered are the
+  run's own, each carrying how it's written, the tool that measured it, the top
+  of its scale and whether it's drawn on a square root.
+
+  The eleven series colours are a categorical set ordered to keep neighbours
+  apart under colour vision deficiency, so they're assigned in order and never
+  cycled. The tail past the eleventh taxon is summed into "Other", in the
+  neutral. Several sit under 3:1 against white, which is why the legend names
+  every taxon beside its swatch. Columns stack in legend order, and what the
+  classifier named nothing isn't drawn, so the axis is cut to the tallest column
+  and the tooltip's last line says what that came to.
+
+  The Feature Table card holds one tab per tool that wrote a table worth taking,
+  and "Download everything" is the deliverables zip: the reads and every result,
+  these pages included.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, SUBTITLE, PLOT_DATA,
+  DOWNLOADS_TITLE, DOWNLOADS, ZIP_BUTTON, STATS and FOOTER_NOTE, each wrapped in
+  doubled underscores. They're not spelled that way here, because the renderer
+  would fill them in. The task name is escaped on the way in, PLOT_DATA is JSON
+  with every less-than sign written as a \u escape, and the rest is markup the
+  renderer escaped itself.
+-->
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>__TASK_NAME__</title>
+__COMMON_HEAD__
+<style>
+/* What the charts are drawn in. The categorical set is the only palette the
+   design system does not carry, and the four names under it are the tokens the
+   canvas has to read as values rather than as classes. The grey is the one band
+   that is not a taxon: the tail too rare to draw. */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+  --series-9: #7a5c3e;
+  --series-10: #00a0b0;
+  --series-11: #861358;
+  --series-other: #b3bec9;
+
+  --border: #c5c5d3;
+  --muted: #454651;
+  --text: #1b1c1c;
+  --row: #f5f3f3;
+}
+
+canvas { display: block; width: 100%; }
+
+.plot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.plot-table th {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  padding: 0 8px 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: right;
+}
+.plot-table th:first-child { text-align: left; }
+.plot-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.plot-table tr:hover { background: var(--row); }
+.plot-table td.num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.plot-table td.taxon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.swatch {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.rank-path {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* A legend column is a third of the panel whatever the name in it is, so a
+   taxon too long for one breaks across lines instead of stretching the track */
+.legend-name { min-width: 0; overflow-wrap: anywhere; }
+
+/* One tooltip for both charts, moved to whichever is under the pointer */
+.tip {
+  position: fixed;
+  z-index: 20;
+  max-width: 280px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+}
+.tip[hidden] { display: none; }
+.tip .name { font-weight: 600; overflow-wrap: anywhere; }
+.tip .row { color: var(--muted); }
+.tip .row b { color: var(--text); font-weight: 600; }
+
+/* The band the pointer is actually inside. A column at genus is a dozen
+   slivers, several of them a pixel or two tall, so which one is under the
+   pointer is not something a reader can tell from the chart.
+
+   The fill is written on the row itself, as that band's own colour washed out
+   far enough to read black text over: the eleven are chosen to be told apart,
+   so the colour is the fastest way back from a line of the tooltip to the
+   sliver it belongs to. */
+.tip .row.here {
+  margin: 0 -5px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: var(--row);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* What the classifier could not name, which is the height the column is short
+   of the axis. Set apart from the taxa above it: it is what is missing from
+   them rather than one of them. */
+.tip .unnamed {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+</style>
+</head>
+<body class="bg-surface-bg-light text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<div class="flex flex-1 min-h-0 overflow-hidden">
+<!-- Main Content Canvas -->
+<main class="flex-1 min-h-0 flex flex-col bg-surface relative overflow-y-auto lg:overflow-hidden">
+<div class="p-margin-page max-w-7xl mx-auto w-full flex flex-col gap-4 lg:flex-1 lg:min-h-0">
+<div class="shrink-0 flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
+<div class="min-w-0">
+<h1 class="font-headline-lg text-headline-lg font-bold tracking-tight text-primary">__TASK_NAME__</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">__SUBTITLE__</p>
+</div>
+__ZIP_BUTTON__
+</div>
+<div class="flex flex-col lg:flex-row gap-gutter-grid lg:flex-1 lg:min-h-0">
+<div class="flex-1 min-w-0 flex flex-col lg:min-h-0">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col shadow-sm h-[460px] lg:h-auto lg:flex-1 lg:min-h-0">
+<div class="bg-surface-container-low border-b border-outline-variant px-4 py-2 flex flex-wrap justify-between items-center gap-y-2 shrink-0">
+<div class="flex items-center gap-4 ml-1">
+<button class="font-label-caps text-label-caps font-bold text-primary border-b-2 border-primary pb-0.5" data-plot="composition">Taxonomic Composition</button>
+<button class="font-label-caps text-label-caps font-bold text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity pb-0.5" data-plot="diversity">Alpha Diversity</button>
+</div>
+<div class="flex items-center gap-2" id="plot-controls" style="display: none">
+<div class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/50 rounded px-2 py-1" id="rank-box">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Rank:</span>
+<select class="bg-transparent border-none py-0 pl-0 pr-6 min-w-[110px] font-body-sm text-body-sm text-primary focus:ring-0 cursor-pointer" id="rank">
+</select>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/50 rounded px-2 py-1" id="metric-box" style="display: none">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Index:</span>
+<select class="bg-transparent border-none py-0 pl-0 pr-6 min-w-[130px] font-body-sm text-body-sm text-primary focus:ring-0 cursor-pointer" id="metric">
+</select>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/50 rounded px-2 py-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Sort:</span>
+<select class="bg-transparent border-none py-0 pl-0 pr-6 min-w-[110px] font-body-sm text-body-sm text-primary focus:ring-0 cursor-pointer" id="order">
+</select>
+</div>
+</div>
+</div>
+<div class="flex-1 min-h-0 bg-white relative">
+<div class="absolute inset-0 p-8 flex flex-col items-center justify-center text-center opacity-50" id="plot-empty">
+<span class="material-symbols-outlined text-6xl text-outline mb-3">bar_chart</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Composition &amp; Diversity Plots</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">This run produced no abundance tables to draw.</p>
+</div>
+<div class="absolute inset-0 flex flex-col px-6 py-5" id="plot-scroll" style="display: none">
+<section class="flex-1 min-h-0 flex flex-col" id="composition" style="display: none">
+<div class="grid grid-cols-3 gap-x-8 gap-y-2.5 shrink-0 max-h-[34%] overflow-y-auto pb-5" id="legend"></div>
+<div class="flex-1 min-h-0 overflow-hidden" id="bars-box"><canvas id="bars"></canvas></div>
+</section>
+<section class="flex-1 min-h-0 flex flex-col" id="diversity" style="display: none">
+<div class="flex-1 min-h-0 overflow-hidden" id="metric-box-plot"><canvas id="metric-chart"></canvas></div>
+<div class="shrink-0 max-w-3xl mt-4 mb-4 space-y-1">
+<p class="font-body-sm text-body-sm text-on-surface" id="metric-about"></p>
+<p class="font-body-sm text-body-sm text-outline" id="metric-note"></p>
+</div>
+<div class="shrink-0 overflow-y-auto max-h-[38%]">
+<table class="plot-table">
+<thead>
+<tr><th>Index</th><th>Lowest</th><th>Median</th><th>Highest</th></tr>
+</thead>
+<tbody id="summary"></tbody>
+</table>
+</div>
+</section>
+</div>
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/5 to-transparent pointer-events-none"></div>
+</div>
+</div>
+</div>
+<aside class="w-full lg:w-80 flex flex-col gap-gutter-grid shrink-0 lg:min-h-0">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-padding-card shadow-sm shrink-0">
+<h3 class="text-base font-semibold text-primary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">table_view</span>__DOWNLOADS_TITLE__
+      </h3>
+__DOWNLOADS__
+</div>
+__STATS__
+</aside>
+</div>
+</div>
+<!-- Footer -->
+<footer class="shrink-0 bg-surface-container border-t border-outline-variant w-full">
+<div class="flex flex-col md:flex-row justify-between items-center gap-1 px-margin-page py-3 w-full max-w-7xl mx-auto">
+<div class="text-on-surface-variant font-body-sm text-body-sm text-center md:text-left">
+                        Made with <a class="underline hover:no-underline" href="https://github.com/cmmr/gnoto" target="_blank" rel="noopener">gnoto</a>
+                    </div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">__FOOTER_NOTE__</div></div>
+</footer>
+</main>
+</div>
+
+<div class="tip" hidden id="tip"></div>
+
+<script>
+// The two states of a tab-link, as the design writes them. present/dashboard.sh
+// writes the Feature Table card's links in the same two.
+var TAB_ON = "font-label-caps text-label-caps font-bold text-primary border-b-2"
+           + " border-primary pb-0.5";
+var TAB_OFF = "font-label-caps text-label-caps font-bold text-on-surface-variant"
+            + " opacity-60 hover:opacity-100 transition-opacity pb-0.5";
+
+// The Feature Table card's tabs, showing one panel at a time
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll("[data-feature-tab]"));
+  var panels = [].slice.call(document.querySelectorAll("[data-feature-panel]"));
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      var which = tab.getAttribute("data-feature-tab");
+
+      tabs.forEach(function (other) {
+        var on = other === tab;
+
+        other.className = on ? TAB_ON : TAB_OFF;
+        other.setAttribute("aria-selected", on ? "true" : "false");
+      });
+
+      panels.forEach(function (panel) {
+        panel.style.display =
+          panel.getAttribute("data-feature-panel") === which ? "" : "none";
+      });
+    });
+  });
+})();
+
+// The "details" link a statistics bar can carry, which shows and hides the
+// stages behind that bar's reading. Both are written hidden - the link because
+// a reader without scripting cannot work it, the stages because they are an
+// aside until asked for - so this reveals the link and then answers it.
+//
+// The stages are laid out by a display utility, which outranks the hidden
+// attribute, so what is toggled is the property behind it.
+(function () {
+  var links = [].slice.call(document.querySelectorAll("[data-stat-details]"));
+
+  links.forEach(function (link) {
+    var group = link.getAttribute("data-stat-details");
+    var rows = [].slice.call(
+      document.querySelectorAll('[data-stat-detail="' + group + '"]'));
+
+    if (!rows.length) return;
+
+    link.style.display = "";
+
+    link.addEventListener("click", function () {
+      var open = link.getAttribute("aria-expanded") !== "true";
+
+      rows.forEach(function (row) { row.style.display = open ? "" : "none"; });
+      link.setAttribute("aria-expanded", open ? "true" : "false");
+      link.textContent = open ? "hide" : "details";
+    });
+  });
+})();
+
+(function () {
+  var DATA = __PLOT_DATA__;
+
+  var buttons = [].slice.call(document.querySelectorAll("[data-plot]"));
+  var sections = {
+    composition: document.getElementById("composition"),
+    diversity: document.getElementById("diversity")
+  };
+
+  var samples = (DATA && DATA.samples) || [];
+  var reads = (DATA && DATA.reads) || [];
+  var alpha = (DATA && DATA.alpha) || {};
+  var levels = (DATA && DATA.levels) || [];
+  var count = samples.length;
+
+  // What one column of the diversity chart is a count of, which is not the same
+  // thing from one pipeline to the next: an amplicon run counts the ASVs it
+  // called, a shotgun run the species a classifier named. Named by whichever
+  // script worked the numbers out, since only it knows; an ASV when it says
+  // nothing, which is what the first pipeline published here counted.
+  var feature = (DATA && DATA.feature) || {};
+  var ONE = feature.one || "ASV";
+  var MANY = feature.many || "ASVs";
+  var DEPTH = feature.depth || ("reads assigned to " + MANY);
+
+  if (!count) return;
+
+  // The empty state and the controls are laid out by a display utility, which
+  // outranks the hidden attribute - so what is shown and hidden here is the
+  // property behind it
+  function display(element, on) {
+    element.style.display = on ? "" : "none";
+  }
+
+  display(document.getElementById("plot-empty"), false);
+  display(document.getElementById("plot-scroll"), true);
+  display(document.getElementById("plot-controls"), true);
+
+  // Room above every plot for the label on its topmost gridline
+  var TOP = 9;
+
+  // The gutter the composition chart leaves down its left for the axis title
+  // and its percentage labels, and the margin it keeps at the right. The legend
+  // is inset by both, so it sits over the columns rather than over the axis
+  // beside them. The composition scale is always "0%" to "100%", so its gutter
+  // is a number; the diversity chart measures its own and is given whatever it
+  // asks for.
+  var COMPOSITION_LEFT = 58;
+  var PLOT_RIGHT = 8;
+
+  // What the axis title costs down the left of a chart: the 11px it is drawn in
+  // from, its own line height, and a gap before the labels beside it
+  var TITLE_BAND = 28;
+
+  // What the labels on a scale are set in from the plot
+  var LABEL_GAP = 8;
+
+  var tip = document.getElementById("tip");
+  var order = samples.map(function (_, i) { return i; });
+
+  // A taxon that is the absence of one: reads the classifier placed nowhere.
+  // Both pipelines write it as a single word - the shotgun run's "Unclassified"
+  // and the amplicon run's "Unassigned" - which is what separates it from
+  // "Unclassified Pseudomonadota", a sequence placed in a phylum and no deeper.
+  // It is left out of the chart rather than drawn in it.
+  function unnamed(label) {
+    return label === "Unclassified" || label === "Unassigned";
+  }
+
+  // Read off the stylesheet rather than repeated here, so one palette serves
+  // the fills and the legend swatches
+  function palette(taxa) {
+    var style = getComputedStyle(document.documentElement);
+    var colors = [];
+
+    for (var i = 0; i < taxa.length; i++) {
+      var slot = i === taxa.length - 1 ? "--series-other" : "--series-" + (i + 1);
+      colors.push(style.getPropertyValue(slot).trim());
+    }
+
+    return colors;
+  }
+
+  function ink(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  // A series colour washed out far enough to sit behind black text, for the
+  // tooltip row marking the band the pointer is in. The palette is written as
+  // six-digit hex in the stylesheet above; anything else is handed back as it
+  // stands, which leaves the row on its default fill rather than on a colour
+  // that did not parse.
+  function washed(color, alpha) {
+    if (!/^#[0-9a-f]{6}$/i.test(color)) return "";
+
+    return "rgba(" + parseInt(color.slice(1, 3), 16)
+         + ", " + parseInt(color.slice(3, 5), 16)
+         + ", " + parseInt(color.slice(5, 7), 16)
+         + ", " + alpha + ")";
+  }
+
+  function percent(parts) {
+    if (parts >= 1000) return (parts / 100).toFixed(0) + "%";
+    if (parts >= 10) return (parts / 100).toFixed(1) + "%";
+    return (parts / 100).toFixed(2) + "%";
+  }
+
+  function thousands(n) {
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function escape(text) {
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // The name of what a chart's height is measuring, up the side of it
+  function axisTitle(ctx, text, top, height) {
+    ctx.save();
+    ctx.translate(11, top + height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = ink("--muted");
+    ctx.font = TITLE_FONT;
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
+
+  // What the columns are, for a run with too many samples to name them
+  function axisFoot(ctx, text, left, width, y) {
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = ink("--muted");
+    ctx.font = TITLE_FONT;
+    ctx.fillText(text, left + (width - left) / 2, y);
+    ctx.restore();
+  }
+
+  // A canvas sized to the box it was laid out in, at the pixel density of the
+  // screen it is being read on. The box is what the page gave the chart, so a
+  // shorter window draws a shorter chart rather than a scrollbar.
+  function surface(canvas, height) {
+    var ratio = window.devicePixelRatio || 1;
+    var width = canvas.parentNode.clientWidth;
+
+    canvas.style.height = height + "px";
+    canvas.width = Math.max(1, Math.round(width * ratio));
+    canvas.height = Math.max(1, Math.round(height * ratio));
+
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+    return { ctx: ctx, width: width, height: height };
+  }
+
+  // Where one sample's column sits. Columns are laid out edge to edge and given
+  // a gap only once they are wide enough to still read as columns without one.
+  function columns(width, left, right) {
+    var span = Math.max(10, width - left - right);
+    var step = span / count;
+    var bar = Math.max(1, step - (step >= 6 ? 2 : 0));
+
+    // A handful of samples would otherwise be a handful of slabs the width of
+    // the panel. The column keeps its slot - which is what the pointer is
+    // matched against - and is drawn centred inside it.
+    var capped = Math.min(bar, 54);
+
+    return { left: left, step: step, bar: capped, inset: (bar - capped) / 2 };
+  }
+
+  function roundedTop(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    ctx.beginPath();
+    ctx.moveTo(x, y + h);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h);
+    ctx.closePath();
+  }
+
+  var LABEL_FONT = "11px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  var TITLE_FONT = "600 11px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+  // The names under the axis are worth the room they take only while there are
+  // few enough of them to read
+  function named() {
+    return count <= 60;
+  }
+
+  // What that costs: the names are drawn at 45 degrees, so the deepest of them
+  // reaches its own width times sin 45 below the axis. Measured rather than
+  // assumed - a run naming its samples after the plate they came off needs more
+  // room than one numbering them - and capped, since a chart squeezed to
+  // nothing is worse than a name cut short.
+  function band(ctx, total) {
+    if (!named()) return 10;
+
+    var longest = 0;
+
+    ctx.font = LABEL_FONT;
+
+    for (var i = 0; i < count; i++) {
+      longest = Math.max(longest, ctx.measureText(samples[i]).width);
+    }
+
+    return Math.min(Math.round(total * 0.4), Math.ceil(longest * 0.7071) + 20);
+  }
+
+  // One name, shortened to what the band it is drawn in can hold
+  function fitted(ctx, text, room) {
+    if (ctx.measureText(text).width <= room) return text;
+
+    var cut = text;
+
+    while (cut.length > 1 && ctx.measureText(cut + "\u2026").width > room) {
+      cut = cut.slice(0, -1);
+    }
+
+    return cut + "\u2026";
+  }
+
+  // -- Taxonomic composition ------------------------------------------------
+
+  var rankSelect = document.getElementById("rank");
+  var orderSelect = document.getElementById("order");
+  var legend = document.getElementById("legend");
+  var barsBox = document.getElementById("bars-box");
+  var barsCanvas = document.getElementById("bars");
+  var level = null;
+
+  // The taxa of the rank that are drawn, and their shares sample by sample.
+  // What the classifier named nothing is not among them: it is not a taxon
+  // anybody can act on, and on most samples it was the tallest band on the
+  // chart - stacking the run under one slab that says only how much of it went
+  // unnamed. What is left is what was found, so a column is still a share of
+  // the whole sample and simply stops short of 100% by whatever was dropped.
+  var plotted = [];
+  var shares = [];
+
+  // What those taxa are drawn in, worked out when the rank is chosen rather
+  // than on every draw: the chart, the legend and the tooltip all read it, and
+  // the tooltip reads it on a pointer move.
+  var colors = [];
+
+  // What each sample adds up to over those taxa, and the most any of them does,
+  // both in ten-thousandths. Worked out once when the rank is chosen: the chart
+  // needs the tallest column before it can draw a gridline, and every column
+  // again as it draws them, and a run of a few thousand samples should not be
+  // summed twice on every resize.
+  var totals = [];
+  var tallest = 0;
+
+  function useLevel(index) {
+    level = levels[index];
+    plotted = [];
+    shares = [];
+    totals = [];
+    tallest = 0;
+
+    level.taxa.forEach(function (taxon, t) {
+      if (unnamed(taxon.label)) return;
+
+      plotted.push(taxon);
+      shares.push(level.values[t]);
+    });
+
+    colors = palette(plotted);
+
+    for (var i = 0; i < count; i++) {
+      var sum = 0;
+
+      for (var t = 0; t < shares.length; t++) sum += Math.max(shares[t][i], 0);
+
+      totals.push(sum);
+      if (sum > tallest) tallest = sum;
+    }
+  }
+
+  // The scale the columns are read against, as the top of the axis and the step
+  // its gridlines are drawn at, both in ten-thousandths. A fixed 0-100% axis was
+  // right while every column filled it; now that what the classifier could not
+  // name is left out, a run that named a tenth of its reads drew a tenth of a
+  // chart. So the axis is cut to the tallest column and rounded up to a step a
+  // reader can read whole percentages off - which lands back on the familiar
+  // 0-25-50-75-100 for a run that named most of what it sequenced.
+  //
+  // A column is a share of its sample, so 100% is the top there is. Each band is
+  // rounded to a ten-thousandth on its own, which can carry a full column a part
+  // or two past ten thousand; without this the axis would round that up to the
+  // next step it knows and draw a gridline at 125%.
+  function scale(highest) {
+    var steps = [100, 200, 500, 1000, 2000, 2500];
+    var step = steps[steps.length - 1];
+
+    highest = Math.min(highest, 10000);
+
+    for (var i = 0; i < steps.length; i++) {
+      if (highest <= steps[i] * 4) { step = steps[i]; break; }
+    }
+
+    return { step: step, top: Math.max(step, Math.ceil(highest / step) * step) };
+  }
+
+  function drawComposition() {
+    if (!level) return;
+
+    var names = named();
+    var total = Math.max(160, barsBox.clientHeight);
+    var view = surface(barsCanvas, total);
+    var ctx = view.ctx;
+    var foot = band(ctx, total);
+    var plotHeight = Math.max(90, total - TOP - foot);
+    var geometry = columns(view.width, COMPOSITION_LEFT, PLOT_RIGHT);
+    var floor = TOP + plotHeight;
+    var axis = scale(tallest);
+
+    // The scale first, one hairline a shade off the page
+    ctx.strokeStyle = ink("--border");
+    ctx.fillStyle = ink("--muted");
+    ctx.lineWidth = 1;
+    ctx.font = LABEL_FONT;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    for (var mark = 0; mark <= axis.top; mark += axis.step) {
+      var y = Math.round(floor - (mark / axis.top) * plotHeight) + 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(geometry.left, y);
+      ctx.lineTo(view.width - 8, y);
+      ctx.stroke();
+      ctx.fillText(mark / 100 + "%", geometry.left - 8, y);
+    }
+
+    for (var slot = 0; slot < count; slot++) {
+      var sample = order[slot];
+      var x = geometry.left + slot * geometry.step + geometry.inset;
+      var t;
+
+      // The column stands on the axis and reaches as far as the reads that were
+      // named. From there it is stacked downwards, so a taxon sits in the same
+      // place in the column as it does in the legend above it and in the tooltip
+      // beside it: the most abundant first, "Other" last.
+      var column = (totals[sample] / axis.top) * plotHeight;
+      var stacked = floor - column;
+
+      // A column narrow enough to be a hairline gets no rounding to lose
+      var clipped = geometry.bar >= 6 && column >= 1;
+
+      if (clipped) {
+        ctx.save();
+        roundedTop(ctx, x, stacked, geometry.bar, column, 4);
+        ctx.clip();
+      }
+
+      for (t = 0; t < shares.length; t++) {
+        var share = shares[t][sample] / axis.top;
+
+        if (share <= 0) continue;
+
+        var high = share * plotHeight;
+        var gap = high >= 6 ? 2 : 0;
+
+        ctx.fillStyle = colors[t];
+        ctx.fillRect(x, stacked, geometry.bar, high - gap);
+        stacked += high;
+      }
+
+      if (clipped) ctx.restore();
+    }
+
+    axisTitle(ctx, "Relative Abundance", TOP, plotHeight);
+
+    if (names) drawNames(ctx, geometry, floor, foot);
+    else       axisFoot(ctx, "Samples", geometry.left, view.width - 8, floor + 8);
+
+    return { geometry: geometry, height: plotHeight, top: axis.top };
+  }
+
+  // The sample names, on their side under the columns they belong to
+  function drawNames(ctx, geometry, floor, foot) {
+    var room = (foot - 20) / 0.7071;
+
+    ctx.fillStyle = ink("--muted");
+    ctx.font = LABEL_FONT;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    for (var k = 0; k < count; k++) {
+      ctx.save();
+      ctx.translate(geometry.left + k * geometry.step + geometry.inset
+                    + geometry.bar / 2, floor + 12);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillText(fitted(ctx, samples[order[k]], room), 0, 0);
+      ctx.restore();
+    }
+  }
+
+  // Which band of a column the pointer is inside, or -1 for the empty part above
+  // it and the names below. Walked in the order the column was stacked, off the
+  // same shares it was drawn from, so what the tooltip marks is what is under
+  // the pointer even where two bands are a pixel apart. A dozen additions on a
+  // pointer move, and nothing kept between them.
+  function bandAt(sample, y, state) {
+    var edge = TOP + state.height
+             - (totals[sample] / state.top) * state.height;
+
+    if (y < edge) return -1;
+
+    for (var t = 0; t < shares.length; t++) {
+      if (shares[t][sample] <= 0) continue;
+
+      edge += (shares[t][sample] / state.top) * state.height;
+
+      if (y <= edge) return t;
+    }
+
+    return -1;
+  }
+
+  function ordering() {
+    var by = orderSelect.options[orderSelect.selectedIndex].textContent.toLowerCase();
+
+    return named() ? "Ordered by " + by + "."
+                   : thousands(count) + " samples, left to right, ordered by " + by + ".";
+  }
+
+  function drawLegend() {
+    var html = "";
+
+    legend.style.paddingLeft = COMPOSITION_LEFT + "px";
+    legend.style.paddingRight = PLOT_RIGHT + "px";
+
+    for (var t = 0; t < plotted.length; t++) {
+      var taxon = plotted[t];
+      var tail = t === plotted.length - 1;
+      var about = taxon.label + " — " + percent(taxon.mean) + " of an average sample"
+        + (tail ? "" : ", found in " + taxon.prevalence + "% of them")
+        + (taxon.lineage ? "\n" + taxon.lineage : "");
+
+      html += '<span class="flex items-start gap-2 min-w-0 text-[11px] leading-4'
+        + ' text-on-surface" title="' + escape(about) + '">'
+        + '<span class="swatch mt-0.5" style="background:' + colors[t] + '"></span>'
+        + '<span class="legend-name">' + escape(taxon.label) + "</span></span>";
+    }
+
+    legend.innerHTML = html;
+  }
+
+  // -- Alpha diversity ------------------------------------------------------
+
+  // One index is plotted at a time. What they are is the run's own, since the
+  // two pipelines share none of them: an amplicon run reports indices computed
+  // over its ASV table, and a shotgun run reports what nonpareil and mOTUs
+  // measured without a database in the way. Whichever script worked the numbers
+  // out names them, in the order they are offered in, with the first the one
+  // the chart opens on.
+  //
+  // The set below is the fallback, for data that names none - which is what the
+  // first pipeline published here. Shannon leads it because it is the one a
+  // reader asks for. Chao1 is not among them: it estimates richness from what
+  // was seen exactly once and twice, and neither pipeline leaves a tail those
+  // two counts mean anything in.
+  var DEFAULT_METRICS = [
+    { key: "shannon", title: "Shannon index", note: "richness and evenness together", places: 2 },
+    { key: "observed", title: "Observed " + MANY, note: "distinct " + MANY + " seen in the sample", integer: true },
+    { key: "reads", title: "Read depth", note: DEPTH, integer: true, scale: "sqrt" },
+    { key: "simpson", title: "Simpson index", note: "the chance two reads are different " + MANY, places: 3 },
+    { key: "evenness", title: "Pielou's evenness", note: "0 = one " + ONE + " dominates, 1 = all equal", places: 3 }
+  ];
+
+  var METRICS = (DATA && DATA.metrics && DATA.metrics.length) ? DATA.metrics
+                                                             : DEFAULT_METRICS;
+
+  var metricSelect = document.getElementById("metric");
+  var metricBox = document.getElementById("metric-box-plot");
+  var metricCanvas = document.getElementById("metric-chart");
+  var metricAbout = document.getElementById("metric-about");
+  var metricNote = document.getElementById("metric-note");
+  var metric = null;
+
+  function values(key) {
+    return key === "reads" ? reads : alpha[key];
+  }
+
+  // Whether there is a diversity half to show at all. Read depth on its own is
+  // not one: it is the effort the other readings were measured at rather than a
+  // reading of what was in the sample.
+  function measured() {
+    for (var i = 0; i < METRICS.length; i++) {
+      if (METRICS[i].key === "reads") continue;
+
+      var series = values(METRICS[i].key);
+      if (series && series.length) return true;
+    }
+
+    return false;
+  }
+
+  // A unit belongs to the reading rather than to the axis, since the axis is
+  // labelled with the name of the index and its gridlines are readings
+  function format(spec, value) {
+    if (value === undefined || value === null) return "—";
+
+    var written = spec.integer ? thousands(value) : value.toFixed(spec.places);
+
+    return spec.unit ? written + spec.unit : written;
+  }
+
+  // What an index is called wherever its name labels a reading. One drawn on a
+  // square root says so: every other index in the select is drawn straight, and
+  // a reader is owed that before reading the columns rather than after.
+  function labelled(spec) {
+    return spec.scale === "sqrt" ? spec.title + " (sqrt scale)" : spec.title;
+  }
+
+  // Where a reading sits up the axis, as a share of its height, and the reading
+  // a gridline drawn at that share stands for. One index in the set is a count
+  // rather than a measurement - a run holds a sample that failed beside one
+  // sequenced a hundred times as deep - and on a straight axis every column but
+  // the deepest is a hairline. So the scale is the index's own, declared by
+  // whichever script worked the numbers out, and a square root is the one that
+  // carries a count: it keeps zero at the floor, which a logarithm cannot, so
+  // the columns still start where the axis does.
+  function rise(spec, value, top) {
+    return spec.scale === "sqrt" ? Math.sqrt(Math.max(value, 0) / top) : value / top;
+  }
+
+  function gridline(spec, share, top) {
+    return spec.scale === "sqrt" ? top * share * share : top * share;
+  }
+
+  // How wide a gutter this index needs down the left of its chart. The readings
+  // on the scale are the index's own - a coverage runs to "97.0%" and a read
+  // depth to "186,000,000" - so the room they take is measured rather than
+  // assumed, or the widest of them is drawn over the axis title beside it. Never
+  // narrower than the composition chart's, so the two halves of the panel line
+  // up on the runs where they can, and never past a third of the chart.
+  function gutter(ctx, top, width) {
+    var widest = 0;
+
+    ctx.font = LABEL_FONT;
+
+    [0.25, 0.5, 0.75, 1].forEach(function (share) {
+      var written = format(metric, gridline(metric, share, top));
+
+      widest = Math.max(widest, ctx.measureText(written).width);
+    });
+
+    return Math.min(Math.round(width / 3),
+                    Math.max(COMPOSITION_LEFT,
+                             Math.ceil(TITLE_BAND + widest + LABEL_GAP)));
+  }
+
+  function drawMetric() {
+    if (!metric) return;
+
+    var series = values(metric.key) || [];
+    var names = named();
+    var total = Math.max(140, metricBox.clientHeight);
+    var view = surface(metricCanvas, total);
+    var ctx = view.ctx;
+    var foot = band(ctx, total);
+    var height = Math.max(80, total - TOP - foot);
+    var top = 0;
+
+    for (var i = 0; i < series.length; i++) if (series[i] > top) top = series[i];
+    if (top <= 0) top = 1;
+
+    // An index that is a share of a whole carries the top of its own scale, so
+    // that the topmost gridline is that whole rather than the best sample in
+    // the run - a chart whose tallest column is always full height says every
+    // run reached the same coverage. Raised past it only by a reading that
+    // overshoots, which would otherwise be drawn off the chart.
+    if (metric.max) top = Math.max(top, metric.max);
+
+    var geometry = columns(view.width, gutter(ctx, top, view.width), PLOT_RIGHT);
+    var floor = TOP + height;
+
+    ctx.strokeStyle = ink("--border");
+    ctx.fillStyle = ink("--muted");
+    ctx.lineWidth = 1;
+    ctx.font = LABEL_FONT;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (share) {
+      var y = Math.round(floor - share * height) + 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(geometry.left, y);
+      ctx.lineTo(view.width - 8, y);
+      ctx.stroke();
+
+      if (share > 0) {
+        ctx.fillText(format(metric, gridline(metric, share, top)),
+                     geometry.left - LABEL_GAP, y);
+      }
+    });
+
+    ctx.fillStyle = ink("--series-1");
+
+    for (var slot = 0; slot < count; slot++) {
+      var value = series[order[slot]] || 0;
+      var high = rise(metric, value, top) * height;
+
+      if (high <= 0) continue;
+
+      var x = geometry.left + slot * geometry.step + geometry.inset;
+
+      if (geometry.bar >= 6) {
+        roundedTop(ctx, x, floor - high, geometry.bar, high, 4);
+        ctx.fill();
+      } else {
+        ctx.fillRect(x, floor - high, geometry.bar, high);
+      }
+    }
+
+    axisTitle(ctx, labelled(metric), TOP, height);
+
+    if (names) drawNames(ctx, geometry, floor, foot);
+    else       axisFoot(ctx, "Samples", geometry.left, view.width - 8, floor + 8);
+
+    // Which tool measured the index, beside the index it measured. A shotgun
+    // run reads its indices off two tools that answer different questions, and
+    // a reader comparing two of them is owed which is which. Data that names no
+    // source - the amplicon set, whose indices are all computed over the one
+    // ASV table - leaves the sentence off.
+    metricAbout.textContent = metric.title + " for each sample on its own: "
+      + metric.note + "."
+      + (metric.source ? " Values come from " + metric.source + "." : "");
+    metricNote.textContent = ordering()
+      + (metric.scale === "sqrt"
+         ? " Drawn on a square-root scale, so a column twice as tall is four"
+           + " times the reading."
+         : "")
+      + " Hover a column for the sample it belongs to.";
+
+    return { geometry: geometry, height: height };
+  }
+
+  // The spread of the index the chart is drawn from, under the chart. Only that
+  // one: the other indices are a select away, and three numbers for an index
+  // the reader is not looking at read as though they belonged to the one they
+  // are.
+  function drawSummary() {
+    var html = "";
+
+    // A sample the tool could not measure is left out of the three numbers
+    // rather than counted as a zero in them
+    var series = (values(metric.key) || []).filter(function (value) {
+      return value !== null && value !== undefined;
+    }).sort(function (a, b) { return a - b; });
+
+    if (series.length) {
+      var middle = series.length % 2
+        ? series[(series.length - 1) / 2]
+        : (series[series.length / 2 - 1] + series[series.length / 2]) / 2;
+
+      html = "<tr><td>" + escape(labelled(metric)) + "</td><td class=\"num\">"
+        + format(metric, series[0])
+        + "</td><td class=\"num\">" + format(metric, middle)
+        + "</td><td class=\"num\">" + format(metric, series[series.length - 1])
+        + "</td></tr>";
+    }
+
+    document.getElementById("summary").innerHTML = html;
+  }
+
+  // -- Pointer --------------------------------------------------------------
+
+  function slotAt(chart, x) {
+    var slot = Math.floor((x - chart.state.geometry.left) / chart.state.geometry.step);
+
+    return slot >= 0 && slot < count ? slot : -1;
+  }
+
+  function showTip(event, html) {
+    tip.innerHTML = html;
+    tip.hidden = false;
+
+    var box = tip.getBoundingClientRect();
+    var x = Math.min(event.clientX + 14, window.innerWidth - box.width - 8);
+    var y = Math.min(event.clientY + 16, window.innerHeight - box.height - 8);
+
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+
+  // A tooltip is written when the pointer asks for it rather than kept for every
+  // column: a run of a few thousand samples would otherwise be a few thousand
+  // strings held for a reader who will hover over a handful of them. The
+  // describer is handed where in the chart the pointer is, so it can say what is
+  // under it and not only which sample it belongs to.
+  function attach(canvas, describe) {
+    var chart = { canvas: canvas, state: null, describe: describe };
+
+    canvas.addEventListener("mousemove", function (event) {
+      if (!chart.state) return;
+
+      var box = canvas.getBoundingClientRect();
+      var slot = slotAt(chart, event.clientX - box.left);
+
+      if (slot < 0) { tip.hidden = true; return; }
+
+      showTip(event, chart.describe(order[slot], event.clientY - box.top,
+                                    chart.state));
+    });
+
+    canvas.addEventListener("mouseleave", function () { tip.hidden = true; });
+
+    return chart;
+  }
+
+  // -- Wiring ---------------------------------------------------------------
+
+  // The samples can be sorted by the run's headline index as well as by name,
+  // by depth and by what dominates them. Which index that is comes from the
+  // same list the chart is drawn from - the first of them - rather than being
+  // named here, since the two pipelines share none.
+  var HEADLINE = METRICS.filter(function (spec) { return spec.key !== "reads"; })[0];
+
+  var ORDERS = [
+    { id: "name", label: "Sample name" },
+    { id: "composition", label: "Most abundant taxon" },
+    { id: "reads", label: "Read depth" }
+  ];
+
+  if (HEADLINE) ORDERS.push({ id: HEADLINE.key, label: HEADLINE.title });
+
+  function reorder() {
+    var choice = orderSelect.value;
+    var indices = samples.map(function (_, i) { return i; });
+
+    if (choice === "name") {
+      indices.sort(function (a, b) {
+        return samples[a].localeCompare(samples[b], undefined, { numeric: true });
+      });
+    } else if (choice === "composition" && shares.length) {
+      indices.sort(function (a, b) { return shares[0][b] - shares[0][a]; });
+    } else {
+      var series = values(choice) || [];
+      indices.sort(function (a, b) { return (series[b] || 0) - (series[a] || 0); });
+    }
+
+    order = indices;
+  }
+
+  var compositionChart = null;
+  var metricChart = null;
+  var open = levels.length ? "composition" : "diversity";
+
+  function redraw() {
+    if (open === "composition" && compositionChart) {
+      compositionChart.state = drawComposition();
+    }
+
+    if (open === "diversity" && metricChart) {
+      metricChart.state = drawMetric();
+    }
+  }
+
+  if (levels.length) {
+    levels.forEach(function (entry, index) {
+      var option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = entry.name;
+      rankSelect.appendChild(option);
+    });
+
+    // Genus is what a reader asks for first, and the deepest rank the run went
+    // to is the nearest thing to it when it was not reached
+    var start = levels.length - 1;
+    levels.forEach(function (entry, index) { if (entry.rank === 6) start = index; });
+
+    rankSelect.value = String(start);
+    useLevel(start);
+
+    ORDERS.forEach(function (choice) {
+      if (choice.id !== "name" && choice.id !== "composition" && !values(choice.id)) return;
+
+      var option = document.createElement("option");
+      option.value = choice.id;
+      option.textContent = choice.label;
+      orderSelect.appendChild(option);
+    });
+
+    compositionChart = attach(barsCanvas, function (sample, y, state) {
+      var html = '<div class="name">' + escape(samples[sample]) + "</div>";
+      var under = bandAt(sample, y, state);
+      var fill;
+
+      for (var t = 0; t < plotted.length; t++) {
+        var share = shares[t][sample];
+
+        if (share <= 0) continue;
+
+        // The band the pointer is in wears its own colour, washed out far
+        // enough to read over, so the line and the sliver are one thing
+        fill = t === under ? washed(colors[t], 0.28) : "";
+
+        html += '<div class="row' + (t === under ? " here" : "") + '"'
+          + (fill ? ' style="background: ' + fill + '"' : "") + ">"
+          + escape(plotted[t].label) + " <b>" + percent(share) + "</b></div>";
+      }
+
+      // What is missing from the lines above: the reads of this sample the
+      // classifier placed nowhere, which is the height its column is short of
+      // the axis and is not drawn as a band of its own. A run whose every read
+      // is named leaves the column whole and this line off.
+      var unplaced = 10000 - totals[sample];
+
+      if (unplaced > 0) {
+        html += '<div class="row unnamed">(Unclassified <b>'
+          + percent(unplaced) + "</b>)</div>";
+      }
+
+      return html;
+    });
+
+    rankSelect.addEventListener("change", function () {
+      useLevel(rankSelect.value);
+      if (orderSelect.value === "composition") reorder();
+      drawLegend();
+      redraw();
+    });
+
+    drawLegend();
+  }
+
+  if (measured()) {
+    METRICS.forEach(function (spec, index) {
+      if (!values(spec.key)) return;
+
+      var option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = labelled(spec);
+      metricSelect.appendChild(option);
+
+      if (!metric) { metric = spec; metricSelect.value = String(index); }
+    });
+
+    metricChart = attach(metricCanvas, function (sample) {
+      return '<div class="name">' + escape(samples[sample]) + "</div>"
+        + '<div class="row">' + labelled(metric) + " <b>"
+        + format(metric, (values(metric.key) || [])[sample]) + "</b></div>";
+    });
+
+    metricSelect.addEventListener("change", function () {
+      metric = METRICS[metricSelect.value];
+      drawSummary();
+      redraw();
+    });
+
+    drawSummary();
+  }
+
+  orderSelect.addEventListener("change", function () { reorder(); redraw(); });
+
+  // Which half of the panel is showing. A canvas in a hidden section is laid
+  // out at no width, so whatever is shown is drawn after it is shown - and each
+  // half brings its own select with it.
+  function show(which) {
+    open = which;
+
+    buttons.forEach(function (button) {
+      var on = button.getAttribute("data-plot") === which;
+
+      button.className = on ? TAB_ON : TAB_OFF;
+      display(sections[button.getAttribute("data-plot")], on);
+    });
+
+    display(document.getElementById("rank-box"), which === "composition");
+    display(document.getElementById("metric-box"), which === "diversity");
+    tip.hidden = true;
+    redraw();
+  }
+
+  buttons.forEach(function (button) {
+    var which = button.getAttribute("data-plot");
+    var empty = which === "composition" ? !levels.length : !measured();
+
+    if (empty) {
+      display(button, false);
+      return;
+    }
+
+    button.addEventListener("click", function () { show(which); });
+  });
+
+  reorder();
+  show(open);
+
+  // A chart is drawn to the box it is in, so it has to be drawn again whenever
+  // that box changes size - the window resizing, the legend reflowing as the
+  // webfont arrives, or a tab bringing its own section into the layout. Without
+  // this the canvas keeps the height it was first drawn at and the sample names
+  // along the bottom are clipped by a box that has since shrunk.
+  if (window.ResizeObserver) {
+    var watcher = new ResizeObserver(function () { redraw(); });
+
+    watcher.observe(barsBox);
+    watcher.observe(metricBox);
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { redraw(); });
+  }
+
+  window.addEventListener("resize", redraw);
+})();
+</script>
+
+</body>
+</html>

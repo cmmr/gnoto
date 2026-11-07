@@ -7,15 +7,23 @@
 # the rest resolve here. Runs inside the image. The protocol is described in
 # host/helper.sh.
 #
-# Env:    GNOTO_HELPER_DIR, the launcher's private directory
+# Env:    GNOTO_HELPER_DIR, the launcher's private directory. Without it, the
+#         private directory is found from this link's own path, because
+#         Nextflow's local executor starts a task's apptainer with an empty
+#         environment
 #
 # Exits with the host command's exit code, or 125 if the helper can't run it.
-# Standard input isn't passed on: the host command reads /dev/null.
+# Standard input isn't passed on: the host command reads /dev/null. For
+# apptainer, the APPTAINERENV_ and SINGULARITYENV_ variables set here go with the
+# request, because Nextflow passes a task's work directory and TMPDIR that way.
 
 set -u
 
 NAME=${0##*/}
 DIR=${GNOTO_HELPER_DIR:-}
+if [[ -z $DIR && $0 == */bin/* ]]; then
+    DIR=${0%/bin/*}
+fi
 REQ=
 OUT_PID=
 ERR_PID=
@@ -42,14 +50,24 @@ trap 'exit 143' TERM
 
 REQ=$(mktemp -d "$DIR/req/XXXXXXXX") || fail "can't make a request in $DIR"
 
-# Single-quoted words, which POSIX sh reads back exactly
+# Single-quoted words, which POSIX sh reads back exactly. For apptainer, its
+# variables come first, as VAR=value words, and pass counts them.
 SQ="'"
 ESC="'\\''"
 WORDS="set --"
+PASS=0
+if [[ $NAME == apptainer ]]; then
+    for VAR in $(compgen -e); do
+        [[ $VAR =~ ^(APPTAINERENV|SINGULARITYENV)_[A-Za-z0-9_]+$ ]] || continue
+        VALUE="$VAR=${!VAR}"
+        WORDS+=" '${VALUE//"$SQ"/"$ESC"}'"
+        PASS=$((PASS + 1))
+    done
+fi
 for ARG in "$NAME" "$@"; do
     WORDS+=" '${ARG//"$SQ"/"$ESC"}'"
 done
-printf "cwd='%s'\n%s\n" "${PWD//"$SQ"/"$ESC"}" "$WORDS" > "$REQ/request" ||
+printf "cwd='%s'\npass=%d\n%s\n" "${PWD//"$SQ"/"$ESC"}" "$PASS" "$WORDS" > "$REQ/request" ||
     fail "can't write the request in $REQ"
 
 mkfifo "$REQ/stdout" "$REQ/stderr" "$REQ/alive" || fail "can't make FIFOs in $REQ"

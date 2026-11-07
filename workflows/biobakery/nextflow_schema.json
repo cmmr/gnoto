@@ -1,0 +1,60 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "biobakery pipeline parameters",
+    "description": "The parameters of gnoto's biobakery workflow, which gnoto lint checks a job file's biobakery section against, as it does nf-core pipelines' own schemas. Keep it in step with nextflow.config.",
+    "type": "object",
+    "$defs": {
+        "input_output_options": {
+            "title": "Input and output",
+            "type": "object",
+            "properties": {
+                "input": { "type": "string", "format": "file-path", "description": "Samplesheet, which gnoto writes" },
+                "outdir": { "type": "string", "format": "directory-path", "description": "Results directory, which gnoto sets" },
+                "host_depleted_outdir": { "type": "string", "description": "Folder the host-depleted reads are published to, or empty for none" },
+                "cleaned_outdir": { "type": "string", "description": "Folder the cleaned reads are published to, or empty for none" }
+            }
+        },
+        "module_options": {
+            "title": "Which modules run",
+            "type": "object",
+            "properties": {
+                "run_humann": { "type": "boolean" },
+                "run_motus": { "type": "boolean" },
+                "run_nonpareil": { "type": "boolean" },
+                "run_esviritu": { "type": "boolean" },
+                "run_markermagu": { "type": "boolean" }
+            }
+        },
+        "host_depletion_options": {
+            "title": "Host depletion and KneadData",
+            "type": "object",
+            "properties": {
+                "kneaddata_db": { "type": "string", "format": "directory-path", "description": "Directory holding one bowtie2 index, or empty to deplete nothing" },
+                "host_prefilter_bowtie2_options": { "type": "string" },
+                "host_bowtie2_options": { "type": "string" },
+                "kneaddata_sequencer_source": { "type": "string", "enum": ["NexteraPE", "TruSeq2", "TruSeq3", "none"] },
+                "kneaddata_args": { "type": "string" }
+            }
+        },
+        "profiling_options": {
+            "title": "Profilers and their databases",
+            "type": "object",
+            "properties": {
+                "metaphlan_db": { "type": "string", "format": "directory-path" },
+                "metaphlan_args": { "type": "string" },
+                "humann_chocophlan": { "type": "string", "format": "directory-path" },
+                "humann_uniref": { "type": "string", "format": "directory-path" },
+                "humann_utility_mapping": { "type": "string", "format": "directory-path" },
+                "motus_db": { "type": "string", "format": "directory-path" },
+                "motus_args": { "type": "string" },
+                "nonpareil_mode": { "type": "string", "enum": ["kmer", "alignment"] },
+                "nonpareil_args": { "type": "string" },
+                "esviritu_db": { "type": "string", "format": "directory-path" },
+                "esviritu_args": { "type": "string" },
+                "markermagu_db": { "type": "string", "format": "directory-path" },
+                "markermagu_detection": { "type": "string", "enum": ["default", "relaxed"] },
+                "markermagu_args": { "type": "string" }
+            }
+        }
+    }
+}

@@ -2,7 +2,7 @@
 #
 # ampliseq_tables.R - Assemble a run's feature table, and everything read off it.
 #
-# Run inside the rbiom container by ampliseq_composition.sh, which owns the
+# Run in the gnoto-rbiom image by steps/ampliseq_composition.sh, which owns the
 # numbers that come from outside the feature table. This owns the feature table
 # itself and everything derived from it, so the file a requester downloads and
 # the numbers the Overview plots are the same object read twice.
@@ -51,7 +51,8 @@
 #            [exclude_taxa]
 #        exclude_taxa is a comma-separated list, or "none"
 #
-# Requires: rbiom (>= 3.1.0), and h5lite for the HDF5 output
+# Requires: rbiom (>= 4.0.0), and h5lite for the HDF5 output, as the gnoto-rbiom
+#           image pins them
 
 suppressPackageStartupMessages(library(rbiom))
 

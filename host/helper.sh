@@ -10,7 +10,10 @@
 # The launcher makes the private directory with a requests FIFO, req/ and bin/.
 # For each call, host/standin.sh makes a directory in req/ holding:
 #
-#   request   cwd='...' and set -- '<command>' '<arg>' ..., which this sources
+#   request   cwd='...', pass=<n> and set -- '<command>' '<arg>' ..., which
+#             this sources. For apptainer, the set -- starts with n
+#             APPTAINERENV_ or SINGULARITYENV_ words, as VAR=value, which the
+#             command gets
 #   stdout    FIFOs the stand-in reads, opened before the request is sent
 #   stderr
 #   alive     a FIFO the stand-in holds open until it exits
@@ -97,25 +100,48 @@ handle() {
 
     set --
     cwd=
+    pass=0
     if ! . "$REQ/request" 2> /dev/null; then
         refuse 125 "can't read the request in $REQ"
     fi
     COMMAND_LINE="$*"
 
-    if [ $# -eq 0 ]; then
+    # The first $pass words are apptainer's own variables, as VAR=value, which
+    # env -i passes on. The command is the word after them.
+    case $pass in
+        '' | *[!0-9]*) refuse 125 "the request's pass isn't a count" ;;
+    esac
+    COMMAND=
+    I=0
+    for WORD in "$@"; do
+        if [ "$I" -eq "$pass" ]; then
+            COMMAND=$WORD
+            break
+        fi
+        case $WORD in
+            APPTAINERENV_*=* | SINGULARITYENV_*=*) ;;
+            *) refuse 125 "the request passes $WORD, which isn't an Apptainer variable" ;;
+        esac
+        I=$((I + 1))
+    done
+
+    if [ -z "$COMMAND" ]; then
         refuse 125 "the request names no command"
     fi
     case $ALLOWED in
-        *" $1 "*) ;;
-        *) refuse 126 "$1 isn't one of the host commands gnoto allows" ;;
+        *" $COMMAND "*) ;;
+        *) refuse 126 "$COMMAND isn't one of the host commands gnoto allows" ;;
     esac
+    if [ "$pass" -gt 0 ] && [ "$COMMAND" != apptainer ]; then
+        refuse 125 "only apptainer takes variables through a request"
+    fi
     if [ -z "$cwd" ] || ! cd -- "$cwd" 2> /dev/null; then
         refuse 125 "can't enter $cwd on the host"
     fi
 
     VARS="APPTAINER_TMPDIR APPTAINER_CACHEDIR SLURM_CONF LOGNAME USER HOME PATH"
     # systemctl --user needs the login session's bus, and nothing else should get it
-    case $1 in
+    case $COMMAND in
         systemctl | loginctl) VARS="DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR $VARS" ;;
     esac
     for VAR in $VARS; do

@@ -26,8 +26,8 @@
 #            ampliseq pipeline, before the results are pruned and indexed
 # Requires:  awk, from the gnoto image; gotree, from the image
 #            pipelines/ampliseq/lock.yaml pins
-# Reads:     the grafted tree in results/pplace/; $DB_DIR/pplace/bac16s.newick,
-#            from build_pplace_reference.sh
+# Reads:     the grafted tree in results/pplace/, and the reference tree the
+#            run was given, its pplace_tree parameter in ./run_state.json
 # Writes:    results/pplace/asv_tree.newick
 # Env:       DB_DIR and the log/warn/fail helpers, from lib/env.sh
 
@@ -35,7 +35,10 @@ set -euo pipefail
 
 source "${BASH_SOURCE[0]%/*}/../lib/env.sh"
 
-readonly REFERENCE_TREE="$DB_DIR/pplace/bac16s.newick"
+PPLACE_TREE=$(state_get params.pplace_tree)
+[[ -n "$PPLACE_TREE" ]] || fail "This run names no pplace_tree, so there is no tree to prune."
+REFERENCE_TREE=$(db_path "$PPLACE_TREE")
+readonly REFERENCE_TREE
 
 RESULTS_DIR="${1:-results}"
 RESULTS_DIR="${RESULTS_DIR%/}"
@@ -79,7 +82,7 @@ fi
 
 readonly GRAFTED_TREE="${GRAFTED_TREES[0]}"
 
-[[ -r "$REFERENCE_TREE" ]] || fail "The placement reference is missing from the server ($REFERENCE_TREE; build it with build_pplace_reference.sh)."
+[[ -r "$REFERENCE_TREE" ]] || fail "The placement reference is missing from the server ($REFERENCE_TREE). gnoto lint <job file> offers to fetch it."
 
 GRAFTED_TIPS=$(tree_tips "$GRAFTED_TREE" | wc -l)
 REFERENCE_TIPS=$(tree_tips "$REFERENCE_TREE" | wc -l)
@@ -96,13 +99,14 @@ log "Pruning $REFERENCE_TIPS reference tips out of $GRAFTED_TIPS, leaving $EXPEC
 
 # -c names the tree to compare against and -r removes what the two have in
 # common, so what's left is the tips the grafted tree doesn't share with the
-# reference: this run's ASVs.
+# reference: this run's ASVs. gotree 0.5.2 otherwise writes the removed tips to
+# a file named "none" in the run directory.
 GRAFTED_ABS=$(readlink -f "$GRAFTED_TREE")
 OUTPUT_ABS=$(readlink -f "$PPLACE_DIR")/asv_tree.newick
 
 GOTREE_IMAGE=$(lock_image ampliseq gotree) || exit 1
-if ! container_exec "$GOTREE_IMAGE" \
-        gotree prune -i "$GRAFTED_ABS" -c "$REFERENCE_TREE" -r -o "$OUTPUT_ABS.tmp"; then
+if ! container_exec "$GOTREE_IMAGE" gotree prune -i "$GRAFTED_ABS" -c "$REFERENCE_TREE" -r \
+        --outtipfile /dev/null -o "$OUTPUT_ABS.tmp"; then
     rm -f "$OUTPUT_ABS.tmp"
     fail "The grafted phylogeny could not be pruned."
 fi

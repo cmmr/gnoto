@@ -1,0 +1,178 @@
+/*
+  common.css - The palette and base styling of the folder listings.
+
+  Inlined by render_template wherever a template carries the COMMON_CSS
+  placeholder. A listing sits in any folder of the results, so it carries its
+  styles rather than linking assets/, and sets text in the system's own fonts.
+
+  Page-specific rules go in the template's own style block, after this.
+*/
+
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --panel: #f4f6f8;
+  --border: #d7dde3;
+  --text: #1b2733;
+  --muted: #5c6b7a;
+  --accent: #1f6feb;
+  --accent-text: #ffffff;
+  --row: #f8fafb;
+  --track: #e3e8ed;
+  --notice-bg: #fdf6e7;
+  --notice-border: #e6c67a;
+  --notice-text: #6b4f0c;
+  --alert-bg: #fdeceb;
+  --alert-border: #e3a6a1;
+  --alert-text: #8a2018;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12171d;
+    --panel: #1a2129;
+    --border: #2c3742;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --accent: #3b82f6;
+    --accent-text: #ffffff;
+    --row: #171e25;
+    --track: #263039;
+    --notice-bg: #2a2313;
+    --notice-border: #6b5726;
+    --notice-text: #f2dda0;
+    --alert-bg: #351a19;
+    --alert-border: #7d3730;
+    --alert-text: #f7bdb6;
+  }
+}
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+}
+
+/* Filenames, uids and anything else read a character at a time */
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+a { color: var(--accent); }
+
+/* The strip every page is headed with: the task name, what run it was, and
+   whatever that page offers on the right. */
+header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 14px 22px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+header .meta {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+header .meta code { font-size: inherit; }
+header .meta a { text-decoration: none; }
+header .meta a:hover { text-decoration: underline; }
+
+/* Labelled with a filename, so set in the face filenames are read in */
+.buttons {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+a.button {
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+a.button:hover { filter: brightness(1.08); }
+
+/* The bordered notes in the corner of a header - what the run is, and how long
+   it stays online. They share one shape, so the row reads as one set. */
+.facts {
+  flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.fact, .expiry {
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.fact .value, .expiry .date { color: var(--text); font-weight: 600; }
+
+/* The deletion date reddens once the countdown finds it close; without
+   scripting it stays as quiet as the notes beside it. */
+.expiry.soon {
+  background: var(--alert-bg);
+  border-color: var(--alert-border);
+  color: var(--alert-text);
+}
+.expiry.soon .date { color: inherit; }
+.expiry.none { border-style: dashed; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+tbody tr:nth-child(odd) { background: var(--row); }
+td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+td.name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+td.name a { text-decoration: none; }
+td.name a:hover { text-decoration: underline; }
+td.size {
+  width: 8em;
+  text-align: right;
+  white-space: nowrap;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.muted { color: var(--muted); }
+.empty { color: var(--muted); font-style: italic; }

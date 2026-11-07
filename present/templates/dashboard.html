@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--
+  dashboard.html - A run's landing page: the navigation bar, and a frame each
+  view loads into.
+
+  Rendered by present/dashboard.sh into results/index.html, over the progress
+  page present/progress.sh kept there while the run went. The bar is the one
+  piece of chrome that survives navigation: overview.html, deliverables.html,
+  the pipeline's own reports and directory_listing.html are whole pages loaded
+  into the frame.
+
+  The links carry target="view", so they work without scripting. The script
+  records the view the bar was asked for in the fragment, so #quality links
+  straight to the QC Report, and sends the frame by replacing its address, so
+  the back button walks views rather than loads. It also follows the frame
+  where a page inside it links, marking the view that page belongs to.
+
+  A link written hidden, the QC Report's, is shown when the address carries ?qc
+  or names its view in the fragment.
+
+  Every link is relative, so the page works from the run directory, an
+  unpacked copy of the zip, or wherever Publish puts it.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, NAV, EXPIRY and FIRST_VIEW, each
+  wrapped in doubled underscores. They're not spelled that way here, because
+  the renderer would fill them in. The task name is escaped on the way in, and
+  NAV and EXPIRY are markup the renderer escaped itself.
+-->
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>__TASK_NAME__</title>
+__COMMON_HEAD__
+</head>
+<body class="bg-surface-bg-light text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-primary text-on-primary docked full-width top-0 z-50 shadow-md">
+<div class="flex flex-wrap justify-between items-center gap-y-2 w-full max-w-7xl mx-auto px-margin-page py-3">
+<div class="flex flex-wrap items-center gap-3 md:gap-5">
+<div class="text-[17px] leading-6 font-bold tracking-[0.14em] text-on-primary md:border-r md:border-white/15 md:pr-5">gnoto</div>
+<nav class="flex flex-wrap gap-x-1 gap-y-1 md:gap-x-2" id="views">__NAV__</nav>
+</div>
+<div class="flex items-center">__EXPIRY__</div></div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<iframe class="flex-1 w-full border-0 bg-surface" id="view" name="view" src="__FIRST_VIEW__" title="__TASK_NAME__"></iframe>
+</div>
+
+<script>
+(function () {
+  // The two states of a link in the bar, kept as they are written in the design
+  var ON = "text-on-primary border-b-2 border-secondary-fixed font-bold pb-1 px-2 py-1"
+         + " rounded text-[13px] tracking-[0.02em] hover:bg-primary-container transition-colors";
+  var OFF = "text-primary-fixed/80 hover:text-on-primary hover:bg-primary-container"
+          + " transition-colors px-2 py-1 rounded text-[13px] tracking-[0.02em] font-medium";
+
+  var links = [].slice.call(document.querySelectorAll("#views a"));
+  var frame = document.getElementById("view");
+
+  // A link written hidden is left off the bar until the address asks for it:
+  // ?qc in the query shows every such link, and naming a view in the fragment
+  // shows that one. Once shown, a link stays shown until the page is reloaded.
+  function list(link) {
+    link.removeAttribute("hidden");
+  }
+
+  if (/(^\?|&)qc(=|&|$)/.test(location.search)) links.forEach(list);
+
+  // The countdown is worked out when the page is read rather than when it was
+  // published, so a link opened weeks later still says how long is left. The
+  // page is published saying the results expire on that date; only a date that
+  // has since passed needs the wording changed.
+  var expiry = document.querySelector("[data-expires]");
+  if (expiry) {
+    var parts = expiry.getAttribute("data-expires").split("-");
+    var due = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    var today = new Date();
+    var days = Math.round((due - new Date(today.getFullYear(), today.getMonth(),
+                                          today.getDate())) / 86400000);
+    var left = expiry.querySelector(".countdown");
+
+    if (days > 1)        left.textContent = " (" + days + " days left)";
+    else if (days === 1) left.textContent = " (1 day left)";
+    else if (days === 0) left.textContent = " (last day)";
+    else                 expiry.querySelector(".label").textContent = "Deleted ";
+
+    // The amber note reddens once the countdown finds the date close
+    if (days <= 14) {
+      expiry.className = expiry.className
+        .replace(/warning-amber/g, "error-red");
+    }
+  }
+
+  // Which page the frame was last sent to, since the address it is showing is
+  // not read back off the attribute below
+  var loaded = frame.getAttribute("src");
+
+  // Sending the frame somewhere by its src pushes an entry onto the reader's
+  // session history, on top of the fragment this bar had just written. Back
+  // then undoes the frame's navigation while the fragment - and the link marked
+  // active - stay where they were, so the bar names a view the frame has
+  // already left. Replacing the frame's own address instead leaves the fragment
+  // as the only entry a view costs, so back and forward always land on the view
+  // the bar is pointing at.
+  //
+  // A page opened off disk gives the frame an origin of its own, so the
+  // fallback is the attribute and the history entry that comes with it.
+  //
+  // The view the bar has asked for and is still waiting on, so that the frame
+  // arriving at the page it is being sent away from does not mark that one
+  // active on the way past
+  var pending = null;
+
+  function load(url) {
+    pending = url;
+
+    try {
+      frame.contentWindow.location.replace(url);
+    } catch (error) {
+      frame.setAttribute("src", url);
+    }
+  }
+
+  function mark(view) {
+    links.forEach(function (link) {
+      link.className = link.getAttribute("data-view") === view ? ON : OFF;
+    });
+  }
+
+  function show(view) {
+    mark(view);
+
+    links.forEach(function (link) {
+      if (link.getAttribute("data-view") === view
+          && loaded !== link.getAttribute("href")) {
+        loaded = link.getAttribute("href");
+        load(loaded);
+      }
+    });
+  }
+
+  // Where the frame actually is, as this page would write the address: every
+  // view is a relative link from here, so the answer is comparable to one.
+  //
+  // A dashboard opened off disk gives the frame an origin of its own and
+  // reading it throws, which is the one case the bar can't follow the frame
+  // and goes on naming the view it last sent it to.
+  function frameHref() {
+    var here;
+
+    try {
+      here = frame.contentWindow.location.href;
+    } catch (error) {
+      return null;
+    }
+
+    var root = location.href.replace(/[?#].*$/, "").replace(/[^/]*$/, "");
+
+    return here.indexOf(root) === 0 ? here.slice(root.length) : null;
+  }
+
+  // The view a page belongs to: the view it is, or the one whose folder holds
+  // it. The report's own plots and the listings under the file index are pages
+  // of a view rather than views of their own, so the longest match wins. Every
+  // folder listing belongs to File Explorer, the top listing.
+  var LISTING = "directory_listing.html";
+
+  function viewFor(href) {
+    var page = href.replace(/[?#].*$/, "");
+    var view = null;
+    var reach = 0;
+
+    links.forEach(function (link) {
+      var target = link.getAttribute("href");
+      var folder = target.replace(/[^/]*$/, "");
+      var match = 0;
+
+      if (page === target) match = target.length + 1;
+      else if (target === LISTING && page.slice(-LISTING.length - 1) === "/" + LISTING) match = page.length;
+      else if (folder && page.indexOf(folder) === 0) match = folder.length;
+
+      if (match > reach) {
+        reach = match;
+        view = link.getAttribute("data-view");
+      }
+    });
+
+    return view;
+  }
+
+  // A page inside the frame can send it somewhere the bar did not: the file
+  // index and the Overview's read-count bars both link into the report. Reading
+  // the frame back on every load is what lets the bar follow it there, and it
+  // keeps "loaded" true to where the frame is, so a click on any view still
+  // sends it home from wherever it has wandered.
+  frame.addEventListener("load", function () {
+    var href = frameHref();
+
+    if (href === null) return;
+
+    // Ignore the pages the frame passes through on its way to a view the bar is
+    // still waiting on; once that view lands, the frame is its own record again
+    if (pending !== null && viewFor(href) !== viewFor(pending)) return;
+
+    pending = null;
+    loaded = href;
+
+    var view = viewFor(href);
+
+    if (view) mark(view);
+  });
+
+  function fromHash() {
+    var hash = location.hash.replace("#", "");
+    var named = links.filter(function (l) { return l.getAttribute("data-view") === hash; })[0];
+
+    if (named) list(named);
+
+    show(named ? hash : links[0].getAttribute("data-view"));
+  }
+
+  links.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+      location.hash = link.getAttribute("data-view");
+      fromHash();
+    });
+  });
+
+  window.addEventListener("hashchange", fromHash);
+  fromHash();
+})();
+</script>
+
+</body>
+</html>

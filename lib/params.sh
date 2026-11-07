@@ -4,11 +4,11 @@
 # Sourced by:  lib/env.sh
 # Defines:     params_reset, params_set, params_set_json, params_get, params_has,
 #              params_unset, params_load, params_json, params_write, db_path,
-#              params_reference, lock_get, form_answer, form_answer_includes,
-#              PIPELINE_PARAMS, PIPELINE_PARAM_ORDER
+#              params_reference, params_apply_job, lock_get, form_answer,
+#              form_answer_includes, PIPELINE_PARAMS, PIPELINE_PARAM_ORDER
 # Requires:    jq and yq; fail from lib/utilities.sh, and state_get from
 #              lib/run_state.sh for form_answer
-# Env:         DB_DIR, which db: names resolve against
+# Env:         DB_DIR and CODE_DIR, which db: and code: names resolve against
 #
 # A pipeline's pipeline.sh sets its defaults with params_set. Later layers, such
 # as the job's own section or a step's measured values, overwrite the keys they
@@ -18,9 +18,11 @@
 # params_set types a shell string: true, false, null and numbers go in bare, as
 # Nextflow expects, and anything else is a string.
 #
-# A value naming a database is written as db:<path under db_dir>. params_json,
-# which the record is built from, keeps the name. params_write, which Nextflow
-# reads, resolves it.
+# A value naming a database is written as db:<path under db_dir>, and one naming
+# a file in gnoto's own code, such as a report template, as code:<path under the
+# code directory>. params_json, which the record is built from, keeps the names,
+# so the record holds no site paths. params_write, which Nextflow reads,
+# resolves them.
 
 declare -A PIPELINE_PARAMS=()
 declare -a PIPELINE_PARAM_ORDER=()
@@ -104,7 +106,8 @@ db_path() {
     printf '%s/%s' "$DB_DIR" "$name"
 }
 
-# Writes the map as the YAML params file Nextflow reads, with db: names resolved
+# Writes the map as the YAML params file Nextflow reads, with db: and code:
+# names resolved
 params_write() {
     local file="$1" json name path
 
@@ -116,6 +119,9 @@ params_write() {
         json=$(jq --arg name "$name" --arg path "$path" \
             'walk(if . == $name then $path else . end)' <<< "$json")
     done < <(jq -r '[.. | strings | select(startswith("db:"))] | unique[]' <<< "$json")
+    json=$(jq --arg code "$CODE_DIR/" \
+        'walk(if type == "string" and startswith("code:") then $code + ltrimstr("code:") else . end)' \
+        <<< "$json")
     yq -P -o=yaml . <<< "$json" > "$file" || fail "Can't write the parameters to $file."
 }
 
@@ -131,6 +137,26 @@ params_reference() {
     params_unset "$param"
     while IFS=$'\t' read -r key value; do
         params_set_json "$key" "$value"
+    done < <(jq -r 'to_entries[] | "\(.key)\t\(.value | tojson)"' <<< "$json")
+}
+
+# Applies the parameters a job file sets, as a JSON object, over the pipeline's
+# defaults. A reference choice, such as qiime_ref_taxonomy silva=138, becomes
+# the local files that stand in for it, as in pipeline.sh, so the pipeline
+# downloads nothing.
+params_apply_job() {
+    local json="${1:-{\}}" choices key value
+
+    choices=$(yq -o=json '[.databases[] | select(.choice) | .choice.parameter] | unique' \
+        "$CODE_DIR/conf/databases.yaml") || fail "Can't read conf/databases.yaml."
+    while IFS=$'\t' read -r key value; do
+        [[ -n "$key" ]] || continue
+        if [[ "$key" == *_ref_taxonomy ]] ||
+            jq -e --arg key "$key" 'index($key) != null' <<< "$choices" > /dev/null; then
+            params_reference "$key" "$(jq -r 'tostring' <<< "$value")"
+        else
+            params_set_json "$key" "$value"
+        fi
     done < <(jq -r 'to_entries[] | "\(.key)\t\(.value | tojson)"' <<< "$json")
 }
 

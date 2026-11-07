@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+  expired.html - The page left at a run's results address once they've expired.
+
+  For phase 7's teardown in service/expire.sh, which renders it with
+  render_template from present/dashboard.sh in place of the dashboard. It links
+  assets/gnoto.css like every other page, so the teardown keeps assets/ beside
+  it.
+
+  Written for the reader whose data it was, arriving at a link that worked last
+  time: what's gone, when, and who to ask. It names the run, because it asks the
+  reader to quote it. It doesn't offer to put the results back, because that
+  would need the original sequencing files, which aren't kept.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, RUN_ID, COMPLETED, SAMPLE_COUNT and
+  EXPIRED, each wrapped in doubled underscores. They're not spelled that way
+  here, because the renderer would fill them in. The task name is escaped on the
+  way in. COMPLETED and SAMPLE_COUNT are markup the renderer builds, and are
+  empty for a run with no completion date or sample count.
+-->
+<html class="light h-full" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>These results are no longer available online</title>
+__COMMON_HEAD__
+<style>
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+</style>
+</head>
+<body class="light min-h-full bg-surface-bg-light flex flex-col items-center justify-center p-margin-page">
+<!-- No navigation bar: there's nothing left to navigate to -->
+<main class="w-full max-w-2xl bg-surface-container-lowest border border-outline-variant rounded-lg p-[32px] flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-[32px] text-on-surface-variant" style="font-variation-settings: 'FILL' 1;">
+                timer_off
+            </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-4">
+            Data No Longer Available
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-lg mb-8">
+            This page held the results of a sequencing analysis. They were kept online for the storage period chosen when the analysis was requested, which ended on <strong>__EXPIRED__</strong>.
+        </p>
+
+<!-- What to quote when asking about it -->
+<div class="w-full max-w-lg text-left mb-8 rounded-lg border border-outline-variant bg-surface-container-low p-4">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-2">This analysis</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">__TASK_NAME__</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">__COMPLETED__reference
+<span class="font-code-sm text-code-sm text-on-surface">__RUN_ID__</span> __SAMPLE_COUNT__</p>
+</div>
+
+<div class="w-full max-w-lg text-left mb-8">
+<h3 class="font-headline-lg text-[18px] text-on-surface mb-2 font-semibold">What this means</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">The report that was on this
+page, and the sequencing data files that could be downloaded from it, have been removed.
+Anything that was downloaded while the page was up is unaffected &mdash; if you or a
+colleague saved a copy, you still have it.</p>
+
+<h3 class="font-headline-lg text-[18px] text-on-surface mb-2 font-semibold">If you still need these results</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Please get in touch with whoever ran this analysis for you, quoting the reference above.</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-80">A record of how this analysis was set up is kept, but that isn't the same as being able to put this page back: repeating the analysis would need the original sequencing files, which aren't stored here.</p>
+</div>
+
+<div class="mt-4 pt-8 border-t border-outline-variant w-full flex flex-col items-center gap-2">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Made with <a class="underline hover:no-underline" href="https://github.com/cmmr/gnoto" target="_blank" rel="noopener">gnoto</a>
+            </p>
+</div>
+</main>
+
+</body>
+</html>

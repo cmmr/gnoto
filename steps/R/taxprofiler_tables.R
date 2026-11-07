@@ -2,7 +2,7 @@
 #
 # taxprofiler_tables.R - Assemble the feature tables a shotgun run is delivered as.
 #
-# Run inside the rbiom container by taxprofiler_composition.sh, which finds
+# Run in the gnoto-rbiom image by steps/taxprofiler_composition.sh, which finds
 # every file named here and builds the taxonomy tree before calling this. This
 # owns the files a requester loads: the profile as a BIOM with a tree in it, so
 # UniFrac and Faith's PD can be computed the way they can from the 16S
@@ -60,7 +60,8 @@
 #        Every path after faith_out may be empty, which leaves out whatever
 #        needed it; species_only is 1 for a kraken2 table and 0 for a bracken one
 #
-# Requires: rbiom (>= 3.1.0), and h5lite for the HDF5 output
+# Requires: rbiom (>= 4.0.0), and h5lite for the HDF5 output, as the gnoto-rbiom
+#           image pins them
 
 suppressPackageStartupMessages(library(rbiom))
 

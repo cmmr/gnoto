@@ -31,7 +31,7 @@ check() {
 
 [[ -r $FIXTURE/SRR17380142_1.fastq.gz ]] || { echo "No 16s-v4 fixture in $FIXTURE"; exit 1; }
 
-mkdir -p "$WORK/install" "$WORK/db/pplace"
+mkdir -p "$WORK/install" "$WORK/db/pplace/v1"
 printf 'core:\n  data_dir: "%s"\n  db_dir: "%s"\n' "$DATA_DIR" "$WORK/db" > "$WORK/install/config.yaml"
 export GNOTO_INSTALL_DIR=$WORK/install
 source "$CODE/lib/env.sh" || exit 1
@@ -68,7 +68,8 @@ check "region detection without its reference fails" "1" "$?"
 check "and says which reference" "yes" "$(state_get message | grep -q '16s' && echo yes || state_get message)"
 
 mkdir -p results/pplace
-echo "(R1:0.1,R2:0.2,(R3:0.1,R4:0.1):0.3);" > "$WORK/db/pplace/bac16s.newick"
+echo "(R1:0.1,R2:0.2,(R3:0.1,R4:0.1):0.3);" > "$WORK/db/pplace/v1/bac16s.newick"
+state_set params.pplace_tree db:pplace/v1/bac16s.newick
 echo "(R1:0.1,R2:0.2,(R3:0.1,R4:0.1):0.3,((ASV_1:0.1,ASV_2:0.2):0.05,ASV_3:0.1):0.05);" > results/pplace/gtdb.graft.newick
 "$CODE/steps/ampliseq_prune_tree.sh" > prune.log 2>&1
 check "pruning, with the real gotree image" "0" "$?"

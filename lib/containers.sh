@@ -9,7 +9,9 @@
 # Env:         CODE_DIR, DATA_DIR, DB_DIR and APPTAINER_BINDS, from lib/env.sh
 #
 # Images are pinned by digest in each pipeline's lock.yaml and pulled once into
-# <data_dir>/images, under a lock and by rename.
+# <data_dir>/images, under a lock and by rename. An image gnoto builds itself
+# can instead be named as a bare <name>.sif, a file already in <data_dir>/images,
+# until it's published to a registry.
 #
 # A step runs with no environment but LC_ALL=C.UTF-8 and TZ=UTC, and an empty
 # home directory at a fixed path, so neither the caller's locale, R library or
@@ -24,10 +26,17 @@ lock_image() {
 }
 
 # The .sif for an image address, pulling it first if it isn't there. The address
-# must name a digest, as <registry>/<image>@sha256:<64 hex digits>.
+# must name a digest, as <registry>/<image>@sha256:<64 hex digits>, or be a bare
+# <name>.sif in <data_dir>/images, which is never pulled.
 container_sif() {
     local address="${1#docker://}" sif
 
+    if [[ "$1" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]*\.sif$ ]]; then
+        sif="$DATA_DIR/images/$1"
+        [[ -f "$sif" ]] || fail "There's no image $sif. Build it from its recipe in images/."
+        printf '%s' "$sif"
+        return 0
+    fi
     if [[ ! "$address" =~ ^[a-z0-9.-]+(:[0-9]+)?/[a-z0-9._/-]+@sha256:[0-9a-f]{64}$ ]]; then
         fail "\"$1\" doesn't name a container image by digest."
     fi

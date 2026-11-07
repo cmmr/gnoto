@@ -1,0 +1,108 @@
+<!doctype html>
+<!--
+  listing.html - The listing of one folder of a run's results.
+
+  Rendered by present/index_directories.sh into every folder of results/, the
+  folder itself included, as directory_listing.html, never as index.html,
+  which means a page written to be read. Object stores serve no directories,
+  so without these the folder links the reports carry lead nowhere. Everything
+  is inline and every link relative.
+
+  One kind of listing names files that aren't published beside it: a folder of
+  reads, which is only in the deliverables zip, beside results/. Its rows are
+  held, greyed and not followed, and its note says where the files are. The
+  script at the foot turns them back on for a copy read off disk, from the run
+  directory or an unpacked zip, where the reads are two levels up.
+
+  Placeholders are COMMON_CSS, DIR_PATH, UP_LINK, NOTE and ROWS, each wrapped in
+  doubled underscores. They're not spelled that way here, because the renderer
+  would fill them in. UP_LINK, NOTE and ROWS are markup the renderer emits,
+  having escaped and URL-encoded every name it read off the disk.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__DIR_PATH__</title>
+<style>
+__COMMON_CSS__
+
+header h1 {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+main {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 18px 22px 30px;
+}
+table { max-width: 900px; }
+
+/* Folders read as folders before the name is */
+td.name .dir { font-weight: 600; }
+
+/* What this listing is for, when it is for something other than the folder it
+   sits in */
+.note {
+  max-width: 900px;
+  margin: 0 0 16px;
+  padding: 10px 13px;
+  border: 1px solid var(--notice-border);
+  border-radius: 6px;
+  background: var(--notice-bg);
+  color: var(--notice-text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* A row naming a file this copy of the page cannot hand over. The name and the
+   size are still worth reading - this is the record of what went in - so the
+   row stays and only the link goes. */
+tr.held td.name a {
+  color: var(--muted);
+  pointer-events: none;
+  cursor: default;
+}
+
+/* The copy that came down with the files, where every one of them is there to
+   open */
+html.local tr.held td.name a {
+  color: var(--accent);
+  pointer-events: auto;
+  cursor: pointer;
+}
+html.local .note { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>__DIR_PATH__</h1>
+    <!-- Up one folder at a time to the results folder's own listing, and from
+         there out of the frame to the landing page - which is what stops the
+         chain nesting a second dashboard inside the first -->
+    <p class="meta">__UP_LINK__</p>
+  </div>
+</header>
+
+<main>
+__NOTE__
+__ROWS__
+</main>
+
+<script>
+// A page read off disk, from the run directory or an unpacked zip, has the
+// reads a published listing holds back beside it. Rows are written held, so a
+// published copy is right with or without this.
+if (location.protocol === "file:" || location.hostname === "localhost"
+    || location.hostname === "127.0.0.1") {
+  document.documentElement.className += " local";
+}
+</script>
+
+</body>
+</html>

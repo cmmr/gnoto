@@ -46,8 +46,9 @@
 #            ./humann.out and ./humann.log (the console output the progress
 #            page reads and the workflow's own log), and <results_dir>/humann/:
 #            the tables, the per-sample logs, and a copy of that command record
-# Env:       CODE_DIR, DB_DIR, the log/warn helpers and the run state helpers,
-#            from lib/env.sh
+#            naming no site paths
+# Env:       CODE_DIR, DB_DIR, NEXTFLOW_CONFIG, the log/warn helpers and the run
+#            state helpers, from lib/env.sh; site.config, which the job wrote
 
 set -euo pipefail
 
@@ -121,8 +122,7 @@ fi
 
 for path in "$CHOCOPHLAN" "$UNIREF" "$UTILITY_MAPPING"; do
     [[ -d "$path" ]] && continue
-    skip "there is no HUMAnN database at $path. Install it with" \
-         "steps/fetch_taxprofiler_db.sh humann."
+    skip "there is no HUMAnN database at $path. gnoto lint <job file> offers to fetch it."
 done
 
 command -v nextflow > /dev/null || skip "nextflow is not on PATH."
@@ -289,6 +289,7 @@ HUMANN_ARGS=(
     -log humann.log
     run "$WORKFLOW"
     -profile apptainer
+    -ansi-log false
     --input "$PWD/$HUMANN_SHEET"
     --outdir "$RESULTS_PATH"
     --chocophlan "$CHOCOPHLAN"
@@ -296,10 +297,16 @@ HUMANN_ARGS=(
     --utility_mapping "$UTILITY_MAPPING"
 )
 
+# The site's settings, as the job's own Nextflow run has them: the executor and
+# each task's limits from site.config, which the job wrote, then
+# core.nextflow_config
+[[ ! -f site.config ]] || HUMANN_ARGS+=(-c "$PWD/site.config")
+[[ -z "${NEXTFLOW_CONFIG:-}" ]] || HUMANN_ARGS+=(-c "$NEXTFLOW_CONFIG")
+
 {
     printf '#!/bin/bash\n'
     printf '# HUMAnN over %s sample(s), recorded %s\n' "$PROFILED" "$(date)"
-    printf 'nextflow'
+    printf 'exec nextflow'
     printf ' %q' "${HUMANN_ARGS[@]}"
     printf '\n'
 } > humann_command.sh
@@ -314,8 +321,13 @@ fi
 set_run_stage "Packaging and publishing your results." || true
 
 # Beside the tables it produced, since the taxprofiler command published in the
-# results is not the command that produced them
-cp humann_command.sh "$RESULTS_DIR/humann/" 2>/dev/null \
-    || warn "Could not publish the HUMAnN command record with its tables."
+# results is not the command that produced them. The published copy names no
+# site paths: databases as db: names, gnoto's code as <gnoto>, and the run
+# directory not at all.
+PUBLISHED_PATHS=(-e "s#$DB_DIR/#db:#g" -e "s#$CODE_DIR/#<gnoto>/#g" -e "s#$PWD/##g")
+[[ -z "${NEXTFLOW_CONFIG:-}" ]] ||
+    PUBLISHED_PATHS=(-e "s#$NEXTFLOW_CONFIG#<core.nextflow_config>#g" "${PUBLISHED_PATHS[@]}")
+sed "${PUBLISHED_PATHS[@]}" humann_command.sh > "$RESULTS_DIR/humann/humann_command.sh" 2> /dev/null ||
+    warn "Could not publish the HUMAnN command record with its tables."
 
 log "HUMAnN finished; its tables are in $RESULTS_DIR/humann."

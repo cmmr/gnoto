@@ -84,6 +84,32 @@ check "fixed environment" "HOME LOGNAME PATH SLURM_CONF USER " "$ENV_NAMES"
 check "systemctl also gets the session bus" "DBUS_SESSION_BUS_ADDRESS HOME LOGNAME PATH SLURM_CONF USER XDG_RUNTIME_DIR " \
     "$(image systemctl env | cut -d= -f1 | tr '\n' ' ')"
 
+# Nextflow's local executor starts a task's apptainer as env - PATH=..., with
+# the task's directory and TMPDIR in APPTAINERENV_ variables
+check "a stand-in with no environment finds the helper" "[x]" \
+    "$(env - PATH="$PRIVATE/bin:/usr/bin:/bin" sbatch args x)"
+check "apptainer gets its APPTAINERENV_ variables, quoted as given" \
+    "APPTAINERENV_NXF_TASK_WORKDIR=/w/it's here SINGULARITYENV_X=1" \
+    "$(env - PATH="$PRIVATE/bin:/usr/bin:/bin" APPTAINERENV_NXF_TASK_WORKDIR="/w/it's here" \
+        SINGULARITYENV_X=1 OTHER=no apptainer env | grep -E '^(APPTAINER|SINGULARITY)ENV_|^OTHER' | paste -sd ' ')"
+check "other commands don't" "" \
+    "$(env - PATH="$PRIVATE/bin:/usr/bin:/bin" APPTAINERENV_X=1 sbatch env | grep ENV_)"
+REQ=$(mktemp -d "$PRIVATE/req/XXXXXXXX")
+printf "cwd='/'\npass=1\nset -- 'APPTAINERENV_X=1' 'sbatch' 'args' 'x'\n" > "$REQ/request"
+mkfifo "$REQ/stdout" "$REQ/stderr" "$REQ/alive"
+cat "$REQ/stdout" > /dev/null &
+OUT_PID=$!
+cat "$REQ/stderr" > "$WORK/forged.err" &
+ERR_PID=$!
+exec 9<> "$REQ/alive"
+printf '%s\n' "${REQ##*/}" > "$PRIVATE/requests"
+for (( i = 0; i < 500; i++ )); do [[ -s $REQ/status ]] && break; sleep 0.01; done
+exec 9>&-
+wait "$OUT_PID" "$ERR_PID"
+check "a forged request passing variables to another command is refused" "125 yes" \
+    "$(cat "$REQ/status" 2> /dev/null) $(grep -q 'only apptainer takes variables' "$WORK/forged.err" && echo yes)"
+rm -rf "$REQ"
+
 SIGIGN=$(image sbatch signals | awk '/SigIgn/ { print $2 }')
 check "host command doesn't ignore SIGTERM" "0" "$(( 0x$SIGIGN & 0x4000 ))"
 

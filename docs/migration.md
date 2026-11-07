@@ -4,11 +4,12 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-06: **phases 1 and 2 are done.** ampliseq ran the `16s-v4` fixture under Slurm
-through the helper, in the local test bed and on the cluster. Phase 2's restructure passes its
-tests in the test bed. The next step is phase 3. The [phase 1](#phase-1-image-and-helper) and
-[phase 2](#phase-2-restructure) notes record what's built and every test result, and phase 1's
-notes list the two determinism probes still to run.
+Status on 2026-11-07: **phases 1 and 2 are done, and phase 3 is built and passes its tests in
+the test bed.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full dashboard in
+`results/`, with no Wrike, AWS or Globus, under Slurm and on the machine itself. Phase 3's
+cluster run is next, then phase 4. The [phase 1](#phase-1-image-and-helper),
+[phase 2](#phase-2-restructure) and [phase 3](#phase-3-job-core) notes record what's built and
+every test result, and phase 1's notes list the two determinism probes still to run.
 
 ## Where the old code is
 
@@ -132,7 +133,12 @@ The protocol as built and tested:
    the arguments as single-quoted shell words, and `stdout`, `stderr` and `alive` FIFOs. It starts
    a reader on each output FIFO, then writes the directory's name to `requests` as one line.
    Arguments aren't NUL-separated, because POSIX `sh` can't read that safely. If the helper has
-   gone, opening `requests` blocks, so the write has a 5-second timeout.
+   gone, opening `requests` blocks, so the write has a 5-second timeout. Phase 3 added two
+   things, for Nextflow's local executor, which runs each task's `apptainer` inside the image
+   as `env - PATH=...`: a stand-in with no `GNOTO_HELPER_DIR` finds the private directory from
+   its own path, and an `apptainer` request carries the caller's `APPTAINERENV_` and
+   `SINGULARITYENV_` variables, which hold the task's work directory and `TMPDIR`, as its first
+   `pass` words. The helper accepts such words for `apptainer` only.
 3. The helper double-forks a handler per request, so nothing waits to be reaped by the helper.
    Its parent process, init on a real host, reaps them. The handler writes an `accepted` file,
    then runs the command only if it's on the allowed list, from `cwd`, with standard input from
@@ -156,7 +162,8 @@ The protocol as built and tested:
 6. The helper ignores SIGTERM, and each handler restores the default before running a command.
    The launcher forwards SIGTERM, SIGINT and SIGHUP to `apptainer` as SIGTERM, waits for it to
    exit, then stops the helper with SIGKILL and removes the directory. Nextflow cancels its tasks
-   through the `scancel` stand-in in between.
+   through the `scancel` stand-in in between. Apptainer passes the signal on only when the
+   command's output isn't a terminal, as phase 2's cluster notes say.
 
 Three traps found on the way:
 
@@ -366,6 +373,28 @@ prune left an empty `.tmp` behind. Both are fixed. vsearch 2.32.0 gave hit table
 2.31.0's on synthetic fixtures. Region detection on real reads needs the 16S landmarks that
 phase 5's builder makes.
 
+**On the cluster, 2026-11-06,** from a fresh clone of `653bd55` with no `config.yaml`:
+
+- With the old `kubernetes` module gone from the login shell, Apptainer isn't on `PATH`.
+  `gnoto init --apptainer=/data/prod/nextflow/opt/apptainer/bin/apptainer` points at the copy
+  inside the old install, which needs a home of its own before that install is torn down.
+- Without `config.yaml`, gnoto ran with data in `<install>/data`, and found Slurm on `PATH`.
+- `gnoto config slurm --on` recorded Slurm's directory and `SLURM_CONF`, and suggested the
+  default partition, its largest node's 32 CPUs and 1007 GB, and no `max_time`, because the
+  partition has no time limit.
+- The `16s-v4` check ran to completion from scratch, downloading the fixture, SILVA and every
+  tool image again, with 22 ASVs in both tables. The cancellation checks and all but one
+  launcher check passed.
+
+The launcher check that failed sends SIGTERM to the launcher while the command's output goes to
+the terminal. Apptainer passes no signal on to such a command: it leaves that to the terminal,
+which sends Ctrl-C to the whole foreground job. That held for 1.5.3 on the cluster and 1.5.5 in
+the test bed under a pseudo-terminal, and in both a command writing to a file got the signal. So
+a head job, a systemd unit and anything writing to a log get it. Only a `kill` from another
+shell, aimed at a gnoto running in a terminal's foreground, is lost, which isn't worth
+signalling the launcher's whole process group to catch. The check now sends the command's
+output to a file, as a job's is, and passes in the test bed with and without a terminal.
+
 ### Phase 3: job core
 
 - `scripts/wrike_job.sh` is the template for `lib/job.sh`. Its Wrike calls are the task ID,
@@ -384,23 +413,120 @@ phase 5's builder makes.
   `scripts/wrike_task_handler.sh:172`, which is what stops duplicate submissions.
 - Split each `*_upload.sh` into compute, present and publish. Composition, `prune_results` and
   the methods page are currently called from inside them.
-- Left over from phase 2's port:
-  - The run's `taxprofiler_database.csv` now holds real paths, and the old upload published
-    it. Publish a copy with `db:` names, or without that column.
-  - `steps/biobakery_disk_check.sh` counts the download against `globus.dir` only, but the zip
-    now stays in the run directory when neither Globus nor S3 is set.
-  - `steps/taxprofiler_humann.sh` runs its own Nextflow, which needs the same site config
-    (executor, resource limits, `core.nextflow_config`) as the job's main run. The command
-    record it publishes beside the HUMAnN tables holds run paths, which the published copy
-    should leave out.
-  - HUMANN_PROFILE asks for 48 hours. Its own `resourceLimits` went in phase 2, because repo
-    config mustn't override the site's caps, so a `slurm.max_time` under 48 hours now clips
-    it. `lint` should flag that, as it does a `slurm.max_cpus` below a fixed CPU count.
-  - The job sets `INSTRUMENT_PLATFORM` when a job file overrides the measured platform, which
-    the taxprofiler samplesheet step reads.
-  - ampliseq's report abstract names CMMR. Decide how another site words its own.
-  - Steps that note a missing database name the old fetch scripts. In gnoto, `lint` offers the
-    fetch, so point to that instead.
+- Left over from phase 2's port, all now done:
+  - The run's `taxprofiler_database.csv` holds real paths. The published copy has `db:`
+    names instead.
+  - `steps/biobakery_disk_check.sh` counts the download against `globus.dir` when Globus is
+    on, and against the run directory otherwise, where the zip stays.
+  - `steps/taxprofiler_humann.sh` runs its own Nextflow with the job's `site.config` and
+    `core.nextflow_config`, and `-ansi-log false`. The command record it publishes beside
+    the HUMAnN tables names databases as `db:`, the code as `<gnoto>`, and no run path.
+  - HUMANN_PROFILE asks for 48 hours, and `lint` warns when `slurm.max_time` cuts it, or any
+    task's plain time request, short. A CPU count marked `// fixed` fails `lint` when
+    `slurm.max_cpus` is below it; nothing is marked yet, which is phase 6's question.
+  - taxprofiler's `instrument_platform` is a measured option: a job file can set it, which
+    the job passes as `INSTRUMENT_PLATFORM`, and the record keeps what was measured.
+  - ampliseq's report abstract names no site (Daniel, 2026-11-06).
+  - Steps that note a missing database say `gnoto lint <job file>` offers to fetch it.
+
+What's built:
+
+- **Job files.** `pipelines/<name>/options.yaml` lists each pipeline's options, as
+  [design.md](design.md#job-files) describes. `lib/jobfile.sh` holds `gnoto new`, the job
+  file checks `lint` and `start` share, and `record.yaml`. A section's keys that aren't
+  options are checked against the pipeline's `nextflow_schema.json` at its pinned commit,
+  fetched with git into `<data_dir>/schemas/`; gnoto's biobakery workflow carries its own
+  schema. `pipeline.sh` is evaluated with the job's answers in a scratch run directory, which
+  catches its own refusals and gives the owned keys, the parameters and the databases. A
+  value naming gnoto's own file is a `code:` name, as `db:` names a database.
+- **`lint` with no job file** checks `config.yaml` and the scheduler, as
+  [design.md](design.md#the-command-line) lists. The launcher passes what it read of its eight
+  bootstrap settings as `GNOTO_BOOTSTRAP`, for `lint` to compare with `yq`.
+- **The head job,** `lib/job.sh`, runs Compute, Present and a Publish stub, and records each
+  in `stages`. `lib/followup.sh` settles the run, `lib/start.sh` makes and submits it, and
+  `lib/runs.sh` holds `status` and `cancel`. `lib/scheduler.sh` picks Slurm when
+  `SLURM_ENABLED` is `true` and runs jobs on this machine otherwise, where the launcher
+  starts them detached once the image has exited.
+- **Databases.** `lib/databases.sh` finds what a job needs, offers the fetch, submits it as a
+  job, and waits on it. `steps/fetch_files.sh` fetches any entry that lists `files`, fixtures
+  included, and `steps/build_pplace_reference.sh` and `steps/build_16s_reference.sh` came
+  forward from phase 5. Every download they make has its md5 in `conf/databases.yaml`,
+  checked against figshare's API and NCBI's `md5checksums.txt`. The 16S builder reads its
+  genomes from its entry rather than taking accessions. The old pplace tree check died
+  silently on a wholesale tip mismatch (`head` under `pipefail`), which is fixed.
+- **Composition,** `steps/<name>_composition.sh`, runs in Compute, in `gnoto-rbiom`. A
+  feature table that can't be built now fails the run, where the old scripts warned. The
+  image was first a Nix recipe, on nixos-unstable because nixos-26.05 has rbiom 2.2.1, and
+  patched rbiom 3.1.0, whose subsetting without `drop = FALSE` turned a single-sample run's
+  counts into a vector and broke the feature table on `16s-v4`. rbiom's `master` has the
+  fix, as 4.0.0, which needs ecodive 2.3.1, newer than nixpkgs had. So at Daniel's request
+  `images/gnoto-rbiom/` builds it with Docker instead: `rocker/r-ver:4.6.2` by digest (Ubuntu
+  26.04), and pak installing `pkg.lock`, which `lock.sh` resolves against Posit's CRAN
+  snapshot of 2026-11-06, with rbiom at commit `1248db3`. Its 42 packages are 35 Ubuntu
+  binaries, R's 6 recommended packages from the base image, and rbiom, the only one
+  compiled. The build takes about a minute, `lock.sh` gives the same lockfile twice, and the
+  `.sif` is 438 MB, against 1.16 GB for the Nix one, which also carried phyloseq, which
+  nothing uses. R reports C.UTF-8 and UTF-8, and the four "cannot be translated to UTF-8"
+  warnings rbiom printed on every run are gone.
+- **Present,** `present/<name>.sh results`, prunes the results, writes every page and
+  folder listing, and builds `<title>_<uid>.zip` in the run directory, which the pages link
+  as `../<name>.zip`. `present/dashboard.sh` is the old `publish_dashboard.sh` without its
+  upload, `present/common.sh` holds the run's facts, path redaction and the zip, and
+  `present/progress.sh` keeps the progress page current and acts on the cancel file. Text
+  files in `results/` have this site's paths taken out: the run directory becomes `./`,
+  the code `gnoto:`, the database directory `db:`, the rest of the data directory `data:`,
+  and `$HOME` `~`. The pages load nothing from the network: `present/build-assets.sh` builds
+  `present/assets/` in a pinned `python:3.12-slim`, with Tailwind 4.3.5's standalone CLI and
+  its forms plugin, Inter 4.1, JetBrains Mono 2.304, and Material Symbols cut to the 17
+  icons the pages use, every download pinned by SHA-256, and two builds give the same
+  bytes. The pipelines' own reports still load a little from the network: fastp's loads
+  Plotly from its CDN, and MultiQC's and Nextflow's reports a favicon and an image.
+  `-ansi-log false` prints no task completions, so the progress page reads them from each
+  Nextflow run's `-log` file. The bar now says gnoto and the footer "Made with gnoto", and
+  ampliseq's and taxprofiler's read folders now appear in the download's listing, which the
+  old pages left out.
+- **What phase 7 needs from the dropped calls.** The task ID, and the task's title and
+  Expiration date, which the old pages read from Wrike. The zip went straight to
+  `$GLOBUS_DIR/$GLOBUS_RUN_PREFIX/<uid>/`, and `bundle_href` in `present/common.sh` is where
+  the pages should get its Globus or S3 address. The S3 upload sent text files
+  (`txt tsv csv log yaml yml gff fasta fa fna nwk newick sh`) as `text/plain;
+  charset=utf-8`, then the pages with `index.html` last, then `{"state":"final"}` to
+  `progress.json` with `no-cache`, and set the task's dashboard URL field. During a run the
+  watcher uploaded `index.html` and `progress.json` whenever they changed.
+- **Fixes found on the way.** `run_state.json`, the record and other files written through
+  `mktemp` were mode 600, so other group members couldn't read a run; they're 664 now.
+  gotree 0.5.2 writes a file named `none` unless given `--outtipfile`. The helper protocol
+  gained what Nextflow's local executor needs, as phase 1's notes now say.
+
+Tested on 2026-11-07, in the test bed:
+
+| Test | Result |
+| --- | --- |
+| `test/lib/job-test.sh`: `new`, the job file checks (answers, unknown keys, owned keys, schema types, nf-core's generic parameters, path parameters, reference choices, samplesheets), database lookups, `record.yaml`, the expiry file, local queueing and quoting | Pass |
+| `test/lib/lib-test.sh`, `pipelines-test.sh` and `test/steps/steps-test.sh`, updated for picrust's values, `pplace/v1` and `code:` names | Pass |
+| `test/helper/stub-test.sh` under `dash` and `bash`, with new checks: a stand-in with no environment, `apptainer`'s variables passed and quoted, other commands not getting them, a forged request refused; and `launcher-test.sh` | Pass |
+| `test/steps/composition-test.sh`, 83 checks on the phase 1 outputs and synthetic additions; `test/present/present-test.sh` and `progress-test.sh`; and the three database script tests | Pass, as their notes above say |
+| `gnoto lint` on the test bed's settings, then on a `config.yaml` with an unknown key, a section that doesn't exist, mode 664, a duplicate key the launcher and `yq` read differently, `job_time` over the partition's limit, `max_memory` written as `14GB`, a `core.nextflow_config` setting `params` and `cpus`, and an unreadable `slurm.conf` | Each reported, the last with the module hint. The compute node check ran as a Slurm job |
+| `lint --yes` on a job naming a missing fixture, a second `lint`, and `start` | The fetch ran as job 109 and landed whole; the second `lint` reported "being fetched by job 109"; the job was submitted with `afterok:109` |
+| `cancel` on a queued job, as `bob` and as its owner `alice` | Both wrote the cancel file, the owner's also took the job out of the queue, and the followup recorded it as Cancelled |
+| `scancel` on a running head job, and a job whose Nextflow failed on a bad parameter | Nextflow cancelled its queued task; the message gave the cause from Nextflow's log; history kept `error.txt`; the failed run kept its logs and task scripts only |
+| `job.sh --small --cancel` under Slurm and without it: `gnoto cancel` on a running job | Pass both ways: Cancelled, no task left, an error summary in history, task outputs gone at once. The first try ran on, because the job handed the watcher `$BASHPID` inside the `&` command, which is the watcher's own PID, so it stopped itself |
+| The pak-built `gnoto-rbiom` with rbiom 4.0.0: `composition-test.sh`, then `job.sh --small` under Slurm | Pass: 83 and 18 checks, with no R warnings |
+| `gnoto start --debug` under Slurm | Completed, with the work directory and staged reads kept, and `cleanup_utc` 14 days out beside `remove_utc` in the expiry file |
+| ampliseq on `16s-v4` with the full pplace reference | EPA-NG was killed for memory at the test bed's 14 GB cap, which the run reported with the task's `.command.err`. The cluster's nodes have room |
+| `test/testbed/checks/job.sh --small` under Slurm, as `alice`, and without Slurm, as `bob` | Pass both ways, 18 checks each: Completed, the dashboard, no network loads from gnoto's pages, the feature table (22 ASVs), the zip, the published job file and record with checksums, batch and primers and no site path, cleanup, history, expiry a month out, group-writable, listed by `status`. About 8 minutes each |
+
+The test bed's node can't hold EPA-NG on the full pplace reference, so its end-to-end runs use
+`db:test/pplace-small`, 2,000 tips cut from it with gotree, made by hand there.
+
+**On the cluster, still to do.** Phase 3 has to be committed and pushed first, because the
+install updates with `git pull`. The `gnoto-rbiom` image goes over by `scp`, from the test
+bed's `/data/gnoto/images/` to `<data_dir>/images/`. Then, on a login node with Slurm's
+module loaded: `./gnoto lint`; `bash test/testbed/checks/job.sh`, which fetches the pplace
+and 16S references as Slurm jobs through `lint --yes`, and runs with the full pplace
+reference; and `job.sh --cancel`. For taxprofiler and biobakery, link the old shotgun
+databases into gnoto's database directory, whose relative paths match, and run a job on the
+`wgs-mock` reads from ENA.
 
 ### Phases 4 to 6
 
@@ -514,7 +640,7 @@ in step.
 | `scripts/run_state.sh` | `lib/run_state.sh` | 2 | Stays JSON, driven by `jq` |
 | `scripts/pipeline_params.sh` | `lib/params.sh` | 2 | `params_load` can use `yq`, which also lifts the scalar-only limit |
 | `scripts/wrike_job.sh` | `lib/job.sh` | 3 | Wrike calls move out, and the manifest becomes `record.yaml` |
-| `scripts/wrike_followup.sh` | `lib/followup.sh`, plus a Wrike part in `service/wrike/` | 3, 7 | Reads how Slurm says a job ended, and cancels any task the trace still shows as running |
+| `scripts/wrike_followup.sh` | `lib/followup.sh`, plus a Wrike part in `service/wrike/` | 3, 7 | Reads how Slurm says a job ended, and cancels any task of the run Slurm still has |
 
 ### Wrike, AWS, Globus and systemd
 
@@ -539,7 +665,9 @@ in step.
 | `scripts/{ampliseq,taxprofiler,biobakery}_composition.sh` | `steps/` | 3 | Called from the compute stage |
 | `scripts/taxprofiler_humann.sh`, `taxprofiler_taxonomy_tree.sh` | `steps/` | 2 | The first runs its own Nextflow |
 | `scripts/R/ampliseq_tables.R`, `taxprofiler_tables.R` | `steps/R/` | 2 | Run in `gnoto-rbiom` |
-| `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh`, `build_pplace_reference.sh`, `build_16s_reference.sh` | `steps/` | 5 | Add tree digests and recorded download md5s, fix their manifest names, and fetch into a temporary path that's renamed on success |
+| `scripts/build_pplace_reference.sh`, `build_16s_reference.sh` | `steps/` | 3 | Done: md5s recorded, manifests as `<path>.manifest.yaml`, versioned paths, filling a directory the fetch job renames into place |
+| `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh` | `steps/` | 5 | Add tree digests and recorded download md5s, fix their manifest names, and fill the directory the fetch job gives them, as `steps/build_pplace_reference.sh` does |
+| (new) | `steps/fetch_files.sh` | 3 | Fetches any `conf/databases.yaml` entry or fixture that lists `files` |
 
 ### Dashboard and publishing
 
@@ -549,9 +677,9 @@ in step.
 | `scripts/publish_dashboard.sh` | `present/dashboard.sh`, with its upload moved to `service/publish.sh` | 3, 7 | |
 | `scripts/nextflow_progress.sh` | `present/progress.sh` | 3 | Also becomes the cancel-file watcher |
 | `scripts/index_directories.sh`, `prune_results.sh`, `biobakery_methods.sh` | `present/` | 3 | |
-| `templates/*.html`, `common.css` | `present/templates/` | 3 | |
+| `templates/*.html`, `common.css` | `present/templates/` | 3 | `tailwind.html` became `head.html`, which links the CSS built into `present/assets/` |
 | `templates/{ampliseq,taxprofiler,biobakery}/` | `present/templates/` | 3 | |
-| `templates/redesign/` | Copy only if needed | 3 | Design reference. Check what reads it first |
+| `templates/redesign/` | Not copied | | Nothing reads it at run time |
 
 ### Pipelines and Nextflow
 
@@ -565,7 +693,7 @@ in step.
 | `config/local.config` | Not copied | | Only `docs/layout.md` mentions it |
 | `config/taxprofiler/database.csv` | `pipelines/taxprofiler/database.csv` | 2, 5 | Uses `db:` names |
 | `config/databases.json`, `references.json` | `conf/databases.yaml`, `references.yaml` | 2 | `biobakery_methods.sh` reads these with `jq`, and `publish_dashboard.sh` reads the methods data it writes. The two `test-fastq` entries give way to the fixtures in [fixtures.md](fixtures.md) |
-| `nix/rbiom.nix` | `images/gnoto-rbiom.nix` | 1, 5 | Also fill in the commented-out `sha256` |
+| `nix/rbiom.nix` | `images/gnoto-rbiom/` | 3, 5 | Replaced in phase 3 by a Dockerfile on `rocker/r-ver`, with a pak lockfile from a dated Posit CRAN snapshot and rbiom from GitHub. Phase 5 builds it in CI and publishes it |
 
 ### Docs, all for phase 8
 

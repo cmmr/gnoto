@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!--
+  deliverables.html - The Deliverables view of a run, read inside dashboard.html.
+
+  Rendered by present/dashboard.sh into results/deliverables.html from the
+  pipeline's catalog, present/templates/<pipeline>/outputs.conf, as a grouped,
+  annotated index of the run's final outputs with a menu of the groups. A
+  group may open with paragraphs saying how its files were made, and each
+  catalog entry is one tbody, so files that share a description share a block.
+
+  A held row names a folder of reads that isn't published beside the results,
+  only inside the deliverables zip. It's written greyed with a note saying so,
+  and the script at the foot turns it back into an ordinary row for a copy read
+  off disk, from the run directory or an unpacked zip, where the reads sit
+  beside results/. Rows are written held, so a published copy is right with or
+  without scripting.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, GROUP_NAV, SECTIONS, YEAR and
+  FOOTER_NOTE, each wrapped in doubled underscores. They're not spelled that
+  way here, because the renderer would fill them in. The task name is escaped
+  on the way in, and the rest is markup the renderer escaped itself.
+-->
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>__TASK_NAME__ - Deliverables</title>
+__COMMON_HEAD__
+<style>
+/* The design system's values, for the rows the renderer emits as classes */
+:root {
+  --border: #c5c5d3;
+  --muted: #454651;
+  --text: #1b1c1c;
+  --row: #f5f3f3;
+  --link: #00245a;
+}
+
+.groups .group { margin: 0 0 32px; }
+.groups .group:last-child { margin-bottom: 0; }
+.groups .group h2 {
+  margin: 0 0 4px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  line-height: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* How the group's files were made, between its heading and its rows */
+.groups .group .about {
+  margin: 10px 0 6px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--border);
+  background: #faf9f9;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--muted);
+}
+.groups .group .about p { margin: 0; max-width: 80ch; }
+.groups .group .about p + p { margin-top: 8px; }
+
+/* One catalog entry is one tbody: a row per file, closely set, and a single
+   rule and description under the last of them */
+.groups table { width: 100%; border-collapse: collapse; }
+.groups td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.groups tbody tr:not(:last-child) td { padding-bottom: 1px; border-bottom: 0; }
+.groups tbody tr + tr td { padding-top: 1px; }
+.groups tbody:hover td { background: var(--row); }
+.groups td.name {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+.groups td.name a { color: var(--link); text-decoration: none; }
+.groups td.name a:hover { text-decoration: underline; }
+.groups td.size {
+  width: 8em;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.groups .desc {
+  display: block;
+  margin-top: 3px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--muted);
+  overflow-wrap: break-word;
+}
+/* A row for files this copy of the page cannot hand over. The name, the count
+   and what it is are still worth reading - this is the record of what went into
+   the run - so only the link and its colour go. */
+.groups tr.held td.name a { color: var(--muted); }
+.groups tr.held .held-note {
+  display: block;
+  margin-top: 3px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* The copy that came down with the files, where the folder is there to open */
+html.local .groups tr.held td.name a { color: var(--link); }
+html.local .groups tr.held .held-note { display: none; }
+
+/* Downloads land as files; everything else opens in a tab of its own */
+.groups .tag {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 8px;
+  border-radius: 12px;
+  background: #efeded;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: 1px;
+}
+
+/* The folders the archive unpacks into */
+.groups pre.tree {
+  margin: 10px 0 2px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: #faf9f9;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text);
+  overflow-x: auto;
+}
+
+.menu a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.menu a:hover { background: #efeded; color: var(--text); }
+
+.empty { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body class="bg-surface-bg-light text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<div class="flex flex-1 overflow-hidden">
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col overflow-y-auto bg-surface relative">
+<div class="p-margin-page space-y-6 max-w-7xl mx-auto w-full">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-primary">Deliverables</h1>
+<p class="text-on-surface-variant mt-1">The final outputs of this run most likely to be useful for downstream analysis, grouped and described. Every file this run published, supporting files included, is in the <a class="font-medium text-primary underline hover:no-underline" href="directory_listing.html">File Explorer</a>.</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-padding-card shadow-sm flex flex-col lg:flex-row gap-gutter-grid items-start">
+<nav class="menu w-full lg:w-56 shrink-0 lg:sticky lg:top-0 flex flex-row flex-wrap lg:flex-col gap-1">__GROUP_NAV__</nav>
+<div class="groups flex-1 min-w-0">__SECTIONS__</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto bg-surface-container border-t border-outline-variant w-full mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-page py-gutter-grid w-full max-w-7xl mx-auto">
+<div class="text-on-surface-variant font-body-sm text-body-sm text-center md:text-left mb-4 md:mb-0">
+                        Made with <a class="underline hover:no-underline" href="https://github.com/cmmr/gnoto" target="_blank" rel="noopener">gnoto</a>
+                    </div>
+<div class="flex flex-wrap justify-center gap-6">
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">__FOOTER_NOTE__</div></div>
+</footer>
+</main>
+</div>
+
+<script>
+// A page read off disk, from the run directory or an unpacked zip, has the
+// folders of reads beside results/. Rows are written held, so a published copy
+// is right with or without this.
+if (location.protocol === "file:" || location.hostname === "localhost"
+    || location.hostname === "127.0.0.1") {
+  document.documentElement.className += " local";
+}
+</script>
+
+</body>
+</html>

@@ -39,8 +39,8 @@
 # Requires:  pigz and md5sum, and lbzip2 for .bz2 inputs, from the gnoto image
 # Reads:     the samplesheet, and the FASTQ files it names
 # Writes:    ./ampliseq_samplesheet.tsv, ./ampliseq_metadata.tsv, ./raw-sequences/,
-#            and the sample count and any explanation of a failure in
-#            ./run_state.json
+#            and in ./run_state.json the sample count, each sample's batch as
+#            samples.runs, and any explanation of a failure
 # Env:       the log/fail helpers and the run state helpers, from lib/env.sh
 #
 # The samplesheet is whitespace-delimited, so FASTQ paths can't contain spaces.
@@ -109,6 +109,11 @@ declare -a SAMPLE_ORDER=()
 declare -A SAMPLE_FQ1_MAP=()
 declare -A SAMPLE_FQ2_MAP=()
 
+# Each requested sample name's sanitized one, and each sanitized sample's batch, so
+# the record can give every input its batch
+declare -A CLEAN_OF=()
+declare -A RUN_OF=()
+
 # "paired" or "single", set by the first line that names files and required of
 # every line after it. ampliseq_detect_region.sh reads it back from the sheet's
 # header.
@@ -167,6 +172,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     if [[ "$clean_sample" != [a-zA-Z]* ]]; then
         clean_sample="S_$clean_sample"
     fi
+
+    CLEAN_OF["$sample"]=$clean_sample
 
     # Group by sanitized name so duplicate samples accumulate for merging.
     # Sanitizing first means names that differ only in punctuation merge too.
@@ -245,10 +252,19 @@ for clean_sample in "${SAMPLE_ORDER[@]}"; do
     fi
 
     printf "%s\t%s\n" "$clean_sample" "run_$run_hash" >> "$OUT_METADATA"
+    RUN_OF["$clean_sample"]="run_$run_hash"
 done
 
 # The count after merging, which is the number of samples the run analyses. The
 # results page shows it in its header, and leaves it out when it wasn't recorded.
 state_set_number samples.count "${#SAMPLE_ORDER[@]}"
+
+# Each requested sample's batch, which DADA2 trains its error model on, for the
+# record, so a rerun can keep it whatever its files' paths
+RUNS_JSON=$(for sample in "${!CLEAN_OF[@]}"; do
+    printf '%s\t%s\n' "$sample" "${RUN_OF[${CLEAN_OF[$sample]}]}"
+done | jq -R -s 'split("\n") | map(select(length > 0) | split("\t") | {(.[0]): .[1]}) | add // {}') &&
+    state_set_json samples.runs "$RUNS_JSON" ||
+    fail "Couldn't record each sample's batch."
 
 log "Successfully generated ampliseq samplesheet: $OUT_TSV and $OUT_METADATA (${#SAMPLE_ORDER[@]} $READ_LAYOUT-end samples)"

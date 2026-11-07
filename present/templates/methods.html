@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--
+  methods.html - The Methods view of a run, read inside dashboard.html.
+
+  Rendered by present/dashboard.sh into results/methods.html for a pipeline
+  whose Present script declared methods data, as present/biobakery_methods.sh
+  writes for biobakery: a paragraph to paste into a manuscript's methods
+  section, with author-year citations, and the references it cites, formatted
+  and as BibTeX. The tab links switch between the two, and each copy button
+  copies what's showing as plain text.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, TEXT, REFERENCES, BIBTEX and
+  FOOTER_NOTE, each wrapped in doubled underscores. They're not spelled that
+  way here, because the renderer would fill them in. Everything but the task
+  name is markup the renderer escaped itself.
+-->
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>__TASK_NAME__ - Methods</title>
+__COMMON_HEAD__
+<style>
+:root {
+  --border: #c5c5d3;
+  --muted: #454651;
+  --text: #1b1c1c;
+  --link: #00245a;
+}
+
+.methods-text p {
+  margin: 0;
+  max-width: 88ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--text);
+}
+.methods-text p + p { margin-top: 14px; }
+
+.methods-refs { margin: 0; padding-left: 0; list-style: none; }
+.methods-refs li {
+  max-width: 88ch;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.methods-refs li:last-child { border-bottom: 0; }
+.methods-refs a { color: var(--link); text-decoration: none; }
+.methods-refs a:hover { text-decoration: underline; }
+
+.methods-bibtex {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: #faf9f9;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+[data-format][hidden] { display: none; }
+</style>
+</head>
+<body class="bg-surface-bg-light text-on-surface font-body-md h-screen overflow-hidden flex flex-col">
+<div class="flex flex-1 overflow-hidden">
+<main class="flex-1 flex flex-col overflow-y-auto bg-surface relative">
+<div class="p-margin-page space-y-6 max-w-7xl mx-auto w-full">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-primary">Methods</h1>
+<p class="text-on-surface-variant mt-1">How this run's taxonomic and functional profiles were made, written to be pasted into the methods section of a manuscript. The software versions and databases are the ones this run used.</p>
+</div>
+
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-padding-card shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+<h2 class="text-base font-semibold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">description</span>Methods text</h2>
+<button type="button" data-copy="text" style="display: none" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant text-[13px] font-semibold text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span><span class="label">Copy text</span></button>
+</div>
+<div class="methods-text">__TEXT__</div>
+</section>
+
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-padding-card shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+<h2 class="text-base font-semibold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[20px]">menu_book</span>References</h2>
+<div class="flex items-center gap-4" role="tablist" id="formats" style="display: none">
+<button type="button" role="tab" aria-selected="true" data-show-format="formatted" class="font-label-caps text-label-caps font-bold text-primary border-b-2 border-primary pb-0.5">Formatted</button>
+<button type="button" role="tab" aria-selected="false" data-show-format="bibtex" class="font-label-caps text-label-caps font-bold text-on-surface-variant opacity-60 hover:opacity-100 transition-opacity pb-0.5">BibTeX</button>
+</div>
+</div>
+<button type="button" data-copy="references" style="display: none" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant text-[13px] font-semibold text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span><span class="label">Copy references</span></button>
+</div>
+<div data-format="formatted">__REFERENCES__</div>
+<div data-format="bibtex" hidden>__BIBTEX__</div>
+</section>
+</div>
+<!-- Footer -->
+<footer class="mt-auto bg-surface-container border-t border-outline-variant w-full mt-12">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-page py-gutter-grid w-full max-w-7xl mx-auto">
+<div class="text-on-surface-variant font-body-sm text-body-sm text-center md:text-left mb-4 md:mb-0">
+                        Made with <a class="underline hover:no-underline" href="https://github.com/cmmr/gnoto" target="_blank" rel="noopener">gnoto</a>
+                    </div>
+<div class="flex flex-wrap justify-center gap-6">
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">__FOOTER_NOTE__</div></div>
+</footer>
+</main>
+</div>
+
+<script>
+(function () {
+  var ON = "font-label-caps text-label-caps font-bold text-primary border-b-2 border-primary pb-0.5";
+  var OFF = "font-label-caps text-label-caps font-bold text-on-surface-variant opacity-60"
+          + " hover:opacity-100 transition-opacity pb-0.5";
+
+  var tabs = [].slice.call(document.querySelectorAll("[data-show-format]"));
+  var panels = [].slice.call(document.querySelectorAll("[data-format]"));
+  var current = "formatted";
+
+  function show(format) {
+    current = format;
+
+    tabs.forEach(function (tab) {
+      var on = tab.getAttribute("data-show-format") === format;
+      tab.className = on ? ON : OFF;
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
+    panels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-format") !== format;
+    });
+  }
+
+  // The paragraphs, one blank line apart; or the references showing, one per
+  // line formatted or as the BibTeX itself
+  function plain(what) {
+    if (what === "text") {
+      return [].map.call(document.querySelectorAll(".methods-text p"), function (p) {
+        return p.textContent.trim();
+      }).join("\n\n");
+    }
+
+    var panel = document.querySelector("[data-format=\"" + current + "\"]");
+
+    if (current === "bibtex") return panel.textContent.trim() + "\n";
+
+    return [].map.call(panel.querySelectorAll("li"), function (li) {
+      return li.textContent.trim();
+    }).join("\n");
+  }
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+
+    try {
+      return document.execCommand("copy");
+    } finally {
+      document.body.removeChild(area);
+    }
+  }
+
+  function copy(button) {
+    var text = plain(button.getAttribute("data-copy"));
+    var label = button.querySelector(".label");
+    var original = label.textContent;
+
+    function done(ok) {
+      label.textContent = ok ? "Copied" : "Copy failed";
+      setTimeout(function () { label.textContent = original; }, 1500);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); },
+                                               function () { done(fallback(text)); });
+    } else {
+      done(fallback(text));
+    }
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () { show(tab.getAttribute("data-show-format")); });
+  });
+
+  [].forEach.call(document.querySelectorAll("[data-copy]"), function (button) {
+    button.style.display = "";
+    button.addEventListener("click", function () { copy(button); });
+  });
+
+  document.getElementById("formats").style.display = "";
+})();
+</script>
+
+</body>
+</html>

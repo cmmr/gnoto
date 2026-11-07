@@ -14,3 +14,4 @@
 *.gz  binary
 *.qza binary
 *.rds binary
+*.woff2 binary

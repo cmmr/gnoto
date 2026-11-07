@@ -46,8 +46,9 @@ state_update_once() {
     local filter="$1" tmp
     shift
 
-    # Beside the state file, so the rename stays on one filesystem
-    tmp=$(mktemp ".run_state.XXXXXX") || return 1
+    # Beside the state file, so the rename stays on one filesystem. mktemp makes
+    # it 600, and every member of gnoto's group reads the state.
+    tmp=$(mktemp ".run_state.XXXXXX") && chmod 664 "$tmp" || return 1
     {
         flock -w "$RUN_STATE_LOCK_WAIT" 9 || { rm -f "$tmp"; return 1; }
         if ! jq "$@" "$filter" "$RUN_STATE_FILE" > "$tmp" ||

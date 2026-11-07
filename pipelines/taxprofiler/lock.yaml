@@ -3,3 +3,5 @@ schema: 1
 upstream:
   repository: "nf-core/taxprofiler"
   commit: "70ecc15e49b4f1fcf79d876643b5d14b65c66178"   # 2.0.1
+step_images:
+  rbiom: "gnoto-rbiom-5a6687ba951e.sif"   # images/gnoto-rbiom/, built into <data_dir>/images until it's published

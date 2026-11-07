@@ -1,0 +1,5281 @@
+{
+  "lockfile_version": 1,
+  "os": "Ubuntu 26.04.1 LTS",
+  "r_version": "R version 4.6.2 (2026-10-29)",
+  "platform": "x86_64-pc-linux-gnu",
+  "packages": [
+    {
+      "ref": "cmmr/rbiom@1248db3f1f71dc8668b144947044b59f2be7e2c1",
+      "package": "rbiom",
+      "version": "4.0.0",
+      "type": "github",
+      "direct": true,
+      "binary": false,
+      "dependencies": ["mgcv", "cli", "cluster", "dplyr", "ecodive", "emmeans", "ggnewscale", "ggplot2", "glue", "jsonlite", "lifecycle", "magrittr", "Matrix", "patchwork", "permute", "R6", "rlang", "scales", "tibble", "vegan"],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "Depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.3.0"
+        },
+        {
+          "ref": "mgcv",
+          "type": "Imports",
+          "package": "mgcv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "Imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cluster",
+          "type": "Imports",
+          "package": "cluster",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "Imports",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ecodive",
+          "type": "Imports",
+          "package": "ecodive",
+          "op": ">=",
+          "version": "2.3.1"
+        },
+        {
+          "ref": "emmeans",
+          "type": "Imports",
+          "package": "emmeans",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggnewscale",
+          "type": "Imports",
+          "package": "ggnewscale",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "Imports",
+          "package": "ggplot2",
+          "op": ">=",
+          "version": "3.5.0"
+        },
+        {
+          "ref": "glue",
+          "type": "Imports",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "jsonlite",
+          "type": "Imports",
+          "package": "jsonlite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "Imports",
+          "package": "lifecycle",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magrittr",
+          "type": "Imports",
+          "package": "magrittr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Matrix",
+          "type": "Imports",
+          "package": "Matrix",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "patchwork",
+          "type": "Imports",
+          "package": "patchwork",
+          "op": ">=",
+          "version": "1.2.0"
+        },
+        {
+          "ref": "permute",
+          "type": "Imports",
+          "package": "permute",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R6",
+          "type": "Imports",
+          "package": "R6",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "Imports",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "scales",
+          "type": "Imports",
+          "package": "scales",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tibble",
+          "type": "Imports",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vegan",
+          "type": "Imports",
+          "package": "vegan",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ape",
+          "type": "Suggests",
+          "package": "ape",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "biomformat",
+          "type": "Suggests",
+          "package": "biomformat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Biostrings",
+          "type": "Suggests",
+          "package": "Biostrings",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "fillpattern",
+          "type": "Suggests",
+          "package": "fillpattern",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggbeeswarm",
+          "type": "Suggests",
+          "package": "ggbeeswarm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggdensity",
+          "type": "Suggests",
+          "package": "ggdensity",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggrepel",
+          "type": "Suggests",
+          "package": "ggrepel",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "h5lite",
+          "type": "Suggests",
+          "package": "h5lite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lme4",
+          "type": "Suggests",
+          "package": "lme4",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lmerTest",
+          "type": "Suggests",
+          "package": "lmerTest",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MultiAssayExperiment",
+          "type": "Suggests",
+          "package": "MultiAssayExperiment",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "openxlsx",
+          "type": "Suggests",
+          "package": "openxlsx",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "optparse",
+          "type": "Suggests",
+          "package": "optparse",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "phyloseq",
+          "type": "Suggests",
+          "package": "phyloseq",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "prettycode",
+          "type": "Suggests",
+          "package": "prettycode",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "readxl",
+          "type": "Suggests",
+          "package": "readxl",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Rtsne",
+          "type": "Suggests",
+          "package": "Rtsne",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "S4Vectors",
+          "type": "Suggests",
+          "package": "S4Vectors",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "SummarizedExperiment",
+          "type": "Suggests",
+          "package": "SummarizedExperiment",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "Suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "TreeSummarizedExperiment",
+          "type": "Suggests",
+          "package": "TreeSummarizedExperiment",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "uwot",
+          "type": "Suggests",
+          "package": "uwot",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "Config/Needs/website",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "phyloseq",
+          "type": "Config/Needs/website",
+          "package": "phyloseq",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "npregfast",
+          "type": "Config/Needs/website",
+          "package": "npregfast",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "Config/Needs/website",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "github",
+        "RemoteHost": "api.github.com",
+        "RemoteRepo": "rbiom",
+        "RemoteUsername": "cmmr",
+        "RemotePkgRef": "cmmr/rbiom@1248db3f1f71dc8668b144947044b59f2be7e2c1",
+        "RemoteRef": "1248db3f1f71dc8668b144947044b59f2be7e2c1",
+        "RemoteSha": "1248db3f1f71dc8668b144947044b59f2be7e2c1",
+        "GithubRepo": "rbiom",
+        "GithubUsername": "cmmr",
+        "GithubRef": "1248db3f1f71dc8668b144947044b59f2be7e2c1",
+        "GithubSHA1": "1248db3f1f71dc8668b144947044b59f2be7e2c1"
+      },
+      "sources": ["https://api.github.com/repos/cmmr/rbiom/zipball/1248db3f1f71dc8668b144947044b59f2be7e2c1"],
+      "target": "src/contrib/rbiom_4.0.0_1248db3.tar.gz",
+      "platform": "source",
+      "rversion": "*",
+      "directpkg": true,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "h5lite",
+      "package": "h5lite",
+      "version": "2.2.0.0",
+      "type": "standard",
+      "direct": true,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "hdf5lib",
+          "type": "linkingto",
+          "package": "hdf5lib",
+          "op": ">=",
+          "version": "2.2.0.0"
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.2.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tinytest",
+          "type": "suggests",
+          "package": "tinytest",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "h5lite",
+        "RemoteRef": "h5lite",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.2.0.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/h5lite_2.2.0.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/h5lite_2.2.0.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": true,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "cli",
+      "package": "cli",
+      "version": "3.6.6",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "callr",
+          "type": "suggests",
+          "package": "callr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "crayon",
+          "type": "suggests",
+          "package": "crayon",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "digest",
+          "type": "suggests",
+          "package": "digest",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "suggests",
+          "package": "glue",
+          "op": ">=",
+          "version": "1.6.0"
+        },
+        {
+          "ref": "grDevices",
+          "type": "suggests",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "htmltools",
+          "type": "suggests",
+          "package": "htmltools",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "htmlwidgets",
+          "type": "suggests",
+          "package": "htmlwidgets",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "suggests",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "processx",
+          "type": "suggests",
+          "package": "processx",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ps",
+          "type": "suggests",
+          "package": "ps",
+          "op": ">=",
+          "version": "1.3.4.9000"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.4"
+        },
+        {
+          "ref": "rlang",
+          "type": "suggests",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.0.2.9003"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rprojroot",
+          "type": "suggests",
+          "package": "rprojroot",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rstudioapi",
+          "type": "suggests",
+          "package": "rstudioapi",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.2.0"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "whoami",
+          "type": "suggests",
+          "package": "whoami",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "cli",
+        "RemoteRef": "cli",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "3.6.6"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/cli_3.6.6.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/cli_3.6.6.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "dplyr",
+      "package": "dplyr",
+      "version": "1.2.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "generics", "glue", "lifecycle", "magrittr", "pillar", "R6", "rlang", "tibble", "tidyselect", "vctrs"],
+      "deps": [
+        {
+          "ref": "broom",
+          "type": "suggests",
+          "package": "broom",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": ">=",
+          "version": "3.6.2"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DBI",
+          "type": "suggests",
+          "package": "DBI",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dbplyr",
+          "type": "suggests",
+          "package": "dbplyr",
+          "op": ">=",
+          "version": "2.2.1"
+        },
+        {
+          "ref": "generics",
+          "type": "imports",
+          "package": "generics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": ">=",
+          "version": "1.3.2"
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Lahman",
+          "type": "suggests",
+          "package": "Lahman",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": ">=",
+          "version": "1.0.5"
+        },
+        {
+          "ref": "lobstr",
+          "type": "suggests",
+          "package": "lobstr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magrittr",
+          "type": "imports",
+          "package": "magrittr",
+          "op": ">=",
+          "version": "1.5"
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nycflights13",
+          "type": "suggests",
+          "package": "nycflights13",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pillar",
+          "type": "imports",
+          "package": "pillar",
+          "op": ">=",
+          "version": "1.9.0"
+        },
+        {
+          "ref": "purrr",
+          "type": "suggests",
+          "package": "purrr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1.0"
+        },
+        {
+          "ref": "R6",
+          "type": "imports",
+          "package": "R6",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.7"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "RSQLite",
+          "type": "suggests",
+          "package": "RSQLite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stringi",
+          "type": "suggests",
+          "package": "stringi",
+          "op": ">=",
+          "version": "1.7.6"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.1.5"
+        },
+        {
+          "ref": "tibble",
+          "type": "imports",
+          "package": "tibble",
+          "op": ">=",
+          "version": "3.2.0"
+        },
+        {
+          "ref": "tidyr",
+          "type": "suggests",
+          "package": "tidyr",
+          "op": ">=",
+          "version": "1.3.0"
+        },
+        {
+          "ref": "tidyselect",
+          "type": "imports",
+          "package": "tidyselect",
+          "op": ">=",
+          "version": "1.2.0"
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.7.1"
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "dplyr",
+        "RemoteRef": "dplyr",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.2.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/dplyr_1.2.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/dplyr_1.2.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "ecodive",
+      "package": "ecodive",
+      "version": "2.3.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Matrix",
+          "type": "suggests",
+          "package": "Matrix",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "parallel",
+          "type": "imports",
+          "package": "parallel",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "parallelly",
+          "type": "suggests",
+          "package": "parallelly",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "slam",
+          "type": "suggests",
+          "package": "slam",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tinytest",
+          "type": "suggests",
+          "package": "tinytest",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "ecodive",
+        "RemoteRef": "ecodive",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.3.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/ecodive_2.3.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/ecodive_2.3.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "emmeans",
+      "package": "emmeans",
+      "version": "2.0.4",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["estimability", "mvtnorm", "numDeriv", "rlang"],
+      "deps": [
+        {
+          "ref": "bayesplot",
+          "type": "suggests",
+          "package": "bayesplot",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "bayestestR",
+          "type": "suggests",
+          "package": "bayestestR",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "biglm",
+          "type": "suggests",
+          "package": "biglm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "brms",
+          "type": "suggests",
+          "package": "brms",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "car",
+          "type": "suggests",
+          "package": "car",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "CARBayes",
+          "type": "enhances",
+          "package": "CARBayes",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "coda",
+          "type": "suggests",
+          "package": "coda",
+          "op": ">=",
+          "version": "0.17"
+        },
+        {
+          "ref": "compositions",
+          "type": "suggests",
+          "package": "compositions",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "coxme",
+          "type": "enhances",
+          "package": "coxme",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "estimability",
+          "type": "imports",
+          "package": "estimability",
+          "op": ">=",
+          "version": "1.4.1"
+        },
+        {
+          "ref": "gee",
+          "type": "enhances",
+          "package": "gee",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "geepack",
+          "type": "enhances",
+          "package": "geepack",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": ">=",
+          "version": "4.0.0"
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lattice",
+          "type": "suggests",
+          "package": "lattice",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lme4",
+          "type": "suggests",
+          "package": "lme4",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lmerTest",
+          "type": "suggests",
+          "package": "lmerTest",
+          "op": ">=",
+          "version": "2.0.32"
+        },
+        {
+          "ref": "logspline",
+          "type": "suggests",
+          "package": "logspline",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MASS",
+          "type": "suggests",
+          "package": "MASS",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MCMCglmm",
+          "type": "enhances",
+          "package": "MCMCglmm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MCMCpack",
+          "type": "enhances",
+          "package": "MCMCpack",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mediation",
+          "type": "suggests",
+          "package": "mediation",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mgcv",
+          "type": "suggests",
+          "package": "mgcv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mice",
+          "type": "enhances",
+          "package": "mice",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "multcomp",
+          "type": "suggests",
+          "package": "multcomp",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "multcompView",
+          "type": "suggests",
+          "package": "multcompView",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MuMIn",
+          "type": "suggests",
+          "package": "MuMIn",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mvtnorm",
+          "type": "imports",
+          "package": "mvtnorm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nlme",
+          "type": "suggests",
+          "package": "nlme",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nnet",
+          "type": "enhances",
+          "package": "nnet",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "numDeriv",
+          "type": "imports",
+          "package": "numDeriv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ordinal",
+          "type": "suggests",
+          "package": "ordinal",
+          "op": ">=",
+          "version": "2014.11-12"
+        },
+        {
+          "ref": "pbkrtest",
+          "type": "suggests",
+          "package": "pbkrtest",
+          "op": ">=",
+          "version": "0.4-1"
+        },
+        {
+          "ref": "pscl",
+          "type": "enhances",
+          "package": "pscl",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "robmixglm",
+          "type": "suggests",
+          "package": "robmixglm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rsm",
+          "type": "suggests",
+          "package": "rsm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rstanarm",
+          "type": "enhances",
+          "package": "rstanarm",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "sandwich",
+          "type": "suggests",
+          "package": "sandwich",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "scales",
+          "type": "suggests",
+          "package": "scales",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "sommer",
+          "type": "enhances",
+          "package": "sommer",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "splines",
+          "type": "suggests",
+          "package": "splines",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "survival",
+          "type": "enhances",
+          "package": "survival",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "xtable",
+          "type": "suggests",
+          "package": "xtable",
+          "op": ">=",
+          "version": "1.8-2"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "emmeans",
+        "RemoteRef": "emmeans",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.0.4"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/emmeans_2.0.4.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/emmeans_2.0.4.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-2 | GPL-3",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "estimability",
+      "package": "estimability",
+      "version": "2.0.0",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "depends",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "estimability",
+        "RemoteRef": "estimability",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.0.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/estimability_2.0.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/estimability_2.0.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL (>= 3)",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "farver",
+      "package": "farver",
+      "version": "2.1.2",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "farver",
+        "RemoteRef": "farver",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.1.2"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/farver_2.1.2.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/farver_2.1.2.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "generics",
+      "package": "generics",
+      "version": "0.1.4",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pkgload",
+          "type": "suggests",
+          "package": "pkgload",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "generics",
+        "RemoteRef": "generics",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.1.4"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/generics_0.1.4.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/generics_0.1.4.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "ggnewscale",
+      "package": "ggnewscale",
+      "version": "0.5.2",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["ggplot2"],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "imports",
+          "package": "ggplot2",
+          "op": ">=",
+          "version": "3.5.0"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vdiffr",
+          "type": "suggests",
+          "package": "vdiffr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "ggnewscale",
+        "RemoteRef": "ggnewscale",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.5.2"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/ggnewscale_0.5.2.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/ggnewscale_0.5.2.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-3",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "ggplot2",
+      "package": "ggplot2",
+      "version": "4.0.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "gtable", "isoband", "lifecycle", "rlang", "S7", "scales", "vctrs", "withr"],
+      "deps": [
+        {
+          "ref": "broom",
+          "type": "suggests",
+          "package": "broom",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2movies",
+          "type": "suggests",
+          "package": "ggplot2movies",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "gtable",
+          "type": "imports",
+          "package": "gtable",
+          "op": ">=",
+          "version": "0.3.6"
+        },
+        {
+          "ref": "hexbin",
+          "type": "suggests",
+          "package": "hexbin",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Hmisc",
+          "type": "suggests",
+          "package": "Hmisc",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "hms",
+          "type": "suggests",
+          "package": "hms",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "isoband",
+          "type": "imports",
+          "package": "isoband",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": ">",
+          "version": "1.0.1"
+        },
+        {
+          "ref": "mapproj",
+          "type": "suggests",
+          "package": "mapproj",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "maps",
+          "type": "suggests",
+          "package": "maps",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MASS",
+          "type": "suggests",
+          "package": "MASS",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mgcv",
+          "type": "suggests",
+          "package": "mgcv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "multcomp",
+          "type": "suggests",
+          "package": "multcomp",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "munsell",
+          "type": "suggests",
+          "package": "munsell",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nlme",
+          "type": "suggests",
+          "package": "nlme",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "profvis",
+          "type": "suggests",
+          "package": "profvis",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "quantreg",
+          "type": "suggests",
+          "package": "quantreg",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "quarto",
+          "type": "suggests",
+          "package": "quarto",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1"
+        },
+        {
+          "ref": "ragg",
+          "type": "suggests",
+          "package": "ragg",
+          "op": ">=",
+          "version": "1.2.6"
+        },
+        {
+          "ref": "RColorBrewer",
+          "type": "suggests",
+          "package": "RColorBrewer",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "roxygen2",
+          "type": "suggests",
+          "package": "roxygen2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rpart",
+          "type": "suggests",
+          "package": "rpart",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "S7",
+          "type": "imports",
+          "package": "S7",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "scales",
+          "type": "imports",
+          "package": "scales",
+          "op": ">=",
+          "version": "1.4.0"
+        },
+        {
+          "ref": "sf",
+          "type": "suggests",
+          "package": "sf",
+          "op": ">=",
+          "version": "0.7-3"
+        },
+        {
+          "ref": "sp",
+          "type": "enhances",
+          "package": "sp",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "svglite",
+          "type": "suggests",
+          "package": "svglite",
+          "op": ">=",
+          "version": "2.1.2"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.1.5"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.6.0"
+        },
+        {
+          "ref": "vdiffr",
+          "type": "suggests",
+          "package": "vdiffr",
+          "op": ">=",
+          "version": "1.0.6"
+        },
+        {
+          "ref": "withr",
+          "type": "imports",
+          "package": "withr",
+          "op": ">=",
+          "version": "2.5.0"
+        },
+        {
+          "ref": "xml2",
+          "type": "suggests",
+          "package": "xml2",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "ggplot2",
+        "RemoteRef": "ggplot2",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "4.0.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/ggplot2_4.0.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/ggplot2_4.0.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "glue",
+      "package": "glue",
+      "version": "1.8.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "crayon",
+          "type": "suggests",
+          "package": "crayon",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DBI",
+          "type": "suggests",
+          "package": "DBI",
+          "op": ">=",
+          "version": "1.2.0"
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1"
+        },
+        {
+          "ref": "rlang",
+          "type": "suggests",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "RSQLite",
+          "type": "suggests",
+          "package": "RSQLite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.2.0"
+        },
+        {
+          "ref": "vctrs",
+          "type": "suggests",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.3.0"
+        },
+        {
+          "ref": "waldo",
+          "type": "suggests",
+          "package": "waldo",
+          "op": ">=",
+          "version": "0.5.3"
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "glue",
+        "RemoteRef": "glue",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.8.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/glue_1.8.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/glue_1.8.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "gtable",
+      "package": "gtable",
+      "version": "0.3.6",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "glue", "lifecycle", "rlang"],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "profvis",
+          "type": "suggests",
+          "package": "profvis",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "gtable",
+        "RemoteRef": "gtable",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.3.6"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/gtable_0.3.6.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/gtable_0.3.6.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "isoband",
+      "package": "isoband",
+      "version": "0.3.0",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "rlang"],
+      "deps": [
+        {
+          "ref": "bench",
+          "type": "suggests",
+          "package": "bench",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cpp11",
+          "type": "linkingto",
+          "package": "cpp11",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magick",
+          "type": "suggests",
+          "package": "magick",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "sf",
+          "type": "suggests",
+          "package": "sf",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "xml2",
+          "type": "suggests",
+          "package": "xml2",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "isoband",
+        "RemoteRef": "isoband",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.3.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/isoband_0.3.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/isoband_0.3.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "jsonlite",
+      "package": "jsonlite",
+      "version": "2.0.0",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "httr",
+          "type": "suggests",
+          "package": "httr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "depends",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R.rsp",
+          "type": "suggests",
+          "package": "R.rsp",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "sf",
+          "type": "suggests",
+          "package": "sf",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "suggests",
+          "package": "vctrs",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "jsonlite",
+        "RemoteRef": "jsonlite",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.0.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/jsonlite_2.0.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/jsonlite_2.0.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "labeling",
+      "package": "labeling",
+      "version": "0.4.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "labeling",
+        "RemoteRef": "labeling",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.4.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/labeling_0.4.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/labeling_0.4.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE | Unlimited",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "lifecycle",
+      "package": "lifecycle",
+      "version": "1.0.5",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "rlang"],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": ">=",
+          "version": "3.4.0"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lintr",
+          "type": "suggests",
+          "package": "lintr",
+          "op": ">=",
+          "version": "3.1.0"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.1"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tidyverse",
+          "type": "suggests",
+          "package": "tidyverse",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "tools",
+          "type": "suggests",
+          "package": "tools",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "suggests",
+          "package": "vctrs",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "xml2",
+          "type": "suggests",
+          "package": "xml2",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "lifecycle",
+        "RemoteRef": "lifecycle",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.0.5"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/lifecycle_1.0.5.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/lifecycle_1.0.5.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "magrittr",
+      "package": "magrittr",
+      "version": "2.0.5",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.4.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "suggests",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "magrittr",
+        "RemoteRef": "magrittr",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.0.5"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/magrittr_2.0.5.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/magrittr_2.0.5.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "mvtnorm",
+      "package": "mvtnorm",
+      "version": "1.4-2",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "bibtex",
+          "type": "suggests",
+          "package": "bibtex",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "numDeriv",
+          "type": "suggests",
+          "package": "numDeriv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "qrng",
+          "type": "suggests",
+          "package": "qrng",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.5.0"
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "mvtnorm",
+        "RemoteRef": "mvtnorm",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.4-2"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/mvtnorm_1.4-2.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/mvtnorm_1.4-2.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-2",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "numDeriv",
+      "package": "numDeriv",
+      "version": "2016.8-1.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "2.11.1"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "numDeriv",
+        "RemoteRef": "numDeriv",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2016.8-1.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/numDeriv_2016.8-1.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/numDeriv_2016.8-1.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-2",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "patchwork",
+      "package": "patchwork",
+      "version": "1.3.2",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "farver", "ggplot2", "gtable", "rlang"],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "farver",
+          "type": "imports",
+          "package": "farver",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "imports",
+          "package": "ggplot2",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "gridExtra",
+          "type": "suggests",
+          "package": "gridExtra",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "gridGraphics",
+          "type": "suggests",
+          "package": "gridGraphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "gt",
+          "type": "suggests",
+          "package": "gt",
+          "op": ">=",
+          "version": "0.11.0"
+        },
+        {
+          "ref": "gtable",
+          "type": "imports",
+          "package": "gtable",
+          "op": ">=",
+          "version": "0.3.6"
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "png",
+          "type": "suggests",
+          "package": "png",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ragg",
+          "type": "suggests",
+          "package": "ragg",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.0.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "2.1.0"
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vdiffr",
+          "type": "suggests",
+          "package": "vdiffr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "patchwork",
+        "RemoteRef": "patchwork",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.3.2"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/patchwork_1.3.2.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/patchwork_1.3.2.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "permute",
+      "package": "permute",
+      "version": "0.9-10",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "bookdown",
+          "type": "suggests",
+          "package": "bookdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "parallel",
+          "type": "suggests",
+          "package": "parallel",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "sessioninfo",
+          "type": "suggests",
+          "package": "sessioninfo",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "0.5"
+        },
+        {
+          "ref": "vegan",
+          "type": "suggests",
+          "package": "vegan",
+          "op": ">=",
+          "version": "2.0-0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "permute",
+        "RemoteRef": "permute",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.9-10"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/permute_0.9-10.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/permute_0.9-10.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-2",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "pillar",
+      "package": "pillar",
+      "version": "1.11.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "glue", "lifecycle", "rlang", "utf8", "vctrs"],
+      "deps": [
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": ">=",
+          "version": "2.3.0"
+        },
+        {
+          "ref": "DBI",
+          "type": "suggests",
+          "package": "DBI",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "debugme",
+          "type": "suggests",
+          "package": "debugme",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DiagrammeR",
+          "type": "suggests",
+          "package": "DiagrammeR",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "formattable",
+          "type": "suggests",
+          "package": "formattable",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lubridate",
+          "type": "suggests",
+          "package": "lubridate",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nanotime",
+          "type": "suggests",
+          "package": "nanotime",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nycflights13",
+          "type": "suggests",
+          "package": "nycflights13",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "palmerpenguins",
+          "type": "suggests",
+          "package": "palmerpenguins",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.0.2"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "scales",
+          "type": "suggests",
+          "package": "scales",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stringi",
+          "type": "suggests",
+          "package": "stringi",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "survival",
+          "type": "suggests",
+          "package": "survival",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.1.1"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "units",
+          "type": "suggests",
+          "package": "units",
+          "op": ">=",
+          "version": "0.7.2"
+        },
+        {
+          "ref": "utf8",
+          "type": "imports",
+          "package": "utf8",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.5.0"
+        },
+        {
+          "ref": "vdiffr",
+          "type": "suggests",
+          "package": "vdiffr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "pillar",
+        "RemoteRef": "pillar",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.11.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/pillar_1.11.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/pillar_1.11.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "pkgconfig",
+      "package": "pkgconfig",
+      "version": "2.0.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "disposables",
+          "type": "suggests",
+          "package": "disposables",
+          "op": ">=",
+          "version": "1.0.3"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "pkgconfig",
+        "RemoteRef": "pkgconfig",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.0.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/pkgconfig_2.0.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/pkgconfig_2.0.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "R6",
+      "package": "R6",
+      "version": "2.6.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "lobstr",
+          "type": "suggests",
+          "package": "lobstr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "R6",
+        "RemoteRef": "R6",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.6.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/R6_2.6.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/R6_2.6.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "RColorBrewer",
+      "package": "RColorBrewer",
+      "version": "1.1-3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "2.0.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "RColorBrewer",
+        "RemoteRef": "RColorBrewer",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.1-3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/RColorBrewer_1.1-3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/RColorBrewer_1.1-3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "Apache License 2.0",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "rlang",
+      "package": "rlang",
+      "version": "1.3.0",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "suggests",
+          "package": "cli",
+          "op": ">=",
+          "version": "3.1.0"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "crayon",
+          "type": "suggests",
+          "package": "crayon",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "desc",
+          "type": "suggests",
+          "package": "desc",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "fs",
+          "type": "suggests",
+          "package": "fs",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "suggests",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magrittr",
+          "type": "suggests",
+          "package": "magrittr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "suggests",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pillar",
+          "type": "suggests",
+          "package": "pillar",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pkgload",
+          "type": "suggests",
+          "package": "pkgload",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.0.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "suggests",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.3.2"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "usethis",
+          "type": "suggests",
+          "package": "usethis",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "suggests",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.2.3"
+        },
+        {
+          "ref": "winch",
+          "type": "enhances",
+          "package": "winch",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "rlang",
+        "RemoteRef": "rlang",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.3.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/rlang_1.3.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/rlang_1.3.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "S7",
+      "package": "S7",
+      "version": "0.2.2",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "bench",
+          "type": "suggests",
+          "package": "bench",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "callr",
+          "type": "suggests",
+          "package": "callr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "suggests",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.5.0"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.2.0"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "S7",
+        "RemoteRef": "S7",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.2.2"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/S7_0.2.2.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/S7_0.2.2.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "scales",
+      "package": "scales",
+      "version": "1.4.0",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "farver", "glue", "labeling", "lifecycle", "R6", "RColorBrewer", "rlang", "viridisLite"],
+      "deps": [
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dichromat",
+          "type": "suggests",
+          "package": "dichromat",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "farver",
+          "type": "imports",
+          "package": "farver",
+          "op": ">=",
+          "version": "2.0.3"
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "hms",
+          "type": "suggests",
+          "package": "hms",
+          "op": ">=",
+          "version": "0.5.0"
+        },
+        {
+          "ref": "labeling",
+          "type": "imports",
+          "package": "labeling",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1"
+        },
+        {
+          "ref": "R6",
+          "type": "imports",
+          "package": "R6",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "RColorBrewer",
+          "type": "imports",
+          "package": "RColorBrewer",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.0"
+        },
+        {
+          "ref": "stringi",
+          "type": "suggests",
+          "package": "stringi",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "viridisLite",
+          "type": "imports",
+          "package": "viridisLite",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "scales",
+        "RemoteRef": "scales",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.4.0"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/scales_1.4.0.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/scales_1.4.0.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "tibble",
+      "package": "tibble",
+      "version": "3.3.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "lifecycle", "magrittr", "pillar", "pkgconfig", "rlang", "vctrs"],
+      "deps": [
+        {
+          "ref": "bench",
+          "type": "suggests",
+          "package": "bench",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "blob",
+          "type": "suggests",
+          "package": "blob",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "brio",
+          "type": "suggests",
+          "package": "brio",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "callr",
+          "type": "suggests",
+          "package": "callr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DiagrammeR",
+          "type": "suggests",
+          "package": "DiagrammeR",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "evaluate",
+          "type": "suggests",
+          "package": "evaluate",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "formattable",
+          "type": "suggests",
+          "package": "formattable",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "here",
+          "type": "suggests",
+          "package": "here",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "hms",
+          "type": "suggests",
+          "package": "hms",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "htmltools",
+          "type": "suggests",
+          "package": "htmltools",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": ">=",
+          "version": "1.0.0"
+        },
+        {
+          "ref": "lubridate",
+          "type": "suggests",
+          "package": "lubridate",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "magrittr",
+          "type": "imports",
+          "package": "magrittr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "nycflights13",
+          "type": "suggests",
+          "package": "nycflights13",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pillar",
+          "type": "imports",
+          "package": "pillar",
+          "op": ">=",
+          "version": "1.8.1"
+        },
+        {
+          "ref": "pkgconfig",
+          "type": "imports",
+          "package": "pkgconfig",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "pkgload",
+          "type": "suggests",
+          "package": "pkgload",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "purrr",
+          "type": "suggests",
+          "package": "purrr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.4.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.0.2"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stringi",
+          "type": "suggests",
+          "package": "stringi",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.2"
+        },
+        {
+          "ref": "tidyr",
+          "type": "suggests",
+          "package": "tidyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.5.0"
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "tibble",
+        "RemoteRef": "tibble",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "3.3.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/tibble_3.3.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/tibble_3.3.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "tidyselect",
+      "package": "tidyselect",
+      "version": "1.2.1",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "glue", "lifecycle", "rlang", "vctrs", "withr"],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": ">=",
+          "version": "3.3.0"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "crayon",
+          "type": "suggests",
+          "package": "crayon",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": ">=",
+          "version": "1.3.0"
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": ">=",
+          "version": "1.0.3"
+        },
+        {
+          "ref": "magrittr",
+          "type": "suggests",
+          "package": "magrittr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.4"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.0.4"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stringr",
+          "type": "suggests",
+          "package": "stringr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.1.1"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": ">=",
+          "version": "2.1.3"
+        },
+        {
+          "ref": "vctrs",
+          "type": "imports",
+          "package": "vctrs",
+          "op": ">=",
+          "version": "0.5.2"
+        },
+        {
+          "ref": "withr",
+          "type": "imports",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "tidyselect",
+        "RemoteRef": "tidyselect",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.2.1"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/tidyselect_1.2.1.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/tidyselect_1.2.1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "utf8",
+      "package": "utf8",
+      "version": "1.2.6",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "cli",
+          "type": "suggests",
+          "package": "cli",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "2.10"
+        },
+        {
+          "ref": "rlang",
+          "type": "suggests",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "utf8",
+        "RemoteRef": "utf8",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "1.2.6"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/utf8_1.2.6.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/utf8_1.2.6.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "Apache License (== 2.0) | file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "vctrs",
+      "package": "vctrs",
+      "version": "0.7.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cli", "glue", "lifecycle", "rlang"],
+      "deps": [
+        {
+          "ref": "bit64",
+          "type": "suggests",
+          "package": "bit64",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "cli",
+          "type": "imports",
+          "package": "cli",
+          "op": ">=",
+          "version": "3.4.0"
+        },
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "crayon",
+          "type": "suggests",
+          "package": "crayon",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "dplyr",
+          "type": "suggests",
+          "package": "dplyr",
+          "op": ">=",
+          "version": "0.8.5"
+        },
+        {
+          "ref": "generics",
+          "type": "suggests",
+          "package": "generics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "glue",
+          "type": "imports",
+          "package": "glue",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lifecycle",
+          "type": "imports",
+          "package": "lifecycle",
+          "op": ">=",
+          "version": "1.0.3"
+        },
+        {
+          "ref": "pillar",
+          "type": "suggests",
+          "package": "pillar",
+          "op": ">=",
+          "version": "1.4.4"
+        },
+        {
+          "ref": "pkgdown",
+          "type": "suggests",
+          "package": "pkgdown",
+          "op": ">=",
+          "version": "2.0.1"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.0.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "imports",
+          "package": "rlang",
+          "op": ">=",
+          "version": "1.1.7"
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        },
+        {
+          "ref": "tibble",
+          "type": "suggests",
+          "package": "tibble",
+          "op": ">=",
+          "version": "3.1.3"
+        },
+        {
+          "ref": "waldo",
+          "type": "suggests",
+          "package": "waldo",
+          "op": ">=",
+          "version": "0.2.0"
+        },
+        {
+          "ref": "withr",
+          "type": "suggests",
+          "package": "withr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "xml2",
+          "type": "suggests",
+          "package": "xml2",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "zeallot",
+          "type": "suggests",
+          "package": "zeallot",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "vctrs",
+        "RemoteRef": "vctrs",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.7.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/vctrs_0.7.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/vctrs_0.7.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "vegan",
+      "package": "vegan",
+      "version": "2.7-6",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["cluster", "lattice", "MASS", "mgcv", "permute"],
+      "deps": [
+        {
+          "ref": "cluster",
+          "type": "imports",
+          "package": "cluster",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lattice",
+          "type": "imports",
+          "package": "lattice",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "markdown",
+          "type": "suggests",
+          "package": "markdown",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "MASS",
+          "type": "imports",
+          "package": "MASS",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "mgcv",
+          "type": "imports",
+          "package": "mgcv",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "parallel",
+          "type": "suggests",
+          "package": "parallel",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "permute",
+          "type": "depends",
+          "package": "permute",
+          "op": ">=",
+          "version": "0.9-0"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.1.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "vegan",
+        "RemoteRef": "vegan",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "2.7-6"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/vegan_2.7-6.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/vegan_2.7-6.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "GPL-2",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "viridisLite",
+      "package": "viridisLite",
+      "version": "0.4.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "covr",
+          "type": "suggests",
+          "package": "covr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "ggplot2",
+          "type": "suggests",
+          "package": "ggplot2",
+          "op": ">=",
+          "version": "1.0.1"
+        },
+        {
+          "ref": "hexbin",
+          "type": "suggests",
+          "package": "hexbin",
+          "op": ">=",
+          "version": "1.27.0"
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "2.10"
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "viridisLite",
+        "RemoteRef": "viridisLite",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "0.4.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/viridisLite_0.4.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/viridisLite_0.4.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "withr",
+      "package": "withr",
+      "version": "3.0.3",
+      "type": "standard",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "callr",
+          "type": "suggests",
+          "package": "callr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "DBI",
+          "type": "suggests",
+          "package": "DBI",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "knitr",
+          "type": "suggests",
+          "package": "knitr",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "suggests",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6.0"
+        },
+        {
+          "ref": "rlang",
+          "type": "suggests",
+          "package": "rlang",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "rmarkdown",
+          "type": "suggests",
+          "package": "rmarkdown",
+          "op": ">=",
+          "version": "2.12"
+        },
+        {
+          "ref": "RSQLite",
+          "type": "suggests",
+          "package": "RSQLite",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "testthat",
+          "type": "suggests",
+          "package": "testthat",
+          "op": ">=",
+          "version": "3.0.0"
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": false,
+      "metadata": {
+        "RemoteType": "standard",
+        "RemotePkgRef": "withr",
+        "RemoteRef": "withr",
+        "RemoteRepos": "https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+        "RemoteSha": "3.0.3"
+      },
+      "sources": ["https://packagemanager.posit.co/cran/__linux__/resolute/2026-11-06/src/contrib/withr_3.0.3.tar.gz"],
+      "target": "src/contrib/x86_64-pc-linux-gnu-ubuntu-26.04/4.6/withr_3.0.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu-ubuntu-26.04",
+      "rversion": "4.6",
+      "directpkg": false,
+      "license": "MIT + file LICENSE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs": "",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/cluster",
+      "package": "cluster",
+      "version": "2.1.8.3",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.5.0"
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/cluster",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "2.1.8.3"
+      },
+      "sources": [],
+      "target": "src/contrib/cluster_2.1.8.3.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:31:20 UTC; unix",
+      "directpkg": false,
+      "license": "GPL (>= 2)",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/lattice",
+      "package": "lattice",
+      "version": "0.23-1",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.0.0"
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/lattice",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "0.23-1"
+      },
+      "sources": [],
+      "target": "src/contrib/lattice_0.23-1.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:29:02 UTC; unix",
+      "directpkg": false,
+      "license": "GPL (>= 2)",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/MASS",
+      "package": "MASS",
+      "version": "7.3-66",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": [],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.4.0"
+        },
+        {
+          "ref": "grDevices",
+          "type": "depends",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "graphics",
+          "type": "depends",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "depends",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "depends",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/MASS",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "7.3-66"
+      },
+      "sources": [],
+      "target": "src/contrib/MASS_7.3-66.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:28:59 UTC; unix",
+      "directpkg": false,
+      "license": "GPL-2 | GPL-3",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/Matrix",
+      "package": "Matrix",
+      "version": "1.7-6",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["lattice"],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.4"
+        },
+        {
+          "ref": "methods",
+          "type": "depends",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grDevices",
+          "type": "imports",
+          "package": "grDevices",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "grid",
+          "type": "imports",
+          "package": "grid",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lattice",
+          "type": "imports",
+          "package": "lattice",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/Matrix",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "1.7-6"
+      },
+      "sources": [],
+      "target": "src/contrib/Matrix_1.7-6.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:29:07 UTC; unix",
+      "directpkg": false,
+      "license": "GPL (>= 2) | file LICENCE",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/mgcv",
+      "package": "mgcv",
+      "version": "1.9-4",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["nlme", "Matrix"],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "4.4.0"
+        },
+        {
+          "ref": "nlme",
+          "type": "depends",
+          "package": "nlme",
+          "op": ">=",
+          "version": "3.1-64"
+        },
+        {
+          "ref": "methods",
+          "type": "imports",
+          "package": "methods",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "Matrix",
+          "type": "imports",
+          "package": "Matrix",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "splines",
+          "type": "imports",
+          "package": "splines",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/mgcv",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "1.9-4"
+      },
+      "sources": [],
+      "target": "src/contrib/mgcv_1.9-4.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:31:35 UTC; unix",
+      "directpkg": false,
+      "license": "GPL (>= 2)",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    },
+    {
+      "ref": "installed::/usr/local/lib/R/library/nlme",
+      "package": "nlme",
+      "version": "3.1-171",
+      "type": "installed",
+      "direct": false,
+      "binary": true,
+      "dependencies": ["lattice"],
+      "deps": [
+        {
+          "ref": "R",
+          "type": "depends",
+          "package": "R",
+          "op": ">=",
+          "version": "3.6.0"
+        },
+        {
+          "ref": "graphics",
+          "type": "imports",
+          "package": "graphics",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "stats",
+          "type": "imports",
+          "package": "stats",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "utils",
+          "type": "imports",
+          "package": "utils",
+          "op": "",
+          "version": ""
+        },
+        {
+          "ref": "lattice",
+          "type": "imports",
+          "package": "lattice",
+          "op": "",
+          "version": ""
+        }
+      ],
+      "vignettes": false,
+      "needscompilation": true,
+      "metadata": {
+        "RemoteType": "installed",
+        "RemotePkgRef": "installed::/usr/local/lib/R/library/nlme",
+        "RemotePkgPlatform": "x86_64-pc-linux-gnu",
+        "RemoteSha": "3.1-171"
+      },
+      "sources": [],
+      "target": "src/contrib/nlme_3.1-171.tar.gz",
+      "platform": "x86_64-pc-linux-gnu",
+      "rversion": "R 4.6.2",
+      "built": "R 4.6.2; x86_64-pc-linux-gnu; 2026-10-29 16:30:52 UTC; unix",
+      "directpkg": false,
+      "license": "GPL (>= 2)",
+      "dep_types": ["Depends", "Imports", "LinkingTo"],
+      "params": [],
+      "install_args": [],
+      "repotype": "cran",
+      "sysreqs_packages": {}
+    }
+  ],
+  "sysreqs": {
+    "os": "linux",
+    "distribution": "ubuntu",
+    "version": "26.04",
+    "url": null,
+    "pre_install": [],
+    "install_scripts": {},
+    "post_install": {},
+    "packages": {}
+  }
+}

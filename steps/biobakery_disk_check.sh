@@ -12,8 +12,9 @@
 #                      for the steps after it. HUMAnN works on those cleaned
 #                      reads and needs less room per read than KneadData, so
 #                      the same room covers it.
-#   GLOBUS_DIR         the download, which holds each read set the
-#                      delivered_reads answer names
+#   the download       which holds each read set the delivered_reads answer
+#                      names: in globus.dir when Globus is on, and otherwise
+#                      in the run directory, where it stays
 #
 # The host-depleted and cleaned reads are each taken at the reads' gzipped
 # size, which is what they come to when little is removed.
@@ -28,8 +29,8 @@
 #            stages anything
 # Requires:  gzip, awk, df and stat, and lbzip2 for .bz2 inputs
 # Writes:    an explanation of a failure in ./run_state.json
-# Env:       GLOBUS_DIR, the log/warn/fail helpers and form_answer_includes,
-#            from lib/env.sh
+# Env:       GLOBUS_ENABLED, GLOBUS_DIR, the log/warn/fail helpers and
+#            form_answer_includes, from lib/env.sh
 
 set -euo pipefail
 
@@ -140,8 +141,13 @@ read -r RUN_MOUNT RUN_FREE_KB < <(filesystem "$PWD")
 DOWNLOAD_MOUNT=""
 DOWNLOAD_FREE_KB=0
 
-if [[ -n "${GLOBUS_DIR:-}" ]] && ! read -r DOWNLOAD_MOUNT DOWNLOAD_FREE_KB < <(filesystem "$GLOBUS_DIR" 2> /dev/null); then
-    warn "Could not read the free space under $GLOBUS_DIR; the download is not counted."
+# The download is built in the run directory and stays there, unless Globus
+# takes it
+DOWNLOAD_DIR=$PWD
+[[ "${GLOBUS_ENABLED:-false}" != true || -z "${GLOBUS_DIR:-}" ]] || DOWNLOAD_DIR=$GLOBUS_DIR
+
+if ! read -r DOWNLOAD_MOUNT DOWNLOAD_FREE_KB < <(filesystem "$DOWNLOAD_DIR" 2> /dev/null); then
+    warn "Could not read the free space under $DOWNLOAD_DIR; the download is not counted."
     DOWNLOAD_MOUNT=""
 fi
 

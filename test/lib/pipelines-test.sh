@@ -55,11 +55,16 @@ check "ampliseq: revision from lock.yaml" "nf-core/ampliseq -r b9bd579c0480ee23e
 check "ampliseq: steps exist" "ok" \
     "$(with_pipeline ampliseq '{}' 'for c in "${PRE_PROCESS_CMDS[@]}" "${POST_PROCESS_CMDS[@]}" "${NEXTFLOW_ARGS[9]}"; do [[ -f $c ]] || echo "missing $c"; done; echo ok')"
 check "ampliseq: picrust and exclude_taxa answers" "true chloroplast" \
-    "$(with_pipeline ampliseq '{"picrust": "Yes", "exclude_taxa": "chloroplast"}' params_json | jq -r '"\(.picrust) \(.exclude_taxa)"')"
+    "$(with_pipeline ampliseq '{"picrust": "true", "exclude_taxa": "chloroplast"}' params_json | jq -r '"\(.picrust) \(.exclude_taxa)"')"
 check "ampliseq: a choice without a database fails" "1" \
     "$(with_pipeline ampliseq '{"dada_ref_taxonomy": "unknown=1"}' params_json > /dev/null 2>&1; echo $?)"
 with_pipeline ampliseq '{}' 'params_write params.yaml; cat params.yaml' > "$WORK/ampliseq.yaml"
-check "ampliseq: params file resolves db: names" "$DB_DIR/pplace/bac16s.newick" "$(yq .pplace_tree "$WORK/ampliseq.yaml")"
+check "ampliseq: params file resolves db: names" "$DB_DIR/pplace/v1/bac16s.newick" "$(yq .pplace_tree "$WORK/ampliseq.yaml")"
+check "ampliseq: and code: names" "$CODE_DIR/present/templates/ampliseq/abstract.md" "$(yq .report_abstract "$WORK/ampliseq.yaml")"
+check "ampliseq: the record keeps the code: name" "code:present/templates/ampliseq/abstract.md" \
+    "$(with_pipeline ampliseq '{}' params_json | jq -r .report_abstract)"
+check "ampliseq: merge by default, or the answer" "merge concatenate" \
+    "$(with_pipeline ampliseq '{}' params_json | jq -r .mergepairs_strategy) $(with_pipeline ampliseq '{"mergepairs_strategy": "concatenate"}' params_json | jq -r .mergepairs_strategy)"
 
 JSON=$(with_pipeline taxprofiler '{}' params_json)
 check "taxprofiler: PhiX by default" "db:hostremoval/phix.fa db:hostremoval/phix" \

@@ -3,7 +3,8 @@
 #
 # Sourced by:  the job, from the run directory, with lib/env.sh loaded
 # Defines:     NEXTFLOW_ARGS, PARAMS_FILE, PARAMS_LOCKED, PRE_PROCESS_CMDS,
-#              POST_PROCESS_CMDS, and the parameter defaults
+#              POST_PROCESS_CMDS, PIPELINE_DATABASES, ONE_READ_LAYOUT,
+#              and the parameter defaults
 #
 # Neither the platform nor the region is requested: ampliseq_detect_region.sh
 # measures both and supplies sequencing_type, the primers, skip_cutadapt, and
@@ -33,13 +34,6 @@ params_set custom_config_base ""
 DADA_REF_TAXONOMY=$(form_answer dada_ref_taxonomy)
 params_reference dada_ref_taxonomy "${DADA_REF_TAXONOMY:-silva=138.2}"
 params_set cut_dada_ref_taxonomy true
-
-for AMPLISEQ_PARAM in qiime_ref_taxonomy kraken2_ref_taxonomy; do
-    AMPLISEQ_ANSWER=$(form_answer "$AMPLISEQ_PARAM")
-    if [[ -n "$AMPLISEQ_ANSWER" ]]; then
-        params_reference "$AMPLISEQ_PARAM" "$AMPLISEQ_ANSWER"
-    fi
-done
 
 # Applied by steps/R/ampliseq_tables.R rather than by the pipeline, because the
 # QIIME 2 step that filtered taxa no longer runs. Declared here so the record
@@ -77,8 +71,8 @@ params_set ignore_failed_filtering true
 # stays unset: ampliseq would prefer it to DADA2's, putting GTDB names in every
 # table.
 params_set pplace_name "gtdb_bac16s"
-params_set pplace_tree "db:pplace/bac16s.newick"
-params_set pplace_aln "db:pplace/bac16s.alnfna"
+params_set pplace_tree "db:pplace/v1/bac16s.newick"
+params_set pplace_aln "db:pplace/v1/bac16s.alnfna"
 params_set pplace_model "GTR+F+I+G4"
 params_set pplace_alnmethod "clustalo"
 
@@ -88,14 +82,31 @@ params_set pplace_alnmethod "clustalo"
 params_set metadata "ampliseq_metadata.tsv"
 
 params_set report_title "Amplicon sequencing analysis"
-params_set report_abstract "$CODE_DIR/present/templates/ampliseq/abstract.md"
+# A code: name resolves against the code directory when the params file is
+# written, so the record names no site path
+params_set report_abstract "code:present/templates/ampliseq/abstract.md"
 
-if [[ "$(form_answer picrust)" == "Yes" ]]; then
+# ampliseq's own default. V3-V5 pairs barely overlap, so most of them fail to
+# merge, but which way to join them changes the results, so the job chooses.
+MERGEPAIRS_STRATEGY=$(form_answer mergepairs_strategy)
+params_set mergepairs_strategy "${MERGEPAIRS_STRATEGY:-merge}"
+
+if [[ "$(form_answer picrust)" == true ]]; then
     params_set picrust true
 fi
 
 # The run writes these files, or reads them where it expects them
 PARAMS_LOCKED=(input outdir metadata custom_config_base)
+
+# ampliseq derives one read layout for the whole run
+ONE_READ_LAYOUT=true
+
+# Read by steps/ampliseq_detect_region.sh, which a job that gives its own primers
+# skips
+PIPELINE_DATABASES=()
+if ! jq -e '(. // {}) | has("primer_fwd")' > /dev/null 2>&1 <<< "${GNOTO_JOB_PARAMS:-null}"; then
+    PIPELINE_DATABASES+=("db:16s/v1")
+fi
 
 PRE_PROCESS_CMDS=(
     "$CODE_DIR/steps/ampliseq_samplesheet.sh"

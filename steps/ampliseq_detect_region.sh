@@ -41,8 +41,9 @@
 # Neighbouring regions sit at least 157 bases apart on the gene and the variants
 # of one region within 39, so the variants never blur the choice of region.
 #
-# Does nothing when PIPELINE_RERUN_UID is set. A rerun's parameters come from the
-# run it reproduces, so measuring this run's reads could only disagree with them.
+# Does nothing when the job file sets primer_fwd in its ampliseq section, or
+# for a rerun, whose parameters come from the run it reproduces: measuring the
+# reads could only disagree with the primers given.
 #
 # Usage:     ampliseq_detect_region.sh [ampliseq_samplesheet.tsv]
 # Called by: the job, from the run directory, as a pre-process step of the
@@ -50,7 +51,7 @@
 # Requires:  pigz, awk and sort, from the gnoto image; vsearch, from the image
 #            pipelines/ampliseq/lock.yaml pins
 # Reads:     the samplesheet and the FASTQ files it names; landmarks.fasta and
-#            ecoli_positions.tsv in $DB_DIR/16s, from build_16s_reference.sh
+#            ecoli_positions.tsv in db:16s/v1, from steps/build_16s_reference.sh
 # Writes:    ./detected_params.yaml, which the job layers over the pipeline's
 #            defaults: sequencing_type, the two primers, skip_cutadapt, the ASV
 #            length window the region implies, and for ONT the Savont settings
@@ -59,8 +60,9 @@
 #            working files it measured from, detect_sample.fasta,
 #            detect_reads.fasta, detect_lengths.txt and detect_hits.tsv, are
 #            left in place.
-# Env:       DB_DIR and the helpers, from lib/env.sh; PIPELINE_RERUN_UID, set by
-#            the job for a rerun
+# Env:       DB_DIR and the helpers, from lib/env.sh; GNOTO_JOB_PARAMS, the
+#            parameters the job file sets, as JSON, and PIPELINE_RERUN_UID, set
+#            by the job for a rerun
 
 set -euo pipefail
 
@@ -82,7 +84,8 @@ readonly REGIONS=(
 # can't merge them
 readonly UNMERGEABLE_REGIONS="16SFULL"
 
-readonly REFERENCE_DIR="$DB_DIR/16s"
+REFERENCE_DIR=$(db_path db:16s/v1)
+readonly REFERENCE_DIR
 readonly LANDMARKS="$REFERENCE_DIR/landmarks.fasta"
 readonly POSITIONS="$REFERENCE_DIR/ecoli_positions.tsv"
 
@@ -150,6 +153,11 @@ if [[ -n "${PIPELINE_RERUN_UID:-}" ]]; then
     exit 0
 fi
 
+if jq -e '(. // {}) | has("primer_fwd")' > /dev/null 2>&1 <<< "${GNOTO_JOB_PARAMS:-null}"; then
+    log "The job file sets primer_fwd, so the region isn't measured."
+    exit 0
+fi
+
 # A fraction as a percentage, so it reads as a share, not a count. One that
 # isn't whole keeps a decimal, so a run that just cleared a threshold isn't
 # reported as having met it exactly.
@@ -176,7 +184,7 @@ supported_regions() {
 if [[ ! -r "$LANDMARKS" || ! -r "$POSITIONS" ]]; then
     REASON="What this run sequenced could not be determined:"
     REASON+=" the reference the detector needs is missing from the server."
-    fail "$REASON ($REFERENCE_DIR; build it with build_16s_reference.sh)"
+    fail "$REASON ($REFERENCE_DIR. gnoto lint <job file> offers to fetch it.)"
 fi
 
 [[ -r "$SAMPLESHEET" ]] || fail "Samplesheet '$SAMPLESHEET' is not readable."

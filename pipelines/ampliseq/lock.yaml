@@ -6,3 +6,4 @@ upstream:
 step_images:
   vsearch: "quay.io/biocontainers/vsearch@sha256:582a54b880d848aefad7b5a2244ae051e41ddb6afcc07cc51f1a20fdc02e05d4"   # 2.32.0--hd2be7a0_0
   gotree: "quay.io/biocontainers/gotree@sha256:83dec412bb9e4428f8d76f6466f05443f72c2cd2d95c23c32909ecbd5fc75c40"   # 0.5.2--he881be0_0
+  rbiom: "gnoto-rbiom-5a6687ba951e.sif"   # images/gnoto-rbiom/, built into <data_dir>/images until it's published

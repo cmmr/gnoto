@@ -19,7 +19,7 @@ references:
     author:
       - Beghini, F
       - McIver, LJ
-      - Blanco-MÃ­guez, A
+      - Blanco-Míguez, A
       - Dubois, L
       - Asnicar, F
       - Maharjan, S
@@ -41,12 +41,12 @@ references:
     year: 1999
     volume: "27"
     number: "2"
-    pages: 573â€“580
+    pages: 573–580
     doi: 10.1093/nar/27.2.573
   blancomiguez2023:
     type: article
     author:
-      - Blanco-MÃ­guez, A
+      - Blanco-Míguez, A
       - Beghini, F
       - Cumbo, F
       - McIver, LJ
@@ -59,7 +59,7 @@ references:
     year: 2023
     volume: "41"
     number: "11"
-    pages: 1633â€“1644
+    pages: 1633–1644
     doi: 10.1038/s41587-023-01688-w
   bolger2014:
     type: article
@@ -73,7 +73,7 @@ references:
     year: 2014
     volume: "30"
     number: "15"
-    pages: 2114â€“2120
+    pages: 2114–2120
     doi: 10.1093/bioinformatics/btu170
   buchfink2021:
     type: article
@@ -87,7 +87,7 @@ references:
     year: 2021
     volume: "18"
     number: "4"
-    pages: 366â€“368
+    pages: 366–368
     doi: 10.1038/s41592-021-01101-x
   callahan2016:
     type: article
@@ -104,7 +104,7 @@ references:
     year: 2016
     volume: "13"
     number: "7"
-    pages: 581â€“583
+    pages: 581–583
     doi: 10.1038/nmeth.3869
   callahan2024:
     type: misc
@@ -130,15 +130,15 @@ references:
     year: 2020
     volume: "48"
     number: D1
-    pages: D445â€“D453
+    pages: D445–D453
     doi: 10.1093/nar/gkz862
   daveigaleprevost2017:
     type: article
     author:
       - da Veiga Leprevost, F
-      - GrÃ¼ning, BA
+      - Grüning, BA
       - Alves Aflitos, S
-      - RÃ¶st, HL
+      - Röst, HL
       - Uszkoreit, J
       - Barsnes, H
     et_al: true
@@ -148,7 +148,7 @@ references:
     year: 2017
     volume: "33"
     number: "16"
-    pages: 2580â€“2582
+    pages: 2580–2582
     doi: 10.1093/bioinformatics/btx192
   ditommaso2017:
     type: article
@@ -165,7 +165,7 @@ references:
     year: 2017
     volume: "35"
     number: "4"
-    pages: 316â€“319
+    pages: 316–319
     doi: 10.1038/nbt.3820
   ewels2016:
     type: article
@@ -173,14 +173,14 @@ references:
       - Ewels, P
       - Magnusson, M
       - Lundin, S
-      - KÃ¤ller, M
+      - Käller, M
     title: 'MultiQC: summarize analysis results for multiple tools and samples in a single report'
     journal: Bioinformatics
     journal_abbrev: Bioinformatics
     year: 2016
     volume: "32"
     number: "19"
-    pages: 3047â€“3048
+    pages: 3047–3048
     doi: 10.1093/bioinformatics/btw354
   kanehisa2000:
     type: article
@@ -193,7 +193,7 @@ references:
     year: 2000
     volume: "28"
     number: "1"
-    pages: 27â€“30
+    pages: 27–30
     doi: 10.1093/nar/28.1.27
   langmead2012:
     type: article
@@ -206,7 +206,7 @@ references:
     year: 2012
     volume: "9"
     number: "4"
-    pages: 357â€“359
+    pages: 357–359
     doi: 10.1038/nmeth.1923
   lu2017:
     type: article
@@ -232,7 +232,7 @@ references:
     year: 2018
     volume: "34"
     number: "18"
-    pages: 3094â€“3100
+    pages: 3094–3100
     doi: 10.1093/bioinformatics/bty191
   mcdonald2012:
     type: article
@@ -268,7 +268,7 @@ references:
     year: 2022
     volume: "376"
     number: "6588"
-    pages: 44â€“53
+    pages: 44–53
     doi: 10.1126/science.abj6987
   oleary2016:
     type: article
@@ -286,7 +286,7 @@ references:
     year: 2016
     volume: "44"
     number: D1
-    pages: D733â€“D745
+    pages: D733–D745
     doi: 10.1093/nar/gkv1189
   parks2022:
     type: article
@@ -303,7 +303,7 @@ references:
     year: 2022
     volume: "50"
     number: D1
-    pages: D785â€“D794
+    pages: D785–D794
     doi: 10.1093/nar/gkab776
   quast2013:
     type: article
@@ -321,7 +321,7 @@ references:
     year: 2013
     volume: "41"
     number: D1
-    pages: D590â€“D596
+    pages: D590–D596
     doi: 10.1093/nar/gks1219
   rodriguezr2018:
     type: article
@@ -388,7 +388,7 @@ references:
     year: 2015
     volume: "31"
     number: "6"
-    pages: 926â€“932
+    pages: 926–932
     doi: 10.1093/bioinformatics/btu739
   tisza2023:
     type: article
@@ -424,7 +424,7 @@ references:
     year: 2025
     volume: "10"
     number: "2"
-    pages: 420â€“430
+    pages: 420–430
     doi: 10.1038/s41564-024-01906-4
   wood2019:
     type: article

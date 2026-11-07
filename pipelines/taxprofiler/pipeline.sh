@@ -5,7 +5,8 @@
 #
 # Sourced by:  the job, from the run directory, with lib/env.sh loaded
 # Defines:     NEXTFLOW_ARGS, PARAMS_FILE, PARAMS_LOCKED, PRE_PROCESS_CMDS,
-#              POST_PROCESS_CMDS, and the parameter defaults
+#              POST_PROCESS_CMDS, PIPELINE_DATABASES, ONE_READ_LAYOUT,
+#              and the parameter defaults
 #
 # Which host is depleted is the hostremoval_reference answer, PhiX alone when
 # it's unanswered.
@@ -114,6 +115,9 @@ fi
 
 # The run writes these files, or reads them where it expects them
 PARAMS_LOCKED=(input databases outdir custom_config_base)
+
+# The databases taxprofiler reads through its database sheet
+mapfile -t PIPELINE_DATABASES < <(grep -o 'db:[^,]*' "$CODE_DIR/pipelines/taxprofiler/database.csv" | sort -u)
 
 PRE_PROCESS_CMDS=(
     "$CODE_DIR/steps/taxprofiler_samplesheet.sh"

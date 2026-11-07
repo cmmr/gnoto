@@ -1,10 +1,10 @@
 # gnoto design
 
-Status on 2026-11-06: the design is agreed. Phase 1, the image and the helper, is built and
-tested in a local Slurm test bed and on CMMR's cluster, and phase 2, the restructure, in the
-test bed. This file describes the target. [migration.md](migration.md) says how to get there
-from the old repo, and [decisions.md](decisions.md) records why things are the
-way they are.
+Status on 2026-11-07: the design is agreed. Phase 1, the image and the helper, is built and
+tested in a local Slurm test bed and on CMMR's cluster. Phase 2, the restructure, is tested
+there too, and phase 3, the job core, in the test bed. This file describes the target.
+[migration.md](migration.md) says how to get there from the old repo, and
+[decisions.md](decisions.md) records why things are the way they are.
 
 ## Summary
 
@@ -63,7 +63,7 @@ settings to watch, as covered under "What same output means" and "Configuration"
 **The job's three stages:**
 
 - **Compute:** composition tables and the feature table. These are results, so
-  they always run.
+  they always run, and a run whose feature table can't be built has failed.
 - **Present:** the dashboard pages, written into `results/`. These need no cloud
   account.
 - **Publish:** S3 and Globus. These are skipped when unset. The deliverables zip holds
@@ -173,7 +173,9 @@ host binaries expect.
   runs every `apptainer exec` with `--cleanenv --no-home`, sets `LC_ALL=C.UTF-8` and
   `TZ=UTC`, and binds only what the step needs. The helper submits `sbatch` with a fixed
   environment. Nextflow already starts task containers with an empty environment and no
-  home directory.
+  home directory. A Nix image has no locales, so `LC_ALL=C.UTF-8` falls back to plain
+  ASCII unless the image ships a C.UTF-8 locale archive and sets `LOCALE_ARCHIVE`.
+  `gnoto-rbiom`, built on Ubuntu, has C.UTF-8 already.
 - **Pinned tools.** Each commit's `IMAGE` file names its image, so a re-run gets
   the same awk, `jq` and Nextflow. `IMAGE` is a plain one-line file because the
   `sh` launcher has to read it before it can use `yq`.
@@ -216,6 +218,13 @@ rather than a rewrite:
   machine otherwise. `apptainer.enabled` picks the container engine. Two schedulers or two
   engines on at once is an error. `gnoto config <backend>` asks for a backend's settings,
   suggesting what the launcher finds on `PATH`.
+- **Jobs on this machine run detached on the host.** A process started inside the image
+  would lose the image, and the helper, when the command that started it ended. So `start`
+  queues the job in the launcher's private directory, and once the image has exited, the
+  launcher starts it with `setsid nohup` as another run of itself, which only ever runs a
+  gnoto job. The job and its followup run one after the other in that one process, and
+  `status` checks it by host and process ID. Its tasks run under Nextflow's local executor,
+  capped at the machine's CPUs and memory.
 
 Some parts already assume neither: images are OCI, `status` reads state files, and
 cancelling uses a cancel file.
@@ -391,7 +400,7 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto config [<section> [--on\|--off]] [--deploy] [--profile <name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them, adding the section if it's new, or with `--on` or `--off` turns it on or off, adding it with what's found if it's new. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
 | `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
 | `gnoto new ampliseq[@ref]` | Writes a job skeleton to `ampliseq.yaml` in the current directory, and refuses to overwrite one | Writes one file |
-| `gnoto start [--debug] [--dev] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree | Yes |
+| `gnoto start [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree. `--yes` accepts a database download, which the job then waits for | Yes |
 | `gnoto start record.yaml --inputs <dir>` | Re-runs a recorded job exactly | Yes |
 | `gnoto wrike [task_id]` | Starts that Wrike task if it's waiting. Without a task ID, runs the reconciliation scan: starts every waiting task in "gnoto Jobs", removes runs whose task is gone, copies Expiration dates and reactivates a suspended webhook | Yes |
 | `gnoto publish <uid>` | Runs Present and Publish again for a run whose Compute finished. Safe to repeat | Yes |
@@ -411,8 +420,21 @@ whose settings are only partly filled in is a FAIL that says what to add.
 - **Local:** Apptainer version, the image pull, file modes, and that
   `core.data_dir`, `core.db_dir` and `globus.dir` are writable and visible to
   compute nodes, and that `flock` works on `core.data_dir` from both a login node and a
-  compute node. Lustre, for one, needs its `flock` mount option.
-- **Scheduler:** `sinfo` responds.
+  compute node. Lustre, for one, needs its `flock` mount option. The compute node check
+  is a small Slurm job, and a busy queue that holds it for two minutes makes it a WARN.
+- **Settings:** an unknown key, as a likely typo; the launcher's reading of its
+  bootstrap settings, which it passes into the image, against `yq`'s; `$NXF_HOME/config`;
+  and `core.nextflow_config`'s risky settings. Inside the image, a group that Apptainer's
+  user namespace doesn't map shows as `nobody`, so group checks compare only mapped groups.
+- **Scheduler:** `sinfo` responds, and when it doesn't, the message says Slurm's module may
+  not be loaded, or that `slurm.bin_dir` and `slurm.conf` should be set. The partition
+  exists, `slurm.job_time` fits within its limit, and `slurm.max_cpus`, `max_memory` and
+  `max_time` are set, as Nextflow writes them. A `slurm.max_time` under a task's plain
+  time request, such as HUMANN_PROFILE's 48 hours, is a WARN, because the limit cuts that
+  task short. A request in `conf/<pipeline>/resources.config` or a workflow's own
+  `nextflow.config` marked `// fixed` is a CPU count the results depend on, and a
+  `slurm.max_cpus` below it is a FAIL. Without Slurm, a WARN says when it's on the machine
+  but off.
 - **Wrike:** the token works, the account's license can create tasks, which
   Collaborator, Contributor and Viewer licenses can't, the request form matches
   `options.yaml`, and the webhook's state.
@@ -465,8 +487,18 @@ link. Without either, the same dashboard pages and the deliverables zip stay in
 batch job from the top after a node failure, over a run directory that's already in use.
 Its time limit is `slurm.job_time`, which `lint` checks against the partition's MaxTime,
 and `--signal=B:TERM@300` gives Nextflow five minutes to cancel its tasks before that
-limit. The followup runs whatever happens, and cancels any task the trace still shows as
-running.
+limit. It holds 2 CPUs and 8 GB, for Nextflow and for the steps that run in it, the
+composition step's R included. The followup, with 1 CPU, 2 GB and two hours, runs whatever
+happens, with `--dependency=afterany`, and cancels any task of the run Slurm still has.
+
+Inside the head job, Nextflow and each step run in the background while the job waits,
+so a SIGTERM, from Slurm or from the progress watcher, reaches them at once rather than
+after they finish. Nextflow's own "Session aborted" cause goes into the run's message.
+Nextflow runs with `-ansi-log false`, and with a `site.config` the job writes from
+`config.yaml`: the executor, the partition and account, each task's limits from
+`slurm.max_*` (or the machine's CPUs and memory without Slurm), and Apptainer's image
+cache and binds. None of it changes what a task computes, and `core.nextflow_config`
+comes after it.
 
 **Cleanup on success.** The job copies its `job.yaml`, record and final state to
 `history/<uid>/`, then deletes the Nextflow work directory and staged inputs. When Globus
@@ -565,6 +597,12 @@ or running doesn't use up retention, and it's never earlier than completion plus
 its run directory, gets a file, failed runs included. With Wrike, the daily check
 comments on a task, mentioning its requester, once its removal time is
 `expiration_notice_days` away. Without Wrike, `status` lists upcoming expiries.
+
+The file is YAML, so later versions can add to it. `remove_utc` is when the run's results
+go, and a failed or cancelled run's is `core.keep_run_days` after it ended, since it keeps
+only what's needed to see what went wrong. `cleanup_utc`, when there is one, is when a
+`--debug` run's work directory and staged inputs go, also `keep_run_days` after it ended.
+An Unlimited run with `--debug` has a file holding only `cleanup_utc`.
 
 The daily check acts only on the `expiry/` folder, so its work grows with the runs still
 waiting to expire, not with every run ever made. When a removal time passes, it runs the
@@ -699,6 +737,18 @@ pipeline's schema. Pipeline definitions read answers through `form_answer`, a he
 returns an option's value whichever route set it, so they don't care where the answers
 came from.
 
+Each option has a `key`, `in` (`top` or `section`), `question`, `help`, `values`,
+`labels`, `default`, `required`, `multiple` for an answer that can name several, and
+`measured` for one the job measures when it's unanswered and records, such as
+taxprofiler's `instrument_platform`. `section_help` gives the comments above the
+pipeline's section. An option's answer goes to the run's state, where `pipeline.sh` reads
+it. Any other key in the section is a parameter, applied after `pipeline.sh`'s defaults,
+with one exception: a reference choice, such as `qiime_ref_taxonomy`, becomes the local
+files `conf/databases.yaml` maps it to, as an option's does. A reference choice is offered
+only once it has an entry there. A value naming one of gnoto's own files, such as
+ampliseq's report abstract, is written `code:<path under the code directory>` and resolved
+only in the params file Nextflow reads, so the record names no site path.
+
 **`record.yaml`** is what makes a job re-runnable. It's the job file resolved: the same
 keys, plus `schema`, the `repository` and `commit` the version resolved to, a pipeline
 section that holds every parameter passed, `outputs`, and `inputs` in place of the
@@ -740,9 +790,15 @@ inputs:
   definition, so the Nextflow command line rebuilds from them and isn't stored. The
   parameters are stored: an exact re-run passes the pipeline section as recorded, without
   evaluating `pipeline.sh` again.
-- **No site paths.** `db:` names resolve against `core.db_dir`. Hosts, the Wrike
-  task ID, timings, the host's Apptainer version and the CPU model stay in
-  `run_state.json`.
+- **No site paths.** `db:` names resolve against `core.db_dir`, and `code:` names against
+  the code directory. Hosts, the Wrike task ID, timings, the host's Apptainer version and
+  the CPU model stay in `run_state.json`.
+- **Written twice.** `start` writes a first record, from the parameters `pipeline.sh`
+  gives before anything is measured, so a run that fails early still has one. The job
+  rewrites it once the parameters are final, and again at the end of Compute, when it
+  also copies it, and `job.yaml` with its samplesheet reduced to the file's name, into
+  `results/`. A run from a working tree with changes, or one that's neither a git
+  checkout nor a release, has `dev: true` and an empty `commit`.
 - **Inputs are found by checksum.** `--inputs <dir>` names where a re-run looks for
   its FASTQs, subfolders included, and each file is matched to the record by its SHA-256,
   so names and paths can differ from the original run. To keep `start` fast on the login
@@ -813,7 +869,20 @@ the Wrike task ID. The progress page reads `progress.json`, which carries only w
 page shows. `record.yaml` is published, and so is a copy of `job.yaml` with the
 samplesheet reduced to its file name. The pages load no third-party scripts or fonts:
 `present/` ships a Tailwind CSS file built once and the fonts, so local results display
-offline too.
+offline too. The pipelines' own reports may still load a little from the network: fastp's
+loads Plotly from its CDN, and MultiQC's and Nextflow's reports a favicon and an image.
+
+Present takes this site's paths out of every text file in `results/`. The run directory
+becomes `./`, the database directory `db:`, the code `gnoto:`, the rest of the data
+directory `data:`, and `$HOME` `~`. It warns about any file that still names one, and a
+binary file that can't be rewritten should be pruned.
+
+**The progress page.** `present/progress.sh --watch <pid>` renders `results/index.html` and
+`progress.json` every 10 seconds, and checks for the cancel file every 2, sending the job
+SIGTERM once. `-ansi-log false` prints no task completions, so it reads each Nextflow run's
+processes from the `-log` file beside the step's console output. The page carries its own
+state, so it also reads from disk. Present replaces it with the dashboard, and the followup
+renders it once more for a run that didn't complete.
 
 ## Versions and the code cache
 
@@ -1023,10 +1092,15 @@ Registry (GHCR). Everything else is pinned by digest where it already lives.
 | Image | Comes from | Host on GHCR? | Why |
 | --- | --- | --- | --- |
 | `gnoto`: the tools listed under "Host and image" | Built with Nix | **Yes** | Every script and Nextflow run on it |
-| `gnoto-rbiom`: R, rbiom, h5lite, phyloseq | Built with Nix | **Yes** | Nobody else can provide it |
+| `gnoto-rbiom`: R, rbiom, h5lite | Built with Docker from rocker's R image, with pak installing a lockfile resolved against Posit's dated CRAN snapshot | **Yes** | Nobody else can provide it |
 | `bowtie2_htslib_samtools_pigz` | `community.wave.seqera.io` | **Yes, a mirror** | It's one vendor's registry, with no formal retention policy that we could find |
 | KneadData, MetaPhlAn, HUMAnN, mOTUs, Nonpareil, Marker-MAGu, EsViritu, MultiQC, biom-format, vsearch, gotree, minimap2, sra-tools | `quay.io/biocontainers` | No | Pinned by digest, and archived on Zenodo by any release that changes them |
 | The images ampliseq and taxprofiler use | Wherever upstream names them | No | Pinned through `containers.config`, and archived the same way |
+
+Until phase 5 publishes them, the images gnoto builds are `.sif` files built in the test
+bed (`test/testbed/testbed.sh image [gnoto|gnoto-rbiom]`) and copied to a site's
+`<data_dir>/images/`. `IMAGE` names the gnoto image's file, and `lock.yaml` names
+`gnoto-rbiom`'s as a bare `<name>.sif`, which `container_sif` never pulls.
 
 **How GHCR works:**
 
@@ -1046,6 +1120,16 @@ Registry (GHCR). Everything else is pinned by digest where it already lives.
 images. Apptainer converts on pull and
 [the local `.sif` differs each time](https://apptainer.org/docs/user/main/docker_and_oci.html),
 which doesn't matter because identity is the registry digest.
+
+**`gnoto-rbiom` is built with Docker rather than Nix.** Its recipe,
+`images/gnoto-rbiom/Dockerfile`, starts from rocker's build of the most recent R release, by
+digest, and installs `pkg.lock` with pak. `lock.sh` makes that lockfile in the same base
+image, against [Posit's CRAN snapshot](https://packagemanager.posit.co/) of one date, whose
+Linux binaries install without compiling, so the build takes a minute. rbiom comes from its
+GitHub commit until a release with the fixes gnoto needs is on CRAN or conda-forge. A rebuild
+isn't the same image byte for byte, unlike the Nix ones, so its digest once published is its
+identity. Nix's R packages trailed what rbiom needs: the pinned nixpkgs had ecodive 2.2.6,
+and rbiom 4.0.0 needs 2.3.1.
 
 **The `gnoto-rbiom` recipe stays in this repo,** so a recipe change lands in the same
 commit as the script that depends on it. A general image for rbiom's own users would be
@@ -1079,9 +1163,21 @@ Fetches and builds run through the scheduler rather than on the login node, and
 submits the job with an `afterok` dependency on the fetch jobs.
 
 **Fetching safely.** Each fetch writes into `<name>.tmp.<jobid>` under a lock for that
-database, and renames it into place only on success. A marker names the fetch job, so a
-second `lint` reports "being fetched by job N" rather than starting another fetch, and
-`start` submits with `--dependency=afterok:N`.
+database, and renames it into place only on success. A marker, `<name>.fetching`, names
+the fetch job, so a second `lint` reports "being fetched by job N" rather than starting
+another fetch, and `start` submits with `--dependency=afterok:N`. A marker whose job has
+gone is removed. Without Slurm, the fetch runs on this machine like a job, and the job
+waits for its marker to go before it starts work, then checks that the database arrived.
+
+**Fetch and build scripts.** An entry's `setup` is a command that fills an empty
+directory: the fetch job appends `<name>.tmp.<jobid>`, runs it in the image, moves the
+`manifest.yaml` it writes to `<name>.manifest.yaml`, and only then renames the directory,
+so the directory never appears without its manifest. On a failure it removes the
+directory. An entry used as downloaded lists `files`, each with `url`, `md5`, `bytes` and
+optionally `file`, the name to save it as, and its setup is `steps/fetch_files.sh <name>`.
+Fixtures use the same script, as `fixtures/<name>/v1`. A builder lists its downloads under
+`sources`, with the same fields. Every download lands as `<file>.part` and is renamed only
+once its size and md5 match.
 
 **Identifying a database.** Parameters use logical `db:` names that resolve against
 `core.db_dir`. Every name carries the database's version in its path, such as
@@ -1089,7 +1185,12 @@ second `lint` reports "being fetched by job N" rather than starting another fetc
 never changes content. A new build or upstream release gets a new path, so older versions
 can still re-run, and a rebuild can't overwrite files a running job reads. Each fetch or
 build script computes a SHA-256 over the sorted file tree once, and stores it in the
-database's manifest, `<path>.manifest.yaml`, and the lock file.
+database's manifest, `<path>.manifest.yaml`, and the lock file. The tree digest is the
+SHA-256 of `sha256sum`'s lines for every file, named relative to the directory and sorted
+bytewise: `cd <dir> && find . -type f -printf '%P\0' | LC_ALL=C sort -z | xargs -0r
+sha256sum -- | sha256sum`. A manifest holds `schema`, `path`, `files`, `bytes` and
+`tree_sha256`, then what went in (each source's url, md5 and size), how (`built_with`, and
+any tool's image, version and command), and `built_utc` and `built_by`.
 
 **Checking downloads.** `conf/databases.yaml` records the md5 of every file a fetch
 downloads, such as the human reference genome. The fetch checks each file against it before
@@ -1174,8 +1275,8 @@ retry as well, because nf-core's retries often raise `task.cpus` with `task.atte
 
 ## Not yet verified
 
-Only phase 1 of [migration.md](migration.md) has been built, the image and the helper. Its
-test results are in the phase 1 notes there.
+Phases 1 to 3 of [migration.md](migration.md) have been built: the image and the helper, the
+restructure, and the job core. Their test results are in each phase's notes there.
 
 - **The helper:** running Nextflow's driver in the image through stand-ins isn't the
   usual setup, and

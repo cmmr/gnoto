@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!--
+  progress.html - The page at a run's results address while the run goes.
+
+  Rendered by present/progress.sh into results/index.html, beside
+  results/progress.json, the state it reads. Present writes the dashboard over
+  it when the run finishes, and a final progress.json that sends a watching
+  browser to it.
+
+  The page is rendered with the state it was written from, so it shows the run
+  without scripting and off disk. Served over http, the script asks for
+  progress.json on a fixed beat and writes each field into the element of the
+  same name: live keeps it asking, final reloads the page, which is then the
+  dashboard, and anything else, a run that failed or was cancelled, stops it.
+  Read off disk, where it can't fetch, it reloads itself on the same beat while
+  the run is live.
+
+  The dial is every task of the run together, and the rows are the run's steps
+  in order, each Nextflow run's processes indented under the step that drives
+  it: navy once finished, green with stripes while in flight, red for a step
+  that failed. Under the dial are the run's jobs and its clocks, and under the
+  card, for a run that failed, what went wrong.
+
+  Placeholders are COMMON_HEAD, TASK_NAME, RUN_ID, STATE_FILE, INTERVAL, ARC,
+  STARTING and STATE, each wrapped in doubled underscores. They're not spelled
+  that way here, because the renderer would fill them in. The task name is
+  escaped on the way in, and STATE is progress.json, with every less-than sign
+  written as a \u escape.
+-->
+<html class="light h-full" lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>__TASK_NAME__</title>
+__COMMON_HEAD__
+<style>
+/* The dial is drawn from twelve o'clock, and the arc the renderer sizes is the
+   share it reports */
+.dial { transform: rotate(-90deg); }
+.dial circle { fill: none; stroke-linecap: round; }
+.dial.tasks circle { stroke-width: 10; }
+
+/* A process with tasks in flight, as a bar that's visibly working. The stripes
+   run at 45 degrees, so one period along the bar is 12px * sqrt 2, and the
+   gradient is cut to exactly that and tiled. Left at its default size, sliding
+   it exposes its own next copy mid-stripe, a seam that crawls up the bar. */
+.stripe {
+  background-image: repeating-linear-gradient(45deg,
+    rgba(255, 255, 255, 0.38) 0 6px, rgba(255, 255, 255, 0) 6px 12px);
+  background-size: 16.9706px 100%;
+  animation: barber 900ms linear infinite;
+}
+@keyframes barber {
+  from { background-position: 0 0; }
+  to   { background-position: 16.9706px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping, .stripe { animation: none; }
+}
+</style>
+</head>
+<body class="light h-full bg-surface-bg-light text-on-surface font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-primary text-on-primary shadow-md shrink-0">
+<div class="flex flex-wrap justify-between items-center gap-y-2 w-full px-margin-page py-3">
+<div class="text-[17px] leading-6 font-bold tracking-[0.14em] text-on-primary">gnoto</div>
+<div class="contents" id="status_pill"></div>
+</div>
+</header>
+
+<main class="flex-1 w-full max-w-5xl mx-auto p-margin-page flex flex-col gap-4">
+<div class="shrink-0 min-w-0">
+<h1 class="font-headline-lg text-headline-lg font-bold tracking-tight text-primary">__TASK_NAME__</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1"><span id="stage"></span> <span id="page_note"></span></p>
+</div>
+
+<noscript>
+<p class="font-body-sm text-body-sm text-on-surface-variant">This page follows the run as it goes, which needs JavaScript. Without it, reload the page to see where the run has got to.</p>
+</noscript>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-padding-card flex flex-col md:flex-row gap-6 items-center md:items-start">
+<!-- Every task of the run, in one dial -->
+<div class="shrink-0 flex flex-col items-center gap-5 md:w-[168px]">
+<div class="flex flex-col items-center gap-2">
+<div class="relative w-[136px] h-[136px]">
+<svg class="dial tasks w-full h-full" viewBox="0 0 120 120">
+<circle class="text-surface-variant" cx="60" cy="60" r="54" stroke="currentColor"></circle>
+<circle class="text-bio-growth" cx="60" cy="60" id="arc" r="54" stroke="currentColor" style="__ARC__"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-lg text-headline-lg font-bold text-primary leading-none" id="percent">0%</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-1">Complete</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center" id="tasks"></p>
+</div>
+<div class="contents" id="cluster"></div>
+<div class="contents" id="timers"></div>
+</div>
+
+<!-- One row per step, and per process Nextflow has started -->
+<div class="flex-1 min-w-0 w-full">
+<div class="flex items-center gap-3 pb-2 mb-1 border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant">
+<span class="basis-[42%] shrink-0">Process</span>
+<span class="flex-1">Progress</span>
+<span class="w-9 text-right shrink-0">%</span>
+<span class="w-24 text-right shrink-0 hidden sm:block">Tasks</span>
+</div>
+<div id="rows">
+<p class="font-body-sm text-body-sm text-on-surface-variant">__STARTING__</p>
+</div>
+</div>
+</div>
+
+<div class="contents" id="failure"></div>
+</main>
+
+<footer class="shrink-0 bg-surface-container border-t border-outline-variant w-full">
+<div class="flex flex-col md:flex-row justify-between items-center gap-1 px-margin-page py-3 w-full max-w-5xl mx-auto">
+<div class="text-on-surface-variant font-body-sm text-body-sm text-center md:text-left" id="footnote"></div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Updated <span id="updated"></span> &middot; __RUN_ID__</div>
+</div>
+</footer>
+
+<script>
+(function () {
+  var SOURCE = "__STATE_FILE__";
+  var INTERVAL = __INTERVAL__;
+  var INITIAL = __STATE__;
+
+  // Every field of the state is written into the element of the same name.
+  // These are fragments the renderer built, which go in as markup, having been
+  // escaped on their way in, and the rest go in as text.
+  var MARKUP = ["status_pill", "cluster", "timers", "rows", "failure"];
+  var TEXT = ["stage", "page_note", "tasks", "footnote", "updated"];
+
+  function write(state) {
+    var i, element;
+
+    for (i = 0; i < MARKUP.length; i++) {
+      element = document.getElementById(MARKUP[i]);
+      if (element) element.innerHTML = state[MARKUP[i]] || "";
+    }
+
+    for (i = 0; i < TEXT.length; i++) {
+      element = document.getElementById(TEXT[i]);
+      if (element) element.textContent = state[TEXT[i]] || "";
+    }
+
+    document.getElementById("percent").textContent = (state.percent || 0) + "%";
+    document.getElementById("arc").setAttribute("style", state.arc || "");
+  }
+
+  function ask() {
+    // Stamped and uncached, so nothing in between answers with a state the
+    // run has already left
+    fetch(SOURCE + "?t=" + Date.now(), { cache: "no-store" })
+      .then(function (response) {
+        if (!response.ok) throw new Error(response.status);
+        return response.json();
+      })
+      .then(function (state) {
+        // The dashboard has replaced this page
+        if (state.state === "final") {
+          location.reload();
+          return;
+        }
+
+        write(state);
+
+        if (state.state === "live") setTimeout(ask, INTERVAL);
+      })
+      .catch(function () {
+        // Mid-write, or the network blinked
+        setTimeout(ask, INTERVAL);
+      });
+  }
+
+  if (INITIAL) write(INITIAL);
+
+  if (!INITIAL || INITIAL.state === "live") {
+    if (location.protocol === "file:") {
+      setTimeout(function () { location.reload(); }, INTERVAL);
+    } else {
+      setTimeout(ask, INTERVAL);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>

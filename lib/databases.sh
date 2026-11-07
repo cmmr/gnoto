@@ -1,0 +1,225 @@
+#
+# databases.sh - The databases a job needs: which are missing, offering to fetch
+# them, and the fetch job itself.
+#
+# Sourced by:  lib/main.sh, for lint, start and the _fetch job
+# Defines:     databases_check, databases_offer, databases_wait, fetch_main
+# Requires:    yq, jq and flock; the settings and helpers from lib/env.sh, and
+#              lint_ok, lint_warn and lint_fail from lib/lint.sh
+#
+# Each database is an entry in conf/databases.yaml, by its path under
+# core.db_dir, and a fixture is fixtures/<name>/v1. An entry's setup is a
+# command that fills an empty directory: the fetch job runs it with
+# <path>.tmp.<job> appended, moves the manifest.yaml it writes to
+# <path>.manifest.yaml, and only then renames the directory into place, so a
+# database appears whole or not at all. A failed fetch leaves nothing.
+#
+# A fetch runs as a job, through the scheduler. While it runs, <path>.fetching
+# names it, so a second lint reports it rather than starting another, and start
+# makes the job wait for it: with Slurm through --dependency=afterok, and on
+# this machine by watching the marker.
+
+# The conf/databases.yaml entry a db: name falls under, as its path, or nothing
+db_entry_for() {
+    local name=${1#db:}
+    yq -o=json '[(.databases[].path), (.fixtures | keys | .[] | "fixtures/" + . + "/v1")]' \
+        "$CODE_DIR/conf/databases.yaml" | jq -r --arg name "$name" '
+        map(select(. as $path | $name == $path or ($name | startswith($path + "/"))
+            or ($name | startswith($path + "."))))
+        | .[0] // ""'
+}
+
+# The command that fetches or builds an entry, without the directory it fills
+db_setup_for() {
+    local path=$1
+    if [[ $path == fixtures/*/v1 ]]; then
+        # These are made from their downloads, which fetch_files.sh alone
+        # doesn't do until phase 6: the shotgun fixtures are cut to their first
+        # 100,000 reads, and 16s-v5v6 converted from NCBI's .sra file
+        case $path in
+            fixtures/wgs-*/v1 | fixtures/16s-v5v6/v1) return 0 ;;
+        esac
+        printf 'steps/fetch_files.sh %s' "$path"
+    else
+        P=$path yq -r '.databases[] | select(.path == strenv(P)) | .setup // ""' "$CODE_DIR/conf/databases.yaml"
+    fi
+}
+
+# What an entry downloads, in bytes, as the entry records it
+db_bytes_for() {
+    local path=$1 fixture=${1#fixtures/}
+    yq -o=json . "$CODE_DIR/conf/databases.yaml" | jq -r --arg path "$path" --arg fixture "${fixture%/v1}" '
+        if ($path | startswith("fixtures/")) then .fixtures[$fixture] // []
+        else .databases[] | select(.path == $path) | (.files // []) + (.sources // []) end
+        | map(.bytes // 0) | add // 0'
+}
+
+# The job named by an entry's fetch marker, when it's still queued or running:
+# a Slurm job ID, or "local". Removes a marker whose job has gone.
+db_fetching() {
+    local path=$1 marker kind id host pid state
+    marker=$DB_DIR/$path.fetching
+    [[ -r $marker ]] || return 0
+    read -r kind id host pid < "$marker" || :
+    case $kind in
+        slurm)
+            state=$(scheduler_job_state "$id")
+            case $state in
+                PENDING | RUNNING | CONFIGURING | COMPLETING | SUSPENDED) printf '%s' "$id"; return 0 ;;
+            esac
+            ;;
+        local)
+            if [[ -z ${pid:-} ]] || scheduler_local_alive "$host" "$pid"; then
+                printf 'local'
+                return 0
+            fi
+            ;;
+    esac
+    rm -f "$marker"
+}
+
+# Checks every database a job needs, from what pipeline_eval found. Missing
+# ones being fetched are WARNs; the rest FAIL. Sets JOB_MISSING_DATABASES, the
+# count of FAILs that a fetch could fix, JOB_FETCHABLE, their entries, and
+# JOB_FETCH_AFTER, the Slurm jobs a run must wait for.
+databases_check() {
+    local names=$1 name path entry setup job count=0 unfetchable=0
+    local -A entries=()
+
+    JOB_MISSING_DATABASES=0
+    JOB_FETCHABLE=()
+    JOB_FETCH_AFTER=""
+    while IFS= read -r name; do
+        [[ -n $name ]] || continue
+        count=$((count + 1))
+        path=$(db_path "$name" 2> /dev/null) || { lint_fail "$name isn't a usable database name"; continue; }
+        [[ ! -e $path ]] || continue
+        entry=$(db_entry_for "$name")
+        if [[ -z $entry ]]; then
+            lint_fail "$name is missing, at $path, and conf/databases.yaml has no entry to fetch it from"
+            unfetchable=$((unfetchable + 1))
+            continue
+        fi
+        [[ -z ${entries[$entry]:-} ]] || continue
+        entries[$entry]=1
+        job=$(db_fetching "$entry")
+        if [[ -n $job ]]; then
+            lint_warn "db:$entry is being fetched$([[ $job == local ]] && echo " on this machine" || echo " by job $job")"
+            [[ $job == local ]] || JOB_FETCH_AFTER+="${JOB_FETCH_AFTER:+:}$job"
+            continue
+        fi
+        setup=$(db_setup_for "$entry")
+        if [[ -z $setup ]]; then
+            lint_fail "db:$entry is missing, and conf/databases.yaml says nothing that fetches it"
+            unfetchable=$((unfetchable + 1))
+            continue
+        fi
+        if [[ ! -f $CODE_DIR/${setup%% *} ]]; then
+            lint_fail "db:$entry is missing, and gnoto can't fetch it yet: its setup, ${setup%% *}, isn't built"
+            unfetchable=$((unfetchable + 1))
+            continue
+        fi
+        lint_fail "db:$entry is missing, at $DB_DIR/$entry. gnoto can fetch it"
+        JOB_FETCHABLE+=("$entry")
+        JOB_MISSING_DATABASES=$((JOB_MISSING_DATABASES + 1))
+    done <<< "$names"
+    [[ -z $JOB_FETCH_AFTER ]] || JOB_FETCH_AFTER=afterok:$JOB_FETCH_AFTER
+    if (( ${#entries[@]} == 0 && unfetchable == 0 )); then
+        lint_ok "databases: all $count present"
+    fi
+}
+
+# Offers to fetch JOB_FETCHABLE, asking on the terminal unless yes is given,
+# and submits a job for each. Prints the Slurm dependency a run should wait on.
+# Fails when the offer is declined or can't be asked.
+databases_offer() {
+    local yes=${1:-false} entry bytes=0 free answer id after=$JOB_FETCH_AFTER marker
+
+    (( ${#JOB_FETCHABLE[@]} > 0 )) || { printf '%s' "$after"; return 0; }
+    for entry in "${JOB_FETCHABLE[@]}"; do
+        bytes=$((bytes + $(db_bytes_for "$entry")))
+    done
+    free=$(df -P -B1 "$DB_DIR" 2> /dev/null | awk 'NR == 2 { print $4 }') || free=0
+    if [[ $yes != true ]]; then
+        if [[ ! -t 0 ]]; then
+            fail "Not started: ${#JOB_FETCHABLE[@]} database$( (( ${#JOB_FETCHABLE[@]} == 1 )) || echo s) to fetch, and no terminal to ask on. Add --yes to fetch them."
+        fi
+        printf 'Fetch %d database%s as %s? They download %s, and %s is free in %s. [y/N] ' \
+            "${#JOB_FETCHABLE[@]}" "$( (( ${#JOB_FETCHABLE[@]} == 1 )) || echo s)" \
+            "$([[ $(scheduler_kind) == slurm ]] && echo "Slurm jobs" || echo "jobs on this machine")" \
+            "$(human_size "$bytes")" "$(human_size "${free:-0}")" "$DB_DIR" >&2
+        read -r answer || answer=""
+        [[ $answer == [yY]* ]] || fail "Not fetched, so not started."
+    fi
+    for entry in "${JOB_FETCHABLE[@]}"; do
+        mkdir -p "$(dirname "$DB_DIR/$entry")" || fail "Can't create $(dirname "$DB_DIR/$entry")."
+        marker=$DB_DIR/$entry.fetching
+        id=$(scheduler_submit --name "gnoto-fetch-${entry//\//-}" --dir "$DB_DIR" \
+            --log "$DB_DIR/$entry.fetch.log" --cpus 2 --mem 8G --time 24:00:00 -- _fetch "$entry") ||
+            fail "Couldn't submit the fetch of db:$entry."
+        if [[ $id == local ]]; then
+            printf 'local\n' > "$marker"
+            echo "Fetching db:$entry on this machine. Its log is $DB_DIR/$entry.fetch.log." >&2
+        else
+            printf 'slurm %s\n' "$id" > "$marker"
+            after+="${after:+:}$id"
+            echo "Fetching db:$entry as job $id. Its log is $DB_DIR/$entry.fetch.log." >&2
+        fi
+    done
+    after=${after#afterok:}
+    printf '%s' "${after:+afterok:$after}"
+}
+
+# Run by the job before its work: waits while a database it needs is being
+# fetched on this machine, then checks that it arrived
+databases_wait() {
+    local names=$1 name entry waited=0
+    while IFS= read -r name; do
+        [[ -n $name ]] || continue
+        entry=$(db_entry_for "$name")
+        [[ -n $entry ]] || continue
+        while [[ -n $(db_fetching "$entry") ]]; do
+            (( waited > 0 )) || set_run_stage "Waiting for db:$entry to be fetched."
+            waited=1
+            sleep 30
+        done
+        [[ -e $(db_path "$name") ]] ||
+            fail "$name isn't there. Its fetch failed: see $DB_DIR/$entry.fetch.log."
+    done <<< "$names"
+}
+
+# The _fetch job: fetches or builds one entry into place, under its lock
+fetch_main() {
+    local entry=${1:-} setup dir tmp status=0 job
+    [[ -n $entry && $entry != /* && "/$entry/" != */../* ]] || fail "Usage: _fetch <database path>"
+    setup=$(db_setup_for "$entry")
+    [[ -n $setup ]] || fail "conf/databases.yaml has no way to fetch $entry."
+    dir=$DB_DIR/$entry
+    job=${SLURM_JOB_ID:-$$}
+    [[ -n ${SLURM_JOB_ID:-} ]] || printf 'local - %s %s\n' "$(uname -n)" "$$" > "$dir.fetching"
+    (
+        flock -w 60 9 || fail "Another fetch of $entry holds its lock."
+        if [[ -e $dir ]]; then
+            log "$dir is already there."
+            exit 0
+        fi
+        tmp=$dir.tmp.$job
+        rm -rf "$tmp"
+        mkdir "$tmp" || fail "Can't create $tmp."
+        log "Fetching $entry with: $setup"
+        # Unquoted: the setup line is a command and its arguments
+        # shellcheck disable=SC2086
+        if ! bash "$CODE_DIR/"$setup "$tmp"; then
+            rm -rf "$tmp"
+            fail "The fetch of $entry failed. Nothing was put in place."
+        fi
+        if [[ -f $tmp/manifest.yaml ]]; then
+            mv -f "$tmp/manifest.yaml" "$dir.manifest.yaml" || fail "Can't move $entry's manifest into place."
+        fi
+        mv "$tmp" "$dir" || fail "Can't move $entry into place."
+        chmod -R g+rwX "$dir" "$dir.manifest.yaml" 2> /dev/null || :
+        log "Fetched $entry into $dir."
+    ) 9>> "$dir.lock" || status=$?
+    rm -f "$dir.fetching"
+    return $status
+}

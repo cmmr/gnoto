@@ -1,0 +1,57 @@
+# options.yaml - The options gnoto offers for biobakery. gnoto new writes a job
+# skeleton from it, lint checks a job's answers against it, and pipeline.sh reads
+# the answers through form_answer. Phase 7's config wrike makes the request
+# form's fields from it.
+#
+# Each option has a key, and:
+#   in        top, for gnoto's own options, or section, for those under the
+#             pipeline's own section of the job file
+#   question  its title on the Wrike request form
+#   help      the comment gnoto new writes above it
+#   values    the allowed answers, when they're limited. With multiple: true,
+#             an answer can name several, comma-separated
+#   labels    what the form shows for a value, where that differs
+#   default   what gnoto new writes. Empty means gnoto's default, which help
+#             names
+#   required  true when every job must answer it
+#   measured  true when the job measures it if it's unanswered, and records
+#             what it measured
+
+schema: 1
+
+section_help:
+  - "Passed to gnoto's biobakery workflow. Leave a value empty for gnoto's default."
+  - "Any other parameter of that workflow can be added here as well."
+
+options:
+  - key: title
+    in: top
+    question: "Title"
+    help: "Names the results"
+    required: true
+
+  - key: samplesheet
+    in: top
+    question: "Samplesheet"
+    help: "Tab-separated, no header: sample, fastq1, fastq2. Omit fastq2 for single-end."
+    required: true
+
+  - key: retention
+    in: top
+    question: "Dashboard Retention"
+    values: ["1 Month", "3 Months", "6 Months", "12 Months", "24 Months", "Unlimited"]
+    default: "3 Months"
+
+  - key: hostremoval_reference
+    in: top
+    question: "Host Removal"
+    help: "Host reads removed before profiling. Each choice but None also removes PhiX"
+    values: ["None", "PhiX", "Human + PhiX", "Mouse + PhiX"]
+    default: "PhiX"
+
+  - key: delivered_reads
+    in: top
+    question: "Delivered Reads"
+    help: "The read sets the download holds beside the results, comma-separated, or none"
+    values: ["Raw", "Host Depleted", "Cleaned"]
+    multiple: true

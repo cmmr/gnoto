@@ -24,6 +24,8 @@ databases:
         dada_ref_tax_custom: db:dada2/silva-138.2/silva_nr99_v138.2_toSpecies_trainset.fa.gz
         dada_ref_tax_custom_sp: db:dada2/silva-138.2/silva_v138.2_assignSpecies.fa.gz
         dada_assign_taxlevels: Domain,Phylum,Class,Order,Family,Genus,Species
+    setup: steps/fetch_files.sh dada2/silva-138.2
+    manifest: dada2/silva-138.2.manifest.yaml
     files:
       - url: https://zenodo.org/records/14169026/files/silva_nr99_v138.2_toSpecies_trainset.fa.gz
         md5: e0455a1a7de820039d684aad2053e937
@@ -195,47 +197,80 @@ databases:
     doi: null
     cite:
       - oleary2016
-  - path: pplace
+  - path: pplace/v1
     name: SBDI GTDB bacterial 16S placement reference
     release: sbdi-gtdb-sativa R11-RS232-1 bac120
     description: bac16s.alnfna, the aligned 16S of each GTDB species representative, and bac16s.newick, the tree built from it (GTR+F+I+G4).
     used_by:
       - 'ampliseq: pplace_aln, pplace_tree'
     setup: steps/build_pplace_reference.sh
-    manifest: pplace/manifest.json
+    manifest: pplace/v1.manifest.yaml
+    # The bac16s files ampliseq 3.1.0 names. figshare calls them
+    # sbdi-gtdb-sativa.r11rs232-1.bac120.sprepr.alnfna and .sprepr.brlenopt.newick,
+    # and its API lists the same md5s.
     sources:
       - file: bac16s.alnfna
         url: https://ndownloader.figshare.com/files/64711224
+        md5: 877100c01e2db974ba95f8b24642a367
+        bytes: 84416388
       - file: bac16s.newick
         url: https://ndownloader.figshare.com/files/64711197
+        md5: 7fe5b77f776f8dd673c6dbb440c2402f
+        bytes: 2856471
     doi: 10.17044/scilifelab.14869077
     cite:
       - sbdi2021
       - parks2022
-  - path: 16s
+  - path: 16s/v1
     name: 16S landmark reference
     description: The 16S rRNA gene of eight RefSeq genomes (landmarks.fasta), each aligned to E. coli K-12 MG1655 (landmarks.sam), and every landmark base in E. coli numbering (ecoli_positions.tsv). Built here rather than downloaded.
     used_by:
       - 'ampliseq: steps/ampliseq_detect_region.sh'
     setup: steps/build_16s_reference.sh
-    manifest: 16s/manifest.json
+    manifest: 16s/v1.manifest.yaml
+    # Each genome's _rna_from_genomic.fna.gz. The md5s match NCBI's
+    # md5checksums.txt for each assembly on 2026-11-06.
     sources:
       - label: Escherichia coli K-12 MG1655
         accession: GCF_000005845.2
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_rna_from_genomic.fna.gz
+        md5: 8491bbe37824bc70214ca5a5bc147f70
+        bytes: 18049
       - label: Pseudomonas aeruginosa PAO1
         accession: GCF_000006765.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/765/GCF_000006765.1_ASM676v1/GCF_000006765.1_ASM676v1_rna_from_genomic.fna.gz
+        md5: 5bf0b5bba74353db6bf4dcb20abdee98
+        bytes: 8770
       - label: Bacillus subtilis 168
         accession: GCF_000009045.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/045/GCF_000009045.1_ASM904v1/GCF_000009045.1_ASM904v1_rna_from_genomic.fna.gz
+        md5: 06a532f85e8ce641e920d8cb418e46a9
+        bytes: 19391
       - label: Staphylococcus aureus NCTC 8325
         accession: GCF_000013425.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/013/425/GCF_000013425.1_ASM1342v1/GCF_000013425.1_ASM1342v1_rna_from_genomic.fna.gz
+        md5: 1057ba088cc029dde8bf0d7f212a3349
+        bytes: 5143
       - label: Bacteroides fragilis NCTC 9343
         accession: GCF_000025985.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/025/985/GCF_000025985.1_ASM2598v1/GCF_000025985.1_ASM2598v1_rna_from_genomic.fna.gz
+        md5: 97bd2646f7c5af068310a0b3bea1eedb
+        bytes: 6392
       - label: Bifidobacterium longum NCC2705
         accession: GCF_000007525.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/007/525/GCF_000007525.1_ASM752v1/GCF_000007525.1_ASM752v1_rna_from_genomic.fna.gz
+        md5: 27142aead7e11eea1c5c10499d3e7820
+        bytes: 5436
       - label: Akkermansia muciniphila BAA-835
         accession: GCF_000020225.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/020/225/GCF_000020225.1_ASM2022v1/GCF_000020225.1_ASM2022v1_rna_from_genomic.fna.gz
+        md5: 7271ec3ee9d9a570777b2a3d6a43eeeb
+        bytes: 5099
       - label: Methanobrevibacter smithii ATCC 35061
         accession: GCF_000016525.1
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1/GCF_000016525.1_ASM1652v1_rna_from_genomic.fna.gz
+        md5: 48cd01e41ab75e439252df310fc76a1b
+        bytes: 4458
     doi: null
     cite:
       - oleary2016
