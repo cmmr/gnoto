@@ -47,6 +47,10 @@ check "user name inside the image" "$USER $USER" \
 check "tools come from the image" "/bin/awk /bin/jq /bin/java /bin/nextflow" \
     "$($GNOTO exec bash -c 'command -v awk jq java nextflow' | tr '\n' ' ' | sed 's/ $//')"
 
+check "C.UTF-8 takes effect, so awk counts a two-byte character as one" "1" \
+    "$($GNOTO exec awk -v e=$'\303\251' 'BEGIN { print length(e) }')"
+check "the clock is UTC, whatever the host's time zone" "UTC" "$($GNOTO exec date +%Z)"
+
 check "stand-ins come first" "sbatch squeue scancel sinfo sacct apptainer systemctl loginctl" \
     "$($GNOTO exec bash -c 'for c in sbatch squeue scancel sinfo sacct apptainer systemctl loginctl; do [[ $(command -v $c) == $GNOTO_HELPER_DIR/bin/$c ]] && printf "%s " $c; done' | sed 's/ $//')"
 
@@ -73,8 +77,11 @@ check "nested job doesn't inherit the outer job's SLURM_MEM_PER_CPU" "" \
     "$(grep '^SLURM_MEM_PER_CPU=100$' nested_env.txt 2> /dev/null)"
 check "nested job isn't the outer job" "no" "$(grep -q "^SLURM_JOB_ID=$NESTED\$" nested_env.txt 2> /dev/null && echo yes || echo no)"
 
-# SIGTERM to the launcher reaches the image, then the helper and directory go
-$GNOTO exec bash -c 'trap "echo got TERM > term.txt; kill \$!; exit 0" TERM; echo $$ > inner.pid; sleep 300 & wait' &
+# SIGTERM to the launcher reaches the image, then the helper and directory go.
+# The command's output goes to a file, as a job's does, because Apptainer
+# passes no signal on to a command whose output is a terminal.
+$GNOTO exec bash -c 'trap "echo got TERM > term.txt; kill \$!; exit 0" TERM; echo $$ > inner.pid; sleep 300 & wait' \
+    > term-run.log 2>&1 &
 LAUNCHER=$!
 for (( i = 0; i < 100; i++ )); do [[ -s inner.pid ]] && break; sleep 0.1; done
 PRIVATE=$(tr '\0' '\n' < /proc/"$(cat inner.pid)"/environ | sed -n 's/^GNOTO_HELPER_DIR=//p')

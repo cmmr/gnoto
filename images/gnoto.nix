@@ -110,6 +110,8 @@ pkgs.dockerTools.buildLayeredImage {
     Env = [
       "PATH=/bin"
       "LC_ALL=C.UTF-8"
+      # Apptainer binds the host's /etc/localtime, which would set the clock
+      "TZ=UTC"
       "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
       "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
       "JAVA_HOME=${jdk.home}"

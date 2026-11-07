@@ -102,6 +102,15 @@ What building it taught, all now in `images/gnoto.nix`:
   of its own.
 - `globus-cli` 3.41.0 doesn't build in `nixos-26.05`, because it pins `jmespath` 1.0.1 and the
   branch has 1.1.0. The recipe relaxes that one pin.
+- `LC_ALL=C.UTF-8` works without a locale archive. nixpkgs' glibc installs C.UTF-8 compiled
+  into its own `lib/locale`, which glibc reads when no archive holds the locale. Checked on
+  2026-11-07: in the image, gawk and bash count `é` as one character, `locale charmap` from the
+  same glibc gives `UTF-8`, and Java's `sun.jnu.encoding` is `UTF-8`. An archive holding only C.UTF-8 changed
+  none of that, so the image has none. `launcher.sh` checks this still holds after the nixpkgs
+  pin moves.
+- Apptainer binds the host's `/etc/localtime` by default, so the image sets `TZ=UTC`. Without
+  it, `date` in the image printed CST under a host clock set to America/Chicago. `launcher.sh`
+  checks this too, though only a host outside UTC, such as the cluster, can fail it.
 - The image is 1.47 GB as a tarball and 760 MB as a `.sif`. `nix-build --check` rebuilds it, and
   the locally built `globus-cli`, byte for byte.
 

@@ -173,9 +173,10 @@ host binaries expect.
   runs every `apptainer exec` with `--cleanenv --no-home`, sets `LC_ALL=C.UTF-8` and
   `TZ=UTC`, and binds only what the step needs. The helper submits `sbatch` with a fixed
   environment. Nextflow already starts task containers with an empty environment and no
-  home directory. A Nix image has no locales, so `LC_ALL=C.UTF-8` falls back to plain
-  ASCII unless the image ships a C.UTF-8 locale archive and sets `LOCALE_ARCHIVE`.
-  `gnoto-rbiom`, built on Ubuntu, has C.UTF-8 already.
+  home directory. The `gnoto` image sets `LC_ALL=C.UTF-8` and `TZ=UTC` itself. Without
+  `TZ`, a job's clock would follow the host's `/etc/localtime`, which Apptainer binds by
+  default. The image needs no locale archive, because nixpkgs' glibc installs C.UTF-8
+  compiled into its own `lib/locale`. `gnoto-rbiom`, built on Ubuntu, has C.UTF-8 already.
 - **Pinned tools.** Each commit's `IMAGE` file names its image, so a re-run gets
   the same awk, `jq` and Nextflow. `IMAGE` is a plain one-line file because the
   `sh` launcher has to read it before it can use `yq`.
