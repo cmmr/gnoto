@@ -1,0 +1,8 @@
+# mirrors.txt - Images gnoto keeps a copy of, as ghcr.io/cmmr/<name>, with the
+# source's tag and digest. images/publish.sh copies each, and gnoto then names
+# the copy, which has the same digest. One source address per line, by tag and
+# digest.
+#
+# Seqera's Wave registry has no retention policy we could find.
+
+community.wave.seqera.io/library/bowtie2_htslib_samtools_pigz:edeb13799090a2a6@sha256:26758d72855cd44c475c24360f2cdcc2120955e182c680427c5d099a06b1423e

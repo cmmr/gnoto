@@ -2,7 +2,8 @@
 #
 # Builds with nix-build anywhere Nix runs, such as the nixos/nix image in Docker,
 # which "test/testbed/testbed.sh image" uses. The result is an uncompressed
-# docker-archive tarball, which apptainer build turns into a .sif:
+# docker-archive tarball, which images/publish.sh pushes to GHCR from CI, and
+# apptainer build turns into a .sif for a test of an unpublished change:
 #
 #     nix-build --no-out-link images/gnoto.nix
 #
@@ -107,6 +108,8 @@ pkgs.dockerTools.buildLayeredImage {
   '';
 
   config = {
+    # Links the package on GHCR to the repository
+    Labels = { "org.opencontainers.image.source" = "https://github.com/cmmr/gnoto"; };
     Env = [
       "PATH=/bin"
       "LC_ALL=C.UTF-8"

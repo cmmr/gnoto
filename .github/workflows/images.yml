@@ -1,0 +1,59 @@
+# images.yml - Publishes the images gnoto builds, and the ones it keeps a copy
+# of, to ghcr.io/cmmr, whenever a push to main changes a recipe.
+# images/publish.sh does the work, and lists each image's digest in the run's
+# summary, for IMAGE and lock.yaml to name in a later commit.
+
+name: images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "images/**"
+      - "IMAGE"
+      - ".github/workflows/images.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  gnoto:
+    runs-on: ubuntu-24.04
+    # Where publish.sh learns the image's digest before pushing it
+    services:
+      registry:
+        image: registry:3.1.2@sha256:38907510915c3f1604c7e83d6ab602ab3020d092f73bdaed8696773693ff768c
+        ports:
+          - 5000:5000
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+      - name: Build
+        run: nix-build images/gnoto.nix -o gnoto.tar
+      - name: Publish
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: images/publish.sh gnoto gnoto.tar
+
+  gnoto-rbiom:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build and publish
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: images/publish.sh gnoto-rbiom
+
+  mirrors:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Copy
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: images/publish.sh mirrors

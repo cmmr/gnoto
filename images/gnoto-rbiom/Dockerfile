@@ -1,8 +1,9 @@
 # Dockerfile - The gnoto-rbiom image: R with rbiom and h5lite, which the
 # composition steps run steps/R/ in.
 #
-# Built by:  test/testbed/testbed.sh image gnoto-rbiom, until phase 5 builds it
-#            in CI and publishes it
+# Built by:  images/publish.sh, from CI, which publishes it to GHCR; and
+#            test/testbed/testbed.sh image gnoto-rbiom, for a test of an
+#            unpublished change
 #
 # Every version is pinned:
 #
@@ -15,7 +16,7 @@
 #     later snapshot, once a release there has the fix.
 #
 # lock.sh remakes pkg.lock from these three. A rebuild isn't the same image byte
-# for byte, so once phase 5 publishes it, its digest is its identity.
+# for byte, so the digest it's published with is its identity.
 
 FROM rocker/r-ver:4.6.2@sha256:7b0bfa4b4af875756b3e28801ad81cfcddeef713598834549bfdf12d20a80db4
 
@@ -34,3 +35,6 @@ RUN . /etc/os-release && \
     Rscript -e "stopifnot(packageVersion('rbiom') >= '4.0.0', requireNamespace('h5lite'))"
 
 ENV LC_ALL=C.UTF-8 TZ=UTC
+
+# Links the package on GHCR to the repository
+LABEL org.opencontainers.image.source="https://github.com/cmmr/gnoto"
