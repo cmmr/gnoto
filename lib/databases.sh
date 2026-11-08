@@ -176,6 +176,12 @@ databases_wait() {
     local names=$1 name entry waited=0
     while IFS= read -r name; do
         [[ -n $name ]] || continue
+        if [[ ! -d $DB_DIR ]]; then
+            [[ -z ${SLURMD_NODENAME:-} ]] ||
+                ! printf '+%s\t%s\n' "$SLURMD_NODENAME" "a job there couldn't see $DB_DIR" | excluded_nodes_update 2> /dev/null ||
+                fail "The job ran on $SLURMD_NODENAME, which can't see $DB_DIR, where the run's databases are, so gnoto's jobs avoid it from now on, until gnoto lint finds it working."
+            fail "The job ran on $(uname -n), which can't see $DB_DIR, where the run's databases are. Until its mounts are fixed, jobs that run there will fail the same way."
+        fi
         entry=$(db_entry_for "$name")
         [[ -n $entry ]] || continue
         while [[ -n $(db_fetching "$entry") ]]; do
@@ -183,8 +189,10 @@ databases_wait() {
             waited=1
             sleep 30
         done
-        [[ -e $(db_path "$name") ]] ||
-            fail "$name isn't there. Its fetch failed: see $DB_DIR/$entry.fetch.log."
+        [[ -e $(db_path "$name") ]] && continue
+        [[ ! -e $DB_DIR/$entry.fetch.log ]] ||
+            fail "$name isn't in $DB_DIR, as $(uname -n) sees it. If a fetch was making it, its log is $DB_DIR/$entry.fetch.log."
+        fail "$name isn't in $DB_DIR, as $(uname -n) sees it, though it was there when the run was started."
     done <<< "$names"
 }
 

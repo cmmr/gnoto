@@ -4,8 +4,8 @@
 #
 # Sourced by:  lib/env.sh
 # Defines:     log, warn, fail, escape_html, escape_url, human_size, human_count,
-#              group_count, nextflow_cause, nextflow_error_block, is_valid_uid,
-#              derive_uid
+#              group_count, nextflow_cause, nextflow_error_block,
+#              nextflow_task_job, nextflow_failed_task, is_valid_uid, derive_uid
 # Requires:    state_present and state_set from lib/run_state.sh, for fail; openssl,
 #              for derive_uid
 # Env:         RUN_ID_SALT, from generated.yaml, for derive_uid
@@ -131,6 +131,30 @@ nextflow_error_block() {
         on && /^Work dir:/ { if ((getline line) > 0) print line; exit }
         n >= 60 { exit }
     ' "$1" 2> /dev/null
+}
+
+# The scheduler's job ID for the task in a work directory, from Nextflow's
+# log: nextflow_task_job <work dir> <log>
+nextflow_task_job() {
+    awk -v want="workDir: $1" '
+        {
+            i = index($0, want)
+            if (i == 0) next
+            after = substr($0, i + length(want), 1)
+            if (after != "" && after != ";" && after != " " && after != "]") next
+            if (match($0, /jobId: [0-9]+/)) { print substr($0, RSTART + 7, RLENGTH - 7); exit }
+        }
+    ' "$2" 2> /dev/null
+}
+
+# The failing task's work directory, then its short name, such as
+# MOTUS_PROFILE (db|mock), on two lines, from Nextflow's console output
+nextflow_failed_task() {
+    local dir name proc
+    dir=$(awk '/^Work dir:/ { getline; sub(/^ +/, ""); print; exit }' "$1" 2> /dev/null) || dir=""
+    name=$(sed -n "s/^ERROR ~ Error executing process > '\(.*\)'\$/\1/p" "$1" 2> /dev/null | head -1) || name=""
+    proc=${name%% (*}
+    printf '%s\n%s\n' "$dir" "${proc##*:}${name#"$proc"}"
 }
 
 # A uid names a run everywhere but Wrike: eight lowercase base32 characters.

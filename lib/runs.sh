@@ -167,7 +167,7 @@ status_all() {
 }
 
 status_one() {
-    local uid=$1 dir state_dir status kind task_dir file stage logs block
+    local uid=$1 dir state_dir status kind task_dir file stage logs block job what id log node
     is_valid_uid "$uid" || fail "\"$uid\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
     dir=$DATA_DIR/runs/$uid
     if [[ -r $dir/$RUN_STATE_FILE ]]; then
@@ -217,6 +217,15 @@ status_one() {
     fi
     [[ -z $(state_get message) ]] || printf '  %-10s %s\n' Message "$(state_get message)"
     state_get_json notes | jq -r '.[]? | "  Note       \(.)"'
+
+    # A run is lost when its followup never ran, so nothing recorded why
+    if [[ $status == Lost && $kind == slurm ]]; then
+        for job in "job $(state_get scheduler.job_id) job.out" "followup $(state_get scheduler.followup_id) followup.out"; do
+            read -r what id log <<< "$job"
+            node=$(slurm_launch_node "$id" "$log")
+            [[ -z $node ]] || printf '  %-10s %s\n' Why "The $what never ran. Slurm put it on $node as job $id, and $node couldn't write its log, $log. $(launch_failure_advice "$node" "$dir")"
+        done
+    fi
 
     # Nextflow's own report on the failing task holds its command's output and
     # error, where a tool's message is, while the end of .command.err can be

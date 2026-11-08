@@ -14,6 +14,7 @@ config_setting slurm max_cpus int "" "Most CPUs for one task, which caps every r
 config_setting slurm max_memory text "" "Most memory for one task, such as 900.GB"
 config_setting slurm max_time text "" "Longest time for one task, such as 24.h"
 config_setting slurm job_time text "" "Longest time for a whole run, such as 2-00:00:00 or 48.h, or none for the partition's limit"
+config_setting slurm min_tmp text "50.GB" "Least free space in a node's /tmp for gnoto's jobs to go there, such as 50.GB, or none to skip the check"
 
 # Slurm time, such as 7-00:00:00, 2:00:00 or UNLIMITED, as whole hours, or nothing
 slurm_hours() {

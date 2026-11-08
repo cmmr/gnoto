@@ -2,7 +2,8 @@
 # config.sh - gnoto config: lists the sections of config.yaml, asks for one
 # section's settings, or turns a section on or off.
 #
-# Sourced by:  lib/main.sh, for gnoto config [<section> [--on|--off]]
+# Sourced by:  lib/main.sh, for gnoto config [<section> [--on|--off]] and
+#              gnoto config slurm --probe
 # Defines:     config_main, config_set
 # Requires:    yq, flock; the settings and helpers from lib/env.sh, which loads
 #              each section's declarations from lib/config/
@@ -15,7 +16,9 @@
 # function finds, or else the current value. --on and --off set its enabled
 # without asking. When config.yaml doesn't have the section yet, either way adds
 # the whole section, and only that section, so config.yaml holds only what a
-# site has chosen. Asking turns a new section on.
+# site has chosen. Asking turns a new section on. gnoto config slurm --probe
+# checks every compute node with a Slurm job, from lib/nodes.sh, and writes
+# nothing to config.yaml.
 #
 # Strings are written double-quoted, because the launcher reads its bootstrap
 # settings with an awk that accepts only   key: "value", true or false.
@@ -232,6 +235,12 @@ config_main() {
     [[ $# -le 2 ]] || fail "gnoto config $section takes --on or --off, and nothing else."
     case $option in
         "") [[ -t 0 ]] || fail "gnoto config $section asks questions, so run it from a terminal, or give --on or --off." ;;
+        --probe)
+            [[ $section == slurm ]] || fail "--probe is for gnoto config slurm, which checks every compute node."
+            source "$CODE_DIR/lib/lint.sh"
+            nodes_probe
+            return
+            ;;
         --on | --off)
             [[ $section != core ]] || fail "core is always on. Run gnoto config core to change its settings."
             [[ $section != apptainer || $option == --on ]] ||

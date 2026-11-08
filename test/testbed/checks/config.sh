@@ -62,7 +62,7 @@ check "at 660, in alice's own group" "660 alice" "$(stat -c '%a %G' "$CONFIG")"
 
 $GNOTO config slurm --on > slurm-on.log 2>&1
 check "slurm --on adds the slurm section with what it found" \
-    '{"enabled":true,"bin_dir":"/usr/bin","conf":"","partition":"main","account":"","max_cpus":6,"max_memory":"23.GB","max_time":"168.h","job_time":""}' \
+    '{"enabled":true,"bin_dir":"/usr/bin","conf":"","partition":"main","account":"","max_cpus":6,"max_memory":"23.GB","max_time":"168.h","job_time":"","min_tmp":"50.GB"}' \
     "$(section slurm)"
 check "and says so" "yes" "$(grep -q '^slurm is on' slurm-on.log && echo yes || cat slurm-on.log)"
 check "and the image reads it" "true 6 main" "$($GNOTO exec bash -c 'echo $SLURM_ENABLED $SLURM_MAX_CPUS $SLURM_PARTITION')"
@@ -87,8 +87,8 @@ check "config core: the section" \
 check "core has no on or off" "yes" "$($GNOTO config core --on 2>&1 | grep -q 'core is always on' && echo yes)"
 
 # slurm asked for again, suggesting its current values, with a job time
-answering "" "" "" "" "" "" "" 2-00:00:00 -- config slurm > slurm.log 2>&1
-check "config slurm: suggestions" "[/usr/bin] [none] [main] [none] [6] [23.GB] [168.h] [none]" "$(suggestions slurm.log)"
+answering "" "" "" "" "" "" "" 2-00:00:00 "" -- config slurm > slurm.log 2>&1
+check "config slurm: suggestions" "[/usr/bin] [none] [main] [none] [6] [23.GB] [168.h] [none] [50.GB]" "$(suggestions slurm.log)"
 check "config slurm: changed in place" "2-00:00:00 true" "$($GNOTO exec yq '.slurm.job_time + " " + (.slurm.enabled | tostring)' "$CONFIG")"
 
 # wrike off, from nothing, then asked for

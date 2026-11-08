@@ -4,10 +4,10 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-07: **phases 1 and 2 are done, and phase 3 passes in the test bed and, for
-ampliseq, on the cluster.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full
+Status on 2026-11-08: **phases 1 and 2 are done, and phase 3 passes in the test bed and, for
+ampliseq and biobakery, on the cluster.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full
 dashboard in `results/`, with no Wrike, AWS or Globus, under Slurm and on the machine itself.
-taxprofiler and biobakery end to end on the cluster are next, then phase 4. The [phase 1](#phase-1-image-and-helper),
+taxprofiler is set aside, and phase 4 is next. The [phase 1](#phase-1-image-and-helper),
 [phase 2](#phase-2-restructure) and [phase 3](#phase-3-job-core) notes record what's built and
 every test result, and phase 1's notes list the two determinism probes still to run.
 
@@ -48,7 +48,7 @@ Each phase has a test that shows it's finished.
 | 1. Image and helper | The `gnoto` image, launcher, helper and stand-ins | One fixture job, such as `16s-v4` from [fixtures.md](fixtures.md), runs under Slurm through the helper, with no tool taken from the host except Slurm and Apptainer |
 | 2. Restructure | New repo layout, `lib/env.sh`, `config.yaml`, `generated.yaml`, `databases.yaml`, `references.yaml`, `pipelines/<name>/` replacing the `_01` files, no hard-coded paths, unexported secrets | No tracked file names `/data/prod/nextflow`, and scripts load their settings from any install path |
 | 3. Job core | `lib/job.sh`, `options.yaml`, `new`, `lint job.yaml`, `start`, `start --debug`, `status`, `cancel`, input checksums, `history/`, core `config` and config `lint`, and the three job stages, with Publish a stub until phase 7 | A CLI job finishes with no Wrike, AWS or Globus configured, and leaves a full dashboard in `results/` |
-| 4. Version cache | `pipeline@ref`, `start record.yaml`, `<data_dir>/current`, `gnoto upgrade` and `gnoto prune` | A job re-runs correctly from its own commit after `main` has moved on, and an upgrade while a job runs leaves that job on its own code |
+| 4. Version cache | `pipeline@ref`, `start record.yaml`, `<data_dir>/current`, `gnoto upgrade`, `gnoto prune`, and `gnoto resume` with the cleanup that keeps a failed run's cache | A job re-runs correctly from its own commit after `main` has moved on, an upgrade while a job runs leaves that job on its own code, and a run that failed resumes from its own commit with its finished tasks cached |
 | 5. Lock files | Image digests, GHCR images, `containers.config`, `db:` names, database digests and `lint --deep` | CI on `main` rejects an image address by tag, and a re-run pulls only by digest |
 | 6. Determinism | `gnoto selftest`, seeds, `stable-files`, and the numeric comparison of core tables | A re-run reports its core tables as identical |
 | 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, `remove`, `config` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
@@ -558,8 +558,35 @@ job on the `wgs-mock` reads from ENA:
 - That run's message had no cause, because a run that lets its other tasks finish logs no
   "Session aborted", and `status` showed the end of `.command.err`, which was pandera's
   warnings alone. Both now come from Nextflow's report on the failing task.
+- taxprofiler's rerun with that fix failed before taxpasta: its mOTUs and Kraken2 tasks,
+  the two that ask for 16 CPUs, were put on a node without the `/data` mount and failed
+  within a second, with no log. Nextflow called them "terminated by the external system",
+  and `sacct` showed `FAILED` with exit code `0:53`. That node is the only one missing the
+  mount. gnoto now names the node when a job dies at launch, as the design's notes on jobs
+  that die at launch say, and `lint` checks every node over `ssh`, which the cluster
+  allows without a password, or with a Slurm job on each node with CPUs free where `ssh`
+  can't. In the test bed, the `ssh` check passed through the helper with `bash` and with
+  `tcsh` as the login shell, and without `ssh` it fell back to the Slurm jobs. gnoto's
+  jobs now avoid such a node: one that fails `lint`'s check, or that a job died at launch
+  on, goes on `<data_dir>/excluded-nodes`, and every job gnoto submits, and each of
+  Nextflow's tasks, excludes it until `lint` finds it working. In the test bed, with a
+  down stand-in node on that list, a whole ampliseq run's head job, followup and tasks
+  carried it in `ExcNodeList`, and `sbatch` refused a name Slurm doesn't know, which is
+  why only the listed nodes Slurm still has are passed. Since then, `start` asks the nodes
+  over `ssh` before each job, `gnoto config slurm --probe` checks every node with a Slurm
+  job, waiting for busy ones, and every check also wants `slurm.min_tmp`, 50 GB by default,
+  free in a node's `/tmp`. In the test bed, the probe waited 75 seconds for a busy node and
+  then passed it; the check before a job ran over `ssh`, with `bash` and with `tcsh` as the
+  login shell, and said nothing without `ssh`; and a `slurm.min_tmp` larger than the node's
+  `/tmp` put the node on the list, so `start` refused, until `lint` found it working
+  again. A head job that does run checks
+  that it can see `core.db_dir` when it needs databases, and a job waiting on a failed
+  fetch is cancelled rather than left queued. `scheduler_job_state` now asks `squeue` with `-t all`, without which
+  a job that had just ended showed no state where Slurm has no accounting.
 
-Still to do there: taxprofiler again, with that fix.
+taxprofiler is set aside for now, at Daniel's call, while ampliseq and biobakery are made
+operational. It still has to pass on the cluster, where its tasks now avoid that node
+once `lint` or a launch failure has listed it.
 
 ### Phases 4 to 6
 

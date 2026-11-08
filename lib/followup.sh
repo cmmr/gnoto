@@ -43,11 +43,36 @@ utc_plus() {
     date -u -d "$(date -u -d "$1" "+%Y-%m-%d %H:%M:%S") $2" "+%Y-%m-%dT%H:%M:%SZ"
 }
 
-# Why Slurm ended the head job, when it ended it, as a sentence
+# The first database fetch the head job waited for that didn't complete, as its
+# job ID and state
+failed_fetch() {
+    local after id state
+    after=$(state_get scheduler.after)
+    after=${after#afterok:}
+    for id in ${after//:/ }; do
+        state=$(scheduler_job_state "$id")
+        [[ $state == COMPLETED ]] || { printf '%s, %s' "$id" "${state:-of unknown state}"; return 0; }
+    done
+}
+
+# Why Slurm ended the head job, when it ended it, as a sentence. Run in the run
+# directory.
 slurm_end_message() {
-    local id=$1 state
+    local id=$1 state node fetch
     [[ -n $id ]] || return 0
+    node=$(slurm_launch_node "$id" job.out)
+    if [[ -n $node ]]; then
+        echo "The job never ran. Slurm put it on $node as job $id, and $node couldn't write its log, job.out. $(launch_failure_advice "$node" "$PWD" avoid)"
+        return 0
+    fi
     state=$(scheduler_job_state "$id")
+    if [[ $state == CANCELLED && ! -e job.out ]]; then
+        fetch=$(failed_fetch)
+        if [[ -n $fetch ]]; then
+            echo "Slurm cancelled the job before it ran, because a database fetch it waited for didn't complete: job $fetch. Fetch logs are in $DB_DIR, named <database>.fetch.log."
+            return 0
+        fi
+    fi
     case $state in
         TIMEOUT) echo "The job reached its time limit, slurm.job_time, before it finished." ;;
         OUT_OF_MEMORY) echo "The job ran out of memory." ;;

@@ -143,6 +143,7 @@ handle() {
     # systemctl --user needs the login session's bus, and nothing else should get it
     case $COMMAND in
         systemctl | loginctl) VARS="DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR $VARS" ;;
+        ssh) VARS="SSH_AUTH_SOCK $VARS" ;;
     esac
     for VAR in $VARS; do
         eval "IS_SET=\${$VAR+x} VALUE=\${$VAR-}"

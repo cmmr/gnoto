@@ -1,0 +1,2 @@
+# Host commands the helper runs for lint's check of the compute nodes, one per line.
+ssh

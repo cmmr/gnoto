@@ -21,6 +21,7 @@ source "${BASH_SOURCE[0]%/*}/env.sh"
 usage() {
     echo "Usage: gnoto init --apptainer=/path/to/apptainer" >&2
     echo "       gnoto config [<section> [--on|--off]]" >&2
+    echo "       gnoto config slurm --probe" >&2
     echo "       gnoto lint [--yes] [job.yaml]" >&2
     echo "       gnoto new <pipeline>[@<version>]" >&2
     echo "       gnoto start [--debug] [--yes] job.yaml" >&2

@@ -2,16 +2,20 @@
 # lint.sh - gnoto lint: checks a job file, or with none, this install's
 # settings and what they point at.
 #
-# Sourced by:  lib/main.sh, for lint and start
-# Defines:     lint_main, lint_ok, lint_warn, lint_fail, LINT_FAILS, LINT_WARNS
+# Sourced by:  lib/main.sh, for lint and start; lib/config.sh, for gnoto config
+#              slurm --probe
+# Defines:     lint_main, lint_ok, lint_warn, lint_fail, lint_list, LINT_FAILS,
+#              LINT_WARNS
 # Requires:    the settings and helpers from lib/env.sh, and job_check from
-#              lib/jobfile.sh, databases_offer from lib/databases.sh; sinfo and
-#              sbatch through their stand-ins, with Slurm
+#              lib/jobfile.sh, databases_offer from lib/databases.sh; sinfo
+#              through its stand-in, with Slurm; lib/nodes.sh, which it sources
 #
 # Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit code.
 
 LINT_FAILS=0
 LINT_WARNS=0
+
+source "$CODE_DIR/lib/nodes.sh"
 
 # One check's result. A message over several lines is indented under the first.
 lint_line() {
@@ -216,8 +220,9 @@ Slurm's module may not be loaded in the shell gnoto started from. Load it, or se
         return
     fi
     lint_ok "slurm: sinfo answers"
-    LINT_SLURM_OK=true
     partition=${SLURM_PARTITION:-$(awk '$1 ~ /\*$/ { sub(/\*$/, "", $1); print $1; exit }' <<< "$partitions")}
+    LINT_SLURM_OK=true
+    LINT_PARTITION=$partition
     time_limit=$(awk -v p="$partition" '{ name = $1; sub(/\*$/, "", name) } name == p { print $2; exit }' <<< "$partitions")
     if [[ -z $time_limit ]]; then
         lint_fail "slurm.partition: there's no partition \"$partition\". sinfo lists $(awk '{ print $1 }' <<< "$partitions" | paste -sd ' ')"
@@ -243,6 +248,8 @@ Slurm's module may not be loaded in the shell gnoto started from. Load it, or se
         lint_fail "slurm.max_memory: write it as Nextflow does, such as 900.GB"
     [[ -z ${SLURM_MAX_TIME:-} || $SLURM_MAX_TIME =~ ^[0-9]+\.(s|m|h|d)$ ]] ||
         lint_fail "slurm.max_time: write it as Nextflow does, such as 168.h"
+    [[ -z ${SLURM_MIN_TMP:-} || $SLURM_MIN_TMP =~ ^[0-9]+\.(B|KB|MB|GB|TB)$ ]] ||
+        lint_fail "slurm.min_tmp: write it as Nextflow does, such as 50.GB, or none to skip the check"
 
     # A task whose plain request the limits cut short
     limit=$(lint_hours "${SLURM_MAX_TIME:-}")
@@ -263,39 +270,10 @@ Slurm's module may not be loaded in the shell gnoto started from. Load it, or se
     done < <(fixed_requests)
 }
 
-# That a compute node sees the data and database directories at the same
-# paths, and that flock works there too, from a small Slurm job. A busy queue
-# can hold it, so it waits two minutes at most.
-lint_compute_node() {
-    local out pid status=0 id i
-    [[ $(scheduler_kind) == slurm && ${LINT_SLURM_OK:-} == true ]] || return 0
-    out=$(mktemp "$DATA_DIR/.lint-node.XXXXXX") || return 0
-    local args=(--wait --parsable --job-name=gnoto-lint --time=00:02:00 --mem=100M --cpus-per-task=1
-        --output="$out")
-    [[ -z ${SLURM_PARTITION:-} ]] || args+=(--partition="$SLURM_PARTITION")
-    [[ -z ${SLURM_ACCOUNT:-} ]] || args+=(--account="$SLURM_ACCOUNT")
-    sbatch "${args[@]}" --wrap "flock -w 10 $(sh_quote "$DATA_DIR/.lint.lock") true &&
-        test -w $(sh_quote "$DATA_DIR") && test -d $(sh_quote "$DB_DIR") && echo gnoto-lint-ok" \
-        > "$out.id" 2>&1 &
-    pid=$!
-    for (( i = 0; i < 120; i++ )); do
-        kill -0 "$pid" 2> /dev/null || break
-        sleep 1
-    done
-    if kill -0 "$pid" 2> /dev/null; then
-        id=$(head -1 "$out.id")
-        [[ ! $id =~ ^[0-9]+$ ]] || scheduler_cancel "$id"
-        kill "$pid" 2> /dev/null || :
-        lint_warn "compute node: couldn't check, because the test job was still queued after 2 minutes"
-    else
-        wait "$pid" || status=$?
-        if (( status == 0 )) && grep -q gnoto-lint-ok "$out" 2> /dev/null; then
-            lint_ok "compute node: sees $DATA_DIR and $DB_DIR, and flock works there"
-        else
-            lint_fail "compute node: a job there couldn't use $DATA_DIR or $DB_DIR, or flock: $(cat "$out.id" "$out" 2> /dev/null | tail -3)"
-        fi
-    fi
-    rm -f "$out" "$out.id"
+# Words joined by commas
+lint_list() {
+    local IFS=,
+    printf '%s' "$*" | sed 's/,/, /g'
 }
 
 # What the integrations' own checks will cover, for now only whether each is on
@@ -316,7 +294,7 @@ lint_config() {
     lint_engine
     lint_directories
     lint_scheduler
-    lint_compute_node
+    nodes_lint
     lint_nextflow_config
     lint_integrations
 }

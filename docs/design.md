@@ -19,8 +19,8 @@ where its results go, never what the results are.**
   runs as it is. Otherwise `gnoto init --apptainer=<path>` says where it is.
   `gnoto config <section>` adds a section of settings when a site wants one.
 - **Interface:** one `gnoto` command with `init`, `config`, `lint`, `status`, `new`,
-  `start`, `wrike`, `publish`, `cancel`, `extend`, `remove`, `prune`, `upgrade` and
-  `selftest`.
+  `start`, `wrike`, `publish`, `cancel`, `resume`, `extend`, `remove`, `prune`, `upgrade`
+  and `selftest`.
 - **Jobs:** `new` writes a skeleton, `lint` checks it, and `start` turns it into a
   record that can re-run the job.
 - **Versions:** `ampliseq` uses the current release, and `ampliseq@1.2.0` that
@@ -124,7 +124,7 @@ flowchart LR
         real --> tasks["Tasks on compute nodes<br/>outside the image, in tool containers"]
     end
     subgraph image["gnoto image"]
-        scripts["gnoto scripts<br/>from the cache, at the job's commit"] --> standins["Stand-in commands<br/>sbatch, squeue, scancel, sinfo, sacct,<br/>apptainer, systemctl, loginctl"]
+        scripts["gnoto scripts<br/>from the cache, at the job's commit"] --> standins["Stand-in commands<br/>sbatch, squeue, scancel, sinfo, sacct,<br/>apptainer, systemctl, loginctl, ssh"]
         nextflow["Nextflow and Java<br/>pinned by the image"] --> standins
         tools["jq, yq, awk, git, AWS, Globus<br/>and the other command-line tools"]
     end
@@ -315,7 +315,8 @@ globus     Deliver results through a Globus guest collection
 declaration finds, or else the current value. `--on` and `--off` set the section's `enabled`
 without asking. When `config.yaml` doesn't have the section yet, either way adds the whole
 section, with the answers or with every suggestion, and only that section. Asking turns a
-new section on.
+new section on. `gnoto config slurm --probe` checks every compute node instead, as the notes
+on nodes gnoto's jobs avoid say, and writes nothing to `config.yaml`.
 
 Each section but `core` starts with `enabled`, so a section can be set up but not used. A
 section is on only when `enabled` is `true`, and code that uses a section checks that first.
@@ -337,6 +338,7 @@ slurm:
   max_memory: "900.GB"
   max_time: "168.h"
   job_time: ""
+  min_tmp: "50.GB"
 
 apptainer:
   enabled: true
@@ -399,6 +401,7 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto lint` | Checks `config.yaml` and every configured integration | Only temporary test files. As the first command, it also pulls the image and records the current release |
 | `gnoto lint [--deep] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--yes` accepts a database download | Only if you accept a database download |
 | `gnoto config [<section> [--on\|--off]] [--deploy] [--profile <name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them, adding the section if it's new, or with `--on` or `--off` turns it on or off, adding it with what's found if it's new. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
+| `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
 | `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
 | `gnoto new ampliseq[@ref]` | Writes a job skeleton to `ampliseq.yaml` in the current directory, and refuses to overwrite one | Writes one file |
 | `gnoto start [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree. `--yes` accepts a database download, which the job then waits for | Yes |
@@ -406,6 +409,7 @@ The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `start` a
 | `gnoto wrike [task_id]` | Starts that Wrike task if it's waiting. Without a task ID, runs the reconciliation scan: starts every waiting task in "gnoto Jobs", removes runs whose task is gone, copies Expiration dates and reactivates a suspended webhook | Yes |
 | `gnoto publish <uid>` | Runs Present and Publish again for a run whose Compute finished. Safe to repeat | Yes |
 | `gnoto cancel <uid>` | Cancels a job | Yes |
+| `gnoto resume [uid]` | Resumes a failed or cancelled run through Nextflow's `-resume`, reusing every task that finished. Without a uid, lists the runs that can be resumed. Built in phase 4 | Yes |
 | `gnoto extend <uid> <YYYY-MM-DD\|never>` | Keeps a run's results until that date, or for good | Yes |
 | `gnoto remove [--yes] <uid>` | Deletes a run's results now and keeps its record. `--yes` skips the prompt, as the listener and the reconciliation scan do | Yes, after confirming |
 | `gnoto prune` | Removes cached versions and images that no running or waiting job uses | Yes, after confirming |
@@ -420,9 +424,14 @@ whose settings are only partly filled in is a FAIL that says what to add.
 
 - **Local:** Apptainer version, the image pull, file modes, and that
   `core.data_dir`, `core.db_dir` and `globus.dir` are writable and visible to
-  compute nodes, and that `flock` works on `core.data_dir` from both a login node and a
-  compute node. Lustre, for one, needs its `flock` mount option. The compute node check
-  is a small Slurm job, and a busy queue that holds it for two minutes makes it a WARN.
+  compute nodes, and that `flock` works on `core.data_dir` from both a login node and the
+  compute nodes. Lustre, for one, needs its `flock` mount option. Every node the
+  partition is starting jobs on is checked, since one node missing a mount fails each
+  task Slurm puts there, as the notes on nodes gnoto's jobs avoid say. `lint` asks each node over `ssh`,
+  and where `ssh` reaches none, sends a small Slurm job to each node with CPUs free now,
+  so it never waits for a node to free up. The busy nodes it couldn't check are a WARN
+  that points to `gnoto config slurm --probe`. `slurm.min_tmp` is written as Nextflow
+  writes sizes.
 - **Settings:** an unknown key, as a likely typo; the launcher's reading of its
   bootstrap settings, which it passes into the image, against `yq`'s; `$NXF_HOME/config`;
   and `core.nextflow_config`'s risky settings. Inside the image, a group that Apptainer's
@@ -454,7 +463,53 @@ jobs and any upcoming expiries.
 
 A job the state files show as running is checked against `squeue`, or `sacct` once it
 has left the queue, by its job ID. It shows as "Lost" when Slurm has nothing running for
-it, as happens when a job and its followup are killed together. The listener and timers
+it, as happens when a job and its followup are killed together. `status <uid>` then
+says why when it can tell, for a job or followup that died at launch (below).
+
+**Jobs that die at launch.** Slurm creates a job's log as it starts the job, so a node
+that can't reach the log's directory, such as one missing a mount, fails the job before
+its script runs, with no log and nothing to explain it. Nextflow reports such a task
+only as "terminated by the external system". gnoto recognises one by its state and its
+missing log: a `FAILED` job, placed on a node, whose log was never created. The run's
+message then names the task, the node and the job, and the node goes on the list of
+nodes gnoto's jobs avoid. The followup does the same for a head job. `status` reports
+the same for a lost run's head job and followup, but leaves the list alone, since the
+run may be old and the node fixed since. A head job that does run, for a pipeline that
+needs databases, checks that it can see `core.db_dir` before it starts work, and if it
+can't, puts its own node on the list, by Slurm's name for it.
+
+**Nodes gnoto's jobs avoid.** `<data_dir>/excluded-nodes` lists the nodes that failed a
+check, one line each, with the date each was added and why. A node passes when it can see
+and write `core.data_dir`, see `core.db_dir`, and use `flock` in `core.data_dir`, any of
+which fails every job Slurm puts there, and when its `/tmp` has `slurm.min_tmp` free, 50 GB
+by default, since other jobs can fill it and tools inside a task write there. Lustre, for
+one, needs its `flock` mount option. Three checks ask the nodes Slurm is starting jobs on,
+and leave out drained and down nodes, which would never run a check job:
+
+- **Before each job,** `start` asks every node over `ssh`, 16 at a time, in batch mode with
+  a 30-second limit, through the helper, so the host's keys and `known_hosts` apply. It
+  asks the first 16, and where `ssh` reaches none of them, it checks nothing and says
+  nothing, so a site without `ssh` to its nodes pays only for that first try.
+- **`lint`** asks over `ssh` too, and where `ssh` reaches no node, sends a small Slurm job
+  pinned to each node `sinfo` shows with a CPU and 200 MB free, so it never waits for a
+  node. Jobs not finished within a minute are cancelled.
+- **`gnoto config slurm --probe`** sends a job pinned to every node, and waits for busy
+  ones, saying each minute which it's waiting for, for up to an hour. Jobs still waiting
+  then are cancelled, and an interrupt cancels them all.
+
+The command a node runs is `sh`, in single quotes over `ssh`, with nothing a csh login
+shell would change. A node missing a mount shows CPUs free, since each job there fails at
+once, and a check job that failed with no log fails the check the same way. A node that
+fails goes on the list, with a WARN that names it, and a node that passes comes off, as
+does one Slurm no longer has. A node `ssh` can't reach, and one whose check job never ran,
+is a WARN. Jobs that die at launch add their node too. Every `sbatch` gnoto makes, for a
+head job, followup or fetch, and the `clusterOptions` that `site.config` gives Nextflow's
+tasks, carry `--exclude` with the listed nodes that Slurm still has, since `sbatch`
+refuses a name it doesn't know. When the list holds every node in the partition, a check
+and a submission fail, saying so. Only where a job runs changes, never what it computes.
+The file is written under a lock, by any user of gnoto's group, like a run's state.
+
+The listener and timers
 write a heartbeat file in `<data_dir>/logs/`, so any user's `status` can report them,
 although their systemd units belong to one account.
 
@@ -483,8 +538,8 @@ Finished in the last 7 days
   R2ZD8H6W  ampliseq@1.1.0   Failed           Oct 30   DADA2 removed every read
 ```
 
-**`start`.** It lints, creates the run directory, submits the job, prints the uid
-and exits. If S3 or Globus is configured, the job publishes to it and `status` shows the
+**`start`.** It lints, checks the compute nodes over `ssh` (below), creates the run
+directory, submits the job, prints the uid and exits. If S3 or Globus is configured, the job publishes to it and `status` shows the
 link. Without either, the same dashboard pages and the deliverables zip stay in
 `<data_dir>/runs/<uid>/`.
 
@@ -593,6 +648,21 @@ directory, and the job's progress watcher, `present/progress.sh`, which also kee
 `remove`, which cancels the same way, so any group member can cancel any job. A job also
 checks for a cancel file before it starts work, because a job still waiting in the queue
 has no watcher yet.
+
+**`resume`.** `gnoto resume <uid>` picks a failed or cancelled run up where it stopped,
+through Nextflow's `-resume`: each task whose script and inputs haven't changed comes from
+the run's cache rather than running again, and each Nextflow run inside a step, such as
+biobakery's HUMAnN workflow, is resumed the same way. It runs in the run's own directory,
+at the run's own commit from the version cache, with the job file and parameters the run
+recorded. Site settings come from the current `config.yaml`, as for any job. It refuses a
+run that's still going or that completed, one whose inputs no longer match their
+checksums, and one whose cache is gone. The run's state keeps a list of its attempts, with
+each one's job IDs and how it ended, and its status, expiry and cleanup times start over
+with the new attempt. Without a uid, `gnoto resume` lists the runs that can be resumed. So
+that there's a cache to resume from, a run that fails or is cancelled keeps `work/` and
+`.nextflow/` until `cleanup_utc`, `core.keep_run_days` after it ended, rather than having
+`work/` cut down to each task's `.command.*` files at once. It's built in phase 4, with the
+version cache it runs from.
 
 **Expiry.** Results expire when gnoto's systemd timer is installed, with or without
 Wrike. When a run ends, its followup turns `retention` into a removal time and writes it to
@@ -1170,8 +1240,10 @@ submits the job with an `afterok` dependency on the fetch jobs.
 **Fetching safely.** Each fetch writes into `<name>.tmp.<jobid>` under a lock for that
 database, and renames it into place only on success. A marker, `<name>.fetching`, names
 the fetch job, so a second `lint` reports "being fetched by job N" rather than starting
-another fetch, and `start` submits with `--dependency=afterok:N`. A marker whose job has
-gone is removed. Without Slurm, the fetch runs on this machine like a job, and the job
+another fetch, and `start` submits with `--dependency=afterok:N`, and with
+`--kill-on-invalid-dep=yes`, since a failed fetch would otherwise leave the job queued
+for good. The followup then says which fetch failed. A marker whose job has gone is
+removed. Without Slurm, the fetch runs on this machine like a job, and the job
 waits for its marker to go before it starts work, then checks that the database arrived.
 
 **Fetch and build scripts.** An entry's `setup` is a command that fills an empty

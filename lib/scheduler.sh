@@ -4,12 +4,15 @@
 #
 # Sourced by:  lib/env.sh
 # Defines:     scheduler_kind, slurm_time, scheduler_submit, scheduler_cancel,
-#              scheduler_job_state, scheduler_local_alive, run_cpu_seconds,
+#              scheduler_job_state, slurm_launch_node, excluded_nodes,
+#              excluded_nodes_update, slurm_exclude_list, no_node_left,
+#              launch_failure_advice, scheduler_local_alive, run_cpu_seconds,
 #              cancel_run_tasks
-# Requires:    sbatch, squeue, sacct and scancel, through their stand-ins, when
-#              Slurm is on; warn and fail from lib/utilities.sh
-# Env:         SLURM_ENABLED, SLURM_PARTITION and SLURM_ACCOUNT, from lib/env.sh;
-#              GNOTO_HELPER_DIR, from the launcher
+# Requires:    sbatch, squeue, sacct, sinfo and scancel, through their
+#              stand-ins, when Slurm is on; flock; warn and fail from
+#              lib/utilities.sh
+# Env:         SLURM_ENABLED, SLURM_PARTITION, SLURM_ACCOUNT and DATA_DIR, from
+#              lib/env.sh; GNOTO_HELPER_DIR, from the launcher
 #
 # Jobs go to Slurm when slurm.enabled is true, and run on this machine
 # otherwise. A job is always a gnoto command, run by the code's own launcher.
@@ -63,7 +66,7 @@ sh_quote() {
 # sbatch's, such as B:TERM@300. Locally, neither applies, and the command runs
 # as soon as it's started.
 scheduler_submit() {
-    local name="" dir="" log="" cpus=1 mem=1G time="" after="" signal="" word wrap id
+    local name="" dir="" log="" cpus=1 mem=1G time="" after="" signal="" word wrap id exclude
 
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -102,9 +105,12 @@ scheduler_submit() {
         --cpus-per-task="$cpus" --mem="$mem")
     [[ -z $time ]] || args+=(--time="$time")
     [[ -z $signal ]] || args+=(--signal="$signal")
-    [[ -z $after ]] || args+=(--dependency="$after")
+    # A failed fetch would otherwise leave the job queued for good
+    [[ -z $after ]] || args+=(--dependency="$after" --kill-on-invalid-dep=yes)
     [[ -z ${SLURM_PARTITION:-} ]] || args+=(--partition="$SLURM_PARTITION")
     [[ -z ${SLURM_ACCOUNT:-} ]] || args+=(--account="$SLURM_ACCOUNT")
+    exclude=$(slurm_exclude_list) || { warn "$(no_node_left)"; return 1; }
+    [[ -z $exclude ]] || args+=(--exclude="$exclude")
     id=$(sbatch "${args[@]}" --wrap "$wrap") || return 1
     id=${id%%;*}
     [[ $id =~ ^[0-9]+$ ]] || { warn "sbatch printed \"$id\" rather than a job ID."; return 1; }
@@ -116,16 +122,128 @@ scheduler_cancel() {
 }
 
 # A Slurm job's state, such as PENDING, RUNNING, COMPLETED, FAILED, CANCELLED,
-# TIMEOUT, OUT_OF_MEMORY or NODE_FAIL: squeue's while it's queued or running,
+# TIMEOUT, OUT_OF_MEMORY or NODE_FAIL: squeue's while it remembers the job,
 # then sacct's. Prints nothing when neither knows it.
 scheduler_job_state() {
     local state
-    state=$(squeue -h -j "$1" -o %T 2> /dev/null | head -1) || state=""
+    state=$(squeue -h -t all -j "$1" -o %T 2> /dev/null | head -1) || state=""
     if [[ -z $state ]]; then
         state=$(sacct -n -X -P -j "$1" -o State 2> /dev/null | head -1) || state=""
         state=${state%% *}
     fi
     printf '%s' "$state"
+}
+
+# The node a Slurm job failed on before its script ran. Slurm creates a job's
+# log as it starts the job, so a failed job with no log was put on a node that
+# couldn't write the log's directory, such as one missing a mount. Prints
+# nothing otherwise: slurm_launch_node <job id> <log>
+slurm_launch_node() {
+    local id=$1 log=$2 facts state node
+    [[ $id =~ ^[0-9]+$ && ! -e $log ]] || return 0
+    facts=$(squeue -h -t all -j "$id" -o '%T|%N' 2> /dev/null | head -1) || facts=""
+    [[ -n $facts ]] || facts=$(sacct -n -X -P -j "$id" -o State,NodeList 2> /dev/null | head -1) || facts=""
+    state=${facts%%|*}
+    node=${facts#*|}
+    [[ ${state%% *} == FAILED && -n $node && $node != "None assigned" ]] || return 0
+    printf '%s' "$node"
+}
+
+# The nodes gnoto's Slurm jobs avoid, from $DATA_DIR/excluded-nodes, which the
+# node checks in lib/nodes.sh and launch failures keep, as
+# "<node>\t<date>\t<why>" lines
+excluded_nodes() {
+    [[ -r $DATA_DIR/excluded-nodes ]] || return 0
+    awk -F'\t' '!/^#/ && $1 != ""' "$DATA_DIR/excluded-nodes"
+}
+
+# Changes that list under its lock, from lines on stdin: "+<node>\t<why>" adds
+# a node, keeping its first date and why if it's there already, and "-<node>"
+# takes one off. Leaves the file alone when nothing changes.
+excluded_nodes_update() {
+    local file=$DATA_DIR/excluded-nodes changes tmp src=/dev/null
+    changes=$(cat)
+    [[ -n $changes ]] || return 0
+    {
+        flock -w 30 9 || return 1
+        [[ ! -e $file ]] || src=$file
+        tmp=$(mktemp "$file.XXXXXX") && chmod 664 "$tmp" || return 1
+        if ! {
+            echo "# The nodes gnoto's Slurm jobs avoid, with when and why: each couldn't reach"
+            echo "# gnoto's directories or had too little free in /tmp. A node comes off once a"
+            echo "# check finds it working: gnoto lint, the check before each job, or the probe."
+            awk -v today="$(date -u +%Y-%m-%d)" '
+                BEGIN { FS = OFS = "\t" }
+                NR == FNR {
+                    node = substr($1, 2)
+                    if (node == "") next
+                    if ($1 ~ /^[+]/) { if (!(node in add)) order[++n] = node; add[node] = $2 }
+                    else if ($1 ~ /^-/) drop[node] = 1
+                    next
+                }
+                /^#/ || $1 == "" || ($1 in drop) { next }
+                { kept[$1] = 1; print }
+                END {
+                    for (i = 1; i <= n; i++)
+                        if (!(order[i] in drop) && !(order[i] in kept)) print order[i], today, add[order[i]]
+                }
+            ' <(printf '%s\n' "$changes") "$src"
+        } > "$tmp"; then
+            rm -f "$tmp"
+            return 1
+        fi
+        if [[ -e $file ]] && cmp -s "$tmp" "$file"; then
+            rm -f "$tmp"
+        elif [[ ! -e $file && $(grep -vc '^#' "$tmp") == 0 ]]; then
+            rm -f "$tmp"
+        else
+            mv -f "$tmp" "$file" || { rm -f "$tmp"; return 1; }
+        fi
+    } 9>> "$DATA_DIR/.excluded-nodes.lock"
+}
+
+# The nodes on that list that Slurm still has, comma-separated, as sbatch
+# --exclude takes them, since sbatch refuses a name it doesn't know. Returns 3
+# when they're every node in the partition jobs go to.
+slurm_exclude_list() {
+    local listed nodes
+    listed=$(excluded_nodes | cut -f1)
+    [[ -n $listed ]] || return 0
+    if ! nodes=$(sinfo -h -N -o '%N %P' 2> /dev/null) || [[ -z $nodes ]]; then
+        paste -sd, <<< "$listed"
+        return 0
+    fi
+    awk -v part="${SLURM_PARTITION:-}" '
+        NR == FNR { if (!($1 in listed)) order[++n] = $1; listed[$1] = 1; next }
+        { known[$1] = 1; p = $2; dflt = sub(/[*]$/, "", p) }
+        (part == "" && dflt) || (part != "" && p == part) { inpart++; if (!($1 in listed)) free++ }
+        END {
+            for (i = 1; i <= n; i++) if (order[i] in known) out = out (out == "" ? "" : ",") order[i]
+            if (out != "") print out
+            if (inpart > 0 && free == 0) exit 3
+        }
+    ' <(printf '%s\n' "$listed") <(printf '%s\n' "$nodes")
+}
+
+# What to say when slurm_exclude_list leaves no node
+no_node_left() {
+    printf 'gnoto'"'"'s jobs avoid every node in partition %s, as %s/excluded-nodes says, so none can run. Once they'"'"'re fixed, gnoto lint takes them off.' \
+        "${SLURM_PARTITION:-$(sinfo -h -o %P 2> /dev/null | sed -n 's/[*]$//p' | head -1)}" "$DATA_DIR"
+}
+
+# What to tell someone whose job died at launch on a node, naming the node and
+# the directory it couldn't reach. With "avoid", it first adds the node to the
+# ones gnoto's jobs avoid: launch_failure_advice <node> <directory> [avoid]
+launch_failure_advice() {
+    local node=$1 dir=$2
+    if [[ ${3:-} == avoid ]] &&
+        printf '+%s\t%s\n' "$node" "a job there couldn't reach $dir" | excluded_nodes_update 2> /dev/null; then
+        printf '%s probably can'"'"'t reach %s, so gnoto'"'"'s jobs avoid it from now on, until gnoto lint finds it working.' "$node" "$dir"
+    elif excluded_nodes | cut -f1 | grep -qxF -- "$node"; then
+        printf '%s probably can'"'"'t reach %s. gnoto'"'"'s jobs avoid it now, until gnoto lint finds it working.' "$node" "$dir"
+    else
+        printf '%s probably can'"'"'t reach %s. gnoto lint checks every node, and gnoto'"'"'s jobs avoid any it finds can'"'"'t reach its directories.' "$node" "$dir"
+    fi
 }
 
 # True while a local job's process is running, when it ran on this machine.

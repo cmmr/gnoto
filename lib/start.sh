@@ -5,12 +5,17 @@
 # Sourced by:  lib/main.sh, for start
 # Defines:     start_main, start_run
 # Requires:    the settings and helpers from lib/env.sh; job_check and
-#              record_write from lib/jobfile.sh; lint_ok, lint_warn and
-#              lint_fail from lib/lint.sh; databases_offer from lib/databases.sh
+#              record_write from lib/jobfile.sh; lint_ok, lint_warn,
+#              lint_fail and nodes_prescan from lib/lint.sh; databases_offer
+#              from lib/databases.sh
 #
 # Usage:  gnoto start [--debug] [--yes] job.yaml
 #         --debug keeps the whole run directory for core.keep_run_days. --yes
 #         accepts fetching missing databases, which the job then waits for.
+#
+# Once the job file passes, and before anything is submitted, the check before
+# each job asks Slurm's nodes over ssh whether they can run it, so that the
+# job, and any database fetch it waits for, avoid the nodes that can't.
 #
 # A run is <data_dir>/runs/<uid>/. Its directory is made with mkdir and no -p,
 # so two starts racing for one uid can't both submit: that's the guard against
@@ -52,6 +57,9 @@ start_main() {
     [[ -n $file ]] || fail "Usage: gnoto start [--debug] [--yes] job.yaml"
 
     job_check "$file"
+    if (( LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )); then
+        nodes_prescan
+    fi
     if (( LINT_FAILS > 0 && LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )); then
         fetch_after=$(databases_offer "$yes") || exit 1
     elif (( LINT_FAILS > 0 )); then
@@ -135,13 +143,14 @@ start_run() {
         job_id=$(scheduler_submit --name "gnoto-$uid" --dir "$run_dir" --log "$run_dir/job.out" \
             --cpus "$HEAD_JOB_CPUS" --mem "$HEAD_JOB_MEM" --time "$job_time" \
             --signal B:TERM@300 --after "$fetch_after" -- _job "$run_dir") ||
-            start_failed "Slurm refused the job; sbatch's message is above."
+            start_failed "Slurm refused the job; the message above says why."
         state_set scheduler.job_id "$job_id"
+        [[ -z $fetch_after ]] || state_set scheduler.after "$fetch_after"
         if ! followup_id=$(scheduler_submit --name "gnoto-$uid-followup" --dir "$run_dir" \
             --log "$run_dir/followup.out" --cpus 1 --mem 2G --time "$FOLLOWUP_TIME" \
             --after "afterany:$job_id" -- _followup "$run_dir"); then
             scheduler_cancel "$job_id"
-            start_failed "Slurm refused the job's followup, so the job was cancelled; sbatch's message is above."
+            start_failed "Slurm refused the job's followup, so the job was cancelled; the message above says why."
         fi
         state_set scheduler.followup_id "$followup_id"
     fi

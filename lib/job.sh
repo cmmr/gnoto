@@ -221,11 +221,15 @@ nextflow_unit() {
     [[ $1 =~ ^[0-9]+\.(B|KB|MB|GB|TB|s|m|h|d)$ ]] && printf '%s' "$1"
 }
 
-# site.config: where this site runs tasks and the most each may ask for, from
-# config.yaml. None of it changes what a task computes.
+# site.config: where this site runs tasks, away from the nodes gnoto's jobs
+# avoid, and the most each may ask for, from config.yaml. None of it changes
+# what a task computes.
 write_site_config() {
-    local limits=() cpus memory time binds="-B $DB_DIR" bind
+    local limits=() cpus memory time binds="-B $DB_DIR" bind options="" exclude
     if [[ $(scheduler_kind) == slurm ]]; then
+        [[ -z ${SLURM_ACCOUNT:-} ]] || options="'--account=$SLURM_ACCOUNT'"
+        exclude=$(slurm_exclude_list) || fail "$(no_node_left)"
+        [[ -z $exclude ]] || options+="${options:+, }'--exclude=$exclude'"
         [[ -z ${SLURM_MAX_CPUS:-} ]] || limits+=("cpus: $SLURM_MAX_CPUS")
         memory=$(nextflow_unit "${SLURM_MAX_MEMORY:-}") && limits+=("memory: $memory")
         time=$(nextflow_unit "${SLURM_MAX_TIME:-}") && limits+=("time: $time")
@@ -245,7 +249,7 @@ write_site_config() {
         if [[ $(scheduler_kind) == slurm ]]; then
             echo "    executor = 'slurm'"
             [[ -z ${SLURM_PARTITION:-} ]] || echo "    queue = '$SLURM_PARTITION'"
-            [[ -z ${SLURM_ACCOUNT:-} ]] || echo "    clusterOptions = '--account=$SLURM_ACCOUNT'"
+            [[ -z $options ]] || echo "    clusterOptions = [$options]"
         else
             echo "    executor = 'local'"
         fi
@@ -258,6 +262,23 @@ write_site_config() {
         echo "    runOptions = '$binds'"
         echo "}"
     } > site.config
+}
+
+# When the failing task never ran, because Slurm put it on a node that couldn't
+# reach its work directory, says so. Nextflow says only that the task was
+# "terminated by the external system".
+task_launch_failure() {
+    local task dir name id node
+    [[ $(state_get scheduler.kind) == slurm ]] || return 0
+    task=$(nextflow_failed_task nextflow.out)
+    dir=$(sed -n 1p <<< "$task")
+    name=$(sed -n 2p <<< "$task")
+    [[ -n $dir ]] || return 0
+    id=$(nextflow_task_job "$dir" nextflow.log)
+    node=$(slurm_launch_node "$id" "$dir/.command.log")
+    [[ -n $node ]] || return 0
+    printf 'its task %s never ran. Slurm put it on %s as job %s, and %s couldn'"'"'t write the task'"'"'s log. %s' \
+        "${name:-that failed}" "$node" "$id" "$node" "$(launch_failure_advice "$node" "$PWD" avoid)"
 }
 
 compute() {
@@ -316,6 +337,8 @@ compute() {
     job_check_signal
     if (( status != 0 )); then
         set_step_state "$NEXTFLOW_STEP" failed
+        cause=$(task_launch_failure)
+        [[ -z $cause ]] || fail "The Nextflow pipeline failed: $cause"
         cause=$(nextflow_cause nextflow.out nextflow.log)
         fail "The Nextflow pipeline failed${cause:+: $cause}. Its output is in nextflow.out."
     fi
