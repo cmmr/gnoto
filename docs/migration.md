@@ -4,10 +4,10 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-08: **phases 1 and 2 are done, and phase 3 passes in the test bed and, for
-ampliseq and biobakery, on the cluster.** A CLI job runs ampliseq on `16s-v4` from `gnoto start` to a full
-dashboard in `results/`, with no Wrike, AWS or Globus, under Slurm and on the machine itself.
-taxprofiler is set aside, and phase 4 is next. The [phase 1](#phase-1-image-and-helper),
+Status on 2026-11-08: **phases 1 to 3 are done, in the test bed and on the cluster.** A CLI
+job runs each of ampliseq, biobakery and taxprofiler from `gnoto start` to a full dashboard
+in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does so on the
+machine itself. Phase 4 is next. The [phase 1](#phase-1-image-and-helper),
 [phase 2](#phase-2-restructure) and [phase 3](#phase-3-job-core) notes record what's built and
 every test result, and phase 1's notes list the two determinism probes still to run.
 
@@ -598,9 +598,27 @@ job on the `wgs-mock` reads from ENA:
   fetch is cancelled rather than left queued. `scheduler_job_state` now asks `squeue` with `-t all`, without which
   a job that had just ended showed no state where Slurm has no accounting.
 
-taxprofiler is set aside for now, at Daniel's call, while ampliseq and biobakery are made
-operational. It still has to pass on the cluster, where its tasks now avoid that node
-once `lint` or a launch failure has listed it.
+**On the cluster again, 2026-11-08,** from `d2241b0`, after the cluster's admins had fixed
+the node without the mount:
+
+- `./gnoto lint` checked every node over `ssh`. The 8 taking jobs passed: each sees the
+  data and database directories, `flock` works there, and `/tmp` has 50 GB free. The one
+  that was down was skipped. `gnoto config slurm --probe` passed the same 8, with a Slurm
+  job on each. No node failed, so `excluded-nodes` was never written. Excluding a node has
+  been tested only in the test bed.
+- `job.sh` ran ampliseq on `16s-v4` with the full pplace reference to Completed, and passed
+  all 18 checks.
+- biobakery and taxprofiler were started together with
+  `gnoto start <pipeline> --title=… --samplesheet=mock.tsv --retention="1 Month" --yes`, on
+  the full `wgs-mock` reads. Before each was submitted, the check over `ssh` found all 8
+  nodes fit. Both completed in about 20 minutes:
+  - biobakery's zip was 7.3 MB;
+  - taxprofiler's was 278 MB, because it holds the reads.
+
+  So taxprofiler now passes on the cluster too, with `b75a454`'s change to taxpasta.
+- gnoto can't fetch the `wgs-*` fixtures until phase 6, which cuts them to 100,000 reads.
+  So a samplesheet naming `fixtures/wgs-mock/v1` fails `lint` because the files don't
+  exist, and `--yes` can't help. These runs used the full reads, downloaded by hand.
 
 ### Phases 4 to 6
 
