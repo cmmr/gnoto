@@ -85,7 +85,7 @@ check "biobakery: no EsViritu database while it's off" "null" "$(param esviritu_
 check "biobakery: host-depleted reads without a host leave a note" "No host was removed from these reads, so there are no host-depleted reads in the download." \
     "$(with_pipeline biobakery '{"hostremoval_reference": "None", "delivered_reads": "Host Depleted"}' 'state_get notes | jq -r ".[0]"')"
 
-check "no file in pipelines/ or conf/ names an old path" "" \
-    "$(grep -rn -E 'NEXTFLOW_DIR|NEXTFLOW_DB_DIR|/data/prod' "$CODE/pipelines" "$CODE/conf" "$CODE/lib")"
+check "no file in pipelines/ or lib/ names an old path" "" \
+    "$(grep -rn -E 'NEXTFLOW_DIR|NEXTFLOW_DB_DIR|/data/prod' "$CODE/pipelines" "$CODE/lib")"
 
 exit $FAILED

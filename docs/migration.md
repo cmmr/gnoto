@@ -7,8 +7,9 @@ results to honor. [design.md](design.md) describes the target.
 Status on 2026-11-08: **phases 1 to 3 are done, in the test bed and on the cluster.** A CLI
 job runs each of ampliseq, biobakery and taxprofiler from `gnoto start` to a full dashboard
 in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does so on the
-machine itself. **Phase 4, the version cache, is built and passes its finish test in the test
-bed,** and is still to run on the cluster. Phase 5 is next. The
+machine itself. **Phase 4, the version cache, is done too:** it passes its finish test in the
+test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. Phase 5
+is next. The
 [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
 [phase 3](#phase-3-job-core) and [phase 4](#phase-4-version-cache) notes record what's built
 and every test result, and phase 1's notes list the two determinism probes still to run.
@@ -338,7 +339,7 @@ What's built:
   shell value of `true`, `false`, `null` or a number is written bare. A database is named
   `db:<path under core.db_dir>`. The record keeps the name, and the params file Nextflow reads
   gets the path.
-- **Reference choices.** An entry in `conf/databases.yaml` can carry a `choice`, such as
+- **Reference choices.** An entry in `pipelines/databases.yaml` can carry a `choice`, such as
   `dada_ref_taxonomy` `silva=138.2`, with the `*_ref_tax_custom` files that replace it.
   `params_reference` swaps one for the other, so ampliseq downloads no reference, and a choice
   without an entry fails.
@@ -347,13 +348,14 @@ What's built:
   two-user check asked. Their images are pinned by digest in `pipelines/<name>/lock.yaml`,
   beside the upstream commit, which replaces each pipeline file's `-r` revision. vsearch moves
   from 2.31.0 to 2.32.0, the latest.
-- **`conf/databases.yaml` and `references.yaml`** replace the JSON files. The retired sylph
-  entry and the two old `test-fastq` sets are gone, SILVA 138.2 has an entry with its md5s, and
-  the fixtures block from [fixtures.md](fixtures.md) is at the end.
+- **`pipelines/databases.yaml` and `references.yaml`** replace the JSON files. The retired
+  sylph entry and the two old `test-fastq` sets are gone, SILVA 138.2 has an entry with its
+  md5s, and the fixtures block from [fixtures.md](fixtures.md) is at the end.
 - **Steps, modules, workflows and resources.** The eight phase 2 steps and the two R scripts
   are in `steps/` and `steps/R/`, the modules and the biobakery and HUMAnN workflows in
-  `modules/` and `workflows/`, and the resource requests in `conf/<name>/resources.config`,
-  without the site settings (executor, Apptainer cache and binds, CPU, memory and time caps).
+  `modules/` and `workflows/`, and the resource requests in
+  `pipelines/<name>/resources.config`, without the site settings (executor, Apptainer cache
+  and binds, CPU, memory and time caps).
   `/tmp` still reaches task containers, because Apptainer binds it by default.
 
 Tested on 2026-11-06, all passing:
@@ -475,7 +477,7 @@ What's built:
 - **Databases.** `lib/databases.sh` finds what a job needs, offers the fetch, submits it as a
   job, and waits on it. `steps/fetch_files.sh` fetches any entry that lists `files`, fixtures
   included, and `steps/build_pplace_reference.sh` and `steps/build_16s_reference.sh` came
-  forward from phase 5. Every download they make has its md5 in `conf/databases.yaml`,
+  forward from phase 5. Every download they make has its md5 in `pipelines/databases.yaml`,
   checked against figshare's API and NCBI's `md5checksums.txt`. The 16S builder reads its
   genomes from its entry rather than taking accessions. The old pplace tree check died
   silently on a wholesale tip mismatch (`head` under `pipefail`), which is fixed.
@@ -573,7 +575,7 @@ job on the `wgs-mock` reads from ENA:
   taxpasta 0.7.0 reads the four columns `-t rel_ab` writes, not the fifth that
   `-t rel_ab_w_read_stats` adds. The old config let `TAXPASTA_MERGE` fail on MetaPhlAn,
   because nothing reads that table, but a run of one sample standardises rather than merges.
-  `conf/taxprofiler/resources.config` now lets either fail on MetaPhlAn.
+  `pipelines/taxprofiler/resources.config` now lets either fail on MetaPhlAn.
 - That run's message had no cause, because a run that lets its other tasks finish logs no
   "Session aborted", and `status` showed the end of `.command.err`, which was pandera's
   warnings alone. Both now come from Nextflow's report on the failing task.
@@ -688,10 +690,23 @@ Tested on 2026-11-08, in the test bed, under Slurm unless it says otherwise:
 | `test/helper/launcher-test.sh` in `debian:13-slim` under `dash`, with new cases: no current version (the install's files run `_current`, or `upgrade` itself), a hand-over with and without a copy to run, every command going to the current version but `--dev`, `gnoto exec --dev` only as its first word, a resolved hand-over, `lint` after `upgrade`, refused hand-overs, and a cached launcher binding the install and its own code and passing `GNOTO_IMAGE` and `GNOTO_RESOLVED`; and `stub-test.sh` | Pass |
 | `test/testbed/checks/versions.sh --small`, phase 4's finish test, as `alice`, with three commits: A, the install's; C, naming another `.sif` in `IMAGE`; and B, `main` moved on | Pass, 61 checks in 30 minutes. A job at C ran in C's image, its head job and followup from C's copy. After `gnoto upgrade` with no version went to `main` (B), C's `record.yaml` re-ran with `--inputs` from files of other names and paths, found by size: at C, in C's image, with the record's parameters and batch, and core tables (`ASV_table.tsv`, `DADA2_table.tsv`, `ASV_seqs.fasta`) byte-identical. A job at B kept B's code, head job and followup, through `gnoto upgrade` back to A, and `prune` kept A and B and removed C, keeping its `.sif`; naming C again fetched it again. A job at A, its head job cancelled in Slurm once 8 tasks had finished, ended as Failed with `work/`, `.nextflow/` and its staged inputs kept; after an upgrade to B, `gnoto resume` ran it at A, skipped its samplesheet and region steps, resumed its Nextflow session with all 8 tasks cached, and completed with the same core tables. Run again on the final tree: 61 checks, with 9 of 9 finished tasks cached |
 | `checks/launcher.sh` and `cancel.sh` as `alice`, `job.sh --small --cancel` (now checking that a cancelled run keeps its work directory and that `gnoto resume` lists it), and `config.sh` on a copy with no `config.yaml`, now first checking that its first command makes the clone's commit current | Pass: 20, 3, 7 and 30 checks |
-| `job.sh --small` without Slurm, as `bob`, on that copy, its job detached on this machine by the version's own launcher | Pass, 18 checks, on the second try, below |
+| `job.sh --small` without Slurm, as `bob`, on that copy, its job detached on this machine by the version's own launcher | Pass, 19 checks, on the second try, below |
 | Nextflow on a workflow in a read-only copy in `versions/`, as biobakery's runs | Pass, with the test bed's `sleep.nf` |
 
-Not yet run: biobakery and taxprofiler from the version cache, and anything on the cluster.
+Not yet run: biobakery and taxprofiler from the version cache.
+
+**On the cluster, 2026-11-08,** from `507ebc8`, the install's clone pulled to it, with the
+same image as phase 3:
+
+- `./gnoto lint` ran from the copy in `versions/`, naming `507ebc8`, fetched from
+  `https://github.com/cmmr/gnoto`, as the current version, and passed every check: the 8
+  nodes taking jobs passed the node check, and the one that was down was skipped.
+- `job.sh` ran ampliseq on `16s-v4` with the full pplace reference to Completed from the
+  version cache, and passed all 19 checks.
+- `versions.sh --resume` passed all 19 of its checks: a run cancelled in Slurm once 8 tasks
+  had finished ended as Failed with its cache kept, and `gnoto resume` ran it at its own
+  commit to Completed, with all 8 tasks taken from the cache and its samplesheet step not run
+  again.
 
 Found on the way: the pages' stylesheet and fonts were copied from the code with their
 modes, so from the read-only cache the progress page's copy blocked Present's, and the first
@@ -702,6 +717,10 @@ so gnoto lists every branch and tag and picks. Without Slurm, `job.sh` once stop
 once, having seen a final status, though its job ran on to Completed. The likely cause, as
 old as phase 3: `_local` wrote the job's host and then its process ID, and `status` read
 between the two writes says Lost. They're written together now, and the rerun passed.
+
+Afterwards, at Daniel's request, `conf/` moved into `pipelines/`, so that `config.yaml`
+tab-completes from `c`: each pipeline's `resources.config` into `pipelines/<name>/`, and
+`databases.yaml` and `references.yaml` into `pipelines/`.
 
 ### Phases 5 and 6
 
@@ -782,9 +801,9 @@ between the two writes says Lost. They're written together now, and the rerun pa
 | The samplesheet steps check only that each FASTQ is readable, and follow symlinks (`scripts/ampliseq_samplesheet.sh:179-183`) | In the form route, each file's real path must sit under `core.input_roots` |
 | `scripts/ampliseq_samplesheet.sh:250-267` sets each sample's `run` from a hash of its FASTQ directories, so a re-run from other paths batches samples differently | Record each input's `run` in `record.yaml`, and reuse it on a re-run |
 | `16s` is read by region detection (`scripts/ampliseq_detect_region.sh:91`) but isn't a parameter, so runs don't record it | Declare it in the lock file, under a versioned path |
-| `ampliseq/` has no manifest, because nf-core downloads SILVA by itself, and `pipelines/AMPLISEQ_01.sh:29-33` passes `dada_ref_taxonomy` straight through | Give each reference choice a fetch entry in `conf/databases.yaml`, with md5s, and pass the files through `*_ref_tax_custom`, so ampliseq downloads nothing |
+| `ampliseq/` has no manifest, because nf-core downloads SILVA by itself, and `pipelines/AMPLISEQ_01.sh:29-33` passes `dada_ref_taxonomy` straight through | Give each reference choice a fetch entry in `pipelines/databases.yaml`, with md5s, and pass the files through `*_ref_tax_custom`, so ampliseq downloads nothing |
 | nf-core pipelines load nf-core/configs from its `master` branch at run time by default, through `custom_config_base` | gnoto passes `custom_config_base` empty |
-| The host and 16S builders check each download against the md5 NCBI serves at build time, and `config/databases.json` holds 14 md5 values for 38 URLs | Record every download's md5 in `conf/databases.yaml`, and check it before any transformation such as `bowtie2-build` |
+| The host and 16S builders check each download against the md5 NCBI serves at build time, and `config/databases.json` holds 14 md5 values for 38 URLs | Record every download's md5 in `pipelines/databases.yaml`, and check it before any transformation such as `bowtie2-build` |
 
 ## File map
 
@@ -840,7 +859,7 @@ in step.
 | `scripts/R/ampliseq_tables.R`, `taxprofiler_tables.R` | `steps/R/` | 2 | Run in `gnoto-rbiom` |
 | `scripts/build_pplace_reference.sh`, `build_16s_reference.sh` | `steps/` | 3 | Done: md5s recorded, manifests as `<path>.manifest.yaml`, versioned paths, filling a directory the fetch job renames into place |
 | `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh` | `steps/` | 5 | Add tree digests and recorded download md5s, fix their manifest names, and fill the directory the fetch job gives them, as `steps/build_pplace_reference.sh` does |
-| (new) | `steps/fetch_files.sh` | 3 | Fetches any `conf/databases.yaml` entry or fixture that lists `files` |
+| (new) | `steps/fetch_files.sh` | 3 | Fetches any `pipelines/databases.yaml` entry or fixture that lists `files` |
 
 ### Dashboard and publishing
 
@@ -862,10 +881,10 @@ in step.
 | `pipelines/<NAME>.sh` | Not copied | | Shortcuts aren't needed |
 | `modules/*.nf` | `modules/` | 2 | Add the Nonpareil seed in phase 6, and digests in phase 5 |
 | `workflows/biobakery/`, `workflows/humann/` | `workflows/` | 2 | |
-| `config/slurm.config`, `config/{biobakery,taxprofiler}/slurm.config` | `conf/<name>/resources.config` | 2 | Keep resource requests. Site parts such as `cacheDir` and executor settings go |
+| `config/slurm.config`, `config/{biobakery,taxprofiler}/slurm.config` | `pipelines/<name>/resources.config` | 2 | Keep resource requests. Site parts such as `cacheDir` and executor settings go |
 | `config/local.config` | Not copied | | Only `docs/layout.md` mentions it |
 | `config/taxprofiler/database.csv` | `pipelines/taxprofiler/database.csv` | 2, 5 | Uses `db:` names |
-| `config/databases.json`, `references.json` | `conf/databases.yaml`, `references.yaml` | 2 | `biobakery_methods.sh` reads these with `jq`, and `publish_dashboard.sh` reads the methods data it writes. The two `test-fastq` entries give way to the fixtures in [fixtures.md](fixtures.md) |
+| `config/databases.json`, `references.json` | `pipelines/databases.yaml`, `references.yaml` | 2 | `biobakery_methods.sh` reads these with `jq`, and `publish_dashboard.sh` reads the methods data it writes. The two `test-fastq` entries give way to the fixtures in [fixtures.md](fixtures.md) |
 | `nix/rbiom.nix` | `images/gnoto-rbiom/` | 3, 5 | Replaced in phase 3 by a Dockerfile on `rocker/r-ver`, with a pak lockfile from a dated Posit CRAN snapshot and rbiom from GitHub. Phase 5 builds it in CI and publishes it |
 
 ### Docs, all for phase 8

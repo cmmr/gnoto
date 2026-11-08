@@ -8,7 +8,7 @@ ENA, NCBI or nf-core, on 2026-11-05.
 ## How they're used
 
 - **Fetched like databases.** Each fixture is an entry under `fixtures/` in
-  `conf/databases.yaml`, so `lint` and `selftest` fetch it into
+  `pipelines/databases.yaml`, so `lint` and `selftest` fetch it into
   `<db_dir>/fixtures/<name>/v1/`. The version changes if the cut rule below ever does.
 - **Checked before use.** Every file is checked against the md5 below before anything reads
   it, as for any download.
@@ -54,7 +54,7 @@ so treat them as minimums.
 
 ## Files and checksums
 
-This block moves into `conf/databases.yaml` in phase 2.
+This block moves into `pipelines/databases.yaml` in phase 2.
 
 ```yaml
 fixtures:

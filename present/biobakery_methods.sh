@@ -9,7 +9,8 @@
 # Requires:  jq and yq
 # Reads:     <results_dir>/kneaddata/logs/*.log, the samplesheet, params and
 #            statistics.layout in ./run_state.json, nextflow.out,
-#            conf/databases.yaml, conf/references.yaml and modules/*.nf
+#            pipelines/databases.yaml, pipelines/references.yaml and
+#            modules/*.nf
 # Writes:    ./methods_data.json: {paragraphs: [...], references: {id: {...}}}
 #
 # One paragraph for a manuscript's methods section, saying how this run's
@@ -22,10 +23,11 @@
 # gone is described by KneadData 0.12.4's defaults, without the read length.
 #
 # Databases are the run's db: names, described by their entry in
-# conf/databases.yaml: a release, the genomes a host reference was built from, a
-# dataset DOI, and what to cite. A name with no entry is named by its folder.
+# pipelines/databases.yaml: a release, the genomes a host reference was built
+# from, a dataset DOI, and what to cite. A name with no entry is named by its
+# folder.
 #
-# Citations are written [@id], for ids of conf/references.yaml, and
+# Citations are written [@id], for ids of pipelines/references.yaml, and
 # present/dashboard.sh renders them author-year. A tool named again, or a
 # database whose citation is its tool's, isn't cited twice.
 
@@ -39,10 +41,10 @@ METHODS_DATA=methods_data.json
 
 state_has params || fail "This run recorded no parameters, so its methods can't be described."
 
-DATABASES=$(yq -o=json '.' "$CODE_DIR/conf/databases.yaml") ||
-    fail "Can't read $CODE_DIR/conf/databases.yaml."
-REFERENCES=$(yq -o=json '.' "$CODE_DIR/conf/references.yaml") ||
-    fail "Can't read $CODE_DIR/conf/references.yaml."
+DATABASES=$(yq -o=json '.' "$CODE_DIR/pipelines/databases.yaml") ||
+    fail "Can't read $CODE_DIR/pipelines/databases.yaml."
+REFERENCES=$(yq -o=json '.' "$CODE_DIR/pipelines/references.yaml") ||
+    fail "Can't read $CODE_DIR/pipelines/references.yaml."
 
 # The image a module pins for a tool, such as
 # quay.io/biocontainers/humann:3.9--py312hdfd78af_0, or nothing
@@ -101,9 +103,9 @@ cite_new() {
     cite ${ids[@]+"${ids[@]}"}
 }
 
-# The conf/databases.yaml entry for a db: name, as compact JSON, into ENTRY:
-# the entry whose path it is, or the component it names inside one. Empty for
-# a name the file doesn't describe.
+# The pipelines/databases.yaml entry for a db: name, as compact JSON, into
+# ENTRY: the entry whose path it is, or the component it names inside one.
+# Empty for a name the file doesn't describe.
 database_entry() {
     local name=${1#db:}
     name=${name%/}
@@ -116,7 +118,7 @@ database_entry() {
            then ($db.components // {})[$path[($db.path | length) + 1:]] // empty
            else empty end][0] // empty' <<< "$DATABASES")
     [[ -n $ENTRY ]] ||
-        warn "conf/databases.yaml doesn't describe $1, so the methods name it by its folder."
+        warn "pipelines/databases.yaml doesn't describe $1, so the methods name it by its folder."
 }
 
 entry_get() {
@@ -520,7 +522,7 @@ if ! jq -n --arg text "$TEXT" --argjson refs "$REFERENCES" '
         [$text | scan("\\[@[^\\]]*\\]") | scan("@([A-Za-z0-9_]+)") | .[0]] | unique as $ids
         | ($ids - ($refs.references | keys)) as $missing
         | if ($missing | length) > 0
-          then error("conf/references.yaml has no " + ($missing | join(", ")))
+          then error("pipelines/references.yaml has no " + ($missing | join(", ")))
           else {paragraphs: [$text],
                 references: ($refs.references
                              | with_entries(select(.key as $k | $ids | any(.[]; . == $k))))}

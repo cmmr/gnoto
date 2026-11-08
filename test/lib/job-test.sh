@@ -179,7 +179,7 @@ ampliseq:
   qiime_ref_taxonomy: silva=138
 EOF
 check "a reference choice with no database entry" "yes" \
-    "$(has "$(lint_job ref.yaml)" "No database in conf/databases.yaml provides qiime_ref_taxonomy silva=138")"
+    "$(has "$(lint_job ref.yaml)" "No database in pipelines/databases.yaml provides qiime_ref_taxonomy silva=138")"
 
 echo "lint, samplesheets"
 : > empty.fq.gz

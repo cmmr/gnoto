@@ -17,7 +17,7 @@ NEXTFLOW_ARGS=(
     -log nextflow.log
     run "$CODE_DIR/workflows/biobakery"
     -profile apptainer
-    -c "$CODE_DIR/conf/biobakery/resources.config"
+    -c "$CODE_DIR/pipelines/biobakery/resources.config"
     -params-file biobakery_args.yaml
 )
 

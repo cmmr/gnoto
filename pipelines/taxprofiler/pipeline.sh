@@ -16,7 +16,7 @@ NEXTFLOW_ARGS=(
     run "$(lock_get taxprofiler .upstream.repository)"
     -r "$(lock_get taxprofiler .upstream.commit)"
     -profile apptainer
-    -c "$CODE_DIR/conf/taxprofiler/resources.config"
+    -c "$CODE_DIR/pipelines/taxprofiler/resources.config"
     -params-file taxprofiler_args.yaml
 )
 

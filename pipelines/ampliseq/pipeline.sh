@@ -15,7 +15,7 @@ NEXTFLOW_ARGS=(
     run "$(lock_get ampliseq .upstream.repository)"
     -r "$(lock_get ampliseq .upstream.commit)"
     -profile apptainer
-    -c "$CODE_DIR/conf/ampliseq/resources.config"
+    -c "$CODE_DIR/pipelines/ampliseq/resources.config"
     -params-file ampliseq_args.yaml
 )
 

@@ -4,13 +4,13 @@
 # synthetic references, served as file:// urls, and checks that it accepts a
 # good pair and refuses a wrong md5, a ragged alignment, a short one and a tree
 # that doesn't match. Then checks the built pplace/v1 in db_dir, if there is one,
-# against its manifest and conf/databases.yaml.
+# against its manifest and pipelines/databases.yaml.
 #
 # Run by:    a developer, as any user, through the launcher:
 #            gnoto exec --dev bash <install>/test/steps/build_pplace_reference-test.sh
 # Requires:  nothing beyond the gnoto image. Needs no network.
 #
-# The builds run from a scratch copy of the code whose conf/databases.yaml
+# The builds run from a scratch copy of the code whose pipelines/databases.yaml
 # points pplace/v1 at the synthetic files, so the real file is never changed.
 
 set -u
@@ -36,8 +36,8 @@ digest() {
 }
 
 mkdir "$WORK/code" "$WORK/src"
-cp -r "$CODE/lib" "$CODE/steps" "$CODE/conf" "$CODE/pipelines" "$WORK/code/"
-SCRATCH=$WORK/code/conf/databases.yaml
+cp -r "$CODE/lib" "$CODE/steps" "$CODE/pipelines" "$WORK/code/"
+SCRATCH=$WORK/code/pipelines/databases.yaml
 
 # An alignment of <count> rows, 20 columns wide, with row <short> one column
 # short, and a tree over the same names, with an internal node and support
@@ -129,8 +129,8 @@ echo "pplace/v1 in db_dir"
 if [[ -d $DB_DIR/pplace/v1 ]]; then
     MANIFEST=$DB_DIR/pplace/v1.manifest.yaml
     check "its tree digest matches its manifest" "$(yq '.tree_sha256' "$MANIFEST")" "$(digest "$DB_DIR/pplace/v1")"
-    check "its files have the md5s conf/databases.yaml records" \
-        "$(yq '[.databases[] | select(.path == "pplace/v1") | .sources[].md5] | join(" ")' "$CODE/conf/databases.yaml")" \
+    check "its files have the md5s pipelines/databases.yaml records" \
+        "$(yq '[.databases[] | select(.path == "pplace/v1") | .sources[].md5] | join(" ")' "$CODE/pipelines/databases.yaml")" \
         "$(cd "$DB_DIR/pplace/v1" && md5sum bac16s.alnfna bac16s.newick | cut -d' ' -f1 | tr '\n' ' ' | sed 's/ $//')"
     check "and 54322 sequences and tips" "54322 54322" "$(yq '[.sequences, .tips] | join(" ")' "$MANIFEST")"
 else

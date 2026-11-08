@@ -52,8 +52,8 @@ lint_hours() {
     esac
 }
 
-# Every task request in conf/<pipeline>/resources.config and a workflow's own
-# nextflow.config set as a plain value rather than one that grows with each
+# Every task request in pipelines/<pipeline>/resources.config and a workflow's
+# own nextflow.config set as a plain value rather than one that grows with each
 # attempt, as "<pipeline or workflow>\t<process>\t<key>\t<value>\t<fixed>",
 # where fixed is 1 for a line marked "// fixed": a CPU count the results
 # depend on
@@ -73,7 +73,7 @@ fixed_requests() {
             sub(/ *\/\/.*/, "", value)
             print name "\t" process "\t" key "\t" value "\t" fixed
         }
-    ' "$CODE_DIR"/conf/*/resources.config "$CODE_DIR"/workflows/*/nextflow.config | sort -u
+    ' "$CODE_DIR"/pipelines/*/resources.config "$CODE_DIR"/workflows/*/nextflow.config | sort -u
 }
 
 # Every setting in a YAML file, as section.key lines

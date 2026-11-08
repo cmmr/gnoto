@@ -10,8 +10,9 @@
 # Requires:  network access, and dada2/silva-138.2 and fixtures/16s-v4/v1 in
 #            <db_dir>, to compare against. Downloads about 210 MB.
 #
-# The failures run from a scratch copy of the code whose conf/databases.yaml
-# has extra fixtures, so the real file is never changed.
+# The failures run from a scratch copy of the code whose
+# pipelines/databases.yaml has extra fixtures, so the real file is never
+# changed.
 
 set -u
 
@@ -55,7 +56,7 @@ check "manifest's tree digest matches the copy in db_dir" "$(digest "$DB_DIR/dad
 check "manifest's path, count and size" "dada2/silva-138.2 2 210915821" \
     "$(yq '[.path, .files, .bytes] | join(" ")' "$WORK/silva/manifest.yaml")"
 check "manifest names each source with its md5" \
-    "$(yq '[.databases[] | select(.path == "dada2/silva-138.2") | .files[].md5] | join(" ")' "$CODE/conf/databases.yaml")" \
+    "$(yq '[.databases[] | select(.path == "dada2/silva-138.2") | .files[].md5] | join(" ")' "$CODE/pipelines/databases.yaml")" \
     "$(yq '[.sources[].md5] | join(" ")' "$WORK/silva/manifest.yaml")"
 check "manifest says how" "steps/fetch_files.sh 138.2" \
     "$(yq '[.built_with, .release] | join(" ")' "$WORK/silva/manifest.yaml")"
@@ -84,8 +85,8 @@ check "a missing directory is refused" "1 yes" "$? $(grep -q "isn't a writable d
 
 echo "failures, from a scratch copy of the code"
 mkdir "$WORK/code"
-cp -r "$CODE/lib" "$CODE/steps" "$CODE/conf" "$CODE/pipelines" "$WORK/code/"
-SCRATCH=$WORK/code/conf/databases.yaml
+cp -r "$CODE/lib" "$CODE/steps" "$CODE/pipelines" "$WORK/code/"
+SCRATCH=$WORK/code/pipelines/databases.yaml
 GOOD_URL=$(yq '.fixtures."16s-v4"[0].url' "$SCRATCH")
 GOOD_MD5=$(yq '.fixtures."16s-v4"[0].md5' "$SCRATCH")
 GOOD_BYTES=$(yq '.fixtures."16s-v4"[0].bytes' "$SCRATCH")

@@ -7,7 +7,7 @@
 # Requires:    yq, jq and flock; the settings and helpers from lib/env.sh, and
 #              lint_ok, lint_warn and lint_fail from lib/lint.sh
 #
-# Each database is an entry in conf/databases.yaml, by its path under
+# Each database is an entry in pipelines/databases.yaml, by its path under
 # core.db_dir, and a fixture is fixtures/<name>/v1. An entry's setup is a
 # command that fills an empty directory: the fetch job runs it with
 # <path>.tmp.<job> appended, moves the manifest.yaml it writes to
@@ -19,11 +19,12 @@
 # waits for it: with Slurm through --dependency=afterok, and on this machine by
 # watching the marker.
 
-# The conf/databases.yaml entry a db: name falls under, as its path, or nothing
+# The pipelines/databases.yaml entry a db: name falls under, as its path, or
+# nothing
 db_entry_for() {
     local name=${1#db:}
     yq -o=json '[(.databases[].path), (.fixtures | keys | .[] | "fixtures/" + . + "/v1")]' \
-        "$CODE_DIR/conf/databases.yaml" | jq -r --arg name "$name" '
+        "$CODE_DIR/pipelines/databases.yaml" | jq -r --arg name "$name" '
         map(select(. as $path | $name == $path or ($name | startswith($path + "/"))
             or ($name | startswith($path + "."))))
         | .[0] // ""'
@@ -41,14 +42,14 @@ db_setup_for() {
         esac
         printf 'steps/fetch_files.sh %s' "$path"
     else
-        P=$path yq -r '.databases[] | select(.path == strenv(P)) | .setup // ""' "$CODE_DIR/conf/databases.yaml"
+        P=$path yq -r '.databases[] | select(.path == strenv(P)) | .setup // ""' "$CODE_DIR/pipelines/databases.yaml"
     fi
 }
 
 # What an entry downloads, in bytes, as the entry records it
 db_bytes_for() {
     local path=$1 fixture=${1#fixtures/}
-    yq -o=json . "$CODE_DIR/conf/databases.yaml" | jq -r --arg path "$path" --arg fixture "${fixture%/v1}" '
+    yq -o=json . "$CODE_DIR/pipelines/databases.yaml" | jq -r --arg path "$path" --arg fixture "${fixture%/v1}" '
         if ($path | startswith("fixtures/")) then .fixtures[$fixture] // []
         else .databases[] | select(.path == $path) | (.files // []) + (.sources // []) end
         | map(.bytes // 0) | add // 0'
@@ -96,7 +97,7 @@ databases_check() {
         [[ ! -e $path ]] || continue
         entry=$(db_entry_for "$name")
         if [[ -z $entry ]]; then
-            lint_fail "$name is missing, at $path, and conf/databases.yaml has no entry to fetch it from"
+            lint_fail "$name is missing, at $path, and pipelines/databases.yaml has no entry to fetch it from"
             unfetchable=$((unfetchable + 1))
             continue
         fi
@@ -110,7 +111,7 @@ databases_check() {
         fi
         setup=$(db_setup_for "$entry")
         if [[ -z $setup ]]; then
-            lint_fail "db:$entry is missing, and conf/databases.yaml says nothing that fetches it"
+            lint_fail "db:$entry is missing, and pipelines/databases.yaml says nothing that fetches it"
             unfetchable=$((unfetchable + 1))
             continue
         fi
@@ -201,7 +202,7 @@ fetch_main() {
     local entry=${1:-} setup dir tmp status=0 job
     [[ -n $entry && $entry != /* && "/$entry/" != */../* ]] || fail "Usage: _fetch <database path>"
     setup=$(db_setup_for "$entry")
-    [[ -n $setup ]] || fail "conf/databases.yaml has no way to fetch $entry."
+    [[ -n $setup ]] || fail "pipelines/databases.yaml has no way to fetch $entry."
     dir=$DB_DIR/$entry
     job=${SLURM_JOB_ID:-$$}
     [[ -n ${SLURM_JOB_ID:-} ]] || printf 'local - %s %s\n' "$(uname -n)" "$$" > "$dir.fetching"

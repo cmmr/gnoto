@@ -127,14 +127,15 @@ params_write() {
 }
 
 # A reference choice, such as dada_ref_taxonomy silva=138.2, replaced with the
-# local files conf/databases.yaml maps it to, so the pipeline downloads nothing
+# local files pipelines/databases.yaml maps it to, so the pipeline downloads
+# nothing
 params_reference() {
     local param="$1" choice="$2" json key value
 
     json=$(PARAM="$param" CHOICE="$choice" yq -o=json -e '
         [.databases[] | select(.choice.parameter == strenv(PARAM) and .choice.value == strenv(CHOICE))]
-        | .[0].choice.params' "$CODE_DIR/conf/databases.yaml" 2> /dev/null) ||
-        fail "No database in conf/databases.yaml provides $param $choice."
+        | .[0].choice.params' "$CODE_DIR/pipelines/databases.yaml" 2> /dev/null) ||
+        fail "No database in pipelines/databases.yaml provides $param $choice."
     params_unset "$param"
     while IFS=$'\t' read -r key value; do
         params_set_json "$key" "$value"
@@ -149,7 +150,7 @@ params_apply_job() {
     local json="${1:-{\}}" choices key value
 
     choices=$(yq -o=json '[.databases[] | select(.choice) | .choice.parameter] | unique' \
-        "$CODE_DIR/conf/databases.yaml") || fail "Can't read conf/databases.yaml."
+        "$CODE_DIR/pipelines/databases.yaml") || fail "Can't read pipelines/databases.yaml."
     while IFS=$'\t' read -r key value; do
         [[ -n "$key" ]] || continue
         if [[ "$key" == *_ref_taxonomy ]] ||

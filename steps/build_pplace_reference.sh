@@ -4,8 +4,8 @@
 #
 # Downloads SBDI's GTDB bacterial 16S reference - one 16S sequence per GTDB
 # species representative, aligned, plus the maximum-likelihood tree built from
-# that alignment - checks each file against the md5 conf/databases.yaml records,
-# then checks the two against each other.
+# that alignment - checks each file against the md5 pipelines/databases.yaml
+# records, then checks the two against each other.
 #
 # EPA-NG aligns a run's ASVs to this alignment and grafts them onto this tree,
 # and that grafted tree is what UniFrac and Faith's PD are computed over. Its
@@ -17,20 +17,20 @@
 # calculation. They are fetched here so --pplace_tree and --pplace_aln can name
 # them as local paths, which is the route that does.
 #
-# The two figshare files conf/databases.yaml names are the ones ampliseq pins
-# for sbdi-gtdb's bac16s at the commit pipelines/ampliseq/lock.yaml pins. A new
-# ampliseq pin means checking that its conf/ref_databases.config still names
-# them. A different pair is a new database path, such as pplace/v2.
+# The two figshare files pipelines/databases.yaml names are the ones ampliseq
+# pins for sbdi-gtdb's bac16s at the commit pipelines/ampliseq/lock.yaml pins.
+# A new ampliseq pin means checking that its conf/ref_databases.config still
+# names them. A different pair is a new database path, such as pplace/v2.
 #
 # Usage:     build_pplace_reference.sh <out_dir>
 # Called by: the database fetch job, as the pplace/v1 setup line in
-#            conf/databases.yaml, with <out_dir> appended. <out_dir> is an empty
-#            directory the job made. On success the job renames it to
+#            pipelines/databases.yaml, with <out_dir> appended. <out_dir> is an
+#            empty directory the job made. On success the job renames it to
 #            <db_dir>/pplace/v1 and moves manifest.yaml beside it, as
 #            pplace/v1.manifest.yaml. On failure it removes it.
 # Requires:  curl, md5sum, sha256sum, awk, sort, comm, yq and jq, from the gnoto
 #            image. About 100 MB of disk, 1 CPU and 1 GB of memory.
-# Reads:     the pplace/v1 entry of conf/databases.yaml
+# Reads:     the pplace/v1 entry of pipelines/databases.yaml
 # Writes:    into <out_dir>:
 #              bac16s.alnfna    the reference alignment, one row per species
 #                               representative
@@ -61,11 +61,11 @@ OUT_DIR=$(out_dir_path "$1") || exit 1
 # Away from the caller's directory, where fail would write to a run's state
 cd "$OUT_DIR"
 
-ENTRY=$(fetch_entry "$DB") || fail "conf/databases.yaml has no database $DB."
+ENTRY=$(fetch_entry "$DB") || fail "pipelines/databases.yaml has no database $DB."
 SOURCES=$(jq -c '.sources // []' <<< "$ENTRY")
 check_downloads "$SOURCES" "$DB"
 if [[ $(jq -r '[.[].file] | sort | join(" ")' <<< "$SOURCES") != "$ALIGNMENT $TREE" ]]; then
-    fail "conf/databases.yaml's $DB entry must download exactly $ALIGNMENT and $TREE."
+    fail "pipelines/databases.yaml's $DB entry must download exactly $ALIGNMENT and $TREE."
 fi
 
 WORK_DIR=$(mktemp -d "$OUT_DIR/.build.XXXXXX") || fail "Couldn't make a working directory in $OUT_DIR."

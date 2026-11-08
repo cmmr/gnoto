@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # fetch_files.sh - Fetches a database or fixture that's used as it's downloaded,
-# checking every file against conf/databases.yaml.
+# checking every file against pipelines/databases.yaml.
 #
 # A database entry lists its downloads under files, and a fixture is the list
 # under fixtures.<name>. Each item has a url, an md5 and a size in bytes, and
@@ -23,7 +23,7 @@
 #            removes it.
 # Sourced by: build_pplace_reference.sh and build_16s_reference.sh
 # Requires:  curl, md5sum, sha256sum, find, yq and jq, from the gnoto image
-# Reads:     conf/databases.yaml
+# Reads:     pipelines/databases.yaml
 # Writes:    each file into <out_dir>, and <out_dir>/manifest.yaml
 # Env:       CODE_DIR and the log/fail helpers, from lib/env.sh
 
@@ -37,7 +37,7 @@ out_dir_path() {
 }
 
 # Downloads a url to dest, checks its size and md5 against what
-# conf/databases.yaml records, and only then gives it its name
+# pipelines/databases.yaml records, and only then gives it its name
 fetch_checked() {
     local url="$1" md5="$2" bytes="$3" dest="$4" got
 
@@ -51,14 +51,14 @@ fetch_checked() {
     got=$(stat -c %s "$dest.part")
     if [[ "$got" != "$bytes" ]]; then
         rm -f "$dest.part"
-        fail "$url gave $got bytes, not the $bytes conf/databases.yaml records. Nothing was built from it."
+        fail "$url gave $got bytes, not the $bytes pipelines/databases.yaml records. Nothing was built from it."
     fi
 
     got=$(md5sum < "$dest.part")
     got=${got%% *}
     if [[ "$got" != "$md5" ]]; then
         rm -f "$dest.part"
-        fail "$url has md5 $got, not the $md5 conf/databases.yaml records, so upstream may have changed it. Nothing was built from it."
+        fail "$url has md5 $got, not the $md5 pipelines/databases.yaml records, so upstream may have changed it. Nothing was built from it."
     fi
 
     mv -f "$dest.part" "$dest"
@@ -69,7 +69,7 @@ fetch_checked() {
 check_downloads() {
     local json="$1" what="$2" bad
 
-    [[ $(jq 'length' <<< "$json") -gt 0 ]] || fail "conf/databases.yaml lists no downloads for $what."
+    [[ $(jq 'length' <<< "$json") -gt 0 ]] || fail "pipelines/databases.yaml lists no downloads for $what."
     bad=$(jq -r 'first(.[] | select(
             (.url | tostring | test("^(https?|file)://") | not)
             or (.md5 | tostring | test("^[0-9a-f]{32}$") | not)
@@ -78,9 +78,9 @@ check_downloads() {
             or .file == "manifest.yaml")
         | .url // "(no url)")' <<< "$json")
     [[ -z "$bad" ]] ||
-        fail "conf/databases.yaml's download $bad, for $what, needs a url, an md5, a size in bytes and a plain file name."
+        fail "pipelines/databases.yaml's download $bad, for $what, needs a url, an md5, a size in bytes and a plain file name."
     bad=$(jq -r 'first(group_by(.file)[] | select(length > 1) | .[0].file)' <<< "$json")
-    [[ -z "$bad" ]] || fail "conf/databases.yaml saves two of $what's downloads as $bad."
+    [[ -z "$bad" ]] || fail "pipelines/databases.yaml saves two of $what's downloads as $bad."
 }
 
 # Prints "<files> <bytes> <tree_sha256>" for a directory. The tree digest is the
@@ -122,9 +122,9 @@ write_manifest() {
         fail "Couldn't write $dir/manifest.yaml."
 }
 
-# A conf/databases.yaml entry, as JSON, with its downloads as files
+# A pipelines/databases.yaml entry, as JSON, with its downloads as files
 fetch_entry() {
-    local db="$1" databases="$CODE_DIR/conf/databases.yaml"
+    local db="$1" databases="$CODE_DIR/pipelines/databases.yaml"
 
     if [[ "$db" =~ ^fixtures/([^/]+)/v1$ ]]; then
         FETCH_FIXTURE="${BASH_REMATCH[1]}" yq -o=json -e \
@@ -142,7 +142,7 @@ fetch_files_main() {
     # Away from the caller's directory, where fail would write to a run's state
     cd "$out_dir"
 
-    entry=$(fetch_entry "$db") || fail "conf/databases.yaml has no database or fixture $db."
+    entry=$(fetch_entry "$db") || fail "pipelines/databases.yaml has no database or fixture $db."
     downloads=$(jq -c '[(.files // [])[] | .file = (.file // (.url | tostring | sub("[?#].*$"; "") | split("/") | last))]' \
         <<< "$entry")
     check_downloads "$downloads" "$db"

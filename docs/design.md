@@ -1,9 +1,8 @@
 # gnoto design
 
 Status on 2026-11-08: the design is agreed. Phase 1, the image and the helper, is built and
-tested in a local Slurm test bed and on CMMR's cluster. Phases 2 and 3, the restructure and
-the job core, are tested there too, and phase 4, the version cache, in the test bed. This
-file describes the target.
+tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 4, the restructure, the
+job core and the version cache, are tested there too. This file describes the target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -80,15 +79,17 @@ settings to watch, as covered under "What same output means" and "Configuration"
 ```text
 gnoto                 launcher: a small sh script
 IMAGE                 the gnoto image's address, by digest
+COMPAT                the version cache's compatibility number, which sets the floor
 CHANGELOG.md          release notes, shown by gnoto upgrade
 host/                 host helper, the stand-in, and allowed/, the host commands per backend
 lib/                  entry point in the image, argument parser, settings loader, gnoto
                       config and config/, which declares each config.yaml section, job
                       runner, run state, parameters, scheduler and container calls, helpers
-pipelines/<name>/     definition, options.yaml, lock.yaml, containers.config, stable-files,
-                      selftest.yaml, and taxprofiler's database.csv
+pipelines/<name>/     definition, options.yaml, lock.yaml, resources.config (its resource
+                      requests), containers.config, stable-files, selftest.yaml, and
+                      taxprofiler's database.csv
+pipelines/*.yaml      databases.yaml and references.yaml, which the pipelines share
 workflows/, modules/  Nextflow code
-conf/                 resource requests, databases.yaml, references.yaml
 steps/                compute steps: samplesheets, region detection, tables, reference builds
 present/              dashboard templates and rendering
 service/wrike/        listener, handlers, API helpers
@@ -107,6 +108,9 @@ One repo holds everything, so a commit pins everything at once. Pipelines have n
 `_01` numbering, because release tags do that job. One tag versions all the
 pipelines together, so two versions can hold identical `ampliseq` code. That's
 harmless, because `gnoto selftest --dev` shows which pipelines' core tables changed.
+
+Nothing else at the top of an install starts with a lowercase `c`, so `config.yaml`, the
+file people open there most, tab-completes from `c`.
 
 ## Host and image
 
@@ -475,7 +479,7 @@ whose settings are only partly filled in is a FAIL that says what to add.
   exists, `slurm.job_time` fits within its limit, and `slurm.max_cpus`, `max_memory` and
   `max_time` are set, as Nextflow writes them. A `slurm.max_time` under a task's plain
   time request, such as HUMANN_PROFILE's 48 hours, is a WARN, because the limit cuts that
-  task short. A request in `conf/<pipeline>/resources.config` or a workflow's own
+  task short. A request in `pipelines/<pipeline>/resources.config` or a workflow's own
   `nextflow.config` marked `// fixed` is a CPU count the results depend on, and a
   `slurm.max_cpus` below it is a FAIL. Without Slurm, a WARN says when it's on the machine
   but off.
@@ -854,7 +858,7 @@ later upgrade can't change what an existing job file means.
   elsewhere at run time and undo the commit's pin. gnoto itself passes `custom_config_base`
   empty, because by default nf-core pipelines load nf-core/configs from its `master` branch
 - every reference choice, such as `dada_ref_taxonomy`, has an entry in
-  `conf/databases.yaml`. gnoto fetches and checks it like any database, then passes the
+  `pipelines/databases.yaml`. gnoto fetches and checks it like any database, then passes the
   files through the matching `*_ref_tax_custom` parameter, so ampliseq downloads nothing
   itself. ampliseq's own downloads have no checksum check, and some use plain `http://`
 - the version resolves and is new enough to run
@@ -887,8 +891,8 @@ taxprofiler's `instrument_platform`. `section_help` gives the comments above the
 pipeline's section. An option's answer goes to the run's state, where `pipeline.sh` reads
 it. Any other key in the section is a parameter, applied after `pipeline.sh`'s defaults,
 with one exception: a reference choice, such as `qiime_ref_taxonomy`, becomes the local
-files `conf/databases.yaml` maps it to, as an option's does. A reference choice is offered
-only once it has an entry there. A value naming one of gnoto's own files, such as
+files `pipelines/databases.yaml` maps it to, as an option's does. A reference choice is
+offered only once it has an entry there. A value naming one of gnoto's own files, such as
 ampliseq's report abstract, is written `code:<path under the code directory>` and resolved
 only in the params file Nextflow reads, so the record names no site path.
 
@@ -1325,7 +1329,7 @@ with a one-time increase to 200 GB.
 `lint job.yaml` finds missing databases and offers to fetch them. It evaluates the
 pipeline definition with the job's answers and reads which databases the resulting
 parameters name, so a job asking for human depletion needs `hostremoval/chm13v2phix`
-and nothing else from that family. `conf/databases.yaml` holds the command that
+and nothing else from that family. `pipelines/databases.yaml` holds the command that
 rebuilds each one, and the lock file holds its size.
 
 ```text
@@ -1372,7 +1376,7 @@ sha256sum -- | sha256sum`. A manifest holds `schema`, `path`, `files`, `bytes` a
 `tree_sha256`, then what went in (each source's url, md5 and size), how (`built_with`, and
 any tool's image, version and command), and `built_utc` and `built_by`.
 
-**Checking downloads.** `conf/databases.yaml` records the md5 of every file a fetch
+**Checking downloads.** `pipelines/databases.yaml` records the md5 of every file a fetch
 downloads, such as the human reference genome. The fetch checks each file against it before
 any transformation, such as `bowtie2-build` or unpacking, and fails on a mismatch. A changed
 upstream file is then caught before anything is built from it.

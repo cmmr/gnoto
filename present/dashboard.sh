@@ -966,8 +966,8 @@ render_overview() {
 # One part of the Methods page as markup: "text", the paragraphs with their
 # [@id] citations written author-year; "references", the cited references in
 # alphabetical order, each linked to its DOI or address; or "bibtex". A
-# reference is an entry of conf/references.yaml, and its citation, formatted
-# form and BibTeX are derived here.
+# reference is an entry of pipelines/references.yaml, and its citation,
+# formatted form and BibTeX are derived here.
 dashboard_methods_html() {
     jq -r --arg part "$1" '
         def ids: [scan("@([A-Za-z0-9_]+)") | .[0]];

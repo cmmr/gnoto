@@ -12,9 +12,9 @@
 #            in <db_dir>/fixtures/16s-v4/v1. Compares with <db_dir>/16s/v1 when
 #            there is one.
 #
-# The failures run from a scratch copy of the code whose conf/databases.yaml
-# points 16s/v1 at altered copies of the downloads, as file:// urls, so the
-# real file is never changed.
+# The failures run from a scratch copy of the code whose
+# pipelines/databases.yaml points 16s/v1 at altered copies of the downloads, as
+# file:// urls, so the real file is never changed.
 
 set -u
 
@@ -61,7 +61,7 @@ if [[ -d $INSTALLED ]]; then
     check "identical to the reference in db_dir" "$(digest "$INSTALLED")" "$(digest "$WORK/first")"
 fi
 
-ACCESSIONS=$(yq '[.databases[] | select(.path == "16s/v1") | .sources[].accession] | join(" ")' "$CODE/conf/databases.yaml")
+ACCESSIONS=$(yq '[.databases[] | select(.path == "16s/v1") | .sources[].accession] | join(" ")' "$CODE/pipelines/databases.yaml")
 check "a landmark per genome, in order" "$ACCESSIONS" \
     "$(grep '^>' "$WORK/first/landmarks.fasta" | cut -c2- | tr '\n' ' ' | sed 's/ $//')"
 check "every genome has positions" "$ACCESSIONS" \
@@ -106,8 +106,8 @@ fi
 
 echo "failures, from a scratch copy of the code"
 mkdir "$WORK/code" "$WORK/src"
-cp -r "$CODE/lib" "$CODE/steps" "$CODE/conf" "$CODE/pipelines" "$WORK/code/"
-SCRATCH=$WORK/code/conf/databases.yaml
+cp -r "$CODE/lib" "$CODE/steps" "$CODE/pipelines" "$WORK/code/"
+SCRATCH=$WORK/code/pipelines/databases.yaml
 REAL=$(yq -o=json '.databases[] | select(.path == "16s/v1") | .sources' "$SCRATCH")
 for i in $(seq 0 7); do
     url=$(jq -r ".[$i].url" <<< "$REAL")

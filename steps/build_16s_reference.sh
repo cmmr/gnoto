@@ -6,8 +6,8 @@
 # Pulls the 16S rRNA gene out of a handful of RefSeq genomes, concatenates them
 # into one small FASTA, and records where every base of every landmark sits in
 # E. coli numbering. The genomes, and the md5 of each file downloaded, are in
-# the 16s/v1 entry of conf/databases.yaml. Each file is checked against its md5
-# before anything is read from it.
+# the 16s/v1 entry of pipelines/databases.yaml. Each file is checked against its
+# md5 before anything is read from it.
 #
 # Reads are aligned to these landmarks rather than to a taxonomy database because
 # the detector needs a coordinate, and a coordinate needs a reference whose
@@ -25,14 +25,14 @@
 #
 # Usage:     build_16s_reference.sh <out_dir>
 # Called by: the database fetch job, as the 16s/v1 setup line in
-#            conf/databases.yaml, with <out_dir> appended. <out_dir> is an empty
-#            directory the job made. On success the job renames it to
+#            pipelines/databases.yaml, with <out_dir> appended. <out_dir> is an
+#            empty directory the job made. On success the job renames it to
 #            <db_dir>/16s/v1 and moves manifest.yaml beside it, as
 #            16s/v1.manifest.yaml. On failure it removes it.
 # Requires:  curl, md5sum, sha256sum, gzip, awk, yq and jq, from the gnoto image;
 #            vsearch, from the image pipelines/ampliseq/lock.yaml pins. Under a
 #            megabyte of downloads, 1 CPU and 1 GB of memory.
-# Reads:     the 16s/v1 entry of conf/databases.yaml
+# Reads:     the 16s/v1 entry of pipelines/databases.yaml
 # Writes:    into <out_dir>:
 #              landmarks.fasta       the 16S genes, one per genome, named by
 #                                    accession
@@ -77,17 +77,17 @@ OUT_DIR=$(out_dir_path "$1") || exit 1
 # Away from the caller's directory, where fail would write to a run's state
 cd "$OUT_DIR"
 
-ENTRY=$(fetch_entry "$DB") || fail "conf/databases.yaml has no database $DB."
+ENTRY=$(fetch_entry "$DB") || fail "pipelines/databases.yaml has no database $DB."
 SOURCES=$(jq -c '[(.sources // [])[] | .file = (.url | tostring | split("/") | last)]' <<< "$ENTRY")
 check_downloads "$SOURCES" "$DB"
 
 BAD=$(jq -r 'first(.[] | select(.accession | tostring | test("^GCF_[0-9]{9}[.][0-9]+$") | not) | .url)' \
     <<< "$SOURCES")
-[[ -z "$BAD" ]] || fail "conf/databases.yaml's $DB download $BAD doesn't name a RefSeq assembly accession."
+[[ -z "$BAD" ]] || fail "pipelines/databases.yaml's $DB download $BAD doesn't name a RefSeq assembly accession."
 BAD=$(jq -r 'first(group_by(.accession)[] | select(length > 1) | .[0].accession)' <<< "$SOURCES")
-[[ -z "$BAD" ]] || fail "conf/databases.yaml's $DB entry lists $BAD twice."
+[[ -z "$BAD" ]] || fail "pipelines/databases.yaml's $DB entry lists $BAD twice."
 if ! jq -e --arg ecoli "$ECOLI_ACCESSION" 'any(.accession == $ecoli)' <<< "$SOURCES" > /dev/null; then
-    fail "conf/databases.yaml's $DB entry must include $ECOLI_ACCESSION, whose numbering the map is built in."
+    fail "pipelines/databases.yaml's $DB entry must include $ECOLI_ACCESSION, whose numbering the map is built in."
 fi
 
 log "Pulling vsearch..."

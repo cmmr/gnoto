@@ -17,8 +17,8 @@
 #   measured  true when the job measures it if it's unanswered, and records
 #             what it measured
 #
-# A reference choice is offered only once conf/databases.yaml has an entry for
-# it, because gnoto fetches it and passes it as local files.
+# A reference choice is offered only once pipelines/databases.yaml has an entry
+# for it, because gnoto fetches it and passes it as local files.
 
 schema: 1
 
