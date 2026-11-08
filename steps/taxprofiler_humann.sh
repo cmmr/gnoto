@@ -47,8 +47,10 @@
 #            page reads and the workflow's own log), and <results_dir>/humann/:
 #            the tables, the per-sample logs, and a copy of that command record
 #            naming no site paths
-# Env:       CODE_DIR, DB_DIR, NEXTFLOW_CONFIG, the log/warn helpers and the run
-#            state helpers, from lib/env.sh; site.config, which the job wrote
+# Env:       CODE_DIR, DB_DIR, NEXTFLOW_CONFIG, the log/warn helpers,
+#            nextflow_session and the run state helpers, from lib/env.sh;
+#            site.config, which the job wrote; GNOTO_RESUME, true when the job
+#            resumes a run
 
 set -euo pipefail
 
@@ -302,6 +304,13 @@ HUMANN_ARGS=(
 # core.nextflow_config
 [[ ! -f site.config ]] || HUMANN_ARGS+=(-c "$PWD/site.config")
 [[ -z "${NEXTFLOW_CONFIG:-}" ]] || HUMANN_ARGS+=(-c "$NEXTFLOW_CONFIG")
+
+# A resumed run resumes this workflow's own session, which shares the run
+# directory with the job's main Nextflow run
+if [[ "${GNOTO_RESUME:-false}" == true ]]; then
+    SESSION=$(nextflow_session "$WORKFLOW")
+    [[ -z "$SESSION" ]] || HUMANN_ARGS+=(-resume "$SESSION")
+fi
 
 {
     printf '#!/bin/bash\n'

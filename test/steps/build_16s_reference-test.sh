@@ -7,7 +7,7 @@
 # without E. coli each stop the build.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/steps/build_16s_reference-test.sh
+#            gnoto exec --dev bash <install>/test/steps/build_16s_reference-test.sh
 # Requires:  network access, for NCBI and the vsearch image; the 16s-v4 fixture
 #            in <db_dir>/fixtures/16s-v4/v1. Compares with <db_dir>/16s/v1 when
 #            there is one.

@@ -7,7 +7,7 @@
 # quoting, in the real image. Slurm is stubbed where it's asked.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/lib/job-test.sh
+#            gnoto exec --dev bash <install>/test/lib/job-test.sh
 # Requires:  the gnoto image; the 16s-v4 fixture in <db_dir>/fixtures/16s-v4/v1;
 #            and network access, for ampliseq's nextflow_schema.json
 #

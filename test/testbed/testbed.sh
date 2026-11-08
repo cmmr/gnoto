@@ -8,16 +8,23 @@
 #                                 the test bed: gnoto from images/gnoto.nix, named
 #                                 in IMAGE, and gnoto-rbiom from
 #                                 images/gnoto-rbiom/Dockerfile, named in lock.yaml
-#            testbed.sh install [dir]   copy this working tree to /opt/gnoto, or dir,
-#                                 in the test bed
+#            testbed.sh repo      make the test bed's git repository, if it has
+#                                 none, from this repo's main
+#            testbed.sh commit [message]   commit this working tree to that
+#                                 repository's main, and print the commit
+#            testbed.sh install [dir]   commit this working tree, clone it to
+#                                 /opt/gnoto, or dir, and make it current there
 #            testbed.sh down      remove the container, keeping its data volume
 #            testbed.sh purge     remove the container and its volumes
-# Requires:  docker and bash. Works from Git Bash on Windows.
+# Requires:  docker, git and bash. Works from Git Bash on Windows.
 #
 # Containers: gnoto-testbed, privileged, with /data on the volume
 # gnoto-testbed-data, and gnoto-nix, which builds the gnoto image with its /nix
 # store on the volume gnoto-nix. In the test bed, alice and bob are users in the group
-# gnoto, and /data/gnoto is the data directory.
+# gnoto, and /data/gnoto is the data directory. /tmp/gnoto.git is the
+# repository installs are cloned from and gnoto fetches versions from, as
+# file:///tmp/gnoto.git: gnoto runs only commits, so the working tree reaches
+# the test bed as a test commit there, which goes nowhere else.
 
 set -euo pipefail
 
@@ -27,6 +34,7 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)
 TESTBED=gnoto-testbed
 NIX=gnoto-nix
 NIX_IMAGE=nixos/nix:2.35.4@sha256:f159a58f390677f41e8e900a74b6e2f9c7f27b364122ae6acf7a652ce6c551c0
+TEST_REPO=/tmp/gnoto.git
 
 running() {
     [[ $(docker inspect --format '{{.State.Running}}' "$1" 2> /dev/null) == true ]]
@@ -123,29 +131,90 @@ image() {
     done
 }
 
-# A running job loses its stand-ins if its install directory is replaced, so
-# install a second copy elsewhere while jobs run
+# The test bed's own repository, /tmp/gnoto.git, which installs clone and
+# versions are fetched from as file:///tmp/gnoto.git. It's in /tmp because
+# Apptainer binds /tmp by default, so even an install without config.yaml can
+# fetch from it, and it goes with the container. It starts as this repo's main
+# and takes test commits that are never pushed anywhere else.
+repo() {
+    if ! docker exec "$TESTBED" test -d "$TEST_REPO"; then
+        # Git for Windows can't take a Unix-style path with MSYS_NO_PATHCONV set
+        (cd "$REPO" && git bundle create - main 2> /dev/null) |
+            docker exec -i "$TESTBED" sh -c 'cat > /tmp/gnoto.bundle'
+        docker exec "$TESTBED" bash -c "
+            set -e
+            git clone -q --bare /tmp/gnoto.bundle $TEST_REPO 2> /dev/null
+            rm /tmp/gnoto.bundle
+            git -C $TEST_REPO symbolic-ref HEAD refs/heads/main
+            git -C $TEST_REPO config uploadpack.allowAnySHA1InWant true
+            git -C $TEST_REPO config core.sharedRepository group
+            git config --system safe.directory '*'"
+    fi
+    # alice and bob push test commits too, as checks/versions.sh does
+    docker exec "$TESTBED" bash -c "chgrp -R gnoto $TEST_REPO && chmod -R g+rwX,a+rX $TEST_REPO &&
+        find $TEST_REPO -type d -exec chmod g+s {} +"
+    docker exec "$TESTBED" git -C "$TEST_REPO" log --oneline -3 main
+}
+
+# Commits this working tree, every file git would track, to the test bed's
+# repository's main, unless main has it already, and prints main's commit.
+# Windows records no executable bits, so every file with a shebang is marked.
+commit() {
+    local message=${1:-Test bed snapshot of the working tree} file
+    repo > /dev/null
+    (
+        cd "$REPO"
+        git ls-files -z -co --exclude-standard | while IFS= read -r -d '' file; do
+            [[ -f $file ]] && printf '%s\0' "$file"
+        done | tar --null -T - -cf -
+    ) | docker exec -i "$TESTBED" bash -c "
+        set -e
+        rm -rf /tmp/gnoto-snapshot
+        git clone -q $TEST_REPO /tmp/gnoto-snapshot
+        cd /tmp/gnoto-snapshot
+        find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+        tar -xf -
+        find . -path ./.git -prune -o -type f -exec chmod 644 {} +
+        grep -rlI --exclude-dir=.git '^#!' . | xargs -r chmod 755
+        git add -A
+        if ! git diff --cached --quiet; then
+            git -c user.name='gnoto test bed' -c user.email=testbed@localhost commit -q -m '$message'
+            git push -q origin HEAD:main
+        fi
+        git rev-parse HEAD
+        chgrp -R gnoto $TEST_REPO && chmod -R g+rwX,a+rX $TEST_REPO"
+}
+
+# A clone of the test bed's repository at main, after committing this working
+# tree there. The destination's config.yaml is kept, or a new one puts data in
+# /data/gnoto with Slurm on. Its data directory's current version becomes the
+# new commit, which the next command fetches.
 install() {
-    local dest=${1:-/opt/gnoto}
-    docker exec "$TESTBED" rm -rf "$dest.new"
-    tar -C "$REPO" --exclude=./.git --exclude=./data --exclude=./tmp --exclude=./scratch \
-        --exclude=./config.yaml -cf - . |
-        docker exec -i "$TESTBED" sh -c "mkdir $dest.new && tar -xf - -C $dest.new"
+    local dest=${1:-/opt/gnoto} head
+    head=$(commit)
     docker exec "$TESTBED" bash -c "
         set -e
+        rm -rf $dest.new
+        git clone -q file://$TEST_REPO $dest.new
         cd $dest.new
-        # Data in /data/gnoto, and Slurm on
-        printf '%s\n' 'core:' '  data_dir: \"/data/gnoto\"' '' 'apptainer:' '  enabled: true' \
-            '  bin_dir: \"/usr/bin\"' '' 'slurm:' '  enabled: true' '  bin_dir: \"/usr/bin\"' > config.yaml
+        if [[ -f $dest/config.yaml ]]; then
+            cp -p $dest/config.yaml config.yaml
+        else
+            printf '%s\n' 'core:' '  data_dir: \"/data/gnoto\"' '' 'apptainer:' '  enabled: true' \
+                '  bin_dir: \"/usr/bin\"' '' 'slurm:' '  enabled: true' '  bin_dir: \"/usr/bin\"' > config.yaml
+            chmod 660 config.yaml
+        fi
         chown -R root:gnoto .
-        find . -type d -exec chmod 2775 {} +
-        find . -type f -exec chmod 664 {} +
-        chmod 660 config.yaml
-        # Windows records no executable bits, so mark every file with a shebang
-        grep -rlI --exclude-dir=.git '^#!' . | xargs -r chmod 775
+        find . -path ./.git -prune -o -type d -exec chmod 2775 {} +
+        chmod -R g+w .git
+        data=\$(sed -n '/^core:/,/^[^ ]/s/^  data_dir: \"\(.*\)\"/\1/p' config.yaml)
+        data=\${data:-$dest/data}
+        mkdir -p \$data
+        printf '%s\n%s\n' $head file://$TEST_REPO > \$data/current
+        chgrp gnoto \$data/current && chmod 664 \$data/current
         rm -rf $dest
         mv $dest.new $dest"
-    echo "Installed $REPO to $dest in $TESTBED"
+    echo "Installed $REPO to $dest in $TESTBED, at the test bed's commit $head, now current there"
 }
 
 down() {
@@ -159,9 +228,9 @@ purge() {
 }
 
 case ${1:-} in
-    up | image | install | down | purge) "$@" ;;
+    up | image | repo | commit | install | down | purge) "$@" ;;
     *)
-        sed -n '5,12p' "$0" >&2
+        sed -n '5,18p' "$0" >&2
         exit 1
         ;;
 esac

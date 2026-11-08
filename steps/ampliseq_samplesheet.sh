@@ -40,7 +40,8 @@
 # Reads:     the samplesheet, and the FASTQ files it names
 # Writes:    ./ampliseq_samplesheet.tsv, ./ampliseq_metadata.tsv, ./raw-sequences/,
 #            and in ./run_state.json the sample count, each sample's batch as
-#            samples.runs, and any explanation of a failure
+#            samples.runs, and any explanation of a failure. An exact re-run's
+#            recorded_runs, in the same state, gives each sample its batch.
 # Env:       the log/fail helpers and the run state helpers, from lib/env.sh
 #
 # The samplesheet is whitespace-delimited, so FASTQ paths can't contain spaces.
@@ -188,6 +189,18 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
 done < "$INPUT_SAMPLESHEET"
 
+# An exact re-run keeps each sample's batch from its record, whatever its
+# files' paths are now
+declare -A RECORDED_RUN=()
+RECORDED_RUNS=$(state_get_json recorded_runs)
+if [[ "$RECORDED_RUNS" != null ]]; then
+    for sample in "${!CLEAN_OF[@]}"; do
+        run_id=$(jq -r --arg sample "$sample" '.[$sample] // empty' <<< "$RECORDED_RUNS")
+        [[ "$run_id" =~ ^[A-Za-z0-9_]+$ ]] || continue
+        RECORDED_RUN["${CLEAN_OF[$sample]}"]=$run_id
+    done
+fi
+
 [[ ${#SAMPLE_ORDER[@]} -gt 0 ]] || fail "No samples found in '$INPUT_SAMPLESHEET'."
 
 # 2. Generate the ampliseq TSV. A single-end run has no fastq_2 column at all,
@@ -244,15 +257,16 @@ for clean_sample in "${SAMPLE_ORDER[@]}"; do
         dir_concat+="$(dirname "$fq");"
     done
     run_hash=$(echo -n "$dir_concat" | md5sum | cut -c1-8)
+    run_id="${RECORDED_RUN[$clean_sample]:-run_$run_hash}"
 
     if [[ "$READ_LAYOUT" == "paired" ]]; then
-        printf "%s\t%s\t%s\t%s\n" "$clean_sample" "$final_fq1" "$final_fq2" "run_$run_hash" >> "$OUT_TSV"
+        printf "%s\t%s\t%s\t%s\n" "$clean_sample" "$final_fq1" "$final_fq2" "$run_id" >> "$OUT_TSV"
     else
-        printf "%s\t%s\t%s\n" "$clean_sample" "$final_fq1" "run_$run_hash" >> "$OUT_TSV"
+        printf "%s\t%s\t%s\n" "$clean_sample" "$final_fq1" "$run_id" >> "$OUT_TSV"
     fi
 
-    printf "%s\t%s\n" "$clean_sample" "run_$run_hash" >> "$OUT_METADATA"
-    RUN_OF["$clean_sample"]="run_$run_hash"
+    printf "%s\t%s\n" "$clean_sample" "$run_id" >> "$OUT_METADATA"
+    RUN_OF["$clean_sample"]="$run_id"
 done
 
 # The count after merging, which is the number of samples the run analyses. The

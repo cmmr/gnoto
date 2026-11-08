@@ -24,7 +24,14 @@
 # pipeline.sh's defaults, which include what it makes of the job's answers,
 # then detected_params.yaml from a step that measured the data, then the
 # parameters the job file sets. The keys gnoto owns, PARAMS_LOCKED, are put
-# back last.
+# back last. An exact re-run from a record passes the record's parameters as
+# they are instead, and its inputs must match the record's checksums.
+#
+# A resumed run, one whose state has attempts, checks its inputs against its
+# first attempt's checksums, skips the pre-process steps that finished, and
+# runs Nextflow with -resume and the session its earlier attempt ran in, so
+# every task that finished comes from the cache. Steps that run their own
+# Nextflow see GNOTO_RESUME=true and do the same.
 #
 # Nextflow and each step run in the background while this waits, so a SIGTERM,
 # from Slurm or from the progress watcher when it sees a cancel file, reaches
@@ -36,6 +43,7 @@
 CHILD_PID=""
 PROGRESS_PID=""
 JOB_SIGNAL=""
+RESUMING=false
 
 # Passes a signal on to whatever runs now, and remembers it
 job_on_signal() {
@@ -144,9 +152,10 @@ run_step() {
 
 # Each input's size and SHA-256, taken from the files as given, here on the
 # compute node, so start stays fast on the login node. Recorded in the state as
-# inputs, in the samplesheet's order.
+# inputs, in the samplesheet's order. A re-run's must match its record's, and a
+# resumed run's its first attempt's.
 stage_inputs() {
-    local threads=${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}} sums inputs
+    local threads=${SLURM_CPUS_PER_TASK:-${SLURM_CPUS_ON_NODE:-2}} sums inputs expected bad
 
     set_run_stage "Checking your sequencing files."
     cut -f2- original_samplesheet.tsv | tr '\t' '\n' | grep -v '^$' | sort -u > .inputs.list ||
@@ -164,6 +173,18 @@ stage_inputs() {
           + (if (.[2] // "") != "" then {fastq2: (.[2] | split("/") | last),
              bytes_2: $sums[.[2]].bytes, sha256_2: $sums[.[2]].sha256} else {} end))' \
         original_samplesheet.tsv) || fail "Couldn't record the inputs' checksums."
+    expected=$(state_get_json expected_inputs)
+    [[ $expected != null || $(state_get_json attempts) == null ]] || expected=$(state_get_json inputs)
+    if [[ $expected != null && $expected != "[]" ]]; then
+        bad=$(jq -r --argjson expected "$expected" '
+            [range(0; length) as $i | .[$i] as $got | $expected[$i] as $want
+             | if $want == null or $got.sample != $want.sample then "sample \($got.sample)"
+               elif $got.sha256_1 != $want.sha256_1 then "\($got.sample)'"'"'s \($got.fastq1)"
+               elif ($got.sha256_2 // "") != ($want.sha256_2 // "") then "\($got.sample)'"'"'s \($got.fastq2)"
+               else empty end] | .[0] // empty' <<< "$inputs")
+        [[ -z $bad && $(jq length <<< "$inputs") == "$(jq length <<< "$expected")" ]] ||
+            fail "${bad:-An input} doesn't match the checksum it had in $([[ $(state_get exact) == true ]] && echo "the record" || echo "the run's first attempt")."
+    fi
     state_set_json inputs "$inputs" || fail "Couldn't record the inputs' checksums."
     rm -f .inputs.list .inputs.sha256
 }
@@ -187,19 +208,25 @@ record_measured() {
     done
 }
 
-# The params file, from the layers described at the top
+# The params file, from the layers described at the top. An exact re-run's are
+# its record's, as they are. A resumed run's must come out as its first
+# attempt's did, or its cache wouldn't hold.
 params_build() {
-    local key value
+    local key value previous
     local -A locked=()
 
     for key in ${PARAMS_LOCKED[@]+"${PARAMS_LOCKED[@]}"}; do
         locked[$key]=${PIPELINE_PARAMS[$key]:-}
     done
-    if [[ -r detected_params.yaml ]]; then
-        log "Applying the parameters in detected_params.yaml."
-        params_load detected_params.yaml
+    if [[ $(state_get exact) == true ]]; then
+        params_apply_exact "$(state_get_json job_params)"
+    else
+        if [[ -r detected_params.yaml ]]; then
+            log "Applying the parameters in detected_params.yaml."
+            params_load detected_params.yaml
+        fi
+        params_apply_job "$(state_get_json job_params)"
     fi
-    params_apply_job "$(state_get_json job_params)"
     for key in "${!locked[@]}"; do
         value=${locked[$key]}
         if [[ ${PIPELINE_PARAMS[$key]:-} != "$value" ]]; then
@@ -211,6 +238,11 @@ params_build() {
             fi
         fi
     done
+    if [[ $RESUMING == true && -r $PARAMS_FILE ]]; then
+        previous=$(state_get_json params)
+        jq -e --argjson now "$(params_json)" '. == $now' <<< "$previous" > /dev/null ||
+            fail "The run's parameters came out differently from its first attempt's, so its cache can't be used."
+    fi
     params_write "$PARAMS_FILE"
     state_set_json params "$(params_json)" || fail "Couldn't record the run's parameters."
 }
@@ -282,9 +314,10 @@ task_launch_failure() {
 }
 
 compute() {
-    local pipeline=$1 i status=0 cause
+    local pipeline=$1 i status=0 cause previous name target="" session resume=()
 
     stage_inputs
+    previous=$(state_get_json steps)
 
     NEXTFLOW_ARGS=()
     PRE_PROCESS_CMDS=()
@@ -307,12 +340,21 @@ compute() {
         fail "pipelines/$pipeline/pipeline.sh sets no NEXTFLOW_ARGS or PARAMS_FILE."
     record_steps "$pipeline"
 
+    # A resumed run skips each step its first attempt finished, whose files and
+    # state it kept, because a step run again could restage its inputs and miss
+    # Nextflow's cache
     if [[ ${#PRE_PROCESS_CMDS[@]} -gt 0 ]]; then
         set_run_status "Pre-Processing"
         set_run_stage "Preparing your sequencing files."
         for (( i = 0; i < ${#PRE_PROCESS_CMDS[@]}; i++ )); do
+            name=$(step_name "${PRE_PROCESS_CMDS[i]}" "$pipeline")
+            if [[ $RESUMING == true && $(jq -r --argjson i "$i" '.[$i] | "\(.name) \(.state)"' <<< "$previous") == "$name done" ]]; then
+                log "The $name step finished in an earlier attempt, so it isn't run again."
+                set_step_state "$i" done
+                continue
+            fi
             # shellcheck disable=SC2086
-            run_step "$i" "$(step_name "${PRE_PROCESS_CMDS[i]}" "$pipeline")" ${PRE_PROCESS_CMDS[i]}
+            run_step "$i" "$name" ${PRE_PROCESS_CMDS[i]}
         done
     fi
     record_measured "$pipeline"
@@ -320,12 +362,23 @@ compute() {
     params_build
     record_write || fail "Couldn't write record.yaml."
     write_site_config
+    for (( i = 0; i + 1 < ${#NEXTFLOW_ARGS[@]}; i++ )); do
+        [[ ${NEXTFLOW_ARGS[i]} != run ]] || { target=${NEXTFLOW_ARGS[i + 1]}; break; }
+    done
+    if [[ $RESUMING == true ]]; then
+        session=$(nextflow_session "$target")
+        if [[ -n $session ]]; then
+            resume=(-resume "$session")
+            log "Resuming Nextflow's session $session, so the tasks that finished come from its cache."
+        fi
+    fi
     {
         printf '#!/bin/bash\n'
         printf '# %s, run %s, written %s\n' "$(state_get version)" "${PWD##*/}" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
         printf 'exec nextflow'
         printf ' %q' "${NEXTFLOW_ARGS[@]}" -ansi-log false -c site.config
         [[ -z ${NEXTFLOW_CONFIG:-} ]] || printf ' -c %q' "$NEXTFLOW_CONFIG"
+        (( ${#resume[@]} == 0 )) || printf ' %q' "${resume[@]}"
         printf '\n'
     } > nextflow_command.sh
     chmod +x nextflow_command.sh
@@ -366,9 +419,14 @@ compute() {
     # reduced to the file's name, so neither names a site path
     record_write || fail "Couldn't write record.yaml."
     cp record.yaml results/record.yaml || fail "Couldn't copy record.yaml into results/."
-    SAMPLESHEET_NAME=$(basename "$(state_get samplesheet)") \
-        yq '.samplesheet = strenv(SAMPLESHEET_NAME)' job.yaml > results/job.yaml ||
-        fail "Couldn't copy job.yaml into results/."
+    if [[ $(state_get exact) == true ]]; then
+        # A re-run's job file is the record it re-ran, which names no path
+        cp job.yaml results/job.yaml || fail "Couldn't copy job.yaml into results/."
+    else
+        SAMPLESHEET_NAME=$(basename "$(state_get samplesheet)") \
+            yq '.samplesheet = strenv(SAMPLESHEET_NAME)' job.yaml > results/job.yaml ||
+            fail "Couldn't copy job.yaml into results/."
+    fi
     state_set stages.compute "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 }
 
@@ -405,7 +463,14 @@ job_main() {
 
     state_set started_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     state_set host "$(uname -n)"
+    state_set code_dir.job "$CODE_DIR"
+    state_set image "${GNOTO_IMAGE:-}"
     [[ -z ${SLURM_JOB_ID:-} ]] || state_set scheduler.job_id "$SLURM_JOB_ID"
+
+    # A resumed run, which steps that run their own Nextflow resume too
+    RESUMING=false
+    [[ $(state_get_json attempts) == null ]] || RESUMING=true
+    export GNOTO_RESUME=$RESUMING
     if [[ -e cancel ]]; then
         set_run_status Cancelled
         fail "The job was cancelled before it started."

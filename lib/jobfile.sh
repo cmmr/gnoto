@@ -4,11 +4,13 @@
 #
 # Sourced by:  lib/main.sh, for new, lint <job.yaml>, run and start, and by
 #              lib/job.sh, for the record
-# Defines:     code_version, options_json, job_yaml, job_new, job_check,
-#              pipeline_eval, record_write, and the JOB_* variables job_check sets
-# Requires:    yq, jq, git, df, stat and realpath; the settings and helpers from
-#              lib/env.sh, args_parse from lib/args.sh, and lint_ok, lint_warn and
-#              lint_fail from lib/lint.sh
+# Defines:     options_json, job_yaml, job_new, job_check, pipeline_eval,
+#              record_write, and the JOB_* variables job_check sets
+# Requires:    yq, jq, git, df, stat, find, sha256sum and realpath; the settings
+#              and helpers from lib/env.sh, args_parse from lib/args.sh,
+#              code_version, version_commit, version_route and version_reachable
+#              from lib/versions.sh, and lint_ok, lint_warn and lint_fail from
+#              lib/lint.sh
 #
 # A job file names a pipeline and version, gnoto's own options at the top level,
 # and the pipeline's parameters in a section named for it. pipelines/<name>/
@@ -17,66 +19,21 @@
 # key in the pipeline's section is a parameter passed as written, checked
 # against the pipeline's schema at its pinned commit.
 #
-# Until the version cache exists, a job runs the code it's started from, so a
-# version is accepted only when it names that code's own commit. Code that's not
-# a clean git checkout or a release runs as dev, and its record says so.
+# Each runs at the version it names. A command that's handed a job file, or
+# a pipeline@<version>, at another version fetches that version and hands the
+# command to it, through version_route, before it checks anything. Under --dev,
+# the install's own files run instead, and the record is marked dev.
+#
+# A record.yaml is a job file too, for an exact re-run: it runs at its own
+# commit, with its parameters as recorded, its measured values, and its inputs
+# found by size, then checksum, under the directory --inputs names.
 
 TITLE_PATTERN='^[A-Za-z0-9][A-Za-z0-9 ._,:+=()-]{0,99}$'
 SAMPLE_PATTERN='^[A-Za-z0-9][A-Za-z0-9._+-]{0,99}$'
 ANSWER_PATTERN='^[A-Za-z0-9 ,.:+=/_()-]*$'
-DEFAULT_REPOSITORY="https://github.com/cmmr/gnoto"
 
-# Sets CODE_COMMIT, CODE_REPOSITORY and CODE_DEV for the code this runs from.
-# git runs without taking its index lock, because the install directory may
-# belong to another user.
-code_version() {
-    local git=(git -c safe.directory='*' -C "$CODE_DIR") top url
-
-    CODE_COMMIT=""
-    CODE_REPOSITORY=$DEFAULT_REPOSITORY
-    CODE_DEV=true
-    top=$(GIT_OPTIONAL_LOCKS=0 "${git[@]}" rev-parse --show-toplevel 2> /dev/null) || top=""
-    if [[ -n $top && $(cd "$top" && pwd -P) == "$CODE_DIR" ]]; then
-        CODE_COMMIT=$("${git[@]}" rev-parse HEAD 2> /dev/null) || CODE_COMMIT=""
-        if [[ -n $CODE_COMMIT && -z $(GIT_OPTIONAL_LOCKS=0 "${git[@]}" status --porcelain \
-            --untracked-files=no 2> /dev/null) ]]; then
-            CODE_DEV=false
-        fi
-        url=$("${git[@]}" remote get-url origin 2> /dev/null) || url=""
-        url=$(sed -E -e 's#://[^/@]*@#://#' -e 's#^git@([^:]+):#https://\1/#' -e 's#\.git$##' <<< "$url")
-        [[ $url != https://* ]] || CODE_REPOSITORY=$url
-    elif [[ -r $CODE_DIR/VERSION ]]; then
-        CODE_COMMIT=$(sed -n 's/^commit: *"*\([0-9a-f]\{40\}\)"*$/\1/p' "$CODE_DIR/VERSION")
-        [[ -z $CODE_COMMIT ]] || CODE_DEV=false
-    fi
-}
-
-# Resolves the part after @ in a pipeline's version against the code this runs
-# from. Prints nothing and returns 0 when it's that code, or prints why not and
-# returns 1.
-version_check() {
-    local ref=$1 commit
-
-    [[ -n $ref ]] || return 0
-    if [[ -z $CODE_COMMIT ]]; then
-        printf "this install isn't a git checkout or a release, so it can only run plain names, without @%s" "$ref"
-        return 1
-    fi
-    if [[ $ref =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        ref=v$ref
-    elif [[ $ref =~ ^[0-9a-f]{1,39}$ ]]; then
-        printf 'a version needs the full 40-character commit, not %s' "$ref"
-        return 1
-    fi
-    commit=$(git -c safe.directory='*' -C "$CODE_DIR" rev-parse --verify -q "$ref^{commit}" 2> /dev/null) ||
-        commit=""
-    [[ -z $commit && $ref =~ ^[0-9a-f]{40}$ ]] && commit=$ref
-    if [[ $commit != "$CODE_COMMIT" ]]; then
-        printf 'this install runs commit %s, and running any other version needs the version cache, which gnoto has yet to get' \
-            "$CODE_COMMIT"
-        return 1
-    fi
-}
+# The keys a record holds that a job file doesn't
+RECORD_KEYS=" schema repository commit dev nextflow_config_sha256 outputs inputs "
 
 pipeline_names() {
     local dir
@@ -143,26 +100,31 @@ param_value() {
 }
 
 # The job file gnoto new prints and gnoto start runs, for <pipeline>[@<version>]
-# and the --<key>=<value> pairs in ARG_KEYS and ARG_VALUES, with the version
-# pinned to this code's commit. Keys follow the file: --title and gnoto's other
-# options at the top, and --<pipeline>.<key> for the pipeline's section, which
-# takes its options and any parameter its schema has. A relative samplesheet is
-# made absolute against the current directory, as any path given on a command
-# line is.
+# and the --<key>=<value> pairs in ARG_KEYS and ARG_VALUES, at the version
+# named, or the current one, and pinned to its commit. Keys follow the file:
+# --title and gnoto's other options at the top, and --<pipeline>.<key> for the
+# pipeline's section, which takes its options and any parameter its schema has.
+# A relative samplesheet is made absolute against the current directory, as any
+# path given on a command line is.
 job_yaml() {
-    local spec=$1 name ref="" why pinned options option i key raw param schema="" spec_json value
+    local spec=$1 name ref="" commit pinned options option i key raw param schema="" spec_json value why
     local -A top=() section=()
     local param_keys=() param_values=()
 
     name=${spec%%@*}
     [[ $spec != *@* ]] || ref=${spec#*@}
+    code_version
+    if [[ $CODE_DEV == true ]]; then
+        [[ -z $ref ]] || warn "With --dev, this install's own files run, so the job file names plain $name."
+        pinned=$name
+    else
+        commit=$(version_commit "$ref") || fail "Can't find gnoto's version $ref."
+        version_route "$CODE_REPOSITORY" "$commit"
+        pinned=$name@$CODE_COMMIT
+    fi
     if [[ ! $name =~ ^[a-z][a-z0-9_]*$ || ! -f $CODE_DIR/pipelines/$name/pipeline.sh ]]; then
         fail "There's no pipeline \"$name\". The pipelines are: $(pipeline_names | paste -sd ' ')."
     fi
-    code_version
-    why=$(version_check "$ref") || fail "Can't pin $spec: $why."
-    pinned=$name
-    [[ -z $CODE_COMMIT ]] || pinned=$name@$CODE_COMMIT
     options=$(options_json "$name")
 
     for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
@@ -309,10 +271,11 @@ schema_mismatch() {
 }
 
 # Evaluates pipeline.sh with a job's answers and parameters, in a scratch run
-# directory, and prints {locked, params, databases, one_layout} as JSON. On a
-# failure, prints pipeline.sh's own message to stderr and returns 1.
+# directory, and prints {locked, params, databases, one_layout} as JSON. With
+# "exact", the parameters are a record's, set as they are. On a failure, prints
+# pipeline.sh's own message to stderr and returns 1.
 pipeline_eval() {
-    local pipeline=$1 answers=$2 job_params=$3 dir status=0
+    local pipeline=$1 answers=$2 job_params=$3 exact=${4:-} dir status=0
 
     dir=$(mktemp -d "${TMPDIR:-/tmp}/gnoto-eval.XXXXXX") || return 1
     (
@@ -328,7 +291,11 @@ pipeline_eval() {
         PARAMS_FILE=""
         export GNOTO_JOB_PARAMS=$job_params
         source "$CODE_DIR/pipelines/$pipeline/pipeline.sh"
-        params_apply_job "$job_params"
+        if [[ $exact == exact ]]; then
+            params_apply_exact "$job_params"
+        else
+            params_apply_job "$job_params"
+        fi
         jq -n --argjson params "$(params_json)" \
             --argjson locked "$(printf '%s\n' "${PARAMS_LOCKED[@]}" | jq -R . | jq -s 'map(select(length > 0))')" \
             --argjson databases "$(printf '%s\n' ${PIPELINE_DATABASES[@]+"${PIPELINE_DATABASES[@]}"} | jq -R . | jq -s 'map(select(length > 0))')" \
@@ -355,11 +322,12 @@ pipeline_eval() {
 #   JOB_SAMPLES_TEXT  the samplesheet, with every FASTQ as an absolute path
 #   JOB_INPUT_BYTES   the FASTQs' total size
 job_check() {
-    local file=$1 json spec ref why options keys key option value values multiple part
-    local section_json schema spec_json mismatch locked errfile param_fails
+    local file=$1 json spec ref why options keys key option value values multiple part commit repository
+    local section_json schema spec_json mismatch locked errfile param_fails exact_flag=""
 
     JOB_FILE="" JOB_PIPELINE="" JOB_VERSION="" JOB_TOP="{}" JOB_ANSWERS="{}" JOB_PARAMS="{}"
-    JOB_EVAL="" JOB_SAMPLESHEET="" JOB_SAMPLES_TEXT="" JOB_INPUT_BYTES=0
+    JOB_EVAL="" JOB_SAMPLESHEET="" JOB_SAMPLES_TEXT="" JOB_INPUT_BYTES=0 JOB_EXACT=false
+    JOB_EXPECTED_INPUTS="[]" JOB_RECORDED_RUNS="{}"
 
     if [[ ! -r $file ]]; then
         lint_fail "can't read $file"
@@ -375,7 +343,7 @@ job_check() {
         return
     fi
 
-    # The pipeline and its version
+    # The pipeline and its version. A record names its commit, and re-runs there.
     spec=$(jq -r '.pipeline // "" | tostring' <<< "$json")
     JOB_VERSION=$spec
     JOB_PIPELINE=${spec%%@*}
@@ -385,26 +353,58 @@ job_check() {
         lint_fail "pipeline: is missing. gnoto new <pipeline> writes a job file with it filled in"
         return
     fi
-    if [[ ! $JOB_PIPELINE =~ ^[a-z][a-z0-9_]*$ || ! -f $CODE_DIR/pipelines/$JOB_PIPELINE/pipeline.sh ]]; then
-        lint_fail "pipeline: there's no pipeline \"$JOB_PIPELINE\". The pipelines are: $(pipeline_names | paste -sd ' ')"
-        return
+    JOB_EXACT=false
+    if jq -e 'has("commit") and has("inputs") and has("schema")' <<< "$json" > /dev/null; then
+        JOB_EXACT=true
+        commit=$(jq -r '.commit // "" | tostring' <<< "$json")
+        repository=$(jq -r '.repository // "" | tostring' <<< "$json")
+        if [[ $(jq -r '.dev // false' <<< "$json") == true || ! $commit =~ ^[0-9a-f]{40}$ ]]; then
+            lint_fail "pipeline: $file is the record of a --dev run, which ran an install's own files, so it can't be re-run"
+            return
+        fi
     fi
     code_version
-    if why=$(version_check "$ref"); then
-        if [[ $CODE_DEV == true ]]; then
-            lint_warn "pipeline: $spec runs from a working tree with changes, or one that's not a release, so its record is marked dev"
+    if [[ $CODE_DEV == true ]]; then
+        if [[ $JOB_EXACT == true ]]; then
+            lint_fail "pipeline: a record re-runs at its own commit, so --dev can't run it"
+            return
+        fi
+        lint_warn "pipeline: --dev runs this install's own files, so the record is marked dev"
+    else
+        if [[ $JOB_EXACT == false ]]; then
+            repository=$CODE_REPOSITORY
+            errfile=$(mktemp "${TMPDIR:-/tmp}/gnoto-version.XXXXXX")
+            if ! commit=$(version_commit "$ref" 2> "$errfile"); then
+                lint_fail "pipeline: $spec: $(tail -1 "$errfile")"
+                rm -f "$errfile"
+                return
+            fi
+            rm -f "$errfile"
+        fi
+        version_route "$repository" "$commit"
+        if [[ $JOB_EXACT == true ]]; then
+            lint_ok "pipeline: $spec, re-run from its record at its commit"
         else
             lint_ok "pipeline: $spec, commit $CODE_COMMIT"
         fi
-    else
-        lint_fail "pipeline: $spec: $why"
+        if [[ -n $ref && ! $ref =~ ^[0-9a-f]{40}$ && ! $ref =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            lint_warn "pipeline: $ref moves, so the run records the commit it names now, $CODE_COMMIT"
+        elif [[ $ref =~ ^[0-9a-f]{40}$ && $(version_reachable "$CODE_REPOSITORY" "$CODE_COMMIT") == no ]]; then
+            lint_warn "pipeline: neither main nor a release reaches commit $CODE_COMMIT, so $CODE_REPOSITORY may not keep it"
+        fi
+    fi
+    if [[ ! $JOB_PIPELINE =~ ^[a-z][a-z0-9_]*$ || ! -f $CODE_DIR/pipelines/$JOB_PIPELINE/pipeline.sh ]]; then
+        lint_fail "pipeline: there's no pipeline \"$JOB_PIPELINE\". The pipelines are: $(pipeline_names | paste -sd ' ')"
+        return
     fi
 
     options=$(options_json "$JOB_PIPELINE")
 
     # Keys the file has but nothing reads
-    keys=$(jq -r --arg section "$JOB_PIPELINE" --argjson options "$options" '
+    keys=$(jq -r --arg section "$JOB_PIPELINE" --argjson options "$options" --arg exact "$JOB_EXACT" \
+        --arg record "$RECORD_KEYS" '
         keys[] | select(. != "pipeline" and . != $section)
+        | . as $key | select($exact == "false" or ($record | contains(" \($key) ") | not))
         | select(. as $key | $options | map(select(.in == "top") | .key) | index($key) | not)' <<< "$json")
     while IFS= read -r key; do
         [[ -n $key ]] || continue
@@ -420,10 +420,17 @@ job_check() {
         section_json="{}"
     fi
 
-    # Each option's answer, against options.yaml
+    # Each option's answer, against options.yaml. A record has no samplesheet,
+    # and keeps a section option only as the parameters it became, unless it
+    # was measured.
     while IFS= read -r option; do
         [[ -n $option ]] || continue
         key=$(jq -r .key <<< "$option")
+        if [[ $JOB_EXACT == true ]]; then
+            [[ $key != samplesheet ]] || continue
+            [[ $(jq -r .in <<< "$option") == top || $(jq -r '.measured // false' <<< "$option") == true ]] ||
+                continue
+        fi
         if [[ $(jq -r .in <<< "$option") == top ]]; then
             value=$(jq --arg key "$key" '.[$key]' <<< "$json")
         else
@@ -484,17 +491,19 @@ job_check() {
         lint_fail "$JOB_PIPELINE: $(cat "$errfile")"
         rm -f "$errfile"
         JOB_EVAL=""
-        job_check_samplesheet "$json"
+        job_check_reads "$json"
         return
     fi
     locked=$(jq -c .locked <<< "$JOB_EVAL")
 
-    # The section's other keys are parameters, passed as written
-    JOB_PARAMS=$(jq -c --argjson options "$options" '
-        with_entries(select(.key as $key | $options | map(select(.in == "section") | .key) | index($key) | not))
+    # The section's other keys are parameters, passed as written. A record's
+    # are every parameter its run passed, which pass as recorded.
+    JOB_PARAMS=$(jq -c --argjson options "$options" --arg exact "$JOB_EXACT" '
+        with_entries(select(.key as $key | $options | map(select(.in == "section"
+            and ($exact == "false" or (.measured // false))) | .key) | index($key) | not))
         | with_entries(select(.value != null))' <<< "$section_json")
     param_fails=$LINT_FAILS
-    if [[ $JOB_PARAMS != "{}" ]]; then
+    if [[ $JOB_EXACT == false && $JOB_PARAMS != "{}" ]]; then
         if ! schema=$(pipeline_schema "$JOB_PIPELINE" 2>&1); then
             lint_fail "$JOB_PIPELINE: can't check its parameters: $schema"
             schema=""
@@ -538,8 +547,13 @@ job_check() {
 
     # pipeline.sh again, with the parameters as well, when they passed
     if (( LINT_FAILS == param_fails )); then
-        if JOB_EVAL=$(pipeline_eval "$JOB_PIPELINE" "$JOB_ANSWERS" "$JOB_PARAMS" 2> "$errfile"); then
-            lint_ok "$JOB_PIPELINE: $(jq -r '.params | length' <<< "$JOB_EVAL") parameters, $(jq length <<< "$JOB_PARAMS") of them set here"
+        [[ $JOB_EXACT == false ]] || exact_flag=exact
+        if JOB_EVAL=$(pipeline_eval "$JOB_PIPELINE" "$JOB_ANSWERS" "$JOB_PARAMS" $exact_flag 2> "$errfile"); then
+            if [[ $JOB_EXACT == true ]]; then
+                lint_ok "$JOB_PIPELINE: $(jq length <<< "$JOB_PARAMS") parameters, as recorded"
+            else
+                lint_ok "$JOB_PIPELINE: $(jq -r '.params | length' <<< "$JOB_EVAL") parameters, $(jq length <<< "$JOB_PARAMS") of them set here"
+            fi
         else
             lint_fail "$JOB_PIPELINE: $(cat "$errfile")"
             JOB_EVAL=""
@@ -547,7 +561,7 @@ job_check() {
     fi
     rm -f "$errfile"
 
-    job_check_samplesheet "$json"
+    job_check_reads "$json"
 
     # Every database the parameters name, and any the pipeline's steps read
     JOB_DATABASES=""
@@ -558,6 +572,95 @@ job_check() {
     fi
 
     job_check_disk
+}
+
+# The reads a job runs on: a job file's samplesheet, or a record's inputs
+job_check_reads() {
+    if [[ $JOB_EXACT == true ]]; then
+        job_check_inputs "$1"
+    else
+        job_check_samplesheet "$1"
+    fi
+}
+
+# The file under the directory --inputs names that a record's input is: the
+# one of its size, or where several share it, the one with its checksum. Reads
+# by_size and sums from job_check_inputs, its caller: input_file <bytes> <sha256>
+input_file() {
+    local candidates path
+    candidates=${by_size[$1]:-}
+    [[ -n $candidates ]] || return 0
+    if [[ $(grep -c . <<< "$candidates") -eq 1 ]]; then
+        printf '%s' "${candidates%$'\n'}"
+        return 0
+    fi
+    while IFS= read -r path; do
+        [[ -n $path ]] || continue
+        [[ -n ${sums[$path]:-} ]] || sums[$path]=$(sha256sum < "$path" | cut -d' ' -f1)
+        if [[ ${sums[$path]} == "$2" ]]; then
+            printf '%s' "$path"
+            return 0
+        fi
+    done <<< "$candidates"
+}
+
+# A record's inputs, found under JOB_INPUTS_DIR, the directory --inputs names,
+# by size, so the login node reads little, and by checksum only where sizes are
+# shared. The job checks every checksum while staging. Sets what
+# job_check_samplesheet does, and JOB_EXPECTED_INPUTS, the record's inputs, and
+# JOB_RECORDED_RUNS, each sample's recorded batch.
+job_check_inputs() {
+    local json=$1 dir=${JOB_INPUTS_DIR:-} size path sample name bytes sum i errors=0 files=0 total=0 line
+    local -A by_size=() sums=() seen=()
+    local fields=()
+
+    if [[ -z $dir ]]; then
+        lint_fail "inputs: a record re-runs with --inputs=<dir>, naming the directory its FASTQ files are in"
+        return
+    fi
+    if [[ ! -d $dir || ! -r $dir ]]; then
+        lint_fail "inputs: can't read $dir. If it exists, add it to apptainer.binds"
+        return
+    fi
+    dir=$(cd "$dir" && pwd -P)
+    JOB_EXPECTED_INPUTS=$(jq -c '.inputs // []' <<< "$json")
+    JOB_RECORDED_RUNS=$(jq -c '[.inputs[]? | select(.run) | {(.sample): .run}] | add // {}' <<< "$json")
+    while IFS=$'\t' read -r size path; do
+        by_size[$size]+="$path"$'\n'
+    done < <(find -L "$dir" -type f -size +0 -printf '%s\t%p\n' 2> /dev/null)
+
+    JOB_SAMPLES_TEXT=""
+    while IFS= read -r line; do
+        IFS=$'\t' read -ra fields <<< "$line"
+        sample=${fields[0]}
+        line=$sample
+        for i in 1 4; do
+            name=${fields[i]:-}
+            bytes=${fields[i + 1]:-}
+            sum=${fields[i + 2]:-}
+            [[ -n $name ]] || continue
+            path=$(input_file "$bytes" "$sum")
+            if [[ -z $path ]]; then
+                errors=$((errors + 1))
+                (( errors > 10 )) ||
+                    lint_fail "inputs: nothing under $dir is $name, sample $sample's $bytes-byte file with SHA-256 ${sum:0:12}..."
+                continue
+            fi
+            line+=$'\t'$path
+            files=$((files + 1))
+            total=$((total + bytes))
+        done
+        seen[$sample]=1
+        JOB_SAMPLES_TEXT+="$line"$'\n'
+    done < <(jq -r '.inputs[]? | [.sample, .fastq1, .bytes_1, .sha256_1, (.fastq2 // ""), (.bytes_2 // ""),
+        (.sha256_2 // "")] | map(tostring) | join("\t")' <<< "$json")
+    (( errors <= 10 )) || lint_fail "inputs: $((errors - 10)) more files missing besides"
+    JOB_INPUT_BYTES=$total
+    if (( ${#seen[@]} == 0 )); then
+        lint_fail "inputs: the record names none"
+    elif (( errors == 0 )); then
+        lint_ok "inputs: ${#seen[@]} sample$( (( ${#seen[@]} == 1 )) || echo s), $files FASTQ file$( (( files == 1 )) || echo s), $(human_size "$total"), found under $dir by size. The job checks each one's checksum"
+    fi
 }
 
 # Reports one samplesheet problem, up to ten, so a sheet with a bad path doesn't

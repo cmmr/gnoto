@@ -4,7 +4,7 @@
 # answers and checks the parameters and commands it sets.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/lib/pipelines-test.sh
+#            gnoto exec --dev bash <install>/test/lib/pipelines-test.sh
 
 set -u
 

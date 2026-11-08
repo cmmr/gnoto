@@ -90,6 +90,8 @@ status_all() {
     local running=() finished=() expiring=()
 
     now=$(date -u +%s)
+    echo "Current version: $(current_commit)"
+    echo
     echo "Integrations"
     if [[ -r $DATA_DIR/logs/health.yaml ]]; then
         sed 's/^/  /' "$DATA_DIR/logs/health.yaml"
@@ -167,7 +169,7 @@ status_all() {
 }
 
 status_one() {
-    local uid=$1 dir state_dir status kind task_dir file stage logs block job what id log node
+    local uid=$1 dir state_dir status kind task_dir file stage logs block job what id log node attempts
     is_valid_uid "$uid" || fail "\"$uid\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
     dir=$DATA_DIR/runs/$uid
     if [[ -r $dir/$RUN_STATE_FILE ]]; then
@@ -192,6 +194,9 @@ status_one() {
     printf '  %-10s %s\n' Title "$(state_get title)"
     stage=$(state_get stage)
     printf '  %-10s %s\n' Status "$status${stage:+: $stage}"
+    attempts=$(state_get_json attempts | jq 'length')
+    (( attempts == 0 )) ||
+        printf '  %-10s %s\n' Attempt "$((attempts + 1)), resumed $(state_get resumed_utc)"
     printf '  %-10s %s\n' Owner "$(state_get owner)"
     printf '  %-10s %s\n' Created "$(state_get created_utc)"
     [[ -z $(state_get started_utc) ]] || printf '  %-10s %s\n' Started "$(state_get started_utc)"

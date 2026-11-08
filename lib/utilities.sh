@@ -5,7 +5,8 @@
 # Sourced by:  lib/env.sh
 # Defines:     log, warn, fail, escape_html, escape_url, human_size, human_count,
 #              group_count, nextflow_cause, nextflow_error_block,
-#              nextflow_task_job, nextflow_failed_task, is_valid_uid, derive_uid
+#              nextflow_task_job, nextflow_failed_task, nextflow_session,
+#              is_valid_uid, derive_uid
 # Requires:    state_present and state_set from lib/run_state.sh, for fail; openssl,
 #              for derive_uid
 # Env:         RUN_ID_SALT, from generated.yaml, for derive_uid
@@ -155,6 +156,18 @@ nextflow_failed_task() {
     name=$(sed -n "s/^ERROR ~ Error executing process > '\(.*\)'\$/\1/p" "$1" 2> /dev/null | head -1) || name=""
     proc=${name%% (*}
     printf '%s\n%s\n' "$dir" "${proc##*:}${name#"$proc"}"
+}
+
+# The session of the last Nextflow run in this directory whose command line
+# holds a word, such as the pipeline it ran, from .nextflow/history, so a
+# resumed run can name it with -resume: nextflow_session <word>. Several
+# Nextflow runs can share a directory, as HUMAnN's does the main one's.
+nextflow_session() {
+    [[ -r .nextflow/history ]] || return 0
+    awk -F'\t' -v word="$1" '
+        index($7, word) && $6 ~ /^[0-9a-f-]+$/ { id = $6 }
+        END { if (id != "") print id }
+    ' .nextflow/history
 }
 
 # A uid names a run everywhere but Wrike: eight lowercase base32 characters.

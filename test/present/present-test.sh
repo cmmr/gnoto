@@ -5,7 +5,7 @@
 # the network or names a path on this site.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/present/present-test.sh
+#            gnoto exec --dev bash <install>/test/present/present-test.sh
 # Requires:  in the test bed, phase 1's results in
 #            <data_dir>/test/alice/ampliseq-16s-v4/results and
 #            <data_dir>/test/bob/taxprofiler-test/results, and the 16s-v4

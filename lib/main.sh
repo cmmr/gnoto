@@ -4,15 +4,21 @@
 #
 # Run by:  the gnoto launcher, through apptainer exec
 # Usage:   main.sh <command> [arguments]
-# Env:     GNOTO_CODE_DIR, GNOTO_INSTALL_DIR, GNOTO_DATA_DIR, GNOTO_DB_DIR and
-#          GNOTO_HELPER_DIR, from the launcher
+# Env:     GNOTO_CODE_DIR, GNOTO_INSTALL_DIR, GNOTO_DATA_DIR, GNOTO_DB_DIR,
+#          GNOTO_HELPER_DIR and GNOTO_IMAGE, from the launcher, and
+#          GNOTO_RESOLVED, when a launcher handed it the command
 #
-# People's commands are config, lint, new, run, start, status, cancel, and exec,
-# a development aid that runs any command in the image with the stand-ins on
-# PATH and the settings loaded. gnoto init never reaches the image. The commands
-# starting with an underscore are jobs, which lib/start.sh and lib/databases.sh
-# submit: _job, the head job; _followup; _local, which runs both one after the
-# other on this machine; and _fetch, which fetches a database.
+# People's commands are config, lint, new, run, start, status, cancel, resume,
+# upgrade, prune, and exec, a development aid that runs any command in the
+# image with the stand-ins on PATH and the settings loaded. gnoto init never
+# reaches the image. The commands starting with an underscore are gnoto's own:
+# _current, which the launcher runs from the install's files when the current
+# version has no copy; and the jobs lib/start.sh and lib/databases.sh submit,
+# _job, the head job; _followup; _local, which runs both one after the other on
+# this machine; and _fetch, which fetches a database.
+#
+# The launcher acts on --dev, running the install's own files, so here it's a
+# flag that's accepted and otherwise ignored.
 
 set -euo pipefail
 
@@ -23,13 +29,18 @@ usage() {
     echo "Usage: gnoto init --apptainer=/path/to/apptainer" >&2
     echo "       gnoto config [<section> [--on|--off] [--<key>=<value> ...]]" >&2
     echo "       gnoto config slurm --probe" >&2
-    echo "       gnoto lint [--yes] [job.yaml]" >&2
-    echo "       gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" >&2
-    echo "       gnoto run [--debug] [--yes] job.yaml" >&2
-    echo "       gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]" >&2
+    echo "       gnoto lint [--dev] [--yes] [job.yaml]" >&2
+    echo "       gnoto lint [--yes] --inputs=<dir> record.yaml" >&2
+    echo "       gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...] > job.yaml" >&2
+    echo "       gnoto run [--debug] [--dev] [--yes] job.yaml" >&2
+    echo "       gnoto run [--debug] [--yes] --inputs=<dir> record.yaml" >&2
+    echo "       gnoto start <pipeline>[@<version>] [--debug] [--dev] [--yes] [--<key>=<value> ...]" >&2
     echo "       gnoto status [uid]" >&2
     echo "       gnoto cancel <uid>" >&2
-    echo "       gnoto exec <command> [arguments]" >&2
+    echo "       gnoto resume [uid]" >&2
+    echo "       gnoto upgrade [--yes] [<version>]" >&2
+    echo "       gnoto prune [--yes]" >&2
+    echo "       gnoto exec [--dev] <command> [arguments]" >&2
     exit 1
 }
 
@@ -57,6 +68,14 @@ case $COMMAND in
         source "$CODE_DIR/lib/start.sh"
         "${COMMAND}_main" "$@"
         ;;
+    resume)
+        source "$CODE_DIR/lib/lint.sh"
+        source "$CODE_DIR/lib/jobfile.sh"
+        source "$CODE_DIR/lib/databases.sh"
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/start.sh"
+        resume_main "$@"
+        ;;
     status)
         source "$CODE_DIR/lib/runs.sh"
         status_main "$@"
@@ -64,6 +83,12 @@ case $COMMAND in
     cancel)
         source "$CODE_DIR/lib/runs.sh"
         cancel_main "$@"
+        ;;
+    upgrade) upgrade_main "$@" ;;
+    prune) prune_main "$@" ;;
+    _current)
+        [[ $# -eq 0 ]] || usage
+        current_main
         ;;
     _job)
         source "$CODE_DIR/lib/jobfile.sh"
@@ -87,12 +112,14 @@ case $COMMAND in
         source "$CODE_DIR/lib/job.sh"
         source "$CODE_DIR/lib/followup.sh"
         [[ $# -eq 1 ]] || usage
-        (cd "$1" && state_set scheduler.host "$(uname -n)" && state_set scheduler.pid "$$") ||
-            fail "Can't record this run's process in $1."
+        # In one write, so status never sees the host without the process
+        (cd "$1" && state_update '.scheduler.host = $host | .scheduler.pid = $pid' \
+            --arg host "$(uname -n)" --arg pid "$$") || fail "Can't record this run's process in $1."
         (job_main "$1") || :
         followup_main "$1"
         ;;
     exec)
+        [[ ${1:-} != --dev ]] || shift
         [[ $# -gt 0 ]] || usage
         exec "$@"
         ;;

@@ -107,8 +107,10 @@ if [[ $CANCEL == true ]]; then
             "$(squeue -h -o %Z 2> /dev/null | grep -c "^$DATA_DIR/runs/$UID_/")"
     fi
     check "history keeps an error summary" "yes" "$([[ -s $DATA_DIR/history/$UID_/error.txt ]] && echo yes)"
-    check "its task outputs went at once" "no" \
-        "$(find "$DATA_DIR/runs/$UID_/work" -type f ! -name '.command.*' ! -name .exitcode 2> /dev/null | grep -q . && echo yes || echo no)"
+    check "its work directory stays, for gnoto resume" "yes" \
+        "$([[ -d $DATA_DIR/runs/$UID_/work && -d $DATA_DIR/runs/$UID_/.nextflow ]] && echo yes)"
+    check "until cleanup_utc" "yes" "$(grep -q '^cleanup_utc:' "$DATA_DIR/expiry/$UID_" 2> /dev/null && echo yes)"
+    check "gnoto resume lists it" "yes" "$($GNOTO resume | grep -q "^  $UID_ " && echo yes)"
     exit $FAILED
 fi
 

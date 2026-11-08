@@ -7,7 +7,7 @@
 # against its manifest and conf/databases.yaml.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/steps/build_pplace_reference-test.sh
+#            gnoto exec --dev bash <install>/test/steps/build_pplace_reference-test.sh
 # Requires:  nothing beyond the gnoto image. Needs no network.
 #
 # The builds run from a scratch copy of the code whose conf/databases.yaml

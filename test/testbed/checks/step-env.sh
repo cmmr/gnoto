@@ -5,7 +5,7 @@
 #
 # Run by:  a developer, as each user in turn, after ampliseq-16s-v4.sh has
 #          cached the phyloseq image, which has R:
-#          gnoto exec bash <install>/test/testbed/checks/step-env.sh > <user>.txt
+#          gnoto exec --dev bash <install>/test/testbed/checks/step-env.sh > <user>.txt
 #
 # Runs inside the image. Calls apptainer through the stand-in with the flags
 # lib/containers.sh will use: --cleanenv --no-home, LC_ALL=C.UTF-8 and TZ=UTC.

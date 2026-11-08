@@ -11,11 +11,13 @@
 # Requires:    sbatch, squeue, sacct, sinfo and scancel, through their
 #              stand-ins, when Slurm is on; flock; warn and fail from
 #              lib/utilities.sh
-# Env:         SLURM_ENABLED, SLURM_PARTITION, SLURM_ACCOUNT and DATA_DIR, from
-#              lib/env.sh; GNOTO_HELPER_DIR, from the launcher
+# Env:         SLURM_ENABLED, SLURM_PARTITION, SLURM_ACCOUNT, DATA_DIR and
+#              INSTALL_DIR, from lib/env.sh; GNOTO_HELPER_DIR, from the launcher
 #
 # Jobs go to Slurm when slurm.enabled is true, and run on this machine
-# otherwise. A job is always a gnoto command, run by the code's own launcher.
+# otherwise. A job is always a gnoto command, run by the launcher of the
+# version that submitted it, told the install directory as a handed command
+# is, so a job keeps its version whatever becomes current.
 #
 # Slurm runs a copy of a batch script from its spool directory, so a job is
 # submitted with --wrap, which names the launcher by its path. Locally, a job is
@@ -97,7 +99,7 @@ scheduler_submit() {
         return 0
     fi
 
-    wrap="exec $(sh_quote "$CODE_DIR/gnoto")"
+    wrap="GNOTO_INSTALL_DIR=$(sh_quote "$INSTALL_DIR"); export GNOTO_INSTALL_DIR; exec $(sh_quote "$CODE_DIR/gnoto")"
     for word in "$@"; do
         wrap+=" $(sh_quote "$word")"
     done

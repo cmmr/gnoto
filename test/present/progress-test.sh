@@ -5,7 +5,7 @@
 # and, with Slurm on, one whose tasks run on Slurm, cancelled the same way.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/present/progress-test.sh
+#            gnoto exec --dev bash <install>/test/present/progress-test.sh
 # Requires:  nextflow, from the image; with slurm.enabled, Slurm and
 #            Apptainer, as in the test bed
 # Env:       KEEP, set to keep the runs in <data_dir>/test/<user>/progress. The

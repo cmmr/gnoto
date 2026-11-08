@@ -1,8 +1,9 @@
 # gnoto design
 
-Status on 2026-11-07: the design is agreed. Phase 1, the image and the helper, is built and
-tested in a local Slurm test bed and on CMMR's cluster. Phase 2, the restructure, is tested
-there too, and phase 3, the job core, in the test bed. This file describes the target.
+Status on 2026-11-08: the design is agreed. Phase 1, the image and the helper, is built and
+tested in a local Slurm test bed and on CMMR's cluster. Phases 2 and 3, the restructure and
+the job core, are tested there too, and phase 4, the version cache, in the test bed. This
+file describes the target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -272,19 +273,31 @@ records the tarball's commit, from `VERSION`, as the current release in
 `<data_dir>/current`, and fetches that commit into `versions/` with the image's `git`. So it
 takes a while. `curl` and `tar` are needed only for the download.
 
+**A git clone works the same way.** Its first command records the clone's `HEAD` as the
+current version, which must be on its repository, and fetches it like any other version.
+After that, `git pull` changes nothing that runs, and `gnoto upgrade` moves it on. Until the
+first release, that's how CMMR's cluster is installed. A directory that's neither a release
+nor a clone has no version to start from, and its first command says to choose one with
+`gnoto upgrade <version>`.
+
 **The install directory's launcher and `config.yaml` are the only files there that gnoto
 uses.** Every command runs from
 the current release's copy in `versions/`, so the tarball's other files are never run, and
 editing them changes nothing. The install directory's launcher is never upgraded. It only
 reads its bootstrap settings, finds the current release, and hands over to that release's
-own launcher.
+own launcher. Its other files run only to fetch the current release when it has no copy
+yet, as the first command does, for `gnoto upgrade` then, and under `--dev`, which runs
+them as they stand for development.
 
-**Upgrading.** `gnoto upgrade [version]` fetches the release's tagged commit into
-`versions/`, the same way a job fetches its commit. It shows the release notes between the
-current release and the new one, from `CHANGELOG.md` in the new release, which say which
-pipelines' results changed. After confirmation, it rewrites `<data_dir>/current` to name
-the new commit, by writing a temporary file and renaming it. Then it runs `lint`, which
-reports units whose templates changed and drift between the Wrike form and the new
+**Upgrading.** `gnoto upgrade [--yes] [version]` fetches the version's commit into
+`versions/`, the same way a job fetches its commit. Without a version, it's the newest
+release, the `v<major>.<minor>.<patch>` tag with the highest number, and until there's one,
+`main`'s current commit. It shows the release notes between the current release and the new
+one, from `CHANGELOG.md` in the new release, which say which pipelines' results changed, or,
+until there's a `CHANGELOG.md`, the commits the new version adds and leaves out. After
+confirmation, which `--yes` gives, it rewrites `<data_dir>/current` to name the new commit,
+by writing a temporary file and renaming it. Then it hands over to the new version's `lint`,
+which reports units whose templates changed and drift between the Wrike form and the new
 `options.yaml`. When run as the units' account on their recorded host, it also restarts
 gnoto's systemd units. Otherwise it prints the command for that account to run.
 
@@ -401,32 +414,35 @@ them.
 ## The command line
 
 The `gnoto` launcher dispatches every command. `new`, `lint job.yaml`, `run`, `start` and
-`publish` run from the version the job names. Every other command, `status`, `cancel`,
-`extend` and `remove` included, runs from the current release, named in
-`<data_dir>/current`.
+`publish` run from the version the job names, and `resume` from the run's own. Every other
+command, `status`, `cancel`, `extend` and `remove` included, runs from the current release,
+named in `<data_dir>/current`. A command reaches another version in two steps: the current
+release resolves the version and fetches it, then the launcher hands the same command to
+that version's launcher once the image exits, as "Versions and the code cache" says.
 
 | Command | What it does | Changes anything? |
 | --- | --- | --- |
 | `gnoto init --apptainer=<path>` | Writes a `config.yaml` holding only `apptainer.bin_dir`, without needing Apptainer on `PATH` or starting the image. Refuses if `config.yaml` exists | Writes one file |
 | `gnoto lint` | Checks `config.yaml` and every configured integration | Only temporary test files. As the first command, it also pulls the image and records the current release |
-| `gnoto lint [--deep] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--yes` accepts a database download | Only if you accept a database download |
+| `gnoto lint [--deep] [--dev] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--dev` checks it with the install's own files. `--yes` accepts a database download | Only if you accept a database download |
+| `gnoto lint [--yes] --inputs=<dir> record.yaml` | Checks a record for an exact re-run, finding its inputs under `<dir>` | Only if you accept a database download |
 | `gnoto config [<section> [--on\|--off] [--<key>=<value> ...]] [--deploy] [--profile=<name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
 | `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
 | `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
-| `gnoto new ampliseq[@ref] [--<key>=<value> ...]` | Prints a job file, with any values given, for redirecting to a file | No |
-| `gnoto run [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs a working tree. `--yes` accepts a database download, which the job then waits for | Yes |
+| `gnoto new ampliseq[@ref] [--dev] [--<key>=<value> ...]` | Prints a job file, with any values given, for redirecting to a file | No |
+| `gnoto run [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs the install directory's own files. `--yes` accepts a database download, which the job then waits for | Yes |
 | `gnoto start ampliseq[@ref] [--debug] [--dev] [--yes] [--<key>=<value> ...]` | `new` and `run` in one step: makes the job file from its arguments, then lints and submits it | Yes |
-| `gnoto run record.yaml --inputs=<dir>` | Re-runs a recorded job exactly | Yes |
+| `gnoto run [--debug] [--yes] --inputs=<dir> record.yaml` | Re-runs a recorded job exactly, at its commit, with its parameters and its inputs found under `<dir>` | Yes |
 | `gnoto wrike [task_id]` | Starts that Wrike task if it's waiting. Without a task ID, runs the reconciliation scan: starts every waiting task in "gnoto Jobs", removes runs whose task is gone, copies Expiration dates and reactivates a suspended webhook | Yes |
 | `gnoto publish <uid>` | Runs Present and Publish again for a run whose Compute finished. Safe to repeat | Yes |
 | `gnoto cancel <uid>` | Cancels a job | Yes |
-| `gnoto resume [uid]` | Resumes a failed or cancelled run through Nextflow's `-resume`, reusing every task that finished. Without a uid, lists the runs that can be resumed. Built in phase 4 | Yes |
+| `gnoto resume [uid]` | Resumes a failed or cancelled run at its own commit through Nextflow's `-resume`, reusing every task that finished. Without a uid, lists the runs that can be resumed | Yes |
 | `gnoto extend <uid> <YYYY-MM-DD\|never>` | Keeps a run's results until that date, or for good | Yes |
 | `gnoto remove [--yes] <uid>` | Deletes a run's results now and keeps its record. `--yes` skips the prompt, as the listener and the reconciliation scan do | Yes, after confirming |
-| `gnoto prune` | Removes cached versions and images that no running or waiting job uses | Yes, after confirming |
-| `gnoto upgrade [version]` | Fetches a release into `versions/`, shows its release notes, then makes it current | Yes |
+| `gnoto prune [--yes]` | Removes cached versions and images that no running or waiting job uses. `--yes` skips the prompt | Yes, after confirming |
+| `gnoto upgrade [--yes] [version]` | Fetches a version into `versions/`, the newest release when none is given, or `main` before there's one, shows what changed, then makes it current and runs its `lint`. `--yes` skips the prompt | Yes, after confirming |
 | `gnoto selftest [--dev] [pipeline]` | Runs the fixture jobs from [fixtures.md](fixtures.md) and checks their core tables against the current release's checksums. `--dev` compares a working tree with the last release instead | Only its own runs, and any database fetch you accept |
-| `gnoto exec <command>` | For development: runs any command in the image, with the stand-ins on `PATH` | Whatever the command does |
+| `gnoto exec [--dev] <command>` | For development: runs any command in the image, with the stand-ins on `PATH`, at the current release or, with `--dev`, from the install's own files | Whatever the command does |
 
 **Arguments.** Every command takes them the same way, as GNU tools do: `--<key>=<value>`,
 or `--<key> <value>`, which the docs and examples leave aside. A value can be empty or hold
@@ -588,10 +604,11 @@ deletes them.
 
 **Cleanup on failure.** A failed or cancelled run also copies its `job.yaml`, record and
 final state to `history/<uid>/`, plus a short error summary that outlasts the logs. It
-keeps what's needed to see what went wrong: the job and record files, the run's state,
-Nextflow's logs and trace, and every task's `.command.*` files.
-Staged inputs and task outputs are deleted at once. The rest goes after
-`core.keep_run_days`, 14 by default.
+keeps what's needed to see what went wrong and to resume it: the job and record files, the
+run's state, Nextflow's logs and trace, its work directory and `.nextflow/`, and the staged
+inputs, which a resumed Nextflow needs unchanged to find its cache. Only the results that
+Nextflow publishes again when it resumes are deleted at once. The rest goes at
+`cleanup_utc`, `core.keep_run_days` after the run ended, 14 days by default.
 
 **A failure after Compute keeps the results.** `run_state.json` records each stage as it
 finishes. If Present or Publish fails once Compute has finished, the run keeps `results/`,
@@ -673,14 +690,21 @@ the run's cache rather than running again, and each Nextflow run inside a step, 
 biobakery's HUMAnN workflow, is resumed the same way. It runs in the run's own directory,
 at the run's own commit from the version cache, with the job file and parameters the run
 recorded. Site settings come from the current `config.yaml`, as for any job. It refuses a
-run that's still going or that completed, one whose inputs no longer match their
-checksums, and one whose cache is gone. The run's state keeps a list of its attempts, with
-each one's job IDs and how it ended, and its status, expiry and cleanup times start over
-with the new attempt. Without a uid, `gnoto resume` lists the runs that can be resumed. So
-that there's a cache to resume from, a run that fails or is cancelled keeps `work/` and
-`.nextflow/` until `cleanup_utc`, `core.keep_run_days` after it ended, rather than having
-`work/` cut down to each task's `.command.*` files at once. It's built in phase 4, with the
-version cache it runs from.
+run that's still going or that completed, a `--dev` run, one whose inputs are gone or have
+changed size, and one whose cache is gone, and the head job fails one whose inputs no
+longer match their checksums. A lost run, one Slurm has nothing running for, can be
+resumed. The run's state keeps a list of its attempts, with each one's job IDs and how it
+ended, and its status, expiry and cleanup times start over with the new attempt. Without a
+uid, `gnoto resume` lists the runs that can be resumed. So that there's a cache to resume
+from, a run that fails or is cancelled keeps `work/`, `.nextflow/` and its staged inputs
+until `cleanup_utc`, `core.keep_run_days` after it ended.
+
+The resumed head job skips each pre-process step its earlier attempt finished, whose files
+and state it kept, because a step run again could restage its inputs with new timestamps
+and miss the cache. It builds the parameters again, fails if they differ from the earlier
+attempt's, and runs Nextflow with `-resume` and the session ID of the run's own earlier
+Nextflow run, from `.nextflow/history`. A plain `-resume` would pick the last session in the
+directory, which for taxprofiler is HUMAnN's.
 
 **Expiry.** Results expire when gnoto's systemd timer is installed, with or without
 Wrike. When a run ends, its followup turns `retention` into a removal time and writes it to
@@ -693,9 +717,10 @@ comments on a task, mentioning its requester, once its removal time is
 
 The file is YAML, so later versions can add to it. `remove_utc` is when the run's results
 go, and a failed or cancelled run's is `core.keep_run_days` after it ended, since it keeps
-only what's needed to see what went wrong. `cleanup_utc`, when there is one, is when a
-`--debug` run's work directory and staged inputs go, also `keep_run_days` after it ended.
-An Unlimited run with `--debug` has a file holding only `cleanup_utc`.
+only what's needed to see what went wrong and to resume it. `cleanup_utc`, when there is
+one, is when a `--debug` run's, or a failed or cancelled run's, work directory and staged
+inputs go, also `keep_run_days` after it ended. An Unlimited run with `--debug` has a file
+holding only `cleanup_utc`.
 
 The daily check acts only on the `expiry/` folder, so its work grows with the runs still
 waiting to expire, not with every run ever made. When a removal time passes, it runs the
@@ -906,8 +931,10 @@ inputs:
 
 - **The commit pins the rest.** It fixes `IMAGE`, `lock.yaml` and the pipeline
   definition, so the Nextflow command line rebuilds from them and isn't stored. The
-  parameters are stored: an exact re-run passes the pipeline section as recorded, without
-  evaluating `pipeline.sh` again.
+  parameters are stored: an exact re-run passes the pipeline section as recorded, as its
+  params file, without building it from `pipeline.sh` again. `pipeline.sh` at the same
+  commit still gives the Nextflow command and the steps, which skip measuring what the
+  record holds, and the job's own copy of `job.yaml` is the record.
 - **No site paths.** `db:` names resolve against `core.db_dir`, and `code:` names against
   the code directory. Hosts, the Wrike task ID, timings, the host's Apptainer version and
   the CPU model stay in `run_state.json`.
@@ -915,9 +942,9 @@ inputs:
   gives before anything is measured, so a run that fails early still has one. The job
   rewrites it once the parameters are final, and again at the end of Compute, when it
   also copies it, and `job.yaml` with its samplesheet reduced to the file's name, into
-  `results/`. A run from a working tree with changes, or one that's neither a git
-  checkout nor a release, has `dev: true` and an empty `commit`.
-- **Inputs are found by checksum.** `--inputs <dir>` names where a re-run looks for
+  `results/`. A run under `--dev`, from the install directory's own files, has
+  `dev: true` and an empty `commit`.
+- **Inputs are found by checksum.** `--inputs=<dir>` names where a re-run looks for
   its FASTQs, subfolders included, and each file is matched to the record by its SHA-256,
   so names and paths can differ from the original run. To keep `run` fast on the login
   node, it shortlists files by size, which the record also holds. The job then checks each
@@ -1017,16 +1044,20 @@ directory can't silently change a run.
 | `ampliseq@main` | That branch's current commit, with a lint warning because it moves |
 
 Whatever is written gets resolved once, and the record holds the commit. Only full
-commit IDs work, because a shallow fetch can't expand a short one.
+commit IDs work, because a short one can be ambiguous, and a fetch can't expand one. A
+release and a branch are looked up with `git ls-remote` on the repository, which the code
+records: a release's `VERSION`, a clone's `origin`, or `https://github.com/cmmr/gnoto`. A
+repository on the same machine is a `file://` address, as the test bed's is.
 
 **Fetching uses git, from the image,** because git checks the content against the
 commit hash and a downloaded archive gets no such check.
 
 ```bash
+git -C "$DATA_DIR/repo.git" fetch --no-tags "$REPOSITORY" "+$COMMIT:refs/gnoto/$COMMIT"
 TMP=$(mktemp -d "$DATA_DIR/versions/.tmp.XXXXXX")
 chmod 2775 "$TMP"
-git -C "$DATA_DIR/repo.git" fetch --depth 1 "$REPOSITORY" "$COMMIT"
 git -C "$DATA_DIR/repo.git" archive "$COMMIT" | tar -x -C "$TMP"
+printf 'commit: "%s"\nrepository: "%s"\n' "$COMMIT" "$REPOSITORY" > "$TMP/VERSION"
 find "$TMP" -type f -exec chmod a-w {} +
 mv "$TMP" "$DATA_DIR/versions/$COMMIT"
 ```
@@ -1034,11 +1065,31 @@ mv "$TMP" "$DATA_DIR/versions/$COMMIT"
 This runs under `flock` and lands by rename, so two jobs starting together can't
 collide. The temporary directory sits inside `versions/`, so the `mv` is an atomic rename
 on one filesystem. `$REPOSITORY` is the record's `repository`, so a record from a fork
-fetches from that fork. The files land read-only, but the directories stay group-writable,
-so any group member can delete a version: removing a read-only file needs write
-permission only on its directory. It happens on the login node before submission, along
-with pulling that version's image. The job then runs with that version's own launcher,
-helper and image.
+fetches from that fork. The fetch takes the commit's whole history, which for gnoto is a few
+megabytes, so `upgrade` can list the commits between two versions and `lint` can tell
+whether `main` or a release reaches a commit. The ref under `refs/gnoto/` keeps the
+objects from git's garbage collection. The files land read-only, but the directories stay
+group-writable, so any group member can delete a version: removing a read-only file needs
+write permission only on its directory. `VERSION` tells the copy its own commit and
+repository. It happens on the login node before submission, along with pulling that
+version's image. The job then runs with that version's own launcher, helper and image.
+
+**Handing a command over.** A command that calls for another version, such as a job file
+naming `ampliseq@<commit>`, fetches it, leaves a hand-over naming the commit in the
+launcher's private directory, and exits. The launcher then runs that version's own
+launcher with the same arguments, setting `GNOTO_INSTALL_DIR`, so it reads the install's
+`config.yaml`, and `GNOTO_RESOLVED`, the commit, so a moving name such as `main` isn't
+resolved a second time. Two image starts are the cost. A Slurm job's `--wrap` sets
+`GNOTO_INSTALL_DIR` and names the launcher of the version that submitted it, so a job and
+its followup keep their version whatever becomes current. `gnoto upgrade` hands over to the
+new version's `lint` the same way.
+
+**`--dev`.** `gnoto new`, `lint`, `run` and `start` take `--dev`, and `gnoto exec --dev`,
+which run the install directory's own files as they stand, in its own image, for
+development. The install directory's launcher acts on it. The record has `dev: true` and
+no commit, and `run record.yaml` and `resume` refuse it. A `--dev` job runs from the
+install directory, so replacing that directory under it breaks it, as it did before the
+version cache.
 
 **Compute nodes have network access.** Jobs download the nf-core pipelines, Nextflow
 plugins and tool images from the compute node they run on, and database fetches run there
@@ -1049,19 +1100,22 @@ naming what it couldn't reach, and stops the job with that command's error, rath
 leaving a later step to fail on a missing file. Wrike updates are the exception, as the
 command line section describes.
 
-`gnoto run --dev` runs from a working tree for development. It marks the record
-`dev: true`, and that record can't be re-run.
-
 **Pruning.** `versions/` and `images/` only grow. `gnoto prune` removes the versions and
-images that no running or waiting job uses, keeping the current release's. It shows the
-plan and asks before deleting. Anything it removes is fetched again by commit or digest
-when a job needs it, so job files kept elsewhere don't have to be found first.
+images that no running or waiting job uses, keeping the current release's, and any version
+used in the last hour, which covers a command being handed from one launcher to the next.
+It shows the plan and asks before deleting, unless given `--yes`. A version is renamed
+before it's deleted, so a half-deleted one never looks whole. Anything it removes is
+fetched again by commit or digest when a job needs it, so job files kept elsewhere don't
+have to be found first. Until phase 5 publishes the images gnoto builds, `IMAGE` names a
+local `.sif` that can't be pulled again, so `prune` keeps those and says how many it kept,
+and it leaves Nextflow's task images alone until `containers.config` pins them by digest.
 
 ```text
 <data_dir>/
-  current              commit of the current release, which upgrade rewrites
+  current              commit of the current release, then its repository, a line each
   repo.git/            bare fetch cache, made with --shared=group
-  versions/<commit>/   read-only code
+  versions/<commit>/   read-only code, with a VERSION naming its commit and repository
+  versions/.lock       the cache lock, held shared by starting jobs and exclusively by prune
   runs/<uid>/          run directories
   history/<uid>/       job.yaml, record, final state and any error summary, kept after results go
   expiry/<uid>         removal time of results still waiting to expire
@@ -1080,7 +1134,13 @@ keeps layers out of home directories.
 
 **Compatibility:**
 
-- **There's a floor.** The launcher refuses any commit older than the first release.
+- **There's a floor.** gnoto refuses any commit older than the first release. Each commit
+  from phase 4 on has a one-line `COMPAT` file, 1 to start with, and a version runs only
+  commits whose `COMPAT` is at least its own, which it reads from the commit before
+  extracting it. A commit without one predates the version cache and can't take a
+  hand-over. Until the first release, the floor is phase 4's commit, and a change that
+  breaks how versions hand over or read shared state raises the number. The first release
+  raises it once more, and then it never moves.
 - **Settings are only added.** An old version reads today's `config.yaml`, so a
   setting is never renamed or given a new meaning. Versions also run against a config
   older or newer than themselves, so each one ignores keys it doesn't know and treats a
@@ -1090,9 +1150,9 @@ keeps layers out of home directories.
 - **Shared state is only added to, as well.** The current release's `status`, `expire`
   and `remove` act on runs that older versions made, and an older version reads today's
   `generated.yaml`. So `run_state.json`, the `history/` and `expiry/` layouts,
-  `generated.yaml`, `current` and the arguments the install directory's launcher passes
-  to a cached one follow the same rule. That launcher is never upgraded, so it stays
-  small. `run_state.json` carries a `schema` field.
+  `generated.yaml`, `current`, the hand-over and what one launcher passes another,
+  `GNOTO_INSTALL_DIR` and `GNOTO_RESOLVED`, follow the same rule. The install directory's
+  launcher is never upgraded, so it stays small. `run_state.json` carries a `schema` field.
 - **Jobs start with `sbatch --wrap`.** Slurm runs a copy of a batch script from its
   spool directory, so `$0` can't locate the code.
 

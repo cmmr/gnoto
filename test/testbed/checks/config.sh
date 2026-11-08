@@ -8,9 +8,9 @@
 # Run by:  a developer, as alice, on a copy of the install with no config.yaml:
 #          docker exec gnoto-testbed runuser -l alice -c 'bash /srv/configtest/gnoto/test/testbed/checks/config.sh'
 #
-# The host side. It links the image from /data/gnoto/images into the copy's
-# default data directory. gnoto config's answers are piped through script, which
-# gives it a terminal.
+# The host side, on a copy testbed.sh install made, which is a clone. It links
+# the image from /data/gnoto/images into the copy's default data directory.
+# gnoto config's answers are piped through script, which gives it a terminal.
 
 set -u
 umask 002
@@ -48,6 +48,14 @@ section() {
 [[ ! -e $CONFIG ]] || { echo "Remove $CONFIG first"; exit 1; }
 mkdir -p "$INSTALL/data/images"
 ln -sfn "/data/gnoto/images/$(cat "$INSTALL/IMAGE")" "$INSTALL/data/images/"
+
+# The copy is a clone, so its first command makes its own commit current
+HEAD=$(git -C "$INSTALL" rev-parse HEAD)
+rm -rf "$INSTALL/data/current" "$INSTALL/data/versions"
+check "the first command makes the clone's commit current" "$HEAD" \
+    "$($GNOTO exec true > first.log 2>&1; sed -n 1p "$INSTALL/data/current" 2> /dev/null)"
+check "and runs from its copy in versions/" "$INSTALL/data/versions/$HEAD" \
+    "$($GNOTO exec printenv GNOTO_CODE_DIR 2> /dev/null)"
 
 check "without config.yaml: defaults, and Slurm found on PATH" "false $INSTALL/data $INSTALL/data/db /usr/bin" \
     "$($GNOTO exec bash -c 'echo $SLURM_ENABLED $DATA_DIR $DB_DIR $GNOTO_FOUND_SLURM_BIN_DIR' 2>&1)"

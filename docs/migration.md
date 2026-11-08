@@ -7,9 +7,11 @@ results to honor. [design.md](design.md) describes the target.
 Status on 2026-11-08: **phases 1 to 3 are done, in the test bed and on the cluster.** A CLI
 job runs each of ampliseq, biobakery and taxprofiler from `gnoto start` to a full dashboard
 in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does so on the
-machine itself. Phase 4 is next. The [phase 1](#phase-1-image-and-helper),
-[phase 2](#phase-2-restructure) and [phase 3](#phase-3-job-core) notes record what's built and
-every test result, and phase 1's notes list the two determinism probes still to run.
+machine itself. **Phase 4, the version cache, is built and passes its finish test in the test
+bed,** and is still to run on the cluster. Phase 5 is next. The
+[phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
+[phase 3](#phase-3-job-core) and [phase 4](#phase-4-version-cache) notes record what's built
+and every test result, and phase 1's notes list the two determinism probes still to run.
 
 ## Where the old code is
 
@@ -224,8 +226,9 @@ then the cluster. Results so far, all from 2026-11-05:
 | `nextflow -version` with an empty `NXF_HOME`, which should download nothing | Pass, once the dist file is executable |
 
 Replacing the install directory under a running head job breaks it: Apptainer has the old
-directory bound, so the stand-ins vanish from inside the job. The version cache in phase 4 is
-what prevents that, and until then the test bed's `install` must wait for jobs to finish.
+directory bound, so the stand-ins vanish from inside the job. Phase 4's version cache
+prevents that: every job now runs from its version's read-only copy in `versions/`, so only
+a `--dev` job, which runs the install's own files, can still be broken that way.
 
 **On the cluster, 2026-11-06.** The cluster runs RHEL 9.4, Slurm 23.02.8 and Apptainer 1.5.3,
 an el8 build, with unprivileged user namespaces enabled. `TMPDIR` is unset on login nodes and
@@ -250,8 +253,10 @@ started the launcher, and jobs inherit it, so the same holds for gnoto. `lint`'s
 in phase 3 should say so when it fails, and the systemd templates already take `command -v
 sbatch` at setup for this reason.
 
-**Cluster runs.** The install directory is a clone of `cmmr/gnoto`, updated with `git pull`.
-Until phase 5, the image goes over as the `.sif` the test bed built. On the login node:
+**Cluster runs.** The install directory is a clone of `cmmr/gnoto`. Until phase 4 it was
+updated with `git pull`; from phase 4 on, its first command makes the clone's commit current,
+and `./gnoto upgrade` moves it on, as phase 4's notes say. Until phase 5, the image goes over
+as the `.sif` the test bed built. On the login node:
 
 1. Clone the repo, and put the `.sif` in `<data_dir>/images/` under the name `IMAGE` gives.
    Without `config.yaml`, the data directory is `<install>/data`.
@@ -261,7 +266,7 @@ Until phase 5, the image goes over as the `.sif` the test bed built. On the logi
 3. Run the same checks as the test bed. Where Slurm's defaults will do, as on CMMR's cluster,
    they need no options:
    - `bash test/testbed/checks/launcher.sh`
-   - `./gnoto exec bash test/testbed/checks/ampliseq-16s-v4.sh`
+   - `./gnoto exec --dev bash test/testbed/checks/ampliseq-16s-v4.sh`
    - `bash test/testbed/checks/cancel.sh`
 
    Otherwise site options for jobs go in `TEST_SBATCH_ARGS` for the host-side scripts, such as
@@ -620,10 +625,86 @@ the node without the mount:
   So a samplesheet naming `fixtures/wgs-mock/v1` fails `lint` because the files don't
   exist, and `--yes` can't help. These runs used the full reads, downloaded by hand.
 
-### Phases 4 to 6
+### Phase 4: version cache
 
-- **Version cache:** the launcher, helper and `IMAGE` all come from the target commit, so
-  test a re-run against a commit whose image differs from the current release's.
+Settled with Daniel before building (2026-11-08), as [decisions.md](decisions.md) records:
+until the first release, `current` names a commit of `main`; a git clone install works as a
+tarball install does, with `gnoto upgrade` in place of `git pull`; and the floor is a
+`COMPAT` number in each commit, 1 from phase 4.
+
+What's built:
+
+- **The launcher** has two roles. The install directory's copy reads its bootstrap
+  settings, then hands every command to `<data_dir>/versions/<current>/gnoto` with
+  `GNOTO_INSTALL_DIR` set, except under `--dev`, which runs the install's own files. When
+  the current version has no copy yet, the install's own files fetch it first, with
+  `_current`, which on the first command makes a release's or a clone's own commit current.
+  A copy in `versions/`, handed a command, runs it in its own image with the install's
+  `config.yaml`, binding both directories. After the image exits, it acts on a hand-over in
+  its private directory: the commit, and `resolved`, `current` or `lint`.
+- **`lib/versions.sh`** resolves a version with `git ls-remote` (a release `1.2.0` is the tag
+  `v1.2.0`, a branch or tag by its name, a full commit as it is), fetches a commit into
+  `repo.git` under `refs/gnoto/`, checks its `COMPAT`, extracts it read-only with a
+  `VERSION` naming its commit and repository, and hands a command over. It holds `upgrade`,
+  `prune` and `_current`, the cache lock, and the lint warnings for a moving branch and a
+  commit no release or `main` reaches. `code_version` moved here: only a copy in the cache
+  has a commit, and everything else is dev.
+- **Jobs at their own version.** `new`, `start`, `lint` and `run` route to the version the
+  job names before checking anything, and `new` pins that version's commit. A Slurm job's
+  `--wrap` sets `GNOTO_INSTALL_DIR` and names the submitting version's launcher, and a job
+  on this machine inherits both, so a job and its followup keep their version after an
+  upgrade. The head job records its image and code directory in the run's state, and the
+  followup its code directory.
+- **`gnoto run --inputs=<dir> record.yaml`** re-runs a record at its commit. `job_check`
+  takes a record as a job file: its own keys are allowed, its section is the parameters,
+  passed as they are, and its measured options are answers. Its inputs are found under the
+  directory by size, and by checksum only where sizes are shared. The head job checks every
+  checksum against the record's, and ampliseq's samplesheet step keeps each sample's
+  recorded batch.
+- **`gnoto resume [uid]`** lists the runs it can resume, or checks one and hands it to the
+  run's own commit, which records the attempt that ended in `attempts` and submits the run
+  again. The head job checks the inputs against the first attempt's checksums, skips the
+  pre-process steps that finished, checks that the parameters come out the same, and runs
+  Nextflow with `-resume` and the session ID of its earlier run, from `.nextflow/history`.
+  taxprofiler's HUMAnN step resumes its own session the same way. A failed or cancelled run
+  now keeps `work/`, `.nextflow/` and its staged inputs until `cleanup_utc`.
+- **`gnoto upgrade [--yes] [version]`** and **`gnoto prune [--yes]`**, as
+  [design.md](design.md#versions-and-the-code-cache) describes. `prune` keeps any version used
+  in the last hour, and every `.sif` until phase 5, because a local `.sif` can't be pulled
+  again.
+- **The test bed** has a repository of its own, `/tmp/gnoto.git`, which `testbed.sh repo`
+  makes from this repo's `main` and `testbed.sh commit` adds the working tree to, as a test
+  commit that goes nowhere else. `testbed.sh install` is now a clone of it at that commit,
+  made current in the install's data directory. It's in `/tmp` because Apptainer binds `/tmp`
+  by default, so even an install without `config.yaml` can fetch from it. The test bed's
+  container gained `git-core` for this, and `checks/versions.sh` is phase 4's finish test.
+
+Tested on 2026-11-08, in the test bed, under Slurm unless it says otherwise:
+
+| Test | Result |
+| --- | --- |
+| `test/lib/versions-test.sh`, against a `file://` repository of its own: repository URLs, resolving releases (annotated and lightweight tags), branches, tags and commits, refusing short commits and unknown names, the newest release, fetching with the `COMPAT` floor (a commit from before the version cache, and one below this version's number), read-only files and group-writable directories, which a release or `main` reaches, the code's own version, `current`, handing a command over, `upgrade` (newest release, going back, a branch, refusing without `--yes` or a terminal), `prune` (the current version, a running job's, one used in the last hour, renaming before deleting), a record's inputs by size and checksum, a record checked as a job file, its parameters as they are, inputs against their checksums, Nextflow's session, what a failed run keeps, which runs can be resumed, and a Slurm job's `--wrap` | Pass, 95 checks |
+| `lib-test.sh`, `pipelines-test.sh`, `job-test.sh` and `steps-test.sh`, through `gnoto exec --dev` | Pass: 60, 21, 141 and 15 checks |
+| `test/helper/launcher-test.sh` in `debian:13-slim` under `dash`, with new cases: no current version (the install's files run `_current`, or `upgrade` itself), a hand-over with and without a copy to run, every command going to the current version but `--dev`, `gnoto exec --dev` only as its first word, a resolved hand-over, `lint` after `upgrade`, refused hand-overs, and a cached launcher binding the install and its own code and passing `GNOTO_IMAGE` and `GNOTO_RESOLVED`; and `stub-test.sh` | Pass |
+| `test/testbed/checks/versions.sh --small`, phase 4's finish test, as `alice`, with three commits: A, the install's; C, naming another `.sif` in `IMAGE`; and B, `main` moved on | Pass, 61 checks in 30 minutes. A job at C ran in C's image, its head job and followup from C's copy. After `gnoto upgrade` with no version went to `main` (B), C's `record.yaml` re-ran with `--inputs` from files of other names and paths, found by size: at C, in C's image, with the record's parameters and batch, and core tables (`ASV_table.tsv`, `DADA2_table.tsv`, `ASV_seqs.fasta`) byte-identical. A job at B kept B's code, head job and followup, through `gnoto upgrade` back to A, and `prune` kept A and B and removed C, keeping its `.sif`; naming C again fetched it again. A job at A, its head job cancelled in Slurm once 8 tasks had finished, ended as Failed with `work/`, `.nextflow/` and its staged inputs kept; after an upgrade to B, `gnoto resume` ran it at A, skipped its samplesheet and region steps, resumed its Nextflow session with all 8 tasks cached, and completed with the same core tables. Run again on the final tree: 61 checks, with 9 of 9 finished tasks cached |
+| `checks/launcher.sh` and `cancel.sh` as `alice`, `job.sh --small --cancel` (now checking that a cancelled run keeps its work directory and that `gnoto resume` lists it), and `config.sh` on a copy with no `config.yaml`, now first checking that its first command makes the clone's commit current | Pass: 20, 3, 7 and 30 checks |
+| `job.sh --small` without Slurm, as `bob`, on that copy, its job detached on this machine by the version's own launcher | Pass, 18 checks, on the second try, below |
+| Nextflow on a workflow in a read-only copy in `versions/`, as biobakery's runs | Pass, with the test bed's `sleep.nf` |
+
+Not yet run: biobakery and taxprofiler from the version cache, and anything on the cluster.
+
+Found on the way: the pages' stylesheet and fonts were copied from the code with their
+modes, so from the read-only cache the progress page's copy blocked Present's, and the first
+run at a cached version ended as "Publish failed". They're copied without their modes now.
+A record checked as a job file had its own keys refused as unknown options, a `jq` scoping
+slip. `git ls-remote` given a tag's name doesn't list the commit an annotated tag points at,
+so gnoto lists every branch and tag and picks. Without Slurm, `job.sh` once stopped waiting at
+once, having seen a final status, though its job ran on to Completed. The likely cause, as
+old as phase 3: `_local` wrote the job's host and then its process ID, and `status` read
+between the two writes says Lost. They're written together now, and the rerun passed.
+
+### Phases 5 and 6
+
 - **Lock files:** today's container addresses are tags in `modules/*.nf`, in the step scripts,
   and in the nf-core pipelines' own code. The old `pipelines/*_01.sh` pin the nf-core
   revisions, but don't carry those pins over. Start from the most recent releases,

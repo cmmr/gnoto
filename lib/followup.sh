@@ -25,9 +25,11 @@
 #                    cleanup_utc, when a failed or --debug run's leftovers go,
 #                    core.keep_run_days after it ended
 #   the run          loses its Nextflow work directory and staged inputs on
-#                    success, keeping results/ and the zip. A failed run keeps
-#                    its logs, state and every task's .command.* files, and
-#                    loses the rest. --debug keeps everything until cleanup_utc.
+#                    success, keeping results/ and the zip. A failed or
+#                    cancelled run keeps them, and its logs and state, until
+#                    cleanup_utc, so gnoto resume has a cache to resume from,
+#                    and loses only the results Nextflow publishes again when
+#                    it resumes. --debug keeps everything until cleanup_utc.
 #
 # A run whose Compute finished keeps its results even when Present or Publish
 # failed, as "Publish failed". Exits 1 for a run that didn't complete, so
@@ -125,6 +127,7 @@ write_expiry() {
             ;;
         *)
             remove=$(utc_plus "$ended" "${KEEP_RUN_DAYS:-14} days")
+            cleanup=$remove
             ;;
     esac
     [[ -n $remove || -n $cleanup ]] || return 0
@@ -138,21 +141,18 @@ write_expiry() {
     } > "$tmp" && mv -f "$tmp" "$file"
 }
 
-# What a run leaves behind
+# What a run leaves behind. A failed or cancelled run keeps Nextflow's work
+# directory and history, and the staged inputs, which a resumed Nextflow needs
+# unchanged to find its cache.
 clean_run() {
     local status=$1
     [[ $(state_get debug) != true ]] || return 0
-    rm -rf .nextflow raw-sequences .inputs.list .inputs.sha256
+    rm -f .inputs.list .inputs.sha256
     case $status in
         Completed | "Publish failed")
-            rm -rf work
+            rm -rf work .nextflow raw-sequences
             ;;
         *)
-            if [[ -d work ]]; then
-                find work -mindepth 1 \( -type f -o -type l \) ! -name '.command.*' ! -name '.exitcode' \
-                    -delete 2> /dev/null || :
-                find work -mindepth 1 -type d -empty -delete 2> /dev/null || :
-            fi
             if [[ -d results ]]; then
                 find results -mindepth 1 -maxdepth 1 ! -name pipeline_info ! -name index.html \
                     ! -name progress.json ! -name assets -exec rm -rf {} + 2> /dev/null || :
@@ -170,6 +170,7 @@ followup_main() {
         fail "$run_dir isn't a run directory, so it isn't cleaned up."
     cd "$run_dir" || fail "Can't enter $run_dir."
     state_present || fail "$run_dir has no run_state.json."
+    state_set code_dir.followup "$CODE_DIR"
 
     status=$(get_run_status)
     if [[ $status != Completed ]]; then

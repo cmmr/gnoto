@@ -4,7 +4,7 @@
 # Nextflow in the image and every task under Slurm, through the helper.
 #
 # Run by:  a developer, in the test bed or on the cluster:
-#          gnoto exec bash <install>/test/testbed/checks/ampliseq-16s-v4.sh \
+#          gnoto exec --dev bash <install>/test/testbed/checks/ampliseq-16s-v4.sh \
 #              [extra.config [sbatch option ...]]
 #
 # Runs inside the image, so every tool but Slurm and Apptainer is the image's.

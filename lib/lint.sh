@@ -290,7 +290,22 @@ lint_integrations() {
     done
 }
 
+# Which version this is, and which is current
+lint_version() {
+    local current
+    code_version
+    current=$(current_commit)
+    if [[ $CODE_DEV == true ]]; then
+        lint_ok "version: this install's own files, under --dev"
+    elif [[ $CODE_COMMIT == "$current" ]]; then
+        lint_ok "version: $CODE_COMMIT, the current one, from $CODE_REPOSITORY"
+    else
+        lint_ok "version: $CODE_COMMIT, and the current one is ${current:-not set}"
+    fi
+}
+
 lint_config() {
+    lint_version
     lint_config_file
     lint_engine
     lint_directories
@@ -300,12 +315,20 @@ lint_config() {
     lint_integrations
 }
 
-# gnoto lint [--yes] [job.yaml]. --yes accepts fetching missing databases.
+# gnoto lint [--dev] [--yes] [job.yaml], or gnoto lint [--yes] --inputs=<dir>
+# record.yaml. --yes accepts fetching missing databases. --dev, which the
+# launcher acts on, checks with the install's own files.
 lint_main() {
-    local usage="Usage: gnoto lint [--yes] [job.yaml]" yes=false file=""
+    local usage="Usage: gnoto lint [--dev] [--yes] [job.yaml], or gnoto lint [--yes] --inputs=<dir> record.yaml"
+    local yes=false file="" i
 
-    args_parse "$usage" "yes" "$@"
-    [[ ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto lint takes --yes, not --${ARG_KEYS[0]}. $usage"
+    args_parse "$usage" "dev yes" "$@"
+    JOB_INPUTS_DIR=""
+    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+        [[ ${ARG_KEYS[i]} == inputs ]] ||
+            fail "gnoto lint takes --dev, --yes and --inputs, not --${ARG_KEYS[i]}. $usage"
+        JOB_INPUTS_DIR=${ARG_VALUES[i]}
+    done
     [[ ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
     [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
     file=${ARG_WORDS[0]:-}

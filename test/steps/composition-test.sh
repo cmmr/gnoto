@@ -5,7 +5,7 @@
 # short, and checks what they write.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/steps/composition-test.sh \
+#            gnoto exec --dev bash <install>/test/steps/composition-test.sh \
 #                [ampliseq_results] [taxprofiler_results]
 #            The defaults are the test bed's phase 1 runs: ampliseq 3.1.0 on the
 #            16s-v4 fixture, and taxprofiler's test profile.

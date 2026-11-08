@@ -4,8 +4,9 @@
 # Sourced by:  lib/env.sh
 # Defines:     params_reset, params_set, params_set_json, params_get, params_has,
 #              params_unset, params_load, params_json, params_write, db_path,
-#              params_reference, params_apply_job, lock_get, form_answer,
-#              form_answer_includes, PIPELINE_PARAMS, PIPELINE_PARAM_ORDER
+#              params_reference, params_apply_job, params_apply_exact, lock_get,
+#              form_answer, form_answer_includes, PIPELINE_PARAMS,
+#              PIPELINE_PARAM_ORDER
 # Requires:    jq and yq; fail from lib/utilities.sh, and state_get from
 #              lib/run_state.sh for form_answer
 # Env:         DB_DIR and CODE_DIR, which db: and code: names resolve against
@@ -157,6 +158,18 @@ params_apply_job() {
         else
             params_set_json "$key" "$value"
         fi
+    done < <(jq -r 'to_entries[] | "\(.key)\t\(.value | tojson)"' <<< "$json")
+}
+
+# Replaces the map with a record's parameters, as a JSON object, each as it is,
+# for an exact re-run
+params_apply_exact() {
+    local json="${1:-{\}}" key value
+
+    params_reset
+    while IFS=$'\t' read -r key value; do
+        [[ -n "$key" ]] || continue
+        params_set_json "$key" "$value"
     done < <(jq -r 'to_entries[] | "\(.key)\t\(.value | tojson)"' <<< "$json")
 }
 

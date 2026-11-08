@@ -4,7 +4,7 @@
 # configs, in the real image.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/lib/lib-test.sh
+#            gnoto exec --dev bash <install>/test/lib/lib-test.sh
 # Requires:  the gnoto image, and network access for one image pull
 #
 # Each case sources env.sh in a subshell with GNOTO_INSTALL_DIR pointing at a

@@ -125,9 +125,11 @@ render_template() {
     printf '%s\n' "$out$page"
 }
 
-# Copies the stylesheet and fonts the pages link into <results_dir>/assets/
+# Copies the stylesheet and fonts the pages link into <results_dir>/assets/.
+# The code's files are read-only in the version cache, and the copies mustn't
+# be, or the next copy couldn't replace them.
 dashboard_assets() {
-    mkdir -p "$1/assets" && cp -R "$PRESENT_DIR/assets/." "$1/assets/"
+    mkdir -p "$1/assets" && cp -R --no-preserve=mode "$PRESENT_DIR/assets/." "$1/assets/"
 }
 
 # JSON from a file, for a page to read inside a script element: compact, and

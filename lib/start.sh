@@ -1,20 +1,33 @@
 #
-# start.sh - gnoto run and gnoto start: lints a job, creates its run directory,
-# and submits the job and its followup.
+# start.sh - gnoto run, gnoto start and gnoto resume: lints a job, creates its
+# run directory, and submits the job and its followup.
 #
-# Sourced by:  lib/main.sh, for run and start
-# Defines:     run_main, start_main, start_run
+# Sourced by:  lib/main.sh, for run, start and resume
+# Defines:     run_main, start_main, resume_main, start_run, submit_run
 # Requires:    the settings and helpers from lib/env.sh; args_parse from
 #              lib/args.sh; job_check, job_yaml and record_write from
-#              lib/jobfile.sh; lint_ok, lint_warn, lint_fail and nodes_prescan
-#              from lib/lint.sh; databases_offer from lib/databases.sh
+#              lib/jobfile.sh; cache_lock, code_version and version_route from
+#              lib/versions.sh; lint_ok, lint_warn, lint_fail and nodes_prescan
+#              from lib/lint.sh; databases_check and databases_offer from
+#              lib/databases.sh; live_status and short_version from
+#              lib/runs.sh, for resume
 #
-# Usage:  gnoto run [--debug] [--yes] job.yaml
-#         gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]
-#         run starts a job file. start makes the job file gnoto new would print,
-#         in a temporary file, and starts that. --debug keeps the whole run
-#         directory for core.keep_run_days. --yes accepts fetching missing
-#         databases, which the job then waits for.
+# Usage:  gnoto run [--debug] [--dev] [--yes] job.yaml
+#         gnoto run [--debug] [--yes] --inputs=<dir> record.yaml
+#         gnoto start <pipeline>[@<version>] [--debug] [--dev] [--yes] [--<key>=<value> ...]
+#         gnoto resume [uid]
+#         run starts a job file, or re-runs a record exactly, from the FASTQ
+#         files under --inputs. start makes the job file gnoto new would
+#         print, in a temporary file, and starts that. --debug keeps the whole
+#         run directory for core.keep_run_days. --dev runs the install's own
+#         files, which the launcher acts on. --yes accepts fetching missing
+#         databases, which the job then waits for. resume starts a failed or
+#         cancelled run again where it stopped, or without a uid, lists the
+#         runs it can.
+#
+# Each runs at the version the job names, as lib/versions.sh hands it on, and
+# holds the cache lock shared until the run's state names its commit, so gnoto
+# prune can't remove the version as the run starts.
 #
 # Once the job file passes, and before anything is submitted, the check before
 # each job asks Slurm's nodes over ssh whether they can run it, so that the
@@ -32,6 +45,13 @@
 # minutes to cancel its tasks before slurm.job_time. The followup runs however
 # the head job ends. Without Slurm, both run on this machine, one after the
 # other, in one detached process.
+#
+# gnoto resume runs at the run's own commit, in its own directory, with the
+# job file and parameters it recorded, under the current config.yaml. The
+# attempt that ended goes into the state's attempts, and the run's status,
+# expiry and cleanup start over. The head job then skips the steps that
+# finished, and runs Nextflow with -resume, so every task that finished comes
+# from the run's cache.
 
 HEAD_JOB_CPUS=2
 HEAD_JOB_MEM=8G
@@ -43,18 +63,23 @@ new_uid() {
 }
 
 run_main() {
-    local usage="Usage: gnoto run [--debug] [--yes] job.yaml"
+    local usage="Usage: gnoto run [--debug] [--dev] [--yes] job.yaml, or gnoto run [--debug] [--yes] --inputs=<dir> record.yaml" i
 
-    args_parse "$usage" "debug yes" "$@"
-    [[ ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto run takes --debug and --yes, not --${ARG_KEYS[0]}. $usage"
+    args_parse "$usage" "debug dev yes" "$@"
+    JOB_INPUTS_DIR=""
+    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+        [[ ${ARG_KEYS[i]} == inputs ]] ||
+            fail "gnoto run takes --debug, --dev, --yes and --inputs, not --${ARG_KEYS[i]}. $usage"
+        JOB_INPUTS_DIR=${ARG_VALUES[i]}
+    done
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
     run_job "${ARG_WORDS[0]}"
 }
 
 start_main() {
-    local usage="Usage: gnoto start <pipeline>[@<version>] [--debug] [--yes] [--<key>=<value> ...]" yaml
+    local usage="Usage: gnoto start <pipeline>[@<version>] [--debug] [--dev] [--yes] [--<key>=<value> ...]" yaml
 
-    args_parse "$usage" "debug yes" "$@"
+    args_parse "$usage" "debug dev yes" "$@"
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
     yaml=$(job_yaml "${ARG_WORDS[0]}") || exit 1
     START_JOB_FILE=$(mktemp "${TMPDIR:-/tmp}/gnoto-job.XXXXXX") ||
@@ -71,6 +96,9 @@ run_job() {
     [[ -z ${ARG_FLAGS[debug]:-} ]] || debug=true
     [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
     job_check "$file"
+    if [[ $JOB_EXACT == false && -n ${JOB_INPUTS_DIR:-} ]]; then
+        fail "--inputs is for re-running a record.yaml, and $file is a job file, which names its samplesheet."
+    fi
     if (( LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )); then
         nodes_prescan
     fi
@@ -88,13 +116,13 @@ run_job() {
 # whether to keep the whole run directory, and a Slurm dependency on database
 # fetches, if any.
 start_run() {
-    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_id followup_id
-    local job_time job_file=$JOB_FILE
+    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_file=$JOB_FILE
 
     # gnoto start's job file is temporary, so the state names none
     [[ -z ${START_JOB_FILE:-} ]] || job_file=""
-    job_time=$(slurm_time "${SLURM_JOB_TIME:-}") ||
+    slurm_time "${SLURM_JOB_TIME:-}" > /dev/null ||
         fail "Not started: slurm.job_time is \"$SLURM_JOB_TIME\". Write it as Slurm does, such as 2-00:00:00, or as 48.h."
+    [[ $CODE_DEV == true ]] || cache_lock
 
     mkdir -p "$DATA_DIR/runs" || fail "Can't create $DATA_DIR/runs."
     chmod g+s "$DATA_DIR/runs" 2> /dev/null || :
@@ -140,19 +168,38 @@ start_run() {
         --arg job_file "$job_file" \
         --arg nextflow_config "$nextflow_config" \
         --arg nextflow_sha "$nextflow_sha" \
-        --arg kind "$(scheduler_kind)" '
+        --argjson exact "$JOB_EXACT" \
+        --argjson expected "$JOB_EXPECTED_INPUTS" \
+        --argjson runs "$JOB_RECORDED_RUNS" '
         {pipeline: $pipeline, version: $version, commit: $commit, repository: $repository,
          dev: $dev, title: $top.title, retention: ($top.retention // "3 Months"),
          answers: $answers, job_params: $job_params, params: $params,
          debug: $debug, owner: $owner, job_file: $job_file, samplesheet: $samplesheet,
-         databases: $databases,
-         scheduler: {kind: $kind}}
+         databases: $databases}
+        + (if $exact then {exact: true, expected_inputs: $expected, recorded_runs: $runs} else {} end)
         + (if $nextflow_config != "" then {nextflow_config: $nextflow_config,
             nextflow_config_sha256: $nextflow_sha} else {} end)')" ||
         fail "Can't write the run's state in $run_dir."
     record_write || fail "Can't write record.yaml in $run_dir."
+    exec 8>&-
 
-    if [[ $(scheduler_kind) == local ]]; then
+    submit_run "$run_dir" "$fetch_after"
+    echo "Started $uid, $JOB_PIPELINE, in $run_dir"
+    [[ -z $fetch_after ]] || echo "It waits for the database fetches to finish."
+    [[ $debug == false ]] || echo "With --debug, the whole run directory stays for ${KEEP_RUN_DAYS:-14} days."
+    echo "Follow it with: gnoto status $uid"
+}
+
+# Submits a run's head job and followup, from its run directory, and records
+# them: submit_run <run directory> <Slurm dependency on fetches, if any>
+submit_run() {
+    local run_dir=$1 fetch_after=$2 uid=${1##*/} job_time job_id followup_id kind
+
+    job_time=$(slurm_time "${SLURM_JOB_TIME:-}") ||
+        start_failed "slurm.job_time is \"$SLURM_JOB_TIME\". Write it as Slurm does, such as 2-00:00:00, or as 48.h."
+    kind=$(scheduler_kind)
+    state_set scheduler.kind "$kind"
+    if [[ $kind == local ]]; then
         scheduler_submit --name "gnoto-$uid" --dir "$run_dir" --log "$run_dir/job.out" \
             -- _local "$run_dir" > /dev/null || start_failed "Couldn't start the job on this machine."
     else
@@ -172,15 +219,115 @@ start_run() {
     fi
     set_run_status Submitted
     chmod -R g+rwX "$run_dir" 2> /dev/null || :
-
-    echo "Started $uid, $JOB_PIPELINE, in $run_dir"
-    [[ -z $fetch_after ]] || echo "It waits for the database fetches to finish."
-    [[ $debug == false ]] || echo "With --debug, the whole run directory stays for ${KEEP_RUN_DAYS:-14} days."
-    echo "Follow it with: gnoto status $uid"
 }
 
 # A submission that failed leaves a failed run, so status shows why
 start_failed() {
     set_run_status Failed
     fail "$1"
+}
+
+# Why a run can't be resumed, or nothing when it can. Run in its directory.
+resume_refusal() {
+    local status nextflow
+    status=$(get_run_status)
+    case $status in
+        Completed) echo "it completed"; return ;;
+        "Publish failed") echo "its results were made, and only building or publishing their pages failed"; return ;;
+        Failed | Cancelled) ;;
+        *) [[ $(live_status) == Lost ]] || { echo "it's still going, as $status"; return; } ;;
+    esac
+    [[ $(state_get dev) != true ]] || { echo "it ran an install's own files, with --dev"; return; }
+    [[ $(state_get commit) =~ ^[0-9a-f]{40}$ ]] || { echo "its state names no commit"; return; }
+    nextflow=$(state_get_json steps | jq -r '(. // []) | map(select(.log == "nextflow.out")) | .[0].state // "waiting"')
+    if [[ $nextflow != waiting && ! -d work ]]; then
+        echo "its cache, the work directory, is gone"
+    fi
+}
+
+# Lists the runs gnoto resume can resume
+resume_list() {
+    local dir uid why found=0
+    for dir in "$DATA_DIR"/runs/*/; do
+        dir=${dir%/}
+        uid=${dir##*/}
+        is_valid_uid "$uid" && [[ -r $dir/$RUN_STATE_FILE ]] || continue
+        why=$(cd "$dir" && resume_refusal)
+        [[ -z $why ]] || continue
+        (( found > 0 )) || echo "Runs gnoto resume <uid> can resume:"
+        found=$((found + 1))
+        (cd "$dir" && printf '  %s  %-18s %-10s %-9s %s\n' "$uid" "$(short_version "$(state_get version)")" \
+            "$(get_run_status)" "$(date -u -d "$(state_get ended_utc)" '+%b %-d' 2> /dev/null)" \
+            "$(state_get message | head -1)")
+    done
+    (( found > 0 )) || echo "No run can be resumed: none has failed or been cancelled with its cache kept."
+}
+
+# Fails when one of a run's inputs is gone or has changed size since the run
+# began. The job checks each one's checksum. Run in its directory.
+resume_inputs() {
+    local uid=$1 sample paths fq bytes
+    while IFS=$'\t' read -r sample paths; do
+        [[ -n $sample ]] || continue
+        for fq in ${paths//$'\t'/ }; do
+            [[ -r $fq ]] || fail "Run $uid can't be resumed: its input $fq is gone, or can't be read."
+            bytes=$(jq -r --arg sample "$sample" --arg name "${fq##*/}" '
+                [.inputs[]? | select(.sample == $sample)
+                    | if .fastq1 == $name then .bytes_1 elif .fastq2 == $name then .bytes_2 else empty end]
+                | .[0] // empty' "$RUN_STATE_FILE")
+            [[ -z $bytes || $(stat -L -c %s "$fq") == "$bytes" ]] ||
+                fail "Run $uid can't be resumed: its input $fq has changed size since the run began."
+        done
+    done < original_samplesheet.tsv
+}
+
+# gnoto resume [uid]
+resume_main() {
+    local usage="Usage: gnoto resume [uid]" uid dir why fetch_after
+
+    args_parse "$usage" "" "$@"
+    [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
+    if [[ ${#ARG_WORDS[@]} -eq 0 ]]; then
+        resume_list
+        return
+    fi
+    uid=${ARG_WORDS[0],,}
+    is_valid_uid "$uid" || fail "\"$uid\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
+    dir=$DATA_DIR/runs/$uid
+    if [[ ! -r $dir/$RUN_STATE_FILE ]]; then
+        [[ -r $DATA_DIR/history/$uid/state.json ]] && fail "Run $uid can't be resumed: its run directory has gone."
+        fail "There's no run $uid."
+    fi
+    cd "$dir" || fail "Can't enter $dir."
+    why=$(resume_refusal)
+    [[ -z $why ]] || fail "Run $uid can't be resumed: $why."
+
+    # At the run's own commit, from here on
+    code_version
+    version_route "$(state_get repository)" "$(state_get commit)"
+    cache_lock
+    resume_inputs "$uid"
+
+    JOB_DATABASES=$(state_get_json databases | jq -r '.[]?')
+    databases_check "$JOB_DATABASES" > /dev/null
+    (( LINT_FAILS == 0 )) ||
+        fail "Run $uid can't be resumed: a database it needs is missing. gnoto lint $dir/job.yaml offers to fetch it."
+    fetch_after=${JOB_FETCH_AFTER:-}
+    nodes_prescan
+
+    (
+        flock -w 30 9 || fail "Can't lock run $uid."
+        state_update '
+            .attempts = ((.attempts // []) + [{status, message, created_utc, resumed_utc, started_utc,
+                ended_utc, host, scheduler, notes} | with_entries(select(.value != null))])
+            | del(.message, .stage, .stages, .started_utc, .ended_utc, .host, .scheduler)
+            | .notes = [] | .resumed_utc = $now | .status = "Submitted"' \
+            --arg now "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" || fail "Can't record run $uid's last attempt."
+        rm -f cancel "$DATA_DIR/expiry/$uid"
+    ) 9>> .lock || exit 1
+    exec 8>&-
+
+    submit_run "$dir" "$fetch_after"
+    echo "Resumed $uid, $(state_get version), in $dir. The tasks that finished come from its cache."
+    echo "Follow it with: gnoto status $uid"
 }

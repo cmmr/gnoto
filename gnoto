@@ -1,12 +1,34 @@
 #!/bin/sh
 #
-# gnoto - The gnoto launcher: runs a gnoto command inside the gnoto image.
+# gnoto - The gnoto launcher: runs a gnoto command inside the gnoto image, at
+# the version of gnoto the command calls for.
 #
 # Run by:    people, Slurm (each job runs it through sbatch --wrap), itself
-#            (for jobs that run on this machine), and the systemd units
+#            (for jobs that run on this machine, and to hand a command to
+#            another version), and the systemd units
 # Usage:     gnoto <command> [arguments]
 # Requires:  POSIX sh, awk, mktemp, mkfifo, flock, nohup and Apptainer on the
 #            host, and setsid where it has one
+# Env:       GNOTO_INSTALL_DIR, set only by a launcher handing this one a
+#            command: the install directory, whose config.yaml is used.
+#            GNOTO_RESOLVED, set with it: the commit the command's version
+#            resolved to, which the command takes as resolved.
+#
+# Every version of gnoto is a read-only copy of its commit in
+# <data_dir>/versions/<commit>/, and <data_dir>/current names the current one.
+# The install directory's launcher only reads its bootstrap settings and hands
+# each command to the current version's launcher. That copy runs the command in
+# its own image, and when the command calls for another version, such as a job
+# naming ampliseq@<commit>, the command fetches it and leaves a hand-over, and
+# this hands the same command to that version's launcher once the image exits.
+# What one launcher passes another, GNOTO_INSTALL_DIR and GNOTO_RESOLVED, is
+# only ever added to, because the install directory's launcher is never
+# upgraded.
+#
+# The install directory's own files run only in three cases: under --dev, which
+# runs its working tree as it stands (gnoto new, lint, run and start, and
+# gnoto exec --dev); when no current version has a copy yet, when they fetch it
+# first; and for gnoto upgrade then.
 #
 # Before the image can start, it needs eight settings, which it reads from
 # config.yaml with its own awk: core.data_dir, core.db_dir, and apptainer's and
@@ -44,7 +66,15 @@ die() {
 
 SELF=$(readlink -f -- "$0" 2> /dev/null) || SELF=$0
 CODE_DIR=$(cd -P -- "$(dirname -- "$SELF")" && pwd -P)
-INSTALL_DIR=$CODE_DIR
+if [ -n "${GNOTO_INSTALL_DIR-}" ]; then
+    INSTALL_DIR=$GNOTO_INSTALL_DIR
+    HANDED=true
+else
+    INSTALL_DIR=$CODE_DIR
+    HANDED=false
+fi
+RESOLVED=${GNOTO_RESOLVED-}
+unset GNOTO_INSTALL_DIR GNOTO_RESOLVED
 CONFIG=$INSTALL_DIR/config.yaml
 
 # Prints <section>.<key> from config.yaml, or nothing if it's unset. Exits 2 if
@@ -113,7 +143,7 @@ init() {
         "$CONFIG" "$ENGINE" "$ENGINE_DIR"
 }
 
-if [ "${1:-}" = init ]; then
+if [ "$HANDED" = false ] && [ "${1:-}" = init ]; then
     shift
     init "$@"
     exit 0
@@ -149,6 +179,56 @@ if [ -e "$CONFIG" ]; then
     done
 fi
 DB_DIR=${DB_DIR:-$DATA_DIR/db}
+
+# True for a full commit ID
+is_commit() {
+    case $1 in
+        *[!0-9a-f]* | '') return 1 ;;
+    esac
+    [ ${#1} -eq 40 ]
+}
+
+# Hands the command to a cached version's launcher: hand_over <commit> <args>
+hand_over() {
+    TARGET=$DATA_DIR/versions/$1/gnoto
+    shift
+    [ -x "$TARGET" ] || die "there's no copy of gnoto at $TARGET to run"
+    GNOTO_INSTALL_DIR=$INSTALL_DIR
+    export GNOTO_INSTALL_DIR
+    exec "$TARGET" "$@"
+}
+
+# The install directory's launcher hands every command to the current version,
+# except under --dev. When the current version has no copy, this install's own
+# code fetches it first, with _current, or runs gnoto upgrade itself.
+FIRST=
+if [ "$HANDED" = false ]; then
+    DEV=false
+    case ${1:-} in
+        new | lint | run | start | selftest)
+            for ARG in "$@"; do
+                [ "$ARG" != --dev ] || DEV=true
+            done
+            ;;
+        exec) [ "${2:-}" != --dev ] || DEV=true ;;
+    esac
+    if [ "$DEV" = false ]; then
+        CURRENT=
+        if [ -r "$DATA_DIR/current" ]; then
+            IFS= read -r CURRENT < "$DATA_DIR/current" || :
+        fi
+        is_commit "$CURRENT" || CURRENT=
+        if [ -n "$CURRENT" ] && [ -x "$DATA_DIR/versions/$CURRENT/gnoto" ]; then
+            hand_over "$CURRENT" "$@"
+        fi
+        if [ "${1:-}" = upgrade ]; then
+            FIRST=upgrade
+        else
+            FIRST=_current
+        fi
+    fi
+fi
+
 [ "$APPTAINER_ENABLED" != false ] ||
     die "apptainer.enabled is false in $CONFIG, and gnoto has no other container engine yet. Set it to true."
 if [ "$SLURM_ENABLED" != true ]; then
@@ -226,6 +306,7 @@ cleanup() {
     if [ -n "$HELPER_PID" ]; then
         kill -KILL "$HELPER_PID" 2> /dev/null || :
         wait "$HELPER_PID" 2> /dev/null || :
+        HELPER_PID=
     fi
     rm -rf "$PRIVATE"
 }
@@ -258,10 +339,14 @@ APPTAINERENV_GNOTO_INSTALL_DIR=$INSTALL_DIR
 APPTAINERENV_GNOTO_DATA_DIR=$DATA_DIR
 APPTAINERENV_GNOTO_DB_DIR=$DB_DIR
 APPTAINERENV_GNOTO_HELPER_DIR=$PRIVATE
+APPTAINERENV_GNOTO_IMAGE=$IMAGE
 APPTAINERENV_USER=$(id -un)
 export APPTAINERENV_PREPEND_PATH APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_INSTALL_DIR \
     APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_HELPER_DIR \
-    APPTAINERENV_USER
+    APPTAINERENV_GNOTO_IMAGE APPTAINERENV_USER
+if [ -n "$RESOLVED" ]; then
+    export APPTAINERENV_GNOTO_RESOLVED="$RESOLVED"
+fi
 if [ -n "${TERM-}" ]; then
     export APPTAINERENV_TERM="$TERM"
 fi
@@ -284,34 +369,59 @@ if [ -n "${SLURM_CONF-}" ]; then
     export APPTAINERENV_GNOTO_FOUND_SLURM_CONF="$SLURM_CONF"
 fi
 
+# Jobs this starts on the host find the install directory as a handed command
+# does
+GNOTO_INSTALL_DIR=$INSTALL_DIR
+export GNOTO_INSTALL_DIR
+
 sh "$CODE_DIR/host/helper.sh" "$PRIVATE" < /dev/null &
 HELPER_PID=$!
 
-# Every path is bound at its host path, so a path means the same inside and out
-set -- "$SIF" /bin/bash "$CODE_DIR/lib/main.sh" "$@"
-if [ -n "$BINDS" ]; then
-    set -- -B "$BINDS" "$@"
-fi
-set -- exec --cleanenv -B "$CODE_DIR" -B "$DATA_DIR" -B "$DB_DIR" -B "$PRIVATE" "$@"
+# Runs lib/main.sh in the image with the arguments given, and sets STATUS.
+# Every path is bound at its host path, so a path means the same inside and
+# out.
+run_image() {
+    set -- "$SIF" /bin/bash "$CODE_DIR/lib/main.sh" "$@"
+    if [ -n "$BINDS" ]; then
+        set -- -B "$BINDS" "$@"
+    fi
+    if [ "$CODE_DIR" != "$INSTALL_DIR" ]; then
+        set -- -B "$CODE_DIR" "$@"
+    fi
+    set -- exec --cleanenv -B "$INSTALL_DIR" -B "$DATA_DIR" -B "$DB_DIR" -B "$PRIVATE" "$@"
 
-# In the background, so a signal can be passed on while it runs. An
-# asynchronous command reads /dev/null unless told otherwise.
-if (exec 4<&0) 2> /dev/null; then
-    exec 4<&0
+    # In the background, so a signal can be passed on while it runs. An
+    # asynchronous command reads /dev/null unless told otherwise.
+    if (exec 4<&0) 2> /dev/null; then
+        exec 4<&0
+    else
+        exec 4< /dev/null
+    fi
+    apptainer "$@" <&4 4<&- &
+    CHILD_PID=$!
+    exec 4<&-
+
+    trap 'kill -TERM "$CHILD_PID" 2> /dev/null || :' HUP INT TERM
+
+    while :; do
+        STATUS=0
+        wait "$CHILD_PID" || STATUS=$?
+        kill -0 "$CHILD_PID" 2> /dev/null || break
+    done
+    trap 'exit 129' HUP
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+}
+
+if [ -n "$FIRST" ]; then
+    if [ "$FIRST" = upgrade ]; then
+        run_image "$@"
+    else
+        run_image _current
+    fi
 else
-    exec 4< /dev/null
+    run_image "$@"
 fi
-apptainer "$@" <&4 4<&- &
-CHILD_PID=$!
-exec 4<&-
-
-trap 'kill -TERM "$CHILD_PID" 2> /dev/null || :' HUP INT TERM
-
-while :; do
-    STATUS=0
-    wait "$CHILD_PID" || STATUS=$?
-    kill -0 "$CHILD_PID" 2> /dev/null || break
-done
 
 # Jobs that run on this machine, queued by lib/scheduler.sh as
 # "<directory><tab><log><tab><gnoto arguments>", start here, once the image has
@@ -335,5 +445,25 @@ if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/detach" ]; then
             (cd "$DIR" && exec nohup "$SELF" $ARGS > "$LOG" 2>&1 < /dev/null &)
         fi
     done < "$PRIVATE/detach"
+fi
+
+# A hand-over, left by lib/versions.sh as "<commit>\n<how>": resolved, when the
+# command's version resolved to that commit; current, when the command runs
+# there as it is; or lint, when that version runs gnoto lint instead
+if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/handover" ]; then
+    { IFS= read -r TARGET_COMMIT || :; IFS= read -r HOW || HOW=; } < "$PRIVATE/handover"
+    is_commit "$TARGET_COMMIT" || die "a bad hand-over: $TARGET_COMMIT"
+    cleanup
+    trap - EXIT HUP INT TERM
+    case $HOW in
+        resolved)
+            GNOTO_RESOLVED=$TARGET_COMMIT
+            export GNOTO_RESOLVED
+            hand_over "$TARGET_COMMIT" "$@"
+            ;;
+        current) hand_over "$TARGET_COMMIT" "$@" ;;
+        lint) hand_over "$TARGET_COMMIT" lint ;;
+        *) die "a bad hand-over: $HOW" ;;
+    esac
 fi
 exit "$STATUS"

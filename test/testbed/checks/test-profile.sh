@@ -4,7 +4,7 @@
 # with Nextflow in the image, and waits for it.
 #
 # Run by:  a developer, in the test bed or on the cluster:
-#          gnoto exec bash <install>/test/testbed/checks/test-profile.sh \
+#          gnoto exec --dev bash <install>/test/testbed/checks/test-profile.sh \
 #              <pipeline> <version> [extra.config [sbatch option ...]]
 #          e.g. ... test-profile.sh taxprofiler 2.0.1
 #

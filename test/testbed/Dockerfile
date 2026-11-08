@@ -33,7 +33,7 @@ ARG APPTAINER_VERSION=1.5.5
 ARG APPTAINER_SHA256=e0247700d633f520a22ba43e5cd2a5dcf621ec82ac6496716ed040d95eca575d
 
 RUN dnf -y install epel-release \
-    && dnf -y install munge readline dbus-libs procps-ng util-linux hostname \
+    && dnf -y install munge readline dbus-libs procps-ng util-linux hostname git-core \
     && curl -fsSL -o /tmp/apptainer.rpm \
         "https://github.com/apptainer/apptainer/releases/download/v$APPTAINER_VERSION/apptainer-$APPTAINER_VERSION-1.el10.x86_64.rpm" \
     && echo "$APPTAINER_SHA256  /tmp/apptainer.rpm" | sha256sum -c \

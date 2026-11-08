@@ -6,7 +6,7 @@
 # stop the fetch, naming the url, with no unchecked file left behind.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/steps/fetch_files-test.sh
+#            gnoto exec --dev bash <install>/test/steps/fetch_files-test.sh
 # Requires:  network access, and dada2/silva-138.2 and fixtures/16s-v4/v1 in
 #            <db_dir>, to compare against. Downloads about 210 MB.
 #

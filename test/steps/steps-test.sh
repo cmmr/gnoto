@@ -4,7 +4,7 @@
 # fixture, with real containers, and checks what they write.
 #
 # Run by:    a developer, as any user, through the launcher:
-#            gnoto exec bash <install>/test/steps/steps-test.sh
+#            gnoto exec --dev bash <install>/test/steps/steps-test.sh
 # Requires:  the 16s-v4 fixture in <db_dir>/fixtures/16s-v4/v1, as
 #            test/testbed/checks/ampliseq-16s-v4.sh fetches it
 #
