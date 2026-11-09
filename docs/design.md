@@ -437,7 +437,7 @@ that version's launcher once the image exits, as "Versions and the code cache" s
 | `gnoto lint [--yes] --inputs=<dir> record.yaml` | Checks a record for an exact re-run, finding its inputs under `<dir>` | Only if you accept a database download |
 | `gnoto config [<section> [--on\|--off] [--<key>=<value> ...]] [--deploy] [--profile=<name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
 | `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
-| `gnoto status [uid]` | Reports integration health, and running and recent jobs. Given a uid, shows that run in detail | No |
+| `gnoto status [--all] [uid]` | Reports integration health, and running and recent jobs, leaving out those whose results were removed unless given `--all`. Given a uid, shows that run in detail | No |
 | `gnoto new ampliseq[@ref] [--dev] [--<key>=<value> ...]` | Prints a job file, with any values given, for redirecting to a file | No |
 | `gnoto run [--debug] [--dev] [--yes] job.yaml` | Lints, then submits the job. `--debug` keeps the whole run directory for a while. `--dev` runs the install directory's own files. `--yes` accepts a database download, which the job then waits for | Yes |
 | `gnoto start ampliseq[@ref] [--debug] [--dev] [--yes] [--<key>=<value> ...]` | `new` and `run` in one step: makes the job file from its arguments, then lints and submits it | Yes |
@@ -515,7 +515,9 @@ checks itself: the daily timer runs `lint` and writes the results to a health fi
 `<data_dir>/logs/`, beside the heartbeats, and `status` shows that file and its age. So
 there's one set of checks, `status` is fast, and every user sees the same answer. For the
 jobs, `status` reads state files rather than `squeue --user`, so it lists every user's
-jobs and any upcoming expiries.
+jobs and any upcoming expiries. Of the jobs that finished in the last 7 days, it leaves
+out those whose results were removed, by `remove` or by expiry, and says how many it left
+out; `status --all` lists them too. Each list's columns are as wide as their widest entry.
 
 A job the state files show as running is checked against `squeue`, or `sacct` once it
 has left the queue, by its job ID. It shows as "Lost" when Slurm has nothing running for
@@ -1186,7 +1188,8 @@ named its task images by tag, so they go, and are pulled again if it runs.
   versions/.lock       the cache lock, held shared by starting jobs and exclusively by prune
   runs/<uid>/          run directories
   history/<uid>/       job.yaml, record, final state and any error summary, kept after results
-                       go, and the run's lock once its run directory has gone
+                       go, when the state gains removed_utc, and the run's lock once its run
+                       directory has gone
   expiry/<uid>         removal time of results still waiting to expire
   nextflow/            NXF_HOME and NXF_ASSETS
   images/              shared .sif files

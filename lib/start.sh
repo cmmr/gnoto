@@ -250,20 +250,24 @@ resume_refusal() {
 
 # Lists the runs gnoto resume can resume
 resume_list() {
-    local dir uid why found=0
+    local dir uid why message rows=()
     for dir in "$DATA_DIR"/runs/*/; do
         dir=${dir%/}
         uid=${dir##*/}
         is_valid_uid "$uid" && [[ -r $dir/$RUN_STATE_FILE ]] || continue
         why=$(cd "$dir" && resume_refusal)
         [[ -z $why ]] || continue
-        (( found > 0 )) || echo "Runs $(gnoto_command resume '<uid>') can resume:"
-        found=$((found + 1))
-        (cd "$dir" && printf '  %s  %-18s %-10s %-9s %s\n' "$uid" "$(short_version "$(state_get version)")" \
+        message=$(cd "$dir" && state_get message | head -1)
+        rows+=("$(cd "$dir" && printf '%s\t%s\t%s\t%s\t%s' "$uid" "$(short_version "$(state_get version)")" \
             "$(get_run_status)" "$(date -u -d "$(state_get ended_utc)" '+%b %-d' 2> /dev/null)" \
-            "$(state_get message | head -1)")
+            "${message//$'\t'/ }")")
     done
-    (( found > 0 )) || echo "No run can be resumed: none has failed or been cancelled with its cache kept."
+    if (( ${#rows[@]} == 0 )); then
+        echo "No run can be resumed: none has failed or been cancelled with its cache kept."
+        return 0
+    fi
+    echo "Runs $(gnoto_command resume '<uid>') can resume:"
+    printf '%s\n' "${rows[@]}" | align_rows
 }
 
 # Fails when one of a run's inputs is gone or has changed size since the run

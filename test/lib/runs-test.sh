@@ -59,7 +59,7 @@ wait $!
 DEAD_PID=$!
 
 # A run as gnoto start leaves it, on the local scheduler with its process
-# gone: make_run <uid> [owner]
+# gone: make_run <uid> [owner] [version]
 make_run() {
     local dir=$RUNS/$1
     mkdir -p "$dir/results" "$dir/work"
@@ -67,7 +67,8 @@ make_run() {
         cd "$dir" || exit 1
         state_init "$1" > /dev/null
         state_update '. + $f' --argjson f "$(jq -n --arg owner "${2:-$ME}" --arg host "$(uname -n)" \
-            --arg pid "$DEAD_PID" '{pipeline: "ampliseq", version: "ampliseq@1.1.0", title: "Mock run",
+            --arg version "${3:-ampliseq@1.1.0}" --arg pid "$DEAD_PID" \
+            '{pipeline: "ampliseq", version: $version, title: "Mock run",
             retention: "1 Month", owner: $owner, scheduler: {kind: "local", host: $host, pid: $pid}}')"
         set_run_status Running
         printf 'pipeline: ampliseq\n' > job.yaml
@@ -105,7 +106,7 @@ check "refuses what isn't a uid" "yes" "$(has "$OUT" "\"nope\" isn't a run's uid
 
 echo "several at once, with --yes"
 make_run aaaaaaaa
-make_run bbbbbbbb someone
+make_run bbbbbbbb someone taxprofiler@9fbec38d1e2a3b4c5d6e7f8091a2b3c4d5e6f708
 make_run cccccccc
 end_run aaaaaaaa Completed
 end_run bbbbbbbb Completed
@@ -115,9 +116,13 @@ check "the runs ended, as their followups leave them" "Completed Completed Faile
 OUT=$(cd "$WORK" && remove_main --yes aaaaaaaa BBBBBBBB cccccccc aaaaaaaa 2>&1)
 check "lists them once each, uids in any case" "Deleting these 3 runs' results. Their records stay in $HISTORY." \
     "$(head -n 1 <<< "$OUT")"
-check "with each one's version, status, owner and title" \
-    "  bbbbbbbb  ampliseq@1.1.0     Completed       someone    Mock run" "$(sed -n 3p <<< "$OUT")"
-check "and a failed one" "yes" "$(has "$OUT" "  cccccccc  ampliseq@1.1.0     Failed          $ME")"
+check "with each one's version, its commit short, status, owner and title" \
+    " bbbbbbbb taxprofiler@9fbec38 Completed someone Mock run" "$(sed -n 3p <<< "$OUT" | tr -s ' ')"
+check "and a failed one" " cccccccc ampliseq@1.1.0 Failed $ME Mock run" "$(sed -n 4p <<< "$OUT" | tr -s ' ')"
+check "in columns that line up, whatever their widths" "1" \
+    "$(awk '/^  [a-z2-7]+  / { print index($0, $2), index($0, $3), index($0, $4), index($0, "Mock") }' <<< "$OUT" |
+        sort -u | wc -l)"
+check "two spaces apart" "  aaaaaaaa  ampliseq@1.1.0       Completed  " "$(sed -n 2p <<< "$OUT" | cut -c1-44)"
 check "says nothing about stopping, as none is going" "no" "$(has "$OUT" "stopped first")"
 check "removes each, another member's included" "3" "$(grep -c "^Removed run [abc]\{8\}'s results. Its record stays in $HISTORY/" <<< "$OUT")"
 check "the run directories go" "no no no" "$(exists "$RUNS/aaaaaaaa") $(exists "$RUNS/bbbbbbbb") $(exists "$RUNS/cccccccc")"
@@ -131,7 +136,8 @@ check "and the state says who removed the results, and when" "yes" \
 OUT=$(status_one aaaaaaaa 2>&1)
 check "which status shows, from history" "yes yes" \
     "$(has "$OUT" "History    $HISTORY/aaaaaaaa") $(has "$OUT" "Note       Results removed by $ME")"
-check "and its list says the results went" "yes" "$(status_all | grep -q '^  aaaaaaaa .*results removed$' && echo yes || echo no)"
+check "and records when the results went, as removed_utc" "yes" \
+    "$(jq -r '.removed_utc // ""' "$HISTORY/aaaaaaaa/state.json" | grep -qE '^20[0-9-]+T[0-9:]+Z$' && echo yes || echo no)"
 
 echo "results already gone"
 OUT=$(remove_main aaaaaaaa 2>&1; echo "exit $?")
@@ -166,7 +172,7 @@ echo "the prompt"
 OUT=$( (remove_main eeeeeeee) < /dev/null 2>&1)
 check "needs a terminal without --yes" "yes yes" "$(has "$OUT" "No terminal to confirm on. Add --yes to remove.") $(exists "$RUNS/eeeeeeee")"
 OUT=$(remove_typed n eeeeeeee)
-check "lists the run" "yes yes" "$(has "$OUT" "Deleting this run's results. Its record stays in $HISTORY.") $(has "$OUT" "  eeeeeeee  ampliseq@1.1.0     Completed")"
+check "lists the run" "yes yes" "$(has "$OUT" "Deleting this run's results. Its record stays in $HISTORY.") $(has "$OUT" "  eeeeeeee  ampliseq@1.1.0  Completed")"
 check "asks once" "1" "$(grep -c 'Remove it? \[y/N\]' <<< "$OUT")"
 check "and no keeps it" "yes yes yes" "$(has "$OUT" "Nothing removed.") $(exists "$RUNS/eeeeeeee") $(exists "$EXPIRY/eeeeeeee")"
 make_run gggggggg
@@ -183,7 +189,7 @@ SLEEPER=$!
 (cd "$RUNS/hhhhhhhh" && state_set scheduler.pid "$SLEEPER")
 OUT=$(remove_main --yes hhhhhhhh 2>&1)
 check "is listed as running, to be stopped first" "yes yes" \
-    "$(has "$OUT" "  hhhhhhhh  ampliseq@1.1.0     Running") $(has "$OUT" "A run still going is stopped first, and its results go once it has.")"
+    "$(has "$OUT" "  hhhhhhhh  ampliseq@1.1.0  Running") $(has "$OUT" "A run still going is stopped first, and its results go once it has.")"
 check "is asked to stop" "yes" \
     "$(has "$OUT" "Asked run hhhhhhhh to stop. Its results go once it has, and $WORK/install/gnoto status hhhhhhhh shows when.")"
 check "with the cancel file and the remove marker, and its results kept for now" "yes yes yes" \
@@ -202,6 +208,7 @@ check "after recording it in history, cancelled, with its error summary" "Cancel
     "$(jq -r .status "$HISTORY/hhhhhhhh/state.json") $(exists "$HISTORY/hhhhhhhh/error.txt") $(exists "$HISTORY/hhhhhhhh/record.yaml")"
 check "and who asked" "yes" \
     "$(jq -r '.notes[]' "$HISTORY/hhhhhhhh/state.json" | grep -q "^Results removed once the run ended, as $ME asked at " && echo yes || echo no)"
+check "and when the results went" "yes" "$(jq -e .removed_utc "$HISTORY/hhhhhhhh/state.json" > /dev/null && echo yes || echo no)"
 check "with nothing left aside" "" "$(ls -A "$RUNS")"
 
 # Slurm as the stand-ins would answer, from each job's state in STUB_STATE
@@ -227,7 +234,7 @@ make_run iiiiiiii
 on_slurm iiiiiiii 11 12
 STUB_STATE=([11]=PENDING [12]=PENDING)
 OUT=$(remove_main --yes iiiiiiii 2>&1)
-check "a queued one is listed as queued" "yes" "$(has "$OUT" "  iiiiiiii  ampliseq@1.1.0     Queued")"
+check "a queued one is listed as queued" "yes" "$(has "$OUT" "  iiiiiiii  ampliseq@1.1.0  Queued")"
 check "is taken out of the queue, as cancel does" "11" "$(cat "$WORK/cancelled" 2> /dev/null)"
 check "and gets the cancel file and the marker" "yes yes yes" \
     "$(has "$OUT" "Asked run iiiiiiii to stop.") $(exists "$RUNS/iiiiiiii/cancel") $(exists "$RUNS/iiiiiiii/remove")"
@@ -242,7 +249,7 @@ on_slurm jjjjjjjj 21 22
 (cd "$RUNS/jjjjjjjj" && set_run_status Failed && state_set message "The job reached its time limit.")
 STUB_STATE=([21]=TIMEOUT [22]=PENDING)
 OUT=$(remove_main --yes jjjjjjjj 2>&1)
-check "is listed as finishing" "yes" "$(has "$OUT" "  jjjjjjjj  ampliseq@1.1.0     Finishing")"
+check "is listed as finishing" "yes" "$(has "$OUT" "  jjjjjjjj  ampliseq@1.1.0  Finishing")"
 check "waits for its followup" "yes yes" \
     "$(has "$OUT" "Run jjjjjjjj has ended, and its results go once its followup has finished") $(exists "$RUNS/jjjjjjjj/remove")"
 check "without a cancel file, which would change how it ended" "no" "$(exists "$RUNS/jjjjjjjj/cancel")"
@@ -257,7 +264,7 @@ on_slurm kkkkkkkk 31 32
 STUB_STATE=([31]=FAILED [32]=FAILED)
 OUT=$(remove_main --yes kkkkkkkk 2>&1)
 check "is listed as lost, and isn't waited for" "yes no" \
-    "$(has "$OUT" "  kkkkkkkk  ampliseq@1.1.0     Lost") $(has "$OUT" "stopped first")"
+    "$(has "$OUT" "  kkkkkkkk  ampliseq@1.1.0  Lost") $(has "$OUT" "stopped first")"
 check "is removed at once" "yes no" "$(has "$OUT" "Removed run kkkkkkkk's results.") $(exists "$RUNS/kkkkkkkk")"
 check "after recording it in history, as its followup would have" "Lost|Nothing was running for the run when it was removed.|yes yes" \
     "$(jq -r '"\(.status)|\(.message)"' "$HISTORY/kkkkkkkk/state.json")|$(exists "$HISTORY/kkkkkkkk/job.yaml") $(exists "$HISTORY/kkkkkkkk/error.txt")"
@@ -304,6 +311,43 @@ SLEEPER=""
 (followup_main "$RUNS/nnnnnnnn") > /dev/null 2>&1
 check "and cancel alone keeps the results" "Cancelled yes" \
     "$(jq -r .status "$HISTORY/nnnnnnnn/state.json") $(exists "$RUNS/nnnnnnnn")"
+
+echo "gnoto status"
+make_run oooooooo someone taxprofiler@9fbec38d1e2a3b4c5d6e7f8091a2b3c4d5e6f708
+end_run oooooooo Completed
+make_run pppppppp
+end_run pppppppp Failed
+# Removed before removed_utc was recorded, with only the note
+mkdir -p "$HISTORY/qqqqqqqq"
+jq -n --arg now "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" '{status: "Completed", version: "ampliseq@1.1.0",
+    ended_utc: $now, notes: ["Results removed by someone at 2026-11-09T18:00:00Z."]}' > "$HISTORY/qqqqqqqq/state.json"
+make_run rrrrrrrr
+sleep 600 &
+SLEEPER=$!
+(cd "$RUNS/rrrrrrrr" && state_set scheduler.pid "$SLEEPER" && state_set stage "Running the analysis.")
+OUT=$(status_all)
+FINISHED=$(sed -n '/^Finished in the last 7 days$/,/^$/p' <<< "$OUT")
+check "lists a run still going" "yes" \
+    "$(grep -qE '^  rrrrrrrr  ampliseq@1\.1\.0  Running  [0-9]+[smhd]( [0-9]+[mh])?  Running the analysis\.$' <<< "$OUT" && echo yes || echo no)"
+check "and finished runs whose results are kept" "yes yes yes" \
+    "$(has "$FINISHED" "  $RUNS/oooooooo/results/index.html") $(grep -q '^  pppppppp  .* Failed .*The job ended before it finished' <<< "$FINISHED" && echo yes || echo no) $(has "$FINISHED" "  nnnnnnnn  ")"
+check "but not those whose results were removed" "no no no no" \
+    "$(has "$FINISHED" aaaaaaaa) $(has "$FINISHED" bbbbbbbb) $(has "$FINISHED" hhhhhhhh) $(has "$FINISHED" jjjjjjjj)"
+check "even one removed before removed_utc was recorded" "no" "$(has "$FINISHED" qqqqqqqq)"
+check "and says how many it left out, and how to see them" "yes" \
+    "$(grep -qE "^  Not listed: [0-9]+ runs whose results were removed\. $WORK/install/gnoto status --all lists them\.$" <<< "$FINISHED" && echo yes || echo no)"
+OUT=$(status_main --all)
+FINISHED=$(sed -n '/^Finished in the last 7 days$/,/^$/p' <<< "$OUT")
+check "--all lists them as well" "yes yes yes no" \
+    "$(grep -q '^  aaaaaaaa  ampliseq@1\.1\.0  *Completed  .*results removed$' <<< "$FINISHED" && echo yes || echo no) $(grep -q '^  jjjjjjjj  .* Failed  .*results removed$' <<< "$FINISHED" && echo yes || echo no) $(has "$FINISHED" "  qqqqqqqq  ") $(has "$FINISHED" "Not listed")"
+check "in columns that line up" "1" \
+    "$(awk '/^  [a-z2-7]+  / { print index($0, $3), index($0, $4), index($0, $6) }' <<< "$FINISHED" | sort -u | wc -l)"
+OUT=$( (status_main --all aaaaaaaa) 2>&1)
+check "--all takes no uid" "yes" "$(has "$OUT" "--all lists the runs whose results were removed, so it takes no uid.")"
+check "and a uid still shows that run" "Run aaaaaaaa" "$(status_main aaaaaaaa 2>&1 | head -n 1)"
+kill $SLEEPER
+wait $SLEEPER 2> /dev/null
+SLEEPER=""
 
 echo "what can't be deleted"
 if (( $(id -u) == 0 )); then

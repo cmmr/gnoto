@@ -35,7 +35,7 @@ usage() {
     echo "       gnoto run [--debug] [--dev] [--yes] job.yaml" >&2
     echo "       gnoto run [--debug] [--yes] --inputs=<dir> record.yaml" >&2
     echo "       gnoto start <pipeline>[@<version>] [--debug] [--dev] [--yes] [--<key>=<value> ...]" >&2
-    echo "       gnoto status [uid]" >&2
+    echo "       gnoto status [--all] [uid]" >&2
     echo "       gnoto cancel <uid>" >&2
     echo "       gnoto resume [uid]" >&2
     echo "       gnoto remove [--yes] <uid>..." >&2

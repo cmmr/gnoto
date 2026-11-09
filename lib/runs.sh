@@ -129,19 +129,24 @@ request_stop() {
     fi
 }
 
+# gnoto status [--all] [uid]
 status_main() {
-    case ${1:-} in
-        "") status_all ;;
-        *)
-            [[ $# -eq 1 ]] || fail "Usage: gnoto status [uid]"
-            status_one "${1,,}"
-            ;;
-    esac
+    local usage="Usage: gnoto status [--all] [uid]"
+    args_parse "$usage" "all" "$@"
+    [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
+    if [[ ${#ARG_WORDS[@]} -eq 1 ]]; then
+        [[ -z ${ARG_FLAGS[all]:-} ]] || fail "--all lists the runs whose results were removed, so it takes no uid. $usage"
+        status_one "${ARG_WORDS[0],,}"
+    else
+        status_all "${ARG_FLAGS[all]:+all}"
+    fi
 }
 
+# Every run that's going and that finished in the last 7 days, but those whose
+# results were removed only with "all": status_all [all]
 status_all() {
-    local dir file now started elapsed state uid version status line ended remove
-    local running=() finished=() expiring=()
+    local all=${1:-} dir file now started elapsed state uid version status ended remove removed message
+    local hidden=0 running=() finished=() expiring=()
 
     now=$(date -u +%s)
     echo "Current version: $(current_commit)"
@@ -164,31 +169,36 @@ status_all() {
         [[ -n $started ]] || started=$(cd "$dir" && state_get created_utc)
         elapsed=$(( now - $(date -u -d "$started" +%s 2> /dev/null || echo "$now") ))
         version=$(cd "$dir" && short_version "$(state_get version)")
-        line=$(printf '  %s  %-18s %-15s %-9s %s' "$uid" "$version" "$status" \
-            "$(human_duration "$elapsed")" "$(cd "$dir" && state_get stage)")
-        running+=("$line")
+        state=$(cd "$dir" && state_get stage)
+        running+=("$(printf '%s\t%s\t%s\t%s\t%s' "$uid" "$version" "$status" "$(human_duration "$elapsed")" \
+            "${state//$'\t'/ }")")
     done
 
+    # A run removed before removed_utc was recorded has only the note
     for file in "$DATA_DIR"/history/*/state.json; do
         [[ -r $file ]] || continue
         uid=${file%/state.json}
         uid=${uid##*/}
-        ended=$(jq -r '.ended_utc // empty' "$file")
+        IFS=$'\x1f' read -r ended status version removed message < <(jq -r '
+            [.ended_utc // "", .status // "", .version // "",
+             ((.removed_utc // "") != "" or any(.notes[]?; tostring | startswith("Results removed")) | tostring),
+             ((.message // "") | tostring | split("\n")[0])] | join("\u001f")' "$file" 2> /dev/null) || continue
         [[ -n $ended ]] || continue
         (( now - $(date -u -d "$ended" +%s) <= 7 * 86400 )) || continue
-        status=$(jq -r '.status // ""' "$file")
-        if [[ $status == Completed || $status == "Publish failed" ]]; then
+        if [[ $removed == true ]]; then
+            [[ -n $all ]] || { hidden=$((hidden + 1)); continue; }
+            state="results removed"
+        elif [[ $status == Completed || $status == "Publish failed" ]]; then
             if [[ -f $DATA_DIR/runs/$uid/results/index.html ]]; then
                 state=$DATA_DIR/runs/$uid/results/index.html
             else
                 state="results removed"
             fi
         else
-            state=$(jq -r '.message // ""' "$file" | head -1)
+            state=$message
         fi
-        line=$(printf '  %s  %-18s %-15s %-9s %s' "$uid" "$(short_version "$(jq -r '.version // ""' "$file")")" \
-            "$status" "$(date -u -d "$ended" '+%b %-d')" "$state")
-        finished+=("$ended$line")
+        finished+=("$(printf '%s\t%s\t%s\t%s\t%s\t%s' "$ended" "$uid" "$(short_version "$version")" "$status" \
+            "$(date -u -d "$ended" '+%b %-d')" "${state//$'\t'/ }")")
     done
 
     for file in "$DATA_DIR"/expiry/*; do
@@ -206,14 +216,17 @@ status_all() {
     if (( ${#running[@]} == 0 )); then
         echo "  Nothing"
     else
-        printf '%s\n' "${running[@]}"
+        printf '%s\n' "${running[@]}" | align_rows
     fi
     echo
     echo "Finished in the last 7 days"
-    if (( ${#finished[@]} == 0 )); then
+    if (( ${#finished[@]} > 0 )); then
+        printf '%s\n' "${finished[@]}" | sort -r | cut -f2- | align_rows
+    elif (( hidden == 0 )); then
         echo "  Nothing"
-    else
-        printf '%s\n' "${finished[@]}" | sort -r | cut -c21-
+    fi
+    if (( hidden > 0 )); then
+        echo "  Not listed: $hidden $( (( hidden == 1 )) && echo "run whose results were" || echo "runs whose results were") removed. $(gnoto_command status --all) lists them."
     fi
     if (( ${#expiring[@]} > 0 )); then
         echo
@@ -337,10 +350,30 @@ followup_done() {
     [[ -n $ended && -r $history && $(jq -r '.ended_utc // ""' "$history" 2> /dev/null) == "$ended" ]]
 }
 
+# Tab-separated rows as a table: each column but the last padded to its widest
+# entry, two spaces apart, and indented by two
+align_rows() {
+    awk -F'\t' '
+        {
+            row[NR] = $0
+            for (i = 1; i < NF; i++) if (length($i) > width[i]) width[i] = length($i)
+        }
+        END {
+            for (r = 1; r <= NR; r++) {
+                n = split(row[r], field, "\t")
+                line = ""
+                for (i = 1; i < n; i++) line = line sprintf("%-" width[i] "s  ", field[i])
+                line = "  " line field[n]
+                sub(/ +$/, "", line)
+                print line
+            }
+        }'
+}
+
 # What remove lists for a run with a run directory: a first line, "going" when
-# it's stopped first or "ended", then the run's line
+# it's stopped first or "ended", then the run's row, its fields tab-separated
 remove_line() (
-    local uid=$1 status activity="" going=ended
+    local uid=$1 status activity="" going=ended title
     cd "$DATA_DIR/runs/$uid" || exit 1
     status=$(get_run_status)
     if ! followup_done "$uid"; then
@@ -348,9 +381,10 @@ remove_line() (
         status=$(live_status "$activity")
         case $activity in queued | running | finishing | elsewhere) going=going ;; esac
     fi
+    title=$(state_get title)
     echo "$going"
-    printf '  %s  %-18s %-15s %-10s %s\n' "$uid" "$(short_version "$(state_get version)")" "$status" \
-        "$(state_get owner)" "$(state_get title)"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$uid" "$(short_version "$(state_get version)")" "$status" \
+        "$(state_get owner)" "${title//$'\t'/ }"
 )
 
 # Removes one run's results, or asks it to stop first: remove_one <uid>. Takes
@@ -434,7 +468,7 @@ remove_main() {
             [[ ${line%%$'\n'*} != going ]] || stopping=$((stopping + 1))
         elif [[ -e $DATA_DIR/expiry/$uid ]]; then
             todo+=("$uid")
-            lines+=("$(printf '  %s  results already gone, and its leftover expiry file goes' "$uid")")
+            lines+=("$(printf '%s\tresults already gone, and its leftover expiry file goes' "$uid")")
         elif [[ -e $DATA_DIR/history/$uid ]]; then
             echo "Run $uid's results have already gone. Its record is in $DATA_DIR/history/$uid."
         else
@@ -453,7 +487,7 @@ remove_main() {
     else
         echo "Deleting these ${#todo[@]} runs' results. Their records stay in $DATA_DIR/history."
     fi
-    printf '%s\n' "${lines[@]}"
+    printf '%s\n' "${lines[@]}" | align_rows
     (( stopping == 0 )) || echo "A run still going is stopped first, and its results go once it has."
     if [[ -z ${ARG_FLAGS[yes]:-} ]]; then
         [[ -t 0 ]] || fail "No terminal to confirm on. Add --yes to remove."

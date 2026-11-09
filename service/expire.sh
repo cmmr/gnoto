@@ -13,10 +13,11 @@
 # the job while its inputs exist.
 
 # teardown_run <uid> <note>: deletes run <uid>'s results, with the run's lock
-# held, from run_lock or the followup, and adds <note>, if any, to the state in
-# history. Holds history's lock as well while the run directory goes, so a
-# command that waited on the run directory's lock takes history's next. Warns
-# about anything it couldn't delete, and returns 1.
+# held, from run_lock or the followup, and records in history's state when
+# they went, as removed_utc, and <note>, if any. Holds history's lock as well
+# while the run directory goes, so a command that waited on the run
+# directory's lock takes history's next. Warns about anything it couldn't
+# delete, and returns 1.
 teardown_run() (
     local uid=$1 note=$2 dir=$DATA_DIR/runs/$1 history=$DATA_DIR/history/$1 gone errors left=0
 
@@ -41,9 +42,11 @@ teardown_run() (
         fi
     fi
     rm -f "$DATA_DIR/expiry/$uid" 2> /dev/null || { warn "Couldn't delete $DATA_DIR/expiry/$uid."; left=1; }
-    if [[ -n $note && -f $history/state.json ]]; then
-        (cd "$history" && RUN_STATE_FILE=state.json state_append notes "$note") ||
-            warn "Couldn't add to $history/state.json that the results were removed."
+    if [[ -f $history/state.json ]]; then
+        (cd "$history" && RUN_STATE_FILE=state.json state_update '
+            .removed_utc //= $now | if $note == "" then . else .notes = ((.notes // []) + [$note]) end' \
+            --arg now "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" --arg note "$note") ||
+            warn "Couldn't record in $history/state.json that the results were removed."
     fi
     return $left
 )

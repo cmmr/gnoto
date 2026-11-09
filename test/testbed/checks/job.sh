@@ -202,8 +202,9 @@ if [[ $REMOVE == true ]]; then
     check "removes it at once" "yes" "$(grep -q "^Removed run $UID_'s results." <<< "$OUT" && echo yes)"
     check "the run directory went, with the dashboard and zip" "no" "$([[ -e $RUN ]] && echo yes || echo no)"
     check_removed "$UID_" "job.yaml record.yaml state.json"
-    check "status lists it with its results removed" "yes" \
-        "$($GNOTO status | grep -q "^  $UID_ .*Completed .*results removed$" && echo yes)"
+    check "status leaves it out" "no" "$($GNOTO status | grep -q "^  $UID_ " && echo yes || echo no)"
+    check "and status --all lists it with its results removed" "yes" \
+        "$($GNOTO status --all | grep -q "^  $UID_ .*Completed .*results removed$" && echo yes)"
 fi
 
 exit $FAILED
