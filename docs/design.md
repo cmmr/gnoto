@@ -1,9 +1,9 @@
 # gnoto design
 
 Status on 2026-11-09: the design is agreed. Phase 1, the image and the helper, is built and
-tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 4, the restructure, the
-job core and the version cache, are tested there too, and phase 5, the lock files, in the test
-bed. This file describes the target.
+tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 5, the restructure, the
+job core, the version cache and the lock files, are tested there too. This file describes the
+target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -1528,25 +1528,23 @@ retry as well, because nf-core's retries often raise `task.cpus` with `task.atte
 
 Phases 1 to 5 of [migration.md](migration.md) have been built: the image and the helper, the
 restructure, the job core, the version cache and the lock files. Their test results are in
-each phase's notes there. Two questions this list held are answered: every module at the
+each phase's notes there. Three questions this list held are answered. Every module at the
 pinned ampliseq and taxprofiler commits names one Docker-style address that can be read,
-none built from an expression, and each is in its registry; and gnoto's image gets the same
+none built from an expression, and each is in its registry. gnoto's image gets the same
 registry digest wherever it's built, while a copy made with `--preserve-digests` keeps its
-digest.
+digest. And ampliseq, taxprofiler and biobakery all run on the cluster with every image pulled
+by digest, Apptainer 1.5.3 doing it through the stand-in, but for Seqera's pixi-built images,
+which run from their Apptainer files by SHA-256, as the notes on `containers.config` say.
 
 - **The helper:** running Nextflow's driver in the image through stand-ins isn't the
   usual setup, and
   [the common advice keeps it on the host](https://docs.seqera.io/nextflow/executor/slurm).
   It works in the local Slurm and Apptainer test bed and on CMMR's cluster, signals and
   environment included, and ampliseq runs through it on both.
-- **Image size:** the AWS CLI and Java are large. The image is 760 MB as a `.sif`. In the test
-  bed, a first command that pulled it from GHCR and fetched its version took 2 minutes 51
-  seconds; its first pull on the cluster hasn't been timed.
-- **Digest pinning:** running ampliseq and taxprofiler through Nextflow and Apptainer
-  entirely by digest.
-  [Apptainer's Docker and OCI page](https://apptainer.org/docs/user/main/docker_and_oci.html)
-  doesn't cover pulling by digest, but Apptainer 1.5.5 does it, through the stand-in too.
-  ampliseq runs that way in the test bed; taxprofiler and biobakery wait for the cluster.
+- **Image size:** the AWS CLI and Java are large. The image is 760 MB as a `.sif`. Its first
+  pull isn't slow: on the cluster, `gnoto upgrade`, pulling it from GHCR and running the new
+  version's `lint`, took 34 seconds, and a new install's first command in the test bed 2
+  minutes 51 seconds. Whether its size matters elsewhere, such as in a Zenodo bundle, is open.
 - **Zenodo fit:** the real size of each image bundle.
 - **Globus listing:** whether the anonymous read rule on the run folder lets any logged-in
   Globus user list every run, and so download every zip. Test it from an unrelated Globus

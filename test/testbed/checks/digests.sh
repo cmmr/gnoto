@@ -2,17 +2,18 @@
 #
 # digests.sh - Phase 5's finish test: a job, and then an exact re-run of its
 # record, each pull every image by digest. Runs ampliseq on the 16s-v4 fixture
-# with --debug, so its tasks' scripts stay, then removes the images that job
-# pulled and re-runs the record with --inputs, so the re-run pulls them again.
-# After each, every image file the run pulled is one gnoto, Nextflow or a step
-# pulled by digest, and no task names an image by tag, nor an https:// file but
-# one its address names by SHA-256, as pipelines/lock.sh allows. Also
-# checks the databases: lint --deep, the record's entries, and the re-run's core
-# tables.
+# with --debug, so its tasks' scripts stay, then removes the images its tasks
+# ran in and re-runs the record with --inputs, so the re-run pulls them again.
+# After each, every image a task ran in was pulled during that run, by digest,
+# and no task names an image by tag, nor an https:// file but one its address
+# names by SHA-256, as pipelines/lock.sh allows. Also checks the databases:
+# lint --deep, the record's entries, and the re-run's core tables.
 #
 # Run by:  a developer, in the test bed or on the cluster, as any user:
 #          bash <install>/test/testbed/checks/digests.sh [--small]
-#          An image another job pulls while this runs counts as this run's.
+#          It removes ampliseq's task images, so it mustn't run beside another
+#          ampliseq job on the same data directory. Other pipelines' images
+#          are left alone.
 # Requires:  the install's gnoto, whose IMAGE and lock files name images by
 #            digest; the 16s-v4 fixture and the job's databases in its database
 #            directory, which gnoto lint --yes fetches; with --small,
@@ -77,18 +78,20 @@ pulled_since() {
 # <url>-blobs-sha256-<xx>-<digest>-data.img
 NEXTFLOW_BY_DIGEST='([a-z0-9.-]+(-[a-z0-9._-]+)+@sha256-[0-9a-f]{64}|[a-z0-9.-]+-blobs-sha256-[0-9a-f]{2}-[0-9a-f]{64}-data)\.img'
 
-# Those of them not pulled by digest: gnoto's own is gnoto-<digest>.sif, and a
-# step's <address>@sha256-<digest>.sif
-not_by_digest() {
-    pulled_since "$1" |
-        grep -vE "^(gnoto-[0-9a-f]{64}\.sif|[a-z0-9.-]+(-[a-z0-9._-]+)+@sha256-[0-9a-f]{64}\.sif|$NEXTFLOW_BY_DIGEST)\$" | head -3
+# The image files a run's tasks ran in, by name, as their scripts name them
+task_images() {
+    grep -ho 'apptainer exec [^|;&]*' "$1"/work/*/*/.command.run 2> /dev/null |
+        grep -o "$IMAGES/[^ ]*" | sed "s|^$IMAGES/||" | sort -u
 }
 
-# The images a run's task scripts name, other than by digest
-tasks_not_by_digest() {
-    grep -ho 'apptainer exec [^|;&]*' "$1"/work/*/*/.command.run 2> /dev/null |
-        grep -o "$IMAGES/[^ ]*" | sort -u | sed "s|^$IMAGES/||" |
-        grep -vE "^$NEXTFLOW_BY_DIGEST\$" | head -3
+# Those of a list of image names not named by digest
+not_by_digest() {
+    grep -vE "^$NEXTFLOW_BY_DIGEST\$" "$1" | head -3
+}
+
+# Those of a list of image names not pulled since a marker file was touched
+not_pulled_since() {
+    comm -23 "$1" <(pulled_since "$2" | sort) | head -3
 }
 
 core_tables() {
@@ -132,10 +135,10 @@ RUN=$DATA_DIR/runs/$UID_
 STATUS=$(wait_for "$UID_" 120)
 check "it ends as Completed" "Completed" "$STATUS"
 [[ $STATUS == Completed ]] || { echo "Stopping: the job didn't complete. Its run directory is $RUN."; exit 1; }
-check "it pulled images" "yes" "$([[ -n $(pulled_since before-job) ]] && echo yes)"
-check "every one by digest" "" "$(not_by_digest before-job)"
-check "every task names its image by digest" "" "$(tasks_not_by_digest "$RUN")"
-check "and some tasks ran in one" "yes" "$(grep -lq 'apptainer exec' "$RUN"/work/*/*/.command.run 2> /dev/null && echo yes)"
+task_images "$RUN" > first-images
+check "its tasks ran in images" "yes" "$([[ -s first-images ]] && echo yes)"
+check "every one named by digest" "" "$(not_by_digest first-images)"
+check "and pulled during the job" "" "$(not_pulled_since first-images before-job)"
 check "every https:// file it fetched is one named by its SHA-256" "" \
     "$(grep -ho 'Pulling Apptainer image https://[^ ]*' "$RUN/nextflow.log" 2> /dev/null | cut -d' ' -f4 |
         grep -vE '^https://[a-z0-9.-]+/.*/blobs/sha256/[0-9a-f]{2}/[0-9a-f]{64}/data$' | head -2)"
@@ -144,13 +147,12 @@ check "the record holds the databases it read" "yes" \
 LOCKED_16S=$($GNOTO exec yq '.databases."db:16s/v1".tree_sha256' "$CODE_DIR/pipelines/ampliseq/lock.yaml")
 check "a pinned one by its lock entry" "yes $LOCKED_16S" \
     "$([[ $LOCKED_16S =~ ^[0-9a-f]{64}$ ]] && echo yes) $($GNOTO exec yq '.databases."db:16s/v1".tree_sha256' "$RUN/results/record.yaml")"
-pulled_since before-job | sort > first-images
 FIRST_TABLES=$(core_tables "$RUN")
 
-echo "an exact re-run, without the images the job pulled"
-pulled_since before-job | while IFS= read -r FILE; do
+echo "an exact re-run, without the images the job's tasks ran in"
+while IFS= read -r FILE; do
     rm -f "$IMAGES/$FILE" "$IMAGES/$FILE.lock"
-done
+done < first-images
 touch before-rerun
 sleep 1
 mkdir -p inputs
@@ -169,11 +171,11 @@ PINNED=$($GNOTO exec yq '.databases | to_entries | .[] | select(.value.tree_sha2
     sort | paste -sd ' ')
 check "its head job checked each pinned database it read by its tree digest" "yes $PINNED" \
     "$([[ -n $PINNED ]] && echo yes) $(sed -n 's/.*\(db:[^ ]*\) matches its tree digest\.$/\1/p' "$RERUN/job.out" | sort | paste -sd ' ')"
-pulled_since before-rerun | sort > rerun-images
-check "it pulled again" "yes" "$([[ -s rerun-images ]] && echo yes)"
-check "only images the job pulled" "" "$(comm -13 first-images rerun-images | head -3)"
-check "every one by digest" "" "$(not_by_digest before-rerun)"
-check "every task names its image by digest" "" "$(tasks_not_by_digest "$RERUN")"
+task_images "$RERUN" > rerun-images
+check "its tasks ran in images" "yes" "$([[ -s rerun-images ]] && echo yes)"
+check "every one named by digest" "" "$(not_by_digest rerun-images)"
+check "and pulled again during the re-run" "" "$(not_pulled_since rerun-images before-rerun)"
+check "each one the job ran in" "" "$(comm -13 first-images rerun-images | head -3)"
 check "its core tables match the first run's" "$FIRST_TABLES" "$(core_tables "$RERUN")"
 
 exit $FAILED

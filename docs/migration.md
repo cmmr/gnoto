@@ -9,7 +9,8 @@ job runs each of ampliseq, biobakery and taxprofiler from `gnoto start` to a ful
 in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does so on the
 machine itself. **Phase 4, the version cache, is done too:** it passes its finish test in the
 test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. **Phase 5,
-the lock files, passes its finish test in the test bed,** and waits for the cluster. The
+the lock files, is done:** it passes its finish test in the test bed and on the cluster, and
+all three pipelines run there with every image by digest and every database pinned. The
 [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
 [phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache) and
 [phase 5](#phase-5-lock-files) notes record what's built and every test result, and phase 1's
@@ -821,6 +822,43 @@ Tested on 2026-11-08 and 9, in the test bed and in Docker:
 | `test/steps/build_host_reference-test.sh`: PhiX built twice for real, then from a download with one base changed | Pass, 11 checks: the two builds identical, with the GHCR copy of Wave's bowtie2 image and minimap2, both by digest |
 | `test/steps/composition-test.sh`, with `gnoto-rbiom` pulled from GHCR by digest | Pass, 84 checks |
 | `test/testbed/checks/digests.sh --small`, phase 5's finish test, as `alice`: ampliseq on `16s-v4` with `--debug`, without any of its task images, then its record re-run with `--inputs` after removing every image the job pulled | Pass, 22 checks. The job pulled 17 images, every one by digest: 13 task images by registry digest, the 3 Apptainer files it needed by SHA-256, and vsearch for region detection; every task's script named its image so. `lint --deep` passed on the job file and on the record. The re-run pulled 16 of them again, all by digest, without vsearch, since an exact re-run reuses the recorded region; checked SILVA, the one pinned database it read, by its tree digest; and gave byte-identical core tables. 7 minutes each, with Apptainer's layer cache warm |
+| `digests.sh --small` again, once it removed only the images its own job's tasks ran in (below) | Pass, 19 checks: 16 task images in each run, every one by digest and pulled during that run, and the re-run's a subset of the job's |
+
+**On the cluster, 2026-11-09,** from its clone, with Slurm's module loaded:
+
+- `./gnoto upgrade --yes` to `713cf27` took 34 seconds, including the first pull of the gnoto
+  image from GHCR, by digest, and the new version's `lint`.
+- `gnoto lint --deep` on an ampliseq job found the cluster's SILVA, `pplace/v1` and `16s/v1`
+  byte-identical to the test bed's, which ampliseq's lock pins: the reference builders
+  reproduce across sites.
+- The links to the old shotgun databases moved aside, and `gnoto lint --yes` on taxprofiler
+  jobs for each host, and a biobakery job with EsViritu, fetched all nine fresh as Slurm jobs.
+  Every one landed whole with its manifest: PhiX in a minute, the human and mouse references
+  in about 20 minutes each with 16 CPUs, mOTUs, EsViritu and Marker-MAGu within 25 minutes,
+  HUMAnN in an hour, MetaPhlAn in 80 minutes and Kraken2, a 91 GB download, in 95. `lock.sh
+  databases` then wrote their digests into the taxprofiler and biobakery locks, in `b4d5686`.
+  The test bed's own PhiX build, with 6 threads, has the same digest as the cluster's, with 2.
+- Doing that found a bug from phase 3: biobakery's `pipeline.sh` decided whether to name
+  EsViritu's database before the job's own `run_esviritu` was applied, so turning EsViritu on
+  named no database. It now reads the job's parameters, as ampliseq's does for `primer_fwd`,
+  in the same commit.
+- The first round's jobs died at launch on a node that had come back from repair unable to
+  reach `/data`, and that refused ssh. gnoto named the node and excluded it, as phase 3 built.
+  At Daniel's call, a node ssh can't reach while it reaches the others now fails the node
+  check too, in `9fbec38`. ssh's messages also ended in a carriage return, which garbled
+  `lint`'s line about such a node; it's taken out.
+- `test/testbed/checks/digests.sh`, the finish test, passed at `9fbec38` with the full
+  pplace reference: the job and its record's re-run each pulled every image by digest, with
+  `lint --deep` passing on both and byte-identical core tables.
+- That run removed, before its re-run, every image pulled since its job began, so it also
+  took the HUMAnN image that taxprofiler and biobakery, running beside it, had just pulled,
+  and their HUMAnN tasks failed on the missing file. The check now removes only the images its
+  own job's tasks ran in.
+- taxprofiler and biobakery, run again at `9fbec38` with the fresh databases, both completed,
+  HUMAnN included, in 21 and 20 minutes, from the version cache, with every database the lock
+  pins and every image by digest: the 11 images the two pulled anew, HUMAnN's among them, are
+  each named by digest, as are the 25 the first round pulled. So phase 5 is done, and
+  biobakery and taxprofiler have run from the version cache, which phase 4 left for later.
 
 ### Phase 6: determinism
 
