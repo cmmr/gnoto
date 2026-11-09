@@ -9,13 +9,14 @@
 #          and GNOTO_RESOLVED, when a launcher handed it the command
 #
 # People's commands are config, lint, new, run, start, status, cancel, resume,
-# remove, upgrade, prune, and exec, a development aid that runs any command in
-# the image with the stand-ins on PATH and the settings loaded. gnoto init never
+# remove, upgrade, prune, selftest, and exec, a development aid that runs any
+# command in the image with the stand-ins on PATH and the settings loaded. gnoto init never
 # reaches the image. The commands starting with an underscore are gnoto's own:
 # _current, which the launcher runs from the install's files when the current
 # version has no copy; and the jobs lib/start.sh and lib/databases.sh submit,
 # _job, the head job; _followup; _local, which runs both one after the other on
-# this machine; and _fetch, which fetches a database.
+# this machine; _fetch, which fetches a database; and _selftest, which writes a
+# selftest's report.
 #
 # The launcher acts on --dev, running the install's own files, so here it's a
 # flag that's accepted and otherwise ignored.
@@ -41,6 +42,7 @@ usage() {
     echo "       gnoto remove [--yes] <uid>..." >&2
     echo "       gnoto upgrade [--yes] [<version>]" >&2
     echo "       gnoto prune [--yes]" >&2
+    echo "       gnoto selftest [--dev] [--yes] [<pipeline> ...]" >&2
     echo "       gnoto exec [--dev] <command> [arguments]" >&2
     exit 1
 }
@@ -79,6 +81,7 @@ case $COMMAND in
         ;;
     status)
         source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/selftest.sh"
         status_main "$@"
         ;;
     cancel)
@@ -90,6 +93,21 @@ case $COMMAND in
         source "$CODE_DIR/lib/followup.sh"
         source "$CODE_DIR/service/expire.sh"
         remove_main "$@"
+        ;;
+    selftest)
+        source "$CODE_DIR/lib/lint.sh"
+        source "$CODE_DIR/lib/jobfile.sh"
+        source "$CODE_DIR/lib/databases.sh"
+        source "$CODE_DIR/lib/start.sh"
+        source "$CODE_DIR/lib/selftest.sh"
+        selftest_main "$@"
+        ;;
+    _selftest)
+        [[ $# -eq 1 ]] || usage
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/service/expire.sh"
+        source "$CODE_DIR/lib/selftest.sh"
+        selftest_report_main "$1"
         ;;
     upgrade) upgrade_main "$@" ;;
     prune) prune_main "$@" ;;

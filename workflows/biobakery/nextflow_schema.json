@@ -48,6 +48,7 @@
                 "motus_db": { "type": "string", "format": "directory-path" },
                 "motus_args": { "type": "string" },
                 "nonpareil_mode": { "type": "string", "enum": ["kmer", "alignment"] },
+                "nonpareil_seed": { "type": "integer" },
                 "nonpareil_args": { "type": "string" },
                 "esviritu_db": { "type": "string", "format": "directory-path" },
                 "esviritu_args": { "type": "string" },

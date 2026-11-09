@@ -116,7 +116,7 @@ run_job() {
 # whether to keep the whole run directory, and a Slurm dependency on database
 # fetches, if any.
 start_run() {
-    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_file=$JOB_FILE
+    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_file=$JOB_FILE kept
 
     # gnoto start's job file is temporary, so the state names none
     [[ -z ${START_JOB_FILE:-} ]] || job_file=""
@@ -171,18 +171,30 @@ start_run() {
         --argjson exact "$JOB_EXACT" \
         --argjson expected "$JOB_EXPECTED_INPUTS" \
         --argjson runs "$JOB_RECORDED_RUNS" \
-        --argjson recorded_databases "$JOB_RECORDED_DATABASES" '
+        --argjson recorded_databases "$JOB_RECORDED_DATABASES" \
+        --argjson recorded_outputs "$JOB_RECORDED_OUTPUTS" \
+        --arg selftest "${SELFTEST_ID:-}" '
         {pipeline: $pipeline, version: $version, commit: $commit, repository: $repository,
          dev: $dev, title: $top.title, retention: ($top.retention // "3 Months"),
          answers: $answers, job_params: $job_params, params: $params,
          debug: $debug, owner: $owner, job_file: $job_file, samplesheet: $samplesheet,
          databases: $databases}
         + (if $exact then {exact: true, expected_inputs: $expected, recorded_runs: $runs,
-            recorded_databases: $recorded_databases} else {} end)
+            recorded_databases: $recorded_databases, recorded_outputs: $recorded_outputs} else {} end)
+        + (if $selftest != "" then {selftest: $selftest} else {} end)
         + (if $nextflow_config != "" then {nextflow_config: $nextflow_config,
             nextflow_config_sha256: $nextflow_sha} else {} end)')" ||
         fail "Can't write the run's state in $run_dir."
     record_write || fail "Can't write record.yaml in $run_dir."
+    if [[ $JOB_EXACT == true ]]; then
+        # The record's own tables, from beside it, for the job to compare its
+        # own with, number by number, where their checksums differ
+        kept=$(outputs_keep_recorded "$JOB_PIPELINE" "$JOB_RECORDED_OUTPUTS" "$JOB_RECORD_DIR" recorded-outputs) ||
+            fail "Can't copy the record's core tables into $run_dir."
+        if (( kept == 0 )) && [[ $JOB_RECORDED_OUTPUTS != "[]" ]]; then
+            echo "The record's core tables aren't beside it, so a table that differs is reported by its checksum alone." >&2
+        fi
+    fi
     exec 8>&-
 
     submit_run "$run_dir" "$fetch_after"

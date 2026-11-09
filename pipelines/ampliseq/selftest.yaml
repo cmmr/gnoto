@@ -1,0 +1,32 @@
+# selftest.yaml - The fixture jobs gnoto selftest runs for ampliseq, one for
+# each path through it, from docs/fixtures.md. Each sample is a name and its
+# FASTQ files, under the database directory, which lint fetches; args are what
+# gnoto start takes. pipelines/ampliseq/selftest/<job>/ holds the reference copy
+# of each job's core tables, which a selftest compares its own with.
+schema: 1
+jobs:
+  - name: v4
+    samples:
+      - [mock, fixtures/16s-v4/v1/SRR17380142_1.fastq.gz, fixtures/16s-v4/v1/SRR17380142_2.fastq.gz]
+  - name: v1v3
+    samples:
+      - [mock, fixtures/16s-v1v3/v1/SRR13272540_1.fastq.gz, fixtures/16s-v1v3/v1/SRR13272540_2.fastq.gz]
+  # Its pairs barely overlap, so they're joined end to end
+  - name: v3v5
+    samples:
+      - [control, fixtures/16s-v3v5/v1/SRR7636994_1.fastq.gz, fixtures/16s-v3v5/v1/SRR7636994_2.fastq.gz]
+    args: [--ampliseq.mergepairs_strategy=concatenate]
+  - name: v5v6
+    samples:
+      - [mock, fixtures/16s-v5v6/v1/SRR24187307_1.fastq.gz, fixtures/16s-v5v6/v1/SRR24187307_2.fastq.gz]
+  - name: single
+    samples:
+      - [control, fixtures/16s-single/v1/ERR5002560.fastq.gz]
+  - name: ont
+    samples:
+      - [std1, fixtures/16s-ont/v1/Std1_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz]
+      - [std2, fixtures/16s-ont/v1/Std2_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz]
+      - [std3, fixtures/16s-ont/v1/Std3_ZymoD6305_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.1000.fastq.gz]
+      - [log1, fixtures/16s-ont/v1/Log1_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz]
+      - [log2, fixtures/16s-ont/v1/Log2_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz]
+      - [log3, fixtures/16s-ont/v1/Log3_ZymoD6311_16SBarcodingKit24V14_SQK-16S114.24_r10.4.1_sup.chopper.3000.fastq.gz]

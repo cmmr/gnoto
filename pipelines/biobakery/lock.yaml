@@ -34,3 +34,27 @@ databases:
     files: 8
     bytes: 13171380682
     tree_sha256: 6c2b905f84e13fd1c37fbcebf06950bbf6e2ea1bb94a1c1cb2aad2875a0776b0
+  db:fixtures/wgs-human/v1:
+    files: 2
+    bytes: 14906880
+    tree_sha256: 0f86f68b4d7e1ded44631002881cd2874c972cd4141809fcf7847a48159f0a34
+  db:fixtures/wgs-mock/v1:
+    files: 2
+    bytes: 15598267
+    tree_sha256: e7e805709ebd29820c199f3cc072c22ebff2846fc469c1baaf71f238c170c6d3
+  db:fixtures/wgs-mouse/v1:
+    files: 2
+    bytes: 10674224
+    tree_sha256: 03b616581b3a9de4345a4a52575289c85540d9405bd3ebe8bc0e7d8338a20d6d
+  db:fixtures/wgs-phix/v1:
+    files: 2
+    bytes: 4339162
+    tree_sha256: 5c87d4649f2d35a25ae953f6ea1d06e18272256581f5cff499642b5d6e6e29ca
+  db:fixtures/wgs-single/v1:
+    files: 1
+    bytes: 3905172
+    tree_sha256: 6ba909bd7f6f3dd823bf90707ef7ec802fbe1adb74b9f5bdbfb50a1e070ddb03
+  db:fixtures/wgs-virus/v1:
+    files: 2
+    bytes: 14270589
+    tree_sha256: 80f82bcc765ec4683b88a974c17b84efe6b2bd5fd3b3e4883340e8e7ef75eb6a

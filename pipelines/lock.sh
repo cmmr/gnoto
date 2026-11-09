@@ -7,8 +7,9 @@
 #            tree, after moving an upstream commit, an image or a database, and
 #            at each release; and by .github/workflows/checks.yml, as check
 # Usage:     lock.sh containers <pipeline>   writes pipelines/<pipeline>/containers.config
-#            lock.sh databases <pipeline>    writes lock.yaml's databases, from
-#                                            the manifests in core.db_dir
+#            lock.sh databases <pipeline>    writes lock.yaml's databases, and
+#                                            the fixtures its selftest.yaml runs
+#                                            on, from the manifests in core.db_dir
 #            lock.sh digest <address>        prints an image's address by digest
 #            lock.sh check                   fails on any image named by tag
 # Requires:  bash, git, curl, jq, yq, gawk and sha256sum, as the gnoto image has
@@ -322,8 +323,8 @@ write_containers() {
 }
 
 # lock.yaml's databases: each pipelines/databases.yaml entry used by this
-# pipeline, from its manifest. An entry with no manifest in core.db_dir keeps
-# what the lock had, with a warning.
+# pipeline, and each fixture its selftest.yaml names, from its manifest. An
+# entry with no manifest in core.db_dir keeps what the lock had, with a warning.
 write_databases() {
     local pipeline=$1 lock=$REPO/pipelines/$1/lock.yaml path manifest entry json='{}' missing=0
     [[ -f $lock ]] || fail "there's no $lock"
@@ -340,8 +341,14 @@ write_databases() {
             missing=$((missing + 1))
         fi
         [[ $entry == null ]] || json=$(jq --arg key "db:$path" --argjson entry "$entry" '.[$key] = $entry' <<< "$json")
-    done < <(yq -o=json '.databases' "$REPO/pipelines/databases.yaml" | jq -r --arg pipeline "$pipeline" '
-        .[] | select(any(.used_by[]?; startswith($pipeline + ":"))) | [.path, .manifest] | @tsv')
+    done < <(
+        yq -o=json '.databases' "$REPO/pipelines/databases.yaml" | jq -r --arg pipeline "$pipeline" '
+            .[] | select(any(.used_by[]?; startswith($pipeline + ":"))) | [.path, .manifest] | @tsv'
+        # The fixtures its selftest runs on, which its runs check like any database
+        if [[ -f $REPO/pipelines/$pipeline/selftest.yaml ]]; then
+            yq -r '.jobs[].samples[][1:][]' "$REPO/pipelines/$pipeline/selftest.yaml" |
+                sed -n 's#^\(fixtures/[^/]*/v1\)/.*#\1#p' | LC_ALL=C sort -u | awk '{ print $0 "\t" $0 ".manifest.yaml" }'
+        fi)
     # Through a YAML file, so the section is written in block style
     yq -P -p=json -o=yaml <<< "$json" > "$WORK/databases.yaml" &&
         F=$WORK/databases.yaml yq -i '.databases = load(strenv(F))' "$lock" || fail "can't write $lock"

@@ -9,6 +9,9 @@ step_images:
   vsearch: "quay.io/biocontainers/vsearch@sha256:582a54b880d848aefad7b5a2244ae051e41ddb6afcc07cc51f1a20fdc02e05d4" # 2.32.0--hd2be7a0_0
   gotree: "quay.io/biocontainers/gotree@sha256:83dec412bb9e4428f8d76f6466f05443f72c2cd2d95c23c32909ecbd5fc75c40" # 0.5.2--he881be0_0
   rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:533e61f1b0c8840bdd7a341bc6f376f8ee7ac70d23a7a62ee7ac16db68fbc257" # 008bf3987dab, from images/gnoto-rbiom
+  # For the 16s-v5v6 fixture. 3.2.1, not the latest, 3.4.1, because both of
+  # 3.4.1's builds segfault reading its .sra file (2026-11-09)
+  sra_tools: "quay.io/biocontainers/sra-tools@sha256:d388f70b57293aaaab21275ebfc7e6bde9f51103561cda9a36cb410375c12179" # 3.2.1--h4304569_1
 databases:
   db:dada2/silva-138.2:
     files: 2
@@ -22,3 +25,27 @@ databases:
     files: 3
     bytes: 329268
     tree_sha256: cd16972da86736edd85a903d17b51696d53082fbc1d177e0867596a4b57cd4f2
+  db:fixtures/16s-ont/v1:
+    files: 6
+    bytes: 13001983
+    tree_sha256: a87974c9a32e2b8eca02f09d0046892da0b861e9d7730efcf7f4e0dbdc5cc326
+  db:fixtures/16s-single/v1:
+    files: 1
+    bytes: 1220577
+    tree_sha256: ccdca3ca9442e7ef955d8718f14bf99845322eba7625dd69677df31560a37c17
+  db:fixtures/16s-v1v3/v1:
+    files: 2
+    bytes: 11583360
+    tree_sha256: a19e75ad91aeacabdac9dc0f4644095af4c80a01615e0c2f53f7d6659f3ebb3b
+  db:fixtures/16s-v3v5/v1:
+    files: 2
+    bytes: 8054844
+    tree_sha256: e08c9cde0d9853854948f716351cd38423ac1286ec18e5c460462fd64b67b917
+  db:fixtures/16s-v4/v1:
+    files: 2
+    bytes: 2924900
+    tree_sha256: a4ab5b7372bc9a88e29792442c2f22ed2ad2ded21030dd08f29f5fde63283302
+  db:fixtures/16s-v5v6/v1:
+    files: 2
+    bytes: 64772997
+    tree_sha256: 2ef585c8444f5c285737a44d1866084b60b11e56132592176ced1f1ced45fd51

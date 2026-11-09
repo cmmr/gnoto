@@ -34,13 +34,12 @@ db_entry_for() {
 db_setup_for() {
     local path=$1
     if [[ $path == fixtures/*/v1 ]]; then
-        # These are made from their downloads, which fetch_files.sh alone
-        # doesn't do until phase 6: the shotgun fixtures are cut to their first
-        # 100,000 reads, and 16s-v5v6 converted from NCBI's .sra file
+        # These are made from their downloads: the shotgun fixtures are cut to
+        # their first 100,000 reads, and 16s-v5v6 converted from NCBI's .sra
         case $path in
-            fixtures/wgs-*/v1 | fixtures/16s-v5v6/v1) return 0 ;;
+            fixtures/wgs-*/v1 | fixtures/16s-v5v6/v1) printf 'steps/fetch_fixture.sh %s' "$path" ;;
+            *) printf 'steps/fetch_files.sh %s' "$path" ;;
         esac
-        printf 'steps/fetch_files.sh %s' "$path"
     else
         P=$path yq -r '.databases[] | select(.path == strenv(P)) | .setup // ""' "$CODE_DIR/pipelines/databases.yaml"
     fi

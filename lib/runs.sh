@@ -228,11 +228,31 @@ status_all() {
     if (( hidden > 0 )); then
         echo "  Not listed: $hidden $( (( hidden == 1 )) && echo "run whose results were" || echo "runs whose results were") removed. $(gnoto_command status --all) lists them."
     fi
+    ! declare -F selftest_status > /dev/null || selftest_status
     if (( ${#expiring[@]} > 0 )); then
         echo
         echo "Expiring within ${EXPIRATION_NOTICE_DAYS:-14} days"
         printf '%s\n' "${expiring[@]}"
     fi
+}
+
+# How a run's core tables compared with another's, a line for each table that
+# isn't identical: comparison_lines <comparison> <what it's compared with>
+comparison_lines() {
+    [[ -n $1 && $1 != null ]] || return 0
+    jq -r --arg with "$2" '
+        (.tables | length) as $n | ([.tables[] | select(.result == "identical")] | length) as $same
+        | "  Compared   with \($with) core tables: \($same) of \($n) identical",
+          (.tables[] | select(.result != "identical")
+            | "             \(.path): " + if .result == "missing" then "not made this time"
+                elif .result == "new" then "not in \($with)"
+                elif .figures == null then "differs, with no copy of \($with) to compare its numbers with"
+                elif .figures.numbers_differing > 0 then
+                    "largest relative difference \(.figures.largest_relative_difference), at \(.figures.row), \(.figures.column): \(.figures.recorded) then \(.figures.new)"
+                    + " (\(.figures.numbers_differing) of \(.figures.numbers) numbers differ"
+                    + (if .figures.only_recorded + .figures.only_new > 0 then ", \(.figures.only_recorded + .figures.only_new) rows only in one" else "" end) + ")"
+                else "no number differs, but \(.figures.only_recorded + .figures.only_new) rows are only in one and \(.figures.text_differing) text cells differ"
+                end)' <<< "$1"
 }
 
 status_one() {
@@ -289,6 +309,7 @@ status_one() {
     fi
     [[ -z $(state_get message) ]] || printf '  %-10s %s\n' Message "$(state_get message)"
     state_get_json notes | jq -r '.[]? | "  Note       \(.)"'
+    comparison_lines "$(state_get_json comparison)" "the record's"
 
     # A run is lost when its followup never ran, so nothing recorded why
     if [[ $status == Lost && $kind == slurm ]]; then

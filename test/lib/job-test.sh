@@ -72,7 +72,7 @@ check "with every option" "title samplesheet retention dada_ref_taxonomy picrust
 check "retention defaults to 3 Months" "3 Months" "$(yq .retention ampliseq.yaml)"
 check "and its help as comments" "yes" "$(has "$(cat ampliseq.yaml)" "# The default is silva=138.2")"
 check "refuses an unknown pipeline" "1" "$( (job_new nothing) > /dev/null 2>&1; echo $?)"
-check "needs a pipeline" "Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" "$(new_error)"
+check "needs a pipeline" "Usage: gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...] > job.yaml" "$(new_error)"
 
 echo "gnoto new, with values"
 (job_new ampliseq --title="Mock = 16S, run 2" --samplesheet good.tsv --retention "1 Month" \
@@ -107,7 +107,7 @@ check "a value the option doesn't offer" "--ampliseq.picrust takes one of: false
 check "one of several it doesn't offer" \
     "--ampliseq.exclude_taxa takes some of: mitochondria, chloroplast, Francisella, not nothing" \
     "$(new_error ampliseq --ampliseq.exclude_taxa="chloroplast, nothing")"
-check "a key with no value" "--title needs a value, as --title=<value>. Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" \
+check "a key with no value" "--title needs a value, as --title=<value>. Usage: gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...] > job.yaml" \
     "$(new_error ampliseq --title)"
 check "a value after a space can't start with --" "yes" \
     "$(has "$(new_error ampliseq --title --ampliseq.picrust=true)" "--title needs a value")"
@@ -206,7 +206,22 @@ check "a missing fixture can be fetched" "yes" "$(has "$OUT" "db:fixtures/16s-v4
 printf 'slurm 999999999\n' > "$WORK/db/fixtures/16s-v4/v1.fetching"
 check "a marker whose job has gone is removed" "no" \
     "$(has "$(lint_job db.yaml)" "being fetched")$([[ -e $WORK/db/fixtures/16s-v4/v1.fetching ]] && echo " still there")"
+printf '%s\t%s\t%s\n' mock "$WORK/db/fixtures/16s-v4/v1/SRR17380142_1.fastq.gz" \
+    "$WORK/db/fixtures/16s-v4/v1/SRR17380142_2.fastq.gz" > fixture.tsv
+sed 's/good.tsv/fixture.tsv/' good.yaml > fixture.yaml
+OUT=$(lint_job fixture.yaml)
+check "a samplesheet naming a missing fixture's files doesn't fail on them" "no" "$(has "$OUT" "doesn't exist")"
+check "the fixture is a database to fetch" "yes" \
+    "$(has "$OUT" "db:fixtures/16s-v4/v1 is missing, at $WORK/db/fixtures/16s-v4/v1. gnoto can fetch it")"
+check "the only failure, which fetching fixes" "1 1" \
+    "$(LINT_FAILS=0; job_check fixture.yaml > /dev/null 2>&1; echo "$LINT_FAILS $JOB_MISSING_DATABASES")"
+check "a file in the database directory with no entry still fails" "yes" \
+    "$(printf 'S\t%s\n' "$WORK/db/nothing/x.fastq.gz" > nowhere.tsv
+        sed 's/good.tsv/nowhere.tsv/' good.yaml > nowhere.yaml
+        has "$(lint_job nowhere.yaml)" "$WORK/db/nothing/x.fastq.gz doesn't exist")"
 mv "$WORK/db/fixtures/16s-v4/v1.away" "$WORK/db/fixtures/16s-v4/v1"
+check "once it's there, its files are the job's databases" "db:fixtures/16s-v4/v1/SRR17380142_1.fastq.gz db:fixtures/16s-v4/v1/SRR17380142_2.fastq.gz" \
+    "$(LINT_FAILS=0; job_check fixture.yaml > /dev/null 2>&1; grep '^db:fixtures/' <<< "$JOB_DATABASES" | paste -sd ' ')"
 cat > virus-on.yaml << EOF
 pipeline: biobakery
 title: "Viruses"
@@ -235,6 +250,8 @@ check "entries by db: name" "pplace/v1 fixtures/16s-v4/v1 hostremoval/phix/v1  "
         printf '%s ' "$(db_entry_for "$n")"; done)"
 check "a fixture's download size" "2924900" "$(db_bytes_for fixtures/16s-v4/v1)"
 check "a fixture's setup" "steps/fetch_files.sh fixtures/16s-v4/v1" "$(db_setup_for fixtures/16s-v4/v1)"
+check "and those made from their downloads" "steps/fetch_fixture.sh fixtures/wgs-mock/v1|steps/fetch_fixture.sh fixtures/16s-v5v6/v1" \
+    "$(db_setup_for fixtures/wgs-mock/v1)|$(db_setup_for fixtures/16s-v5v6/v1)"
 check "a fetch job's resources, from fetch_job or the defaults" "16 64G 24:00:00|2 8G 24:00:00" \
     "$(db_fetch_job_for hostremoval/chm13v2phix/v1)|$(db_fetch_job_for pplace/v1)"
 

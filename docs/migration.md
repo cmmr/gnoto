@@ -10,11 +10,13 @@ in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does 
 machine itself. **Phase 4, the version cache, is done too:** it passes its finish test in the
 test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. **Phase 5,
 the lock files, is done:** it passes its finish test in the test bed and on the cluster, and
-all three pipelines run there with every image by digest and every database pinned. The
-[phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
-[phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache) and
-[phase 5](#phase-5-lock-files) notes record what's built and every test result, and phase 1's
-notes list the two determinism probes still to run.
+all three pipelines run there with every image by digest and every database pinned.
+**Phase 6, determinism, is built** and passes its finish test in the test bed. The cluster's
+runs, which choose the shotgun pipelines' core tables and make every pipeline's reference
+tables, are next. The [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
+[phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache),
+[phase 5](#phase-5-lock-files) and [phase 6](#phase-6-determinism) notes record what's
+built and every test result.
 
 ## Where the old code is
 
@@ -284,11 +286,11 @@ The helper's fixed environment drops `SBATCH_*` and `SLURM_*` defaults set in a 
 so a site that needs a partition or account says so explicitly. In gnoto proper, that's
 `slurm.partition` and `slurm.account`.
 
-**Alongside phase 1,** run two determinism probes, so that phase 6 starts with answers. Neither
-needs any gnoto code:
-
-- run one job twice on the old code, then once with a different CPU count, and compare the outputs
-- run `bowtie2-build` twice on the host reference, and compare the indexes byte for byte
+**Alongside phase 1,** two determinism probes were to run on the old code, so that phase 6
+started with answers: one job twice and then at another CPU count, and `bowtie2-build` twice
+on the host reference. They never ran there. At Daniel's call on 2026-11-09, phase 6 runs both
+on gnoto instead, as its notes say: the first is the stable-files test, and the second a
+build of the human host reference at another CPU count.
 
 Daniel runs anything that needs the cluster, so give him exact commands and ask for the
 output.
@@ -862,8 +864,63 @@ Tested on 2026-11-08 and 9, in the test bed and in Docker:
 
 ### Phase 6: determinism
 
-- Start with the Nonpareil seed in the table below. Multi-threaded bowtie2 output order varies,
-  so compare FASTQ as sorted records.
+Settled with Daniel before building (2026-11-09), as [decisions.md](decisions.md) records:
+phase 1's two probes run on gnoto rather than on the old code.
+
+What's built:
+
+- **Fixtures.** `steps/fetch_fixture.sh` makes the fixtures that aren't used as
+  downloaded, as [fixtures.md](fixtures.md) says: each `wgs-*` file cut to its first
+  100,000 reads, and `16s-v5v6` converted from NCBI's `.sra` file, each recompressed with
+  `gzip -n`. sra-tools 3.4.1, the latest, segfaults reading that file, in both its builds,
+  so ampliseq's lock pins 3.2.1, which converts it offline in seconds. A samplesheet file
+  in `core.db_dir` is now one of the job's databases, so `lint --yes` fetches a missing
+  fixture as it does a database, and `lock.sh databases` pins the fixtures each
+  pipeline's selftest runs on.
+- **Seeds.** Nonpareil takes `-r` from a new `nonpareil_seed` parameter, 42. Its help says
+  only alignment mode uses it, and it's so: in k-mer mode, which both shotgun pipelines run,
+  two runs of 100,000 PhiX reads gave curves about 1% apart, with or without it. In
+  alignment mode with the seed, two runs at 2 threads were byte-identical and one at 1
+  thread wasn't, and it took 61 seconds where k-mer mode took a few. Daniel kept k-mer mode
+  (2026-11-09), so `stable-files` gained `drop`, which leaves Nonpareil's six columns out of
+  `alpha_diversity.tsv`'s checksum and comparison.
+- **Core tables.** `pipelines/<name>/stable-files` lists them, with `sort` and `strip` for
+  tables whose rows or timestamps vary. At the end of Compute the job writes their
+  checksums to the record's `outputs`. An exact re-run copies the tables beside its record
+  whose checksums are the record's into `recorded-outputs/`, compares its own with the
+  record's at the end of Compute, and says how in its notes, its state and `status <uid>`,
+  with the numeric comparison, `compare_tables` in `lib/outputs.sh`, for any that differ.
+- **`gnoto selftest [--dev] [--yes] [pipeline ...]`,** in `lib/selftest.sh`, as
+  [design.md](design.md#what-same-output-means) describes: `pipelines/<name>/selftest.yaml`
+  lists the jobs, and `pipelines/<name>/selftest/<job>/` will hold the reference tables, once
+  the cluster's runs make them. The report job is `_selftest`, which the launcher now starts
+  on this machine too.
+- **Fetching a pipeline once.** Two runs of a pipeline new to a data directory, started
+  together, both fetched it, and one failed with `LOCK_FAILURE` from Nextflow, as a
+  selftest's would. The head job now fetches the pipeline's commit under a lock first,
+  unless it's there.
+- **The test.** `test/testbed/checks/repeat.sh` runs each fixture job of a pipeline twice,
+  and once more from another install whose `slurm.max_cpus` differs, and
+  `classify-outputs.sh` sorts every file the three made into stable, varying with CPUs,
+  unstable, or missing, saying whether sorting its rows or dropping its dated lines makes
+  it match. `checks/determinism.sh` is the finish test, and `checks/selftest.sh` tests
+  `selftest --dev`.
+- **Found on the way.** `gnoto new --dev`, which the design lists, was refused, because
+  `new` didn't take the flag the launcher acts on. Several runs at once on the test bed's
+  one node can hold all its CPUs in head jobs, so their tasks never start.
+
+Tested on 2026-11-09, in the test bed:
+
+| Test | Result |
+| --- | --- |
+| ampliseq on `16s-v4`, with `db:test/pplace-small`, twice at `slurm.max_cpus` 4 and once at 2, sorted by `classify-outputs.sh` | 120 files identical in all three, every core table among them. Only cutadapt's two logs vary with CPUs, as they print the count. Varying between the two runs at 4: the placement trees, whose ASVs placed on one edge with no length come in another order, and the jplace file's placements, the same ones in another order, which EPA-NG's threads decide; the BIOM files' timestamps; the PDFs; and the pages, record and job file, which name the run's title, different in each |
+| `test/lib/outputs-test.sh`: core tables by glob, `sort`, `strip`, `drop` and gzip; the comparison, with rows by key, repeated keys, CSV, a FASTA, text cells and an empty table; two runs' outputs; the sentence and `status` lines; keeping a record's tables | Pass, 32 checks. The first run found a table only one run had reported as missing, because `read` collapses an empty field between two tabs |
+| `job-test.sh`, with new checks: a samplesheet naming a missing fixture's files fails only on the fetchable fixture, a file in the database directory with no entry still fails, the files are the job's databases, and the fixtures' setups | Pass, 173 checks |
+| `lib-test.sh`, `pipelines-test.sh`, `versions-test.sh`, `runs-test.sh` and `steps-test.sh` | Pass: 66, 24, 98, 75 and 15 checks |
+| `steps/fetch_fixture.sh` on `wgs-phix`, and twice on `16s-v5v6`; then all 13 fixtures through the fetch job, two of them from `lint --yes` on a job naming them | Each landed with its manifest. `16s-v5v6` gave the same tree digest all three times, and `wgs-phix` twice. Every `wgs-*` file holds 100,000 reads, or `wgs-ont`'s 29,000, and `16s-v5v6` 236,666 pairs. `lock.sh databases` then pinned all 13 |
+| `test/testbed/checks/determinism.sh --small`, the finish test | Pass, 17 checks: the re-run of the record reported all 27 core tables identical, and `lint --deep` passed on it; the re-run of a copy with one count raised by one reported that table's largest relative difference, 1 in 14,186, at its row and column with both values, and the table whose checksum alone changed as differing with no copy to compare |
+| `test/testbed/checks/selftest.sh --small`: `selftest --dev` on a copy whose ampliseq selftest is the `v4` job, with no reference tables, then against the tables that run made, committed to the test bed's repository | Pass, 14 checks: the refusals; a report against `main`'s tip, the run's 27 tables kept, the run removed with its history kept and no expiry, and `status` listing the selftest; then all 27 tables identical to the reference |
+| `pipelines/lock.sh check` | Pass, 88 images, sra-tools 3.2.1 among them |
 
 ### Phase 7: integrations
 
@@ -938,7 +995,7 @@ Tested on 2026-11-08 and 9, in the test bed and in Docker:
 | The Lambda and CloudFront function exist only as code blocks in `docs/wrike/webhook_bridge.md` and `docs/results/cloudfront.md` | Real files under `service/aws/`, with the IAM policies, so a site can attach them itself or let `--deploy` build the stacks |
 | The results address assumes the bucket name is a domain (`run_results_url` in `scripts/utilities.sh`) | Use `aws.results_base_url` |
 | systemd units hard-code `/data/prod/nextflow` and Slurm paths | Unit templates |
-| `modules/nonpareil.nf:46` passes no `-r`, and [Nonpareil seeds from the current time by default](https://nonpareil.readthedocs.io/en/latest/redundancy.html) | Pass a fixed seed |
+| `modules/nonpareil.nf:46` passes no `-r`, and [Nonpareil seeds from the current time by default](https://nonpareil.readthedocs.io/en/latest/redundancy.html) | Pass a fixed seed. Phase 6 found that only alignment mode takes one: k-mer mode, which both shotgun pipelines run, subsamples from the clock whatever `-r` says, so its columns in `alpha_diversity.tsv` are left out of the comparison |
 | `docs/operations/running-by-hand.md:52` says form submission is UI-only, but Wrike now lists [Submit Request Form](https://developers.wrike.com/reference/postrequest_formssinglesubmit.md) | Correct it. That endpoint would also allow an automated test of the Wrike route |
 | Database paths are absolute or fixed to `NEXTFLOW_DIR/db`, in 10 files including `config/taxprofiler/database.csv` | Use `db:` names whose paths carry a version |
 | `pplace` and `16s` write `manifest.json`, but the lookup in `scripts/wrike_job.sh:387` wants `<path>.manifest.json` | Manifests become YAML, and builders write the name the lookup expects |
@@ -1006,6 +1063,7 @@ in step.
 | `scripts/build_pplace_reference.sh`, `build_16s_reference.sh` | `steps/` | 3 | Done: md5s recorded, manifests as `<path>.manifest.yaml`, versioned paths, filling a directory the fetch job renames into place |
 | `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh` | `steps/fetch_shotgun_db.sh`, `steps/build_host_reference.sh` | 5 | Done: tree digests, recorded download md5s, manifests as `<path>.manifest.yaml`, host references at `hostremoval/<name>/v1`, filling the directory the fetch job gives them. The sewage reads stayed behind |
 | (new) | `steps/fetch_files.sh` | 3 | Fetches any `pipelines/databases.yaml` entry or fixture that lists `files` |
+| (new) | `steps/fetch_fixture.sh` | 6 | Makes the fixtures that aren't used as downloaded: the shotgun fixtures cut to 100,000 reads, and `16s-v5v6` from NCBI's `.sra` |
 
 ### Dashboard and publishing
 
@@ -1025,7 +1083,7 @@ in step.
 | --- | --- | --- | --- |
 | `pipelines/<NAME>_01.sh` | `pipelines/<name>/pipeline.sh` | 2 | Keep each parameter's reason. The nf-core pins move to `lock.yaml`, at the latest releases, and `PARAMS_LOCKED` becomes the list of keys gnoto owns |
 | `pipelines/<NAME>.sh` | Not copied | | Shortcuts aren't needed |
-| `modules/*.nf` | `modules/` | 2, 5 | Images by digest since phase 5. Add the Nonpareil seed in phase 6 |
+| `modules/*.nf` | `modules/` | 2, 5, 6 | Images by digest since phase 5. Nonpareil takes a seed since phase 6, which only its alignment mode uses |
 | `workflows/biobakery/`, `workflows/humann/` | `workflows/` | 2 | |
 | `config/slurm.config`, `config/{biobakery,taxprofiler}/slurm.config` | `pipelines/<name>/resources.config` | 2 | Keep resource requests. Site parts such as `cacheDir` and executor settings go |
 | `config/local.config` | Not copied | | Only `docs/layout.md` mentions it |
@@ -1053,7 +1111,10 @@ Daniel plans to tear down everything in place and roll out gnoto as an external 
   of the IAM policies, bucket policy, CloudFront distribution settings, API Gateway setup or
   queue settings, and the CloudFormation stacks have to reproduce them. Save them outside this
   public repo.
-- **Keep `db/` and Apptainer until phase 6 is done,** because phases 1 to 6 test against them.
+- **Keep `db/` and Apptainer until phase 6 is done.** Since phase 5, gnoto fetches every
+  database it reads into its own `core.db_dir`, and phase 6's probes run on gnoto, so only
+  the cluster's Apptainer, still the copy inside the old install, needs a home of its own
+  before the teardown.
   The fixtures in [fixtures.md](fixtures.md) are public and can be fetched again at any time.
   The Wrike, AWS, Globus and systemd pieces can go at any time after the AWS settings are saved.
 - **Finish the teardown before the rollout test.** `config` adopts any object it finds by name,

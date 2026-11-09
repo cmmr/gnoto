@@ -93,6 +93,10 @@ params_set motus_db "db:motus/db_mOTU_v3.1.0/db_mOTU"
 
 params_set nonpareil_mode "kmer"
 
+# Nonpareil's alignment mode subsamples at random, seeded from the clock unless
+# it's given a seed. k-mer mode takes none.
+params_set nonpareil_seed 42
+
 # Named only when EsViritu runs, so the record names no database the run didn't
 # read. A job turns it on with its own run_esviritu, which is applied after this
 # file, so that's read from the job's parameters.

@@ -187,11 +187,12 @@ job_yaml() {
     done
 }
 
-# gnoto new <pipeline>[@<version>] [--<key>=<value> ...]: prints a job file
+# gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...]: prints a job file
 job_new() {
-    local usage="Usage: gnoto new <pipeline>[@<version>] [--<key>=<value> ...] > job.yaml" yaml
+    local usage="Usage: gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...] > job.yaml" yaml
 
-    args_parse "$usage" "" "$@"
+    # The launcher acts on --dev
+    args_parse "$usage" "dev" "$@"
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
     yaml=$(job_yaml "${ARG_WORDS[0]}") || exit 1
     printf '%s\n' "$yaml"
@@ -327,7 +328,8 @@ job_check() {
 
     JOB_FILE="" JOB_PIPELINE="" JOB_VERSION="" JOB_TOP="{}" JOB_ANSWERS="{}" JOB_PARAMS="{}"
     JOB_EVAL="" JOB_SAMPLESHEET="" JOB_SAMPLES_TEXT="" JOB_INPUT_BYTES=0 JOB_EXACT=false
-    JOB_EXPECTED_INPUTS="[]" JOB_RECORDED_RUNS="{}" JOB_RECORDED_DATABASES="{}"
+    JOB_EXPECTED_INPUTS="[]" JOB_RECORDED_RUNS="{}" JOB_RECORDED_DATABASES="{}" JOB_SHEET_DATABASES=""
+    JOB_RECORDED_OUTPUTS="[]" JOB_RECORD_DIR=""
 
     if [[ ! -r $file ]]; then
         lint_fail "can't read $file"
@@ -563,11 +565,14 @@ job_check() {
 
     job_check_reads "$json"
 
-    # Every database the parameters name, and any the pipeline's steps read
+    # Every database the parameters name, any the pipeline's steps read, and
+    # any the samplesheet's files are in
     JOB_DATABASES=""
     if [[ -n $JOB_EVAL ]]; then
-        JOB_DATABASES=$(jq -r '[(.params | .. | strings | select(startswith("db:"))), .databases[]] | unique[]' \
-            <<< "$JOB_EVAL")
+        JOB_DATABASES=$({
+            jq -r '(.params | .. | strings | select(startswith("db:"))), .databases[]' <<< "$JOB_EVAL"
+            printf '%s' "$JOB_SHEET_DATABASES"
+        } | { grep -v '^$' || :; } | LC_ALL=C sort -u)
         databases_check "$JOB_DATABASES"
     fi
 
@@ -625,6 +630,10 @@ job_check_inputs() {
     dir=$(cd "$dir" && pwd -P)
     JOB_EXPECTED_INPUTS=$(jq -c '.inputs // []' <<< "$json")
     JOB_RECORDED_DATABASES=$(jq -c '.databases // {}' <<< "$json")
+    # The core tables' checksums, and where the tables themselves may be: a
+    # record published in results/ has them beside it
+    JOB_RECORDED_OUTPUTS=$(jq -c '.outputs // []' <<< "$json")
+    JOB_RECORD_DIR=$(dirname "$JOB_FILE")
     JOB_RECORDED_RUNS=$(jq -c '[.inputs[]? | select(.run) | {(.sample): .run}] | add // {}' <<< "$json")
     while IFS=$'\t' read -r size path; do
         by_size[$size]+="$path"$'\n'
@@ -694,6 +703,7 @@ job_check_samplesheet() {
     one_layout=$(jq -r '.one_layout // false' <<< "${JOB_EVAL:-null}" 2> /dev/null) || one_layout=false
 
     JOB_SAMPLES_TEXT=""
+    JOB_SHEET_DATABASES=""
     while IFS= read -r line || [[ -n $line ]]; do
         number=$((number + 1))
         line=${line//$'\r'/}
@@ -720,6 +730,12 @@ job_check_samplesheet() {
         [[ $fq1 != "$fq2" ]] || sheet_problem "names $fq1 twice"
         for fq in "$fq1" ${fq2:+"$fq2"}; do
             [[ $fq == /* ]] || fq=$dir/$fq
+            # A file in the database directory, such as a fixture's, is one of
+            # the job's databases, which lint offers to fetch when it's missing
+            if [[ $fq == "$DB_DIR"/* ]]; then
+                JOB_SHEET_DATABASES+="db:${fq#"$DB_DIR"/}"$'\n'
+                [[ -e $fq || -z $(db_entry_for "db:${fq#"$DB_DIR"/}") ]] || continue
+            fi
             if [[ ! -f $fq ]]; then
                 sheet_problem "$fq doesn't exist, or isn't under a path gnoto can see. If it exists, add its directory to apptainer.binds"
             elif [[ ! -r $fq ]]; then

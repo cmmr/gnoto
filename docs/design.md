@@ -2,8 +2,8 @@
 
 Status on 2026-11-09: the design is agreed. Phase 1, the image and the helper, is built and
 tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 5, the restructure, the
-job core, the version cache and the lock files, are tested there too. This file describes the
-target.
+job core, the version cache and the lock files, are tested there too, and phase 6,
+determinism, is built and tested in the test bed. This file describes the target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -87,8 +87,9 @@ lib/                  entry point in the image, argument parser, settings loader
                       config and config/, which declares each config.yaml section, job
                       runner, run state, parameters, scheduler and container calls, helpers
 pipelines/<name>/     definition, options.yaml, lock.yaml, resources.config (its resource
-                      requests), containers.config, stable-files, selftest.yaml, and
-                      taxprofiler's database.csv
+                      requests), containers.config, stable-files, selftest.yaml and
+                      selftest/, the reference copies of its fixture jobs' core tables,
+                      and taxprofiler's database.csv
 pipelines/*.yaml      databases.yaml and references.yaml, which the pipelines share
 pipelines/lock.sh     writes containers.config and lock files' databases, and checks every
                       image is named by digest
@@ -450,7 +451,7 @@ that version's launcher once the image exits, as "Versions and the code cache" s
 | `gnoto remove [--yes] <uid>...` | Deletes the results of one or more runs now and keeps their records, after one prompt listing them all. `--yes` skips the prompt, as the listener and the reconciliation scan do | Yes, after confirming |
 | `gnoto prune [--yes]` | Removes cached versions and images that no running or waiting job uses. `--yes` skips the prompt | Yes, after confirming |
 | `gnoto upgrade [--yes] [version]` | Fetches a version into `versions/`, the newest release when none is given, or `main` before there's one, shows what changed, then makes it current and runs its `lint`. `--yes` skips the prompt | Yes, after confirming |
-| `gnoto selftest [--dev] [pipeline]` | Runs the fixture jobs from [fixtures.md](fixtures.md) and checks their core tables against the current release's checksums. `--dev` compares a working tree with the last release instead | Only its own runs, and any database fetch you accept |
+| `gnoto selftest [--dev] [--yes] [pipeline ...]` | Runs the fixture jobs from [fixtures.md](fixtures.md) that each pipeline's `selftest.yaml` lists, and compares their core tables with the reference copies the current release carries. `--dev` runs the install's own files and compares them with the last release's instead. `--yes` accepts fetching the databases and fixtures the jobs need | Only its own runs, and any fetch you accept |
 | `gnoto exec [--dev] <command>` | For development: runs any command in the image, with the stand-ins on `PATH`, at the current release or, with `--dev`, from the install's own files | Whatever the command does |
 
 **Arguments.** Every command takes them the same way, as GNU tools do: `--<key>=<value>`,
@@ -1001,8 +1002,13 @@ inputs:
   model, lands in its `run` field. A re-run skips detection and keeps the original batches,
   whatever the files' paths.
 - **Output checksums are recorded.** At the end of compute, the job writes the
-  SHA-256 of every file in `stable-files` to `outputs`. A re-run at any site compares
-  its own core tables against them.
+  SHA-256 of every file in `stable-files` to `outputs`, read as that file says. A re-run
+  at any site compares its own core tables against them. A record published in
+  `results/` has the run's tables beside it, so `run` copies each one whose checksum
+  is the record's into the run directory, and where a table differs, the job compares
+  the two number by number, as "What same output means" describes. A record copied
+  elsewhere alone gets the checksums compared. The run's notes, and `status <uid>`,
+  say how every table compared, and the state and history keep the comparison.
 
 **Two kinds of repeat:**
 
@@ -1445,9 +1451,13 @@ directory: the fetch job appends `<name>.tmp.<jobid>`, runs it in the image, mov
 so the directory never appears without its manifest. On a failure it removes the
 directory. An entry used as downloaded lists `files`, each with `url`, `md5`, `bytes` and
 optionally `file`, the name to save it as, and its setup is `steps/fetch_files.sh <name>`.
-Fixtures use the same script, as `fixtures/<name>/v1`. A builder lists its downloads under
-`sources`, with the same fields. Every download lands as `<file>.part` and is renamed only
-once its size and md5 match. The shotgun pipelines' databases come as archives, which
+Fixtures use the same script, as `fixtures/<name>/v1`, except those made from their
+downloads, the shotgun fixtures cut short and `16s-v5v6`, which `steps/fetch_fixture.sh`
+fetches, checks and makes, as [fixtures.md](fixtures.md) says. A samplesheet file in
+`core.db_dir`, such as a fixture's, is one of the job's databases, so `lint` offers to
+fetch a missing fixture as it does a database, and its lock pins it. A builder lists its
+downloads under `sources`, with the same fields. Every download lands as `<file>.part`
+and is renamed only once its size and md5 match. The shotgun pipelines' databases come as archives, which
 `steps/fetch_shotgun_db.sh` fetches, checks and unpacks, and then checks for the files each
 tool opens; `steps/build_host_reference.sh` builds the host references, in the images
 taxprofiler's lock pins for its own index builds. An entry's `fetch_job` gives its fetch job's
@@ -1498,34 +1508,65 @@ hardware, and core tables equal within a tolerance elsewhere.
 **No hardware detection.** A re-run or selftest doesn't try to work out whether it's on
 the same hardware. It reports "identical" when checksums match. Otherwise it runs one
 generic comparison over every numeric cell of each core table, and reports the largest
-relative difference.
+relative difference. It only reports: a difference fails nothing.
 
-Each pipeline lists its core tables in `pipelines/<name>/stable-files`. That list comes
-from a test:
+**The comparison.** `lib/outputs.sh` matches two tables' rows by their first field, in
+order where it repeats, and their columns by position, and compares every pair of
+numeric cells as `|a - b| / max(|a|, |b|)`. It reports the largest, with its row, its
+column's header and both values, and counts the numbers that differ, the rows only one
+table has, and the text cells that differ. A comma-separated table is split on commas,
+anything else on tabs. A table that isn't numeric, such as a FASTA, shows its changed
+lines as rows only one has.
+
+Each pipeline lists its core tables in `pipelines/<name>/stable-files`, one a line, as
+paths under `results/` in which `*` and `?` match any characters, such as a sample's name.
+A line may say how its file is read for the checksum: `sort`, its lines in byte order, for
+rows whose order varies; `strip <regex>`, without the lines that match, such as a
+timestamp; or `drop <column>,...`, without the columns its header names, such as Nonpareil's
+in `alpha_diversity.tsv`, whose k-mer mode takes no seed. A `.gz` file is read decompressed,
+and the comparison reads the same text. The published file is left as it is. That
+list comes from a test:
 
 1. Run each pipeline on its fixtures, the public datasets listed in [fixtures.md](fixtures.md).
 2. Run it again unchanged, then once more with a different `slurm.max_cpus`.
-3. Compare checksums, and sort each output into stable, stable after removing a
-   timestamp, or unstable with a known cause.
+3. Compare checksums, and sort each output into stable, stable after sorting its rows or
+   removing a timestamp, or unstable with a known cause.
+
+`test/testbed/checks/repeat.sh` runs it for a pipeline's fixture jobs, and
+`classify-outputs.sh` sorts the files. Each `stable-files` names what it leaves out, and
+why.
 
 The same fixture jobs are run by `gnoto selftest`, which only runs them and reports. It
-changes nothing.
+changes nothing. `pipelines/<name>/selftest.yaml` lists a pipeline's jobs, each with its
+samples, as fixture files under `core.db_dir`, and its options as `gnoto start` takes them,
+and `pipelines/<name>/selftest/<job>/` holds the reference copy of each job's core tables,
+under their paths in `results/`. The tables themselves, not only their checksums, are the
+reference, so that a table that differs can be compared number by number, and a commit
+that changes one shows how in its diff.
 
-- **`gnoto selftest`** checks an install. It compares each pipeline's core tables with the
-  checksums in the current release's `pipelines/<name>/selftest.yaml`, and runs the numeric
-  comparison on any table that differs.
-- **`gnoto selftest --dev`** checks a release candidate. It runs the working tree, as
-  `start --dev` does, and reports which pipelines' core tables differ from the last release,
-  which a commit ID alone can't tell you. It reads the last release's `selftest.yaml` from
-  its tag through git, because the working tree's copy may already be edited. When a
-  difference is intended, the maintainer copies the new checksums into `selftest.yaml` by
-  hand.
+- **`gnoto selftest`** checks an install. It compares each job's core tables with the
+  current release's reference tables, by checksum, and runs the numeric comparison on any
+  table that differs.
+- **`gnoto selftest --dev`** checks a release candidate. It runs the install's own files, as
+  `start --dev` does, and reports which pipelines' core tables differ from the last
+  release's, which a commit ID alone can't tell you. It reads the last release's reference
+  tables from its tag, fetched into the version cache, because the working tree's copy may
+  already be edited. Until there's a release, it compares with `main`'s tip. When a
+  difference is intended, the maintainer copies the run's tables, which the report keeps,
+  into `pipelines/<name>/selftest/<job>/` by hand.
 
-**How selftest runs.** Its jobs carry `selftest: true`, so they skip Wrike, Publish and
-expiry, and they're removed once the report is written. `selftest` submits the jobs and
-returns at once, a followup job writes the report, and `status` shows it. A fresh install
-needs every pipeline's databases first, which come to hundreds of GB, so `selftest` offers
-the fetch with sizes per pipeline. `gnoto selftest ampliseq` is the quick check.
+**How selftest runs.** It checks every job as `lint` does, offers in one prompt to fetch
+whatever databases and fixtures they lack, with the size each pipeline needs, and copies
+the reference tables it compares with into `<data_dir>/selftest/<id>/`, so `prune` can't
+take them away. It then submits the jobs as runs that carry the selftest's id, which skip
+Wrike, Publish and expiry, and returns at once. A report job, submitted after every run's
+followup, waits for them all, compares each completed run's core tables with the
+reference, writes `report.txt` and `report.yaml`, copies each run's core tables into
+`tables/<pipeline>/<job>/`, and removes the runs, keeping their history. `status` lists the
+selftests of the last 7 days. A fresh install needs every pipeline's databases first,
+which come to hundreds of GB. `gnoto selftest ampliseq` is the quick check. Its jobs all
+start at once, so a single node holds them only if it has room for every head job and
+their tasks together.
 
 **CPU limits could break the rule.** `slurm.max_cpus` lives in site config. If the test
 shows that thread count changes a core table, that task's CPU count gets fixed in the
@@ -1551,8 +1592,8 @@ retry as well, because nf-core's retries often raise `task.cpus` with `task.atte
 
 ## Not yet verified
 
-Phases 1 to 5 of [migration.md](migration.md) have been built: the image and the helper, the
-restructure, the job core, the version cache and the lock files. Their test results are in
+Phases 1 to 6 of [migration.md](migration.md) have been built: the image and the helper, the
+restructure, the job core, the version cache, the lock files and determinism. Their test results are in
 each phase's notes there. Three questions this list held are answered. Every module at the
 pinned ampliseq and taxprofiler commits names one Docker-style address that can be read,
 none built from an expression, and each is in its registry. gnoto's image gets the same
@@ -1585,9 +1626,13 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   CMMR's own rollout isn't affected, because Daniel administers its Wrike, AWS and GitHub
   accounts.
 - **Reproducibility itself:** which outputs are stable, including how thread count affects
-  them, and whether built references rebuild identically. A first sign: ampliseq's DADA2 tables
-  for `16s-v4` came out byte-identical in the local test bed and on the cluster, with the same
-  CPU limits.
+  them, and whether built references rebuild identically. ampliseq's DADA2 tables for
+  `16s-v4` came out byte-identical in the local test bed and on the cluster, with the same
+  CPU limits, and in phase 6 every one of its core tables repeated across two runs at 4 CPUs
+  and one at 2. The pplace, 16S and PhiX references rebuild identically across sites, and
+  PhiX across CPU counts. Nonpareil's k-mer mode takes no seed, so its values are left out
+  of the comparison. Still open: the shotgun pipelines' other outputs, and the human host
+  reference at another CPU count.
 - **Trademark outside the US:** a USPTO search on 2026-11-05 found no GNOTO mark. The
   nearest was GNOTO-SAFE, a live registration for cardboard containers held by Charles
   River Laboratories. That was a knockout search, not a legal clearance, and no other

@@ -1,0 +1,23 @@
+# stable-files - ampliseq's core tables, as paths under results/: what a run's
+# record keeps the checksums of, a re-run compares, and selftest checks. A line
+# may add how the file is read for its checksum, as lib/outputs.sh says.
+#
+# Chosen by running its fixture jobs twice, then at another CPU count, as
+# docs/migration.md's phase 6 notes record. Left out, because they vary from
+# run to run with a known cause: the placement trees in pplace/, whose ASVs
+# placed on one edge come in an order EPA-NG's threads decide; the BIOM files,
+# which hold the time they were written; and the reports, PDFs and logs.
+dada2/ASV_table.tsv
+dada2/ASV_seqs.fasta
+dada2/ASV_tax.user.tsv
+dada2/ASV_tax_species.user.tsv
+dada2/DADA2_table.tsv
+dada2/DADA2_stats.tsv
+asv_length_filter/ASV_table.len.tsv
+asv_length_filter/stats.len.tsv
+barrnap/summary.tsv
+abundance_tables/*.tsv
+alpha_diversity.tsv
+feature_table/feature-table.tsv
+feature_table/feature-sequences.fasta
+overall_summary.tsv

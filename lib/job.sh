@@ -313,8 +313,43 @@ task_launch_failure() {
         "${name:-that failed}" "$node" "$id" "$node" "$(launch_failure_advice "$node" "$PWD" avoid)"
 }
 
+# The core tables' checksums, which the record keeps. An exact re-run compares
+# them with its record's, and with the record's tables where start_run found
+# them, in recorded-outputs/, and its notes say how they compare.
+record_outputs() {
+    local pipeline=$1 outputs comparison
+    set_run_stage "Taking the core tables' checksums."
+    outputs=$(outputs_measure "$pipeline" results) || fail "Couldn't take the core tables' checksums."
+    [[ $outputs != "[]" ]] || warn "pipelines/$pipeline/stable-files names no table this run made, so the record holds no checksums."
+    state_set_json outputs "$outputs" || fail "Couldn't record the core tables' checksums."
+    [[ $(state_get exact) == true ]] || return 0
+    comparison=$(outputs_compare "$pipeline" "$(state_get_json recorded_outputs)" "$outputs" \
+        "$([[ -d recorded-outputs ]] && echo "$PWD/recorded-outputs")" "$PWD/results") ||
+        fail "Couldn't compare the core tables with the record's."
+    state_set_json comparison "$comparison" || fail "Couldn't record how the core tables compare with the record's."
+    state_append notes "$(outputs_summary "$comparison" "the record's")" || :
+    log "$(outputs_summary "$comparison" "the record's")"
+}
+
+# Fetches a pipeline from its repository into NXF_ASSETS, one run at a time,
+# unless that commit is there already: two runs of a pipeline new to the
+# assets directory, starting together, would otherwise both fetch, and one
+# fails with LOCK_FAILURE. nextflow_pull <repository> <commit>
+nextflow_pull() {
+    local target=$1 revision=$2 clone
+    clone=$NXF_ASSETS/.repos/$target/clones/$revision
+    [[ ! -d $clone ]] || return 0
+    mkdir -p "$NXF_ASSETS" || return 1
+    (
+        flock -w 3600 9 || exit 1
+        [[ -d $clone ]] && exit 0
+        log "Fetching $target at $revision..."
+        nextflow -log nextflow-pull.log pull "$target" -r "$revision" > nextflow-pull.out 2>&1
+    ) 9>> "$NXF_ASSETS/.gnoto-pull.lock"
+}
+
 compute() {
-    local pipeline=$1 i status=0 cause previous name target="" session resume=()
+    local pipeline=$1 i status=0 cause previous name target="" revision="" session resume=()
 
     stage_inputs
     previous=$(state_get_json steps)
@@ -363,8 +398,15 @@ compute() {
     record_write || fail "Couldn't write record.yaml."
     write_site_config
     for (( i = 0; i + 1 < ${#NEXTFLOW_ARGS[@]}; i++ )); do
-        [[ ${NEXTFLOW_ARGS[i]} != run ]] || { target=${NEXTFLOW_ARGS[i + 1]}; break; }
+        case ${NEXTFLOW_ARGS[i]} in
+            run) target=${NEXTFLOW_ARGS[i + 1]} ;;
+            -r) revision=${NEXTFLOW_ARGS[i + 1]} ;;
+        esac
     done
+    if [[ $target != /* && -n $revision ]]; then
+        nextflow_pull "$target" "$revision" ||
+            fail "Couldn't fetch $target at $revision from its repository. Nextflow's output is in nextflow-pull.out."
+    fi
     if [[ $RESUMING == true ]]; then
         session=$(nextflow_session "$target")
         if [[ -n $session ]]; then
@@ -415,6 +457,8 @@ compute() {
         set_step_state "$COMPOSITION_STEP" done
     fi
 
+    record_outputs "$pipeline"
+
     # The published copies: the record, and the job file with its samplesheet
     # reduced to the file's name, so neither names a site path
     record_write || fail "Couldn't write record.yaml."
@@ -444,7 +488,9 @@ present() {
 # Phase 7 copies the zip and pages to Globus or S3 here. Until then, the
 # results stay in the run directory, as they do when neither is set.
 publish() {
-    if [[ ${AWS_ENABLED:-false} == true || ${GLOBUS_ENABLED:-false} == true ]]; then
+    if [[ -n $(state_get selftest) ]]; then
+        log "A selftest run publishes nothing. Its results are in $PWD/results until its report is written."
+    elif [[ ${AWS_ENABLED:-false} == true || ${GLOBUS_ENABLED:-false} == true ]]; then
         state_append notes "Publishing to S3 and Globus isn't built yet, so the results stay in $PWD." || :
     fi
     log "The results are in $PWD/results."

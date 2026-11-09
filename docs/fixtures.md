@@ -1,25 +1,32 @@
 # Test fixtures
 
 gnoto's test fixtures are 13 public datasets, one for each path through the pipelines. Most
-are mock communities with known composition. `gnoto selftest` runs them, and phases 1 and 6
-of [migration.md](migration.md) test against them. Every file was checked against its source,
-ENA, NCBI or nf-core, on 2026-11-05.
+are mock communities with known composition. `gnoto selftest` runs them, as each pipeline's
+`selftest.yaml` lists, and phases 1 and 6 of [migration.md](migration.md) test against them.
+Every file was checked against its source, ENA, NCBI or nf-core, on 2026-11-05.
 
 ## How they're used
 
 - **Fetched like databases.** Each fixture is an entry under `fixtures/` in
   `pipelines/databases.yaml`, so `lint` and `selftest` fetch it into
-  `<db_dir>/fixtures/<name>/v1/`. The version changes if the cut rule below ever does.
+  `<db_dir>/fixtures/<name>/v1/`. A samplesheet naming a file there makes the fixture one of
+  the job's databases, which `lint --yes` fetches. The version changes if the cut rule below
+  ever does. Each pipeline's `lock.yaml` pins, by tree digest, the fixtures its selftest runs
+  on.
 - **Checked before use.** Every file is checked against the md5 below before anything reads
   it, as for any download.
-- **Shotgun fixtures are cut short.** After the check, each is cut to its first 100,000 read
-  pairs, or reads for single-end and ONT, to keep `selftest` quick. The cut files are
-  recompressed with `gzip -n`, which leaves out the timestamp, so they're the same bytes
-  every time, and their tree digest is recorded like any database's. 16S fixtures are used
-  whole.
+- **Shotgun fixtures are cut short.** After the check, `steps/fetch_fixture.sh` cuts each
+  file to its first 100,000 reads, 400,000 lines, so a pair's mates stay in step, to keep
+  `selftest` quick. The cut files are recompressed with `gzip -n`, which leaves out the name
+  and time, so they're the same bytes every time, and their tree digest is recorded like any
+  database's. 16S fixtures are used whole.
 - **One comes from NCBI.** ENA's copy of `SRR24187307` has no quality scores, so `16s-v5v6`
-  downloads NCBI's `.sra` file and converts it with `fasterq-dump` after the check, from a
-  sra-tools image pinned by digest.
+  downloads NCBI's `.sra` file and converts it after the check, with `fasterq-dump
+  --split-files --threads 1` from the sra-tools image ampliseq's lock pins, then `gzip -n`,
+  into `SRR24187307_1.fastq.gz` and `_2`. The file is an aligned SRA, but it needs no
+  reference to convert, and nothing is fetched besides it. sra-tools is 3.2.1, not the latest,
+  3.4.1, because both of 3.4.1's builds segfault reading it (2026-11-09). Two builds gave the
+  same tree digest.
 - **One comes from nf-core.** The `16s-ont` files are pinned to a commit of
   [nf-core/test-datasets](https://github.com/nf-core/test-datasets/tree/ampliseq/testdata).
   nf-core publishes no md5, so the values below were computed on 2026-11-05.
@@ -51,6 +58,28 @@ The read counts are for the full downloads. `selftest` uses the first 100,000 pa
 paired shotgun fixture and the first 100,000 reads of `wgs-single`. `wgs-ont` has only 29k reads, so
 it runs whole. Host fractions come from NCBI's taxonomy screen, which undercounts host reads,
 so treat them as minimums.
+
+## The selftest's jobs
+
+Each pipeline's `selftest.yaml` groups its fixtures into jobs, a job wherever the options
+differ, and `pipelines/<name>/selftest/<job>/` holds the reference copy of each job's core
+tables.
+
+| Pipeline | Job | Fixtures, as samples | Options |
+| --- | --- | --- | --- |
+| ampliseq | `v4`, `v1v3`, `v5v6` | `16s-v4`, `16s-v1v3`, `16s-v5v6` | |
+| ampliseq | `v3v5` | `16s-v3v5` | `mergepairs_strategy` `concatenate`, since its pairs barely overlap |
+| ampliseq | `single` | `16s-single` | |
+| ampliseq | `ont` | `16s-ont`, six samples | |
+| taxprofiler, biobakery | `human` | `wgs-human` | `Human + PhiX` |
+| taxprofiler, biobakery | `mouse` | `wgs-mouse` | `Mouse + PhiX` |
+| taxprofiler, biobakery | `mixed` | `wgs-mock`, `wgs-phix` and `wgs-single` | PhiX, the default |
+| taxprofiler | `ont` | `wgs-ont` | |
+| biobakery | `virus` | `wgs-virus` | `run_esviritu` |
+
+ampliseq runs every sample of a job one way, paired or single-end, and measures one region
+for the job, so each of its fixtures is a job of its own. biobakery refuses ONT reads, so
+`wgs-ont` has no biobakery job.
 
 ## Files and checksums
 

@@ -452,7 +452,7 @@ if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/detach" ]; then
             *) die "won't start a job outside $DATA_DIR: $DIR" ;;
         esac
         case $ARGS in
-            _local\ * | _fetch\ *) ;;
+            _local\ * | _fetch\ * | _selftest\ *) ;;
             *) die "won't start \"$ARGS\" as a job" ;;
         esac
         if command -v setsid > /dev/null 2>&1; then

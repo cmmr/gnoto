@@ -4,6 +4,8 @@
 
 // One curve per sample, over the first mate of KneadData's pairs, or over a
 // single-end sample's reads. -R is the task's memory, which k-mer mode fills.
+// -r seeds alignment mode's random subsampling, which the clock seeds
+// otherwise. Nonpareil 3.5.5 ignores it in k-mer mode.
 process NONPAREIL {
     tag "${meta.id}"
 
@@ -47,6 +49,7 @@ process NONPAREIL {
         -s reads.fastq.gz \\
         -f fastq \\
         -T ${params.nonpareil_mode} \\
+        -r ${params.nonpareil_seed} \\
         -t ${task.cpus} \\
         -R ${memory} \\
         -b ${meta.id} \\

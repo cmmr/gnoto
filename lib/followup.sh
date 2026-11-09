@@ -166,7 +166,7 @@ clean_run() {
     rm -f .inputs.list .inputs.sha256
     case $status in
         Completed | "Publish failed")
-            rm -rf work .nextflow raw-sequences
+            rm -rf work .nextflow raw-sequences recorded-outputs
             ;;
         *)
             if [[ -d results ]]; then
@@ -228,6 +228,10 @@ followup_main() {
         record_history "$uid" "$status" || fail "Can't create $DATA_DIR/history/$uid."
         if [[ -e remove ]]; then
             teardown_run "$uid" "$(head -n 1 remove)" || :
+        elif [[ -n $(state_get selftest) ]]; then
+            # The selftest's report job removes it once the report is written
+            clean_run "$status"
+            chmod -R g+rwX "$run_dir" 2> /dev/null || :
         else
             write_expiry "$uid" "$status" "$ended" || warn "Couldn't write $DATA_DIR/expiry/$uid."
             clean_run "$status"

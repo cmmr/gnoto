@@ -1,0 +1,25 @@
+# selftest.yaml - The fixture jobs gnoto selftest runs for taxprofiler, one for
+# each path through it, from docs/fixtures.md. Each sample is a name and its
+# FASTQ files, under the database directory, which lint fetches; args are what
+# gnoto start takes. pipelines/taxprofiler/selftest/<job>/ holds the reference
+# copy of each job's core tables, which a selftest compares its own with.
+schema: 1
+jobs:
+  - name: human
+    samples:
+      - [human, fixtures/wgs-human/v1/SRR32527649_1.fastq.gz, fixtures/wgs-human/v1/SRR32527649_2.fastq.gz]
+    args: ["--hostremoval_reference=Human + PhiX"]
+  - name: mouse
+    samples:
+      - [mouse, fixtures/wgs-mouse/v1/SRR19086211_1.fastq.gz, fixtures/wgs-mouse/v1/SRR19086211_2.fastq.gz]
+    args: ["--hostremoval_reference=Mouse + PhiX"]
+  # The mock with known truth, a sample PhiX removal leaves empty, and one
+  # single-end sample beside them
+  - name: mixed
+    samples:
+      - [mock, fixtures/wgs-mock/v1/SRR37882354_1.fastq.gz, fixtures/wgs-mock/v1/SRR37882354_2.fastq.gz]
+      - [phix, fixtures/wgs-phix/v1/SRR353672_1.fastq.gz, fixtures/wgs-phix/v1/SRR353672_2.fastq.gz]
+      - [single, fixtures/wgs-single/v1/SRR22959674.fastq.gz]
+  - name: ont
+    samples:
+      - [ont, fixtures/wgs-ont/v1/ERR3078231.fastq.gz]
