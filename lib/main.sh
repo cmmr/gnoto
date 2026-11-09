@@ -4,13 +4,13 @@
 #
 # Run by:  the gnoto launcher, through apptainer exec
 # Usage:   main.sh <command> [arguments]
-# Env:     GNOTO_CODE_DIR, GNOTO_INSTALL_DIR, GNOTO_DATA_DIR, GNOTO_DB_DIR,
-#          GNOTO_HELPER_DIR and GNOTO_IMAGE, from the launcher, and
-#          GNOTO_RESOLVED, when a launcher handed it the command
+# Env:     GNOTO_CODE_DIR, GNOTO_INSTALL_DIR, GNOTO_LAUNCHER, GNOTO_DATA_DIR,
+#          GNOTO_DB_DIR, GNOTO_HELPER_DIR and GNOTO_IMAGE, from the launcher,
+#          and GNOTO_RESOLVED, when a launcher handed it the command
 #
 # People's commands are config, lint, new, run, start, status, cancel, resume,
-# upgrade, prune, and exec, a development aid that runs any command in the
-# image with the stand-ins on PATH and the settings loaded. gnoto init never
+# remove, upgrade, prune, and exec, a development aid that runs any command in
+# the image with the stand-ins on PATH and the settings loaded. gnoto init never
 # reaches the image. The commands starting with an underscore are gnoto's own:
 # _current, which the launcher runs from the install's files when the current
 # version has no copy; and the jobs lib/start.sh and lib/databases.sh submit,
@@ -38,6 +38,7 @@ usage() {
     echo "       gnoto status [uid]" >&2
     echo "       gnoto cancel <uid>" >&2
     echo "       gnoto resume [uid]" >&2
+    echo "       gnoto remove [--yes] <uid>..." >&2
     echo "       gnoto upgrade [--yes] [<version>]" >&2
     echo "       gnoto prune [--yes]" >&2
     echo "       gnoto exec [--dev] <command> [arguments]" >&2
@@ -84,6 +85,12 @@ case $COMMAND in
         source "$CODE_DIR/lib/runs.sh"
         cancel_main "$@"
         ;;
+    remove)
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
+        remove_main "$@"
+        ;;
     upgrade) upgrade_main "$@" ;;
     prune) prune_main "$@" ;;
     _current)
@@ -102,6 +109,7 @@ case $COMMAND in
         ;;
     _followup)
         source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
         followup_main "$@"
         ;;
     _local)
@@ -111,6 +119,7 @@ case $COMMAND in
         source "$CODE_DIR/lib/databases.sh"
         source "$CODE_DIR/lib/job.sh"
         source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
         [[ $# -eq 1 ]] || usage
         # In one write, so status never sees the host without the process
         (cd "$1" && state_update '.scheduler.host = $host | .scheduler.pid = $pid' \

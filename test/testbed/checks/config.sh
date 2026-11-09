@@ -3,7 +3,7 @@
 # config.sh - Checks that gnoto runs without config.yaml, that gnoto init writes
 # only an apptainer section, and that gnoto config lists the sections, adds one
 # at a time, asks for one's settings or takes them as arguments, and turns one
-# on and off, in the test bed.
+# on and off, in the test bed. Its hints name the launcher as the user runs it.
 #
 # Run by:  a developer, as alice, on a copy of the install with no config.yaml:
 #          docker exec gnoto-testbed runuser -l alice -c 'bash /srv/configtest/gnoto/test/testbed/checks/config.sh'
@@ -109,7 +109,11 @@ check "config slurm: changed in place" "2-00:00:00 true" "$($GNOTO exec yq '.slu
 # wrike off, from nothing, then asked for
 $GNOTO config wrike --off > wrike-off.log 2>&1
 check "wrike --off adds it off" '{"enabled":false,"api_token":"","webhook_secret":"","poll_minutes":5}' "$(section wrike)"
-check "and says how to turn it on" "yes" "$(grep -q 'gnoto config wrike --on' wrike-off.log && echo yes)"
+check "and says how to turn it on, naming the install's launcher" "yes" \
+    "$(grep -qxF "wrike is off, in $CONFIG. To turn it on, run: $GNOTO config wrike --on" wrike-off.log && echo yes)"
+check "or gnoto, when that's what gnoto on PATH runs" "yes" \
+    "$(PATH=$INSTALL:$PATH gnoto config wrike --off 2>&1 |
+        grep -qxF "wrike is off, in $CONFIG. To turn it on, run: gnoto config wrike --on" && echo yes)"
 answering t0ken "" "" -- config wrike > wrike.log 2>&1
 check "config wrike: a secret, still off" "t0ken false" \
     "$($GNOTO exec yq '.wrike.api_token + " " + (.wrike.enabled | tostring)' "$CONFIG")"

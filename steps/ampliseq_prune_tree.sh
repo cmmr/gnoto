@@ -82,7 +82,7 @@ fi
 
 readonly GRAFTED_TREE="${GRAFTED_TREES[0]}"
 
-[[ -r "$REFERENCE_TREE" ]] || fail "The placement reference is missing from the server ($REFERENCE_TREE). gnoto lint <job file> offers to fetch it."
+[[ -r "$REFERENCE_TREE" ]] || fail "The placement reference is missing from the server ($REFERENCE_TREE). $(gnoto_command lint '<job file>') offers to fetch it."
 
 GRAFTED_TIPS=$(tree_tips "$GRAFTED_TREE" | wc -l)
 REFERENCE_TIPS=$(tree_tips "$REFERENCE_TREE" | wc -l)

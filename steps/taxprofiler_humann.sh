@@ -124,7 +124,7 @@ fi
 
 for path in "$CHOCOPHLAN" "$UNIREF" "$UTILITY_MAPPING"; do
     [[ -d "$path" ]] && continue
-    skip "there is no HUMAnN database at $path. gnoto lint <job file> offers to fetch it."
+    skip "there is no HUMAnN database at $path. $(gnoto_command lint '<job file>') offers to fetch it."
 done
 
 command -v nextflow > /dev/null || skip "nextflow is not on PATH."

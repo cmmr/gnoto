@@ -350,7 +350,7 @@ job_check() {
     ref=""
     [[ $spec != *@* ]] || ref=${spec#*@}
     if [[ -z $spec ]]; then
-        lint_fail "pipeline: is missing. gnoto new <pipeline> writes a job file with it filled in"
+        lint_fail "pipeline: is missing. $(gnoto_command new '<pipeline>') writes a job file with it filled in"
         return
     fi
     JOB_EXACT=false

@@ -230,22 +230,23 @@ slurm_exclude_list() {
 
 # What to say when slurm_exclude_list leaves no node
 no_node_left() {
-    printf 'gnoto'"'"'s jobs avoid every node in partition %s, as %s/excluded-nodes says, so none can run. Once they'"'"'re fixed, gnoto lint takes them off.' \
-        "${SLURM_PARTITION:-$(sinfo -h -o %P 2> /dev/null | sed -n 's/[*]$//p' | head -1)}" "$DATA_DIR"
+    printf 'gnoto'"'"'s jobs avoid every node in partition %s, as %s/excluded-nodes says, so none can run. Once they'"'"'re fixed, %s takes them off.' \
+        "${SLURM_PARTITION:-$(sinfo -h -o %P 2> /dev/null | sed -n 's/[*]$//p' | head -1)}" "$DATA_DIR" "$(gnoto_command lint)"
 }
 
 # What to tell someone whose job died at launch on a node, naming the node and
 # the directory it couldn't reach. With "avoid", it first adds the node to the
 # ones gnoto's jobs avoid: launch_failure_advice <node> <directory> [avoid]
 launch_failure_advice() {
-    local node=$1 dir=$2
+    local node=$1 dir=$2 lint
+    lint=$(gnoto_command lint)
     if [[ ${3:-} == avoid ]] &&
         printf '+%s\t%s\n' "$node" "a job there couldn't reach $dir" | excluded_nodes_update 2> /dev/null; then
-        printf '%s probably can'"'"'t reach %s, so gnoto'"'"'s jobs avoid it from now on, until gnoto lint finds it working.' "$node" "$dir"
+        printf '%s probably can'"'"'t reach %s, so gnoto'"'"'s jobs avoid it from now on, until %s finds it working.' "$node" "$dir" "$lint"
     elif excluded_nodes | cut -f1 | grep -qxF -- "$node"; then
-        printf '%s probably can'"'"'t reach %s. gnoto'"'"'s jobs avoid it now, until gnoto lint finds it working.' "$node" "$dir"
+        printf '%s probably can'"'"'t reach %s. gnoto'"'"'s jobs avoid it now, until %s finds it working.' "$node" "$dir" "$lint"
     else
-        printf '%s probably can'"'"'t reach %s. gnoto lint checks every node, and gnoto'"'"'s jobs avoid any it finds can'"'"'t reach its directories.' "$node" "$dir"
+        printf '%s probably can'"'"'t reach %s. %s checks every node, and gnoto'"'"'s jobs avoid any it finds can'"'"'t reach its directories.' "$node" "$dir" "$lint"
     fi
 }
 

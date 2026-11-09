@@ -330,7 +330,7 @@ current_main() {
         commit=$(install_commit "$INSTALL_DIR")
         repository=$(install_repository "$INSTALL_DIR")
         [[ -n $commit ]] ||
-            fail "This install has no current version yet, and isn't a release or a git clone with a commit to start from. Choose one with gnoto upgrade <version>, such as gnoto upgrade main, or run its own files with --dev."
+            fail "This install has no current version yet, and isn't a release or a git clone with a commit to start from. Choose one with $(gnoto_command upgrade '<version>'), such as $(gnoto_command upgrade main), or run its own files with --dev."
         changes=$(GIT_OPTIONAL_LOCKS=0 git -c safe.directory='*' -C "$INSTALL_DIR" status --porcelain \
             --untracked-files=no 2> /dev/null) || changes=""
         echo "This install's first command: gnoto at $commit, its own commit, becomes the current version." >&2

@@ -87,13 +87,15 @@ present_expires() {
 # The site paths nothing published may hold, a line each: the path, what it
 # becomes before a slash, and what it becomes alone. The run directory reads as
 # ".", the code as gnoto:, databases as db:, and the rest of the data directory
-# as data:. Each directory is listed as the shell spells it and with its
+# as data:. The install's launcher, which a run's message can name in a command,
+# reads as gnoto. Each path is listed as the shell spells it and with its
 # symlinks resolved, because Nextflow writes the resolved one, and longest
 # first, so a path inside another is replaced as the inner one.
 present_site_paths() {
     local spec path real
     {
         for spec in "$PWD|./|." "${CODE_DIR:-}|gnoto:|gnoto:" "${INSTALL_DIR:-}|gnoto:|gnoto:" \
+            "${INSTALL_DIR:+$INSTALL_DIR/gnoto}|gnoto:gnoto/|gnoto" \
             "${DB_DIR:-}|db:|db:" "${DATA_DIR:-}|data:|data:" "${HOME:-}|~/|~"; do
             path=${spec%%|*}
             path=${path%/}

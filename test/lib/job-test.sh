@@ -48,6 +48,8 @@ for ref in dada2/silva-138.2 pplace/v1 16s/v1; do
     [[ ! -e $REAL_DB/$ref ]] || ln -s "$REAL_DB/$ref" "$WORK/db/$ref"
 done
 export GNOTO_INSTALL_DIR=$WORK/install
+# What the launcher passes when gnoto on the user's PATH isn't this install's
+export GNOTO_LAUNCHER=$WORK/install/gnoto
 source "$CODE/lib/env.sh" || exit 1
 source "$CODE/lib/args.sh"
 source "$CODE/lib/lint.sh"
@@ -170,6 +172,9 @@ for line in "colour: isn't an option" "taxprofiler: this job runs ampliseq" "tit
     check "reports $line" "yes" "$(has "$OUT" "$line")"
 done
 check "with a failure count" "yes" "$(has "$OUT" "fails=12")"
+printf 'title: "No pipeline"\n' > no-pipeline.yaml
+check "a hint names the install's launcher, so it runs as written" "yes" \
+    "$(has "$(lint_job no-pipeline.yaml)" "FAIL  pipeline: is missing. $WORK/install/gnoto new <pipeline> writes a job file with it filled in")"
 
 cat > ref.yaml << EOF
 pipeline: ampliseq
@@ -412,7 +417,7 @@ cp nf.log nextflow.log
 state_set scheduler.kind slurm
 OUT=$(task_launch_failure)
 check "the pipeline's message names the task, node and job" "yes" \
-    "$(has "$OUT" "its task TAXPASTA_STANDARDISE (metaphlan|db) never ran. Slurm put it on node01 as job 5, and node01 couldn't write the task's log. node01 probably can't reach $WORK/run, so gnoto's jobs avoid it from now on, until gnoto lint finds it working.")"
+    "$(has "$OUT" "its task TAXPASTA_STANDARDISE (metaphlan|db) never ran. Slurm put it on node01 as job 5, and node01 couldn't write the task's log. node01 probably can't reach $WORK/run, so gnoto's jobs avoid it from now on, until $WORK/install/gnoto lint finds it working.")"
 state_set scheduler.kind local
 check "and says nothing without Slurm" "" "$(task_launch_failure)"
 check "the followup's, for a head job that never ran" "yes" \
@@ -446,7 +451,7 @@ check "and none is left when they're every node in the partition" "node01,node02
     "$(out=$(SLURM_PARTITION=gpu slurm_exclude_list); echo "$out $?")"
 printf '+node03\tx\n' | excluded_nodes_update
 check "or in the default one" "3" "$(slurm_exclude_list > /dev/null; echo $?)"
-check "which the message names" "yes" "$(has "$(no_node_left)" "gnoto's jobs avoid every node in partition main, as $WORK/data/excluded-nodes says")"
+check "which the message names" "yes" "$(has "$(no_node_left)" "gnoto's jobs avoid every node in partition main, as $WORK/data/excluded-nodes says, so none can run. Once they're fixed, $WORK/install/gnoto lint takes them off.")"
 printf -- '-node03\n' | excluded_nodes_update
 sbatch() { printf '%s\n' "$@" > "$WORK/sbatch.args"; echo "77;cluster"; }
 OUT=$(SLURM_ENABLED=true scheduler_submit --name x --dir "$WORK/run" --log "$WORK/run/job.out" -- _job "$WORK/run")
@@ -581,7 +586,7 @@ check "a node whose job found too little free in /tmp" "yes" \
 check "a node whose job sbatch refused, which isn't the node's doing" "yes" \
     "$(has "$OUT" "FAIL  compute node nope: sbatch refused its check job: sbatch: error: Invalid account")"
 check "and busy nodes, left to the probe" "yes" \
-    "$(has "$OUT" "WARN  compute nodes: not checked, as they have no CPU free now: full, tight. gnoto config slurm --probe checks every node")"
+    "$(has "$OUT" "WARN  compute nodes: not checked, as they have no CPU free now: full, tight. $WORK/install/gnoto config slurm --probe checks every node")"
 check "with no job to a node without a CPU and memory free" "dead far nope small" "$(sort "$WORK/submitted" | paste -sd ' ')"
 check "which leaves gnoto avoiding the nodes that failed" "dead small" "$(excluded_nodes | cut -f1 | paste -sd ' ')"
 rm -f "$WORK/submitted" "$WORK/stub-jobs"
@@ -599,7 +604,7 @@ check "and reports the rest as lint does" "yes yes" \
     "$(has "$OUT" "OK    compute nodes: far can run gnoto's jobs") $(has "$OUT" "WARN  compute node small: has 1.0 GB free in /tmp")"
 check "and ends with a count" "1 failed, 3 warned." "$(tail -1 <<< "$OUT")"
 check "and refuses without Slurm" "yes" \
-    "$(has "$(SLURM_ENABLED=false nodes_probe 2>&1)" "Slurm is off in gnoto, so there are no nodes to probe.")"
+    "$(has "$(SLURM_ENABLED=false nodes_probe 2>&1)" "Slurm is off in gnoto, so there are no nodes to probe. To turn it on: $WORK/install/gnoto config slurm --on")"
 rm -f "$WORK/submitted" "$WORK/stub-jobs" "$WORK/cancelled"
 sinfo() {
     case $* in
@@ -630,7 +635,7 @@ check "is lost" "yes" "$(has "$OUT" "Status     Lost")"
 check "and says where the job died" "yes" \
     "$(has "$OUT" "Why        The job never ran. Slurm put it on node04 as job 9, and node04 couldn't write its log, job.out.")"
 check "and the followup" "yes" \
-    "$(has "$OUT" "Why        The followup never ran. Slurm put it on node01 as job 5, and node01 couldn't write its log, followup.out. node01 probably can't reach $WORK/data/runs/abcdefgh. gnoto lint checks every node")"
+    "$(has "$OUT" "Why        The followup never ran. Slurm put it on node01 as job 5, and node01 couldn't write its log, followup.out. node01 probably can't reach $WORK/data/runs/abcdefgh. $WORK/install/gnoto lint checks every node")"
 check "but leaves the nodes gnoto avoids alone, since the run may be old" "no" \
     "$([[ -e $WORK/data/excluded-nodes ]] && echo yes || echo no)"
 rm -rf "$WORK/data/runs/abcdefgh"

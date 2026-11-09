@@ -130,8 +130,34 @@ DIR=$(install_case caller-env 'core:
   data_dir: ""')
 OUT=$(launch "$DIR" APPTAINERENV_LEAK=1 SINGULARITYENV_LEAK=1)
 check "caller's APPTAINERENV_ variables dropped" "" "$(grep -E 'LEAK' <<< "$OUT")"
-check "image environment" "APPTAINERENV_GNOTO_BOOTSTRAP APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR APPTAINERENV_GNOTO_HELPER_DIR APPTAINERENV_GNOTO_IMAGE APPTAINERENV_GNOTO_INSTALL_DIR APPTAINERENV_PREPEND_PATH APPTAINERENV_USER" \
+check "image environment" "APPTAINERENV_GNOTO_BOOTSTRAP APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR APPTAINERENV_GNOTO_HELPER_DIR APPTAINERENV_GNOTO_IMAGE APPTAINERENV_GNOTO_INSTALL_DIR APPTAINERENV_GNOTO_LAUNCHER APPTAINERENV_PREPEND_PATH APPTAINERENV_USER" \
     "$(sed -n 's/^env \(APPTAINERENV_[A-Z_]*\)=.*/\1/p' <<< "$OUT" | tr '\n' ' ' | sed 's/ $//')"
+
+# How messages name the launcher: gnoto when that's what gnoto on PATH runs,
+# through a link or not, and otherwise the install's launcher by its path
+launcher_name() {
+    sed -n 's/^env APPTAINERENV_GNOTO_LAUNCHER=//p'
+}
+check "the launcher, not on PATH, is named by its path" "$DIR/gnoto" "$(launch "$DIR" | launcher_name)"
+mkdir -p "$WORK/on-path" "$WORK/linked" "$WORK/other"
+cp "$DIR/gnoto" "$WORK/other/gnoto"
+ln -s "$DIR/gnoto" "$WORK/linked/gnoto"
+check "gnoto on PATH, linked to it, is named gnoto" "gnoto" \
+    "$(launch "$DIR" PATH="$WORK/linked:$WORK/stub/bin:/usr/bin:/bin" | launcher_name)"
+check "the install directory on PATH" "gnoto" \
+    "$(launch "$DIR" PATH="$DIR:$WORK/stub/bin:/usr/bin:/bin" | launcher_name)"
+check "gnoto on PATH that's another file" "$DIR/gnoto" \
+    "$(launch "$DIR" PATH="$WORK/other:$WORK/stub/bin:/usr/bin:/bin" | launcher_name)"
+check "the install directory on PATH, but relative" "$DIR/gnoto" \
+    "$(cd "$DIR" && launch "$DIR" PATH=".:$WORK/stub/bin:/usr/bin:/bin" | launcher_name)"
+SPACED=$(install_case "it's spaced" 'core:
+  data_dir: ""')
+chmod +x "$SPACED/gnoto"
+check "a path that needs quoting is quoted for sh" "'$WORK/it'\\''s spaced/gnoto'" \
+    "$(launch "$SPACED" | launcher_name)"
+check "and the quoted name runs" "0" \
+    "$(env -i PATH="$WORK/stub/bin:/usr/bin:/bin" HOME="$WORK" TMPDIR="$WORK" \
+        sh -c "$(launch "$SPACED" | launcher_name) exec --dev true > /dev/null 2>&1; echo \$?")"
 
 DIR=$(install_case home "apptainer:
   bin_dir: \"$WORK/stub/bin\"")
@@ -167,7 +193,7 @@ check "and writes none" "no" "$([[ -e $DIR/config.yaml ]] && echo yes || echo no
 check "where apptainer was found is passed in" "env APPTAINERENV_GNOTO_FOUND_APPTAINER_BIN_DIR=$WORK/stub/bin" \
     "$(grep '^env APPTAINERENV_GNOTO_FOUND_APPTAINER' <<< "$OUT")"
 check "no config.yaml and no apptainer" \
-    "gnoto: can't find apptainer. Put its directory on PATH, or run: gnoto init --apptainer=/path/to/apptainer" \
+    "gnoto: can't find apptainer. Put its directory on PATH, or run: $DIR/gnoto init --apptainer=/path/to/apptainer" \
     "$(env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" exec --dev true 2>&1)"
 
 mkdir -p "$WORK/slurm/bin"
@@ -250,6 +276,9 @@ check "and runs its own image and main.sh" "arg $DIR/data/images/gnoto-other.sif
 check "and passes the install, the image and the resolved commit in" \
     "env APPTAINERENV_GNOTO_IMAGE=gnoto-other.sif env APPTAINERENV_GNOTO_INSTALL_DIR=$DIR env APPTAINERENV_GNOTO_RESOLVED=$OTHER" \
     "$(grep -E '^env APPTAINERENV_GNOTO_(IMAGE|INSTALL_DIR|RESOLVED)=' <<< "$OUT" | tr '\n' ' ' | sed 's/ $//')"
+check "and has messages name the install's launcher, not its own" "$DIR/gnoto" "$(launcher_name <<< "$OUT")"
+OUT=$(run_launcher PATH="$DIR:$WORK/stub/bin:/usr/bin:/bin" GNOTO_INSTALL_DIR="$DIR" dash "$CACHED/gnoto" new ampliseq)
+check "or gnoto, when that's what PATH runs" "gnoto" "$(launcher_name <<< "$OUT")"
 
 DIR=$NO_CONFIG_DIR
 
@@ -259,7 +288,7 @@ init_with() {
 }
 OUT=$(init_with --apptainer="$WORK/stub/bin/apptainer")
 check "init: says what it wrote" \
-    "Wrote $DIR/config.yaml, with apptainer.bin_dir \"$WORK/stub/bin\". gnoto config lists the other sections." "$OUT"
+    "Wrote $DIR/config.yaml, with apptainer.bin_dir \"$WORK/stub/bin\". $DIR/gnoto config lists the other sections." "$OUT"
 check "init: the apptainer section and nothing else" \
     $'# This install\'s settings. gnoto config lists the sections, and adds or changes one.\n\napptainer:\n  enabled: true\n  bin_dir: "'"$WORK"'/stub/bin"' \
     "$(cat "$DIR/config.yaml")"
@@ -268,7 +297,7 @@ OUT=$(env -i PATH=/usr/bin:/bin HOME="$WORK" TMPDIR="$WORK" dash "$DIR/gnoto" ex
 check "init: then gnoto runs without apptainer on PATH" "host PATH=$WORK/stub/bin:/usr/bin:/bin" \
     "$(grep '^host PATH=' <<< "$OUT")"
 check "init: refused when config.yaml exists" \
-    "gnoto: $DIR/config.yaml already exists. Edit it by hand, or run gnoto config." \
+    "gnoto: $DIR/config.yaml already exists. Edit it by hand, or run $DIR/gnoto config." \
     "$(init_with --apptainer="$WORK/stub/bin/apptainer")"
 rm "$DIR/config.yaml"
 init_with --apptainer=stub/bin/ > /dev/null

@@ -1,15 +1,17 @@
 #
 # utilities.sh - The log, warn and fail helpers every script reports through,
-# the uid helpers, and text formatting for the pages.
+# how a message names a gnoto command, the uid helpers, and text formatting for
+# the pages.
 #
 # Sourced by:  lib/env.sh
-# Defines:     log, warn, fail, escape_html, escape_url, human_size, human_count,
-#              group_count, nextflow_cause, nextflow_error_block,
-#              nextflow_task_job, nextflow_failed_task, nextflow_session,
-#              is_valid_uid, derive_uid
+# Defines:     log, warn, fail, gnoto_command, escape_html, escape_url,
+#              human_size, human_count, group_count, nextflow_cause,
+#              nextflow_error_block, nextflow_task_job, nextflow_failed_task,
+#              nextflow_session, is_valid_uid, derive_uid
 # Requires:    state_present and state_set from lib/run_state.sh, for fail; openssl,
 #              for derive_uid
-# Env:         RUN_ID_SALT, from generated.yaml, for derive_uid
+# Env:         RUN_ID_SALT, from generated.yaml, for derive_uid; GNOTO_LAUNCHER,
+#              from the launcher, and INSTALL_DIR, for gnoto_command
 #
 # log writes to stdout and warn and fail to stderr, so stdout stays free for a
 # function's return value.
@@ -30,6 +32,14 @@ fail() {
         state_set message "$*" > /dev/null 2>&1 || true
     fi
     exit 1
+}
+
+# A gnoto command as a message tells the user to run it, so it runs as written:
+# gnoto_command <command> [arguments]. The launcher says how to name itself,
+# as gnoto when that's what gnoto on the user's PATH runs, or else by its path.
+gnoto_command() {
+    printf '%s' "${GNOTO_LAUNCHER:-$INSTALL_DIR/gnoto}"
+    (( $# == 0 )) || printf ' %s' "$@"
 }
 
 # Makes a string safe in HTML text. Each ampersand in a replacement is

@@ -436,7 +436,7 @@ nodes_lint() {
         done
         (( ${#free[@]} == 0 )) || nodes_job_check "$NODES_LINT_WAIT" -- "${free[@]}"
         (( ${#busy[@]} == 0 )) ||
-            lint_warn "compute nodes: not checked, as they have no CPU free now: $(lint_list "${busy[@]}"). gnoto config slurm --probe checks every node, waiting for busy ones"
+            lint_warn "compute nodes: not checked, as they have no CPU free now: $(lint_list "${busy[@]}"). $(gnoto_command config slurm --probe) checks every node, waiting for busy ones"
     fi
     nodes_done ${NODES_OK[@]+"${NODES_OK[@]}"}
 }
@@ -460,7 +460,7 @@ nodes_prescan() {
 # starting jobs on, waiting up to an hour for busy ones
 nodes_probe() {
     [[ $(scheduler_kind) == slurm ]] ||
-        fail "Slurm is off in gnoto, so there are no nodes to probe. To turn it on: gnoto config slurm --on"
+        fail "Slurm is off in gnoto, so there are no nodes to probe. To turn it on: $(gnoto_command config slurm --on)"
     NODES_PARTITION=$(nodes_partition)
     [[ -n $NODES_PARTITION ]] ||
         fail "sinfo didn't answer, or names no default partition, so no node was probed."

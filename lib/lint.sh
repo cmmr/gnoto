@@ -87,7 +87,7 @@ lint_config_file() {
     local generated=$DATA_DIR/generated.yaml
 
     if [[ ! -e $config ]]; then
-        lint_ok "config.yaml: none, so every setting is at its default. gnoto config lists the sections"
+        lint_ok "config.yaml: none, so every setting is at its default. $(gnoto_command config) lists the sections"
         return
     fi
     lint_ok "config.yaml: valid YAML"
@@ -114,7 +114,7 @@ lint_config_file() {
         if [[ $key != *.* ]]; then
             lint_warn "config.yaml: $key: should be a section, such as core:"
         elif [[ -z ${CONFIG_ABOUT[$section]+set} ]]; then
-            lint_warn "config.yaml: there's no section $section. gnoto config lists them"
+            lint_warn "config.yaml: there's no section $section. $(gnoto_command config) lists them"
         elif [[ " ${CONFIG_KEYS[$section]} " != *" ${key#*.} "* ]]; then
             lint_warn "config.yaml: $key isn't a setting gnoto knows, so it's ignored. Is it a typo?"
         fi
@@ -209,7 +209,7 @@ lint_scheduler() {
     local partitions partition time_limit hours limit line file process key value fixed
     if [[ $(scheduler_kind) != slurm ]]; then
         if [[ -n ${GNOTO_FOUND_SLURM_BIN_DIR:-} ]]; then
-            lint_warn "slurm: is on this machine but off in gnoto, so jobs run here. To use it: gnoto config slurm --on"
+            lint_warn "slurm: is on this machine but off in gnoto, so jobs run here. To use it: $(gnoto_command config slurm --on)"
         else
             lint_ok "jobs: run on this machine"
         fi
@@ -217,7 +217,7 @@ lint_scheduler() {
     fi
     if ! partitions=$(sinfo -h -o '%P %l' 2>&1); then
         lint_fail "slurm: sinfo doesn't answer: $(head -1 <<< "$partitions")
-Slurm's module may not be loaded in the shell gnoto started from. Load it, or set slurm.bin_dir and slurm.conf (gnoto config slurm)"
+Slurm's module may not be loaded in the shell gnoto started from. Load it, or set slurm.bin_dir and slurm.conf ($(gnoto_command config slurm))"
         return
     fi
     lint_ok "slurm: sinfo answers"
@@ -243,7 +243,7 @@ Slurm's module may not be loaded in the shell gnoto started from. Load it, or se
     for key in max_cpus max_memory max_time; do
         line=SLURM_${key^^}
         [[ -n ${!line:-} ]] ||
-            lint_warn "slurm.$key: isn't set, so a task that asks for more than a node has never runs. gnoto config slurm suggests one"
+            lint_warn "slurm.$key: isn't set, so a task that asks for more than a node has never runs. $(gnoto_command config slurm) suggests one"
     done
     [[ -z ${SLURM_MAX_MEMORY:-} || $SLURM_MAX_MEMORY =~ ^[0-9]+\.(B|KB|MB|GB|TB)$ ]] ||
         lint_fail "slurm.max_memory: write it as Nextflow does, such as 900.GB"
@@ -344,7 +344,7 @@ lint_main() {
         if (( LINT_FAILS > 0 && LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )) &&
             [[ $yes == true || -t 0 ]]; then
             databases_offer "$yes" > /dev/null || return 1
-            echo "Once the fetches finish, gnoto run starts this job. Started now, it waits for them."
+            echo "Once the fetches finish, $(gnoto_command run "$file") starts this job. Started now, it waits for them."
             return 1
         fi
     fi

@@ -184,7 +184,7 @@ supported_regions() {
 if [[ ! -r "$LANDMARKS" || ! -r "$POSITIONS" ]]; then
     REASON="What this run sequenced could not be determined:"
     REASON+=" the reference the detector needs is missing from the server."
-    fail "$REASON ($REFERENCE_DIR. gnoto lint <job file> offers to fetch it.)"
+    fail "$REASON ($REFERENCE_DIR. $(gnoto_command lint '<job file>') offers to fetch it.)"
 fi
 
 [[ -r "$SAMPLESHEET" ]] || fail "Samplesheet '$SAMPLESHEET' is not readable."

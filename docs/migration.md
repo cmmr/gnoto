@@ -56,7 +56,7 @@ Each phase has a test that shows it's finished.
 | 4. Version cache | `pipeline@ref`, `run record.yaml`, `<data_dir>/current`, `gnoto upgrade`, `gnoto prune`, and `gnoto resume` with the cleanup that keeps a failed run's cache | A job re-runs correctly from its own commit after `main` has moved on, an upgrade while a job runs leaves that job on its own code, and a run that failed resumes from its own commit with its finished tasks cached |
 | 5. Lock files | Image digests, GHCR images, `containers.config`, `db:` names, database digests and `lint --deep` | CI on `main` rejects an image address by tag, and a re-run pulls only by digest |
 | 6. Determinism | `gnoto selftest`, seeds, `stable-files`, and the numeric comparison of core tables | A re-run reports its core tables as identical |
-| 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, `remove`, `config` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
+| 7. Integrations | `gnoto wrike` writing job files from Wrike tasks, CLI jobs creating tasks, the publish stage and `gnoto publish`, the daily timer, `extend`, the integrations' part of `remove`, which came forward without it, `config` and `lint` for the integrations, the CloudFormation stacks, and the health file `status` shows | A Wrike request and a CLI job on the same samples give the same core tables, and both appear as tasks |
 | 8. Public release | README, tarball CI, Zenodo, docs rewrite | A full rollout works from the published tarball using only the README, starting from a complete teardown |
 
 Phase 1 comes first because the helper is the riskiest part of the design and everything
@@ -867,6 +867,17 @@ Tested on 2026-11-08 and 9, in the test bed and in Docker:
 
 ### Phase 7: integrations
 
+- **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs
+  on the cluster, several in one command. `gnoto remove [--yes] <uid>...` is built, with
+  everything but the integrations: the teardown, `teardown_run` in `service/expire.sh`;
+  the `remove` marker the followup acts on; a lost run recorded in history and removed at
+  once; and the run lock, `run_lock` in `lib/runs.sh`, which `cancel` and `resume` share.
+  This phase fills in the teardown's marked place for Wrike's task status, S3's results
+  and expired page, and Globus's archive, and adds the daily expiry check to the same
+  file. Once S3 or Globus is set, a completed run has no run directory, so `extend`, the
+  expiry check and `publish` take the run's lock through `run_lock`, which finds it in
+  `history/<uid>/`. `test/lib/runs-test.sh` and `test/testbed/checks/job.sh --remove`
+  test it.
 - Build the three CloudFormation stacks (IAM user, S3, SQS) from the settings saved during
   [teardown](#teardown).
 - `docs/wrike/responses.md` in the old repo has the live definitions of the workflow, custom

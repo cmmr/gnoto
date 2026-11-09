@@ -245,9 +245,9 @@ config_main() {
     fi
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
     section=${ARG_WORDS[0]}
-    [[ -n ${CONFIG_ABOUT[$section]-} ]] || fail "gnoto config has no section $section. Run gnoto config to list them."
+    [[ -n ${CONFIG_ABOUT[$section]-} ]] || fail "gnoto config has no section $section. Run $(gnoto_command config) to list them."
     if [[ -n ${ARG_FLAGS[probe]:-} ]]; then
-        [[ $section == slurm ]] || fail "--probe is for gnoto config slurm, which checks every compute node."
+        [[ $section == slurm ]] || fail "--probe is for $(gnoto_command config slurm), which checks every compute node."
         [[ ${#ARG_FLAGS[@]} -eq 1 && ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto config slurm --probe takes nothing else."
         source "$CODE_DIR/lib/lint.sh"
         nodes_probe
@@ -257,7 +257,7 @@ config_main() {
     [[ -z ${ARG_FLAGS[on]:-} ]] || option=--on
     [[ -z ${ARG_FLAGS[off]:-} ]] || option=--off
     if [[ -n $option ]]; then
-        [[ $section != core ]] || fail "core is always on. Run gnoto config core to change its settings."
+        [[ $section != core ]] || fail "core is always on. Run $(gnoto_command config core) to change its settings."
         [[ $section != apptainer || $option == --on ]] ||
             fail "Apptainer is gnoto's only container engine, so it can't be turned off."
     fi
@@ -277,7 +277,7 @@ config_main() {
         CONFIG_GIVEN[$key]=${ARG_VALUES[i]}
     done
     if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && ! -t 0 ]]; then
-        fail "gnoto config $section asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
+        fail "$(gnoto_command config "$section") asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
     fi
 
     declare -gA CONFIG_NEW=()
@@ -309,6 +309,6 @@ config_main() {
     elif [[ $(SECTION=$section yq '.[strenv(SECTION)].enabled' "$CONFIG_FILE") == true ]]; then
         echo "$section is on, in $CONFIG_FILE." >&2
     else
-        echo "$section is off, in $CONFIG_FILE. To turn it on, run: gnoto config $section --on" >&2
+        echo "$section is off, in $CONFIG_FILE. To turn it on, run: $(gnoto_command config "$section" --on)" >&2
     fi
 }

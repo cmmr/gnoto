@@ -156,13 +156,28 @@ check "config: lists the sections" "core apptainer slurm wrike aws globus" \
         awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
 
 # Runs gnoto config with arguments and no terminal, printing what it says,
-# without the date
+# without the date. The launcher names itself by its path, as it does when
+# gnoto on the user's PATH isn't this install's.
 config_args() {
     local dir=$1
     shift
-    (GNOTO_INSTALL_DIR=$dir; source "$CODE/lib/env.sh" || exit 1; source "$CODE/lib/args.sh"
-        source "$CODE/lib/config.sh"; config_main "$@") < /dev/null 2>&1 | sed 's/^\[[^]]*\] ERROR: //'
+    (GNOTO_INSTALL_DIR=$dir; GNOTO_LAUNCHER=$dir/gnoto; source "$CODE/lib/env.sh" || exit 1
+        source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main "$@") < /dev/null 2>&1 |
+        sed 's/^\[[^]]*\] ERROR: //'
 }
+
+# How a message names a command: as the launcher says, or by the install's
+# launcher's path without it
+DIR=$(install hints 'core:
+  data_dir: ""')
+check "gnoto_command: the launcher by its path" "$DIR/gnoto status abcdefgh" \
+    "$(with_env "$DIR" 'GNOTO_LAUNCHER=$INSTALL_DIR/gnoto gnoto_command status abcdefgh')"
+check "gnoto_command: gnoto, when that's what PATH runs" "gnoto lint <job file>" \
+    "$(with_env "$DIR" "GNOTO_LAUNCHER=gnoto gnoto_command lint '<job file>'")"
+check "gnoto_command: a path the launcher quoted" "'/a b/gnoto' config" \
+    "$(with_env "$DIR" "GNOTO_LAUNCHER=\"'/a b/gnoto'\" gnoto_command config")"
+check "gnoto_command: without the launcher's word, the install's launcher" "$DIR/gnoto upgrade main" \
+    "$(with_env "$DIR" 'unset GNOTO_LAUNCHER; gnoto_command upgrade main')"
 
 # gnoto config with settings as arguments: each set in place, nothing asked,
 # and a section that's missing added whole
@@ -175,6 +190,8 @@ check "config: settings in place, with a space and = in one, and one emptied" \
     "$(printf '%s\n' 'slurm:' '  enabled: false' "$(printf '%-25s# Queue' '  partition: ""')" \
         '  account: "my lab=2"' '  max_cpus: 4')" "$(cat "$DIR/config.yaml")"
 check "config: and enabled left as it was" "yes" "$(grep -q '^slurm is off' <<< "$OUT" && echo yes || echo "$OUT")"
+check "config: and how to turn it on, with the install's launcher" \
+    "slurm is off, in $DIR/config.yaml. To turn it on, run: $DIR/gnoto config slurm --on" "$OUT"
 config_args "$DIR" slurm --on --job_time=48.h > /dev/null
 check "config: --on with a setting" "true 48.h" "$(yq '(.slurm.enabled | tostring) + " " + .slurm.job_time' "$DIR/config.yaml")"
 config_args "$DIR" wrike --poll_minutes=0 > /dev/null
@@ -193,10 +210,11 @@ for case in "slurm --max_cpu=4|--max_cpu: slurm has no setting max_cpu. Its sett
     "slurm --account=a\"b|--account: A double quote or a line break can't go in config.yaml." \
     "slurm --enabled=true|--enabled: turn slurm on or off with --on or --off." \
     "slurm --on --off|Give --on or --off, not both." \
-    "core --on|core is always on. Run gnoto config core to change its settings." \
+    "core --on|core is always on. Run $DIR/gnoto config core to change its settings." \
     "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe" \
-    "slurm|gnoto config slurm asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>." \
-    "core --probe|--probe is for gnoto config slurm, which checks every compute node." \
+    "slurm|$DIR/gnoto config slurm asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>." \
+    "core --probe|--probe is for $DIR/gnoto config slurm, which checks every compute node." \
+    "nothing|gnoto config has no section nothing. Run $DIR/gnoto config to list them." \
     "slurm --probe --on|gnoto config slurm --probe takes nothing else." \
     "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe"; do
     read -r -a args <<< "${case%%|*}"

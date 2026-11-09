@@ -3,10 +3,11 @@
 # however it ended.
 #
 # Sourced by:  lib/main.sh, for the _followup and _local commands that
-#              lib/start.sh submits
-# Defines:     followup_main
+#              lib/start.sh submits, and for remove
+# Defines:     followup_main, record_history, utc_now
 # Requires:    the settings and helpers from lib/env.sh; sacct, squeue and
-#              scancel through their stand-ins, with Slurm
+#              scancel through their stand-ins, with Slurm; teardown_run from
+#              service/expire.sh
 # Runs:        present/progress.sh once, for a run that didn't complete
 #
 # With Slurm, it's submitted with --dependency=afterany on the head job, so it
@@ -30,6 +31,9 @@
 #                    cleanup_utc, so gnoto resume has a cache to resume from,
 #                    and loses only the results Nextflow publishes again when
 #                    it resumes. --debug keeps everything until cleanup_utc.
+#
+# A run gnoto remove marked while it was still going, with a file named remove
+# in its run directory, gets the teardown instead of its expiry and cleanup.
 #
 # A run whose Compute finished keeps its results even when Present or Publish
 # failed, as "Publish failed". Exits 1 for a run that didn't complete, so
@@ -107,6 +111,18 @@ write_error_summary() {
     } > "$out" 2> /dev/null
 }
 
+# What outlasts the run directory, copied into history/<uid>/ from the run
+# directory, with the run's lock held: record_history <uid> <status>
+record_history() {
+    local history=$DATA_DIR/history/$1
+    mkdir -p "$history" || return 1
+    cp -f job.yaml record.yaml "$history/" 2> /dev/null || warn "Couldn't copy the job and record into $history."
+    cp -f "$RUN_STATE_FILE" "$history/state.json" || warn "Couldn't copy the state into $history."
+    [[ $2 == Completed ]] || write_error_summary "$history/error.txt"
+    chmod -R g+rwX "$history" 2> /dev/null || :
+    chmod g+s "$history" 2> /dev/null || :
+}
+
 # The expiry file the daily timer reads, written by rename
 write_expiry() {
     local uid=$1 status=$2 ended=$3 retention remove="" cleanup="" floor file tmp
@@ -163,7 +179,7 @@ clean_run() {
 
 # followup_main <run directory>
 followup_main() {
-    local run_dir=${1%/} uid status message ended tasks history
+    local run_dir=${1%/} uid status message ended tasks
 
     uid=${run_dir##*/}
     [[ $run_dir == "$DATA_DIR"/runs/* ]] && is_valid_uid "$uid" ||
@@ -209,17 +225,20 @@ followup_main() {
 
     (
         flock -w 60 9 || fail "Can't lock run $uid, so it wasn't cleaned up."
-        history=$DATA_DIR/history/$uid
-        mkdir -p "$history" || fail "Can't create $history."
-        cp -f job.yaml record.yaml "$history/" 2> /dev/null || warn "Couldn't copy the job and record into $history."
-        cp -f "$RUN_STATE_FILE" "$history/state.json" || warn "Couldn't copy the state into $history."
-        [[ $status == Completed ]] || write_error_summary "$history/error.txt"
-        write_expiry "$uid" "$status" "$ended" || warn "Couldn't write $DATA_DIR/expiry/$uid."
-        clean_run "$status"
-        chmod -R g+rwX "$run_dir" "$history" 2> /dev/null || :
-        chmod g+s "$history" 2> /dev/null || :
+        record_history "$uid" "$status" || fail "Can't create $DATA_DIR/history/$uid."
+        if [[ -e remove ]]; then
+            teardown_run "$uid" "$(head -n 1 remove)" || :
+        else
+            write_expiry "$uid" "$status" "$ended" || warn "Couldn't write $DATA_DIR/expiry/$uid."
+            clean_run "$status"
+            chmod -R g+rwX "$run_dir" 2> /dev/null || :
+        fi
     ) 9>> .lock || exit 1
 
-    log "Run $uid: $status."
+    if [[ -d $run_dir ]]; then
+        log "Run $uid: $status."
+    else
+        log "Run $uid: $status. Its results were removed, as asked."
+    fi
     [[ $status == Completed ]]
 }

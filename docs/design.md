@@ -447,7 +447,7 @@ that version's launcher once the image exits, as "Versions and the code cache" s
 | `gnoto cancel <uid>` | Cancels a job | Yes |
 | `gnoto resume [uid]` | Resumes a failed or cancelled run at its own commit through Nextflow's `-resume`, reusing every task that finished. Without a uid, lists the runs that can be resumed | Yes |
 | `gnoto extend <uid> <YYYY-MM-DD\|never>` | Keeps a run's results until that date, or for good | Yes |
-| `gnoto remove [--yes] <uid>` | Deletes a run's results now and keeps its record. `--yes` skips the prompt, as the listener and the reconciliation scan do | Yes, after confirming |
+| `gnoto remove [--yes] <uid>...` | Deletes the results of one or more runs now and keeps their records, after one prompt listing them all. `--yes` skips the prompt, as the listener and the reconciliation scan do | Yes, after confirming |
 | `gnoto prune [--yes]` | Removes cached versions and images that no running or waiting job uses. `--yes` skips the prompt | Yes, after confirming |
 | `gnoto upgrade [--yes] [version]` | Fetches a version into `versions/`, the newest release when none is given, or `main` before there's one, shows what changed, then makes it current and runs its `lint`. `--yes` skips the prompt | Yes, after confirming |
 | `gnoto selftest [--dev] [pipeline]` | Runs the fixture jobs from [fixtures.md](fixtures.md) and checks their core tables against the current release's checksums. `--dev` compares a working tree with the last release instead | Only its own runs, and any database fetch you accept |
@@ -459,6 +459,19 @@ spaces and `=`, but after a space it can't start with `--`. A command's own flag
 `--debug`, `--yes`, `--on` and `--off`, take no value, and every other option takes one, so
 a boolean is written `--x=true`. A key given twice is refused. `lib/args.sh` parses them
 for every command in the image, and the launcher applies the same rules to `gnoto init`.
+
+**Hints name the launcher.** The install directory usually isn't on `PATH`, so a message
+that tells the user to run a gnoto command names the launcher the way that user can run it,
+and the command runs as written: `gnoto` when that's what `gnoto` on their `PATH` runs,
+through a link or not, and otherwise the install directory's launcher by its absolute path,
+quoted for `sh` if it needs to be, as in `Follow it with: /opt/gnoto/gnoto status k3f9a2qx`.
+The launcher works this out on the host, from the `PATH` it was started with, and passes it
+into the image as `GNOTO_LAUNCHER`, and every hint is written with `gnoto_command` from
+`lib/utilities.sh`. A message a job stores in its run's state, which `status` shows later,
+names it as the job's user runs it. Usage text and the docs keep the plain `gnoto`, as do
+the comment at the top of a job file, which is published with the results and passed on,
+and the pages, which hold no site path: on the progress page, a run's message has the
+launcher's path turned back into `gnoto`.
 
 **`lint`.** Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit
 code. Before `config` has run, `lint` reports what's missing as a WARN that says which
@@ -753,16 +766,24 @@ a date before the floor is refused. The daily check applies the same floor to da
 in Wrike. With no timer installed nothing expires, and `lint` warns about any job whose
 `retention` isn't `Unlimited`.
 
-**`remove`.** It runs the same teardown on demand, after a confirmation prompt. If the
+**`remove`.** It runs the same teardown on demand, for one run or several named in one
+command, after one confirmation prompt listing them. If a
 job is still running or waiting, `remove` writes the cancel file and a `remove` marker and
 returns at once, because deleting the run directory would also delete the cancel file.
 The job's followup, which runs as the job's owner, does the teardown once the job has
-ended. The record stays in `history/<uid>/`, so the job can be re-run while its inputs
-exist. A Wrike task, if there is one, moves to `Expired`.
+ended, and `resume` refuses a run with the marker. A run nothing is running for any more,
+which `status` shows as Lost, is recorded in history as its followup would have recorded
+it, and removed at once. The record stays in `history/<uid>/`, so the job can be re-run
+while its inputs exist. A Wrike task, if there is one, moves to `Expired`. A uid with no
+run stops the command before anything is removed, a run whose results have already gone
+needs nothing, and an expiry file left behind is deleted.
 
 **Locking.** Every command that acts on one run takes that run's lock: `cancel`,
 `extend`, `remove`, `publish`, the expiry check and the job's own cleanup. So an extension
-can't land in the middle of a teardown. `prune` takes the cache lock exclusively, and
+can't land in the middle of a teardown. A run's lock is `.lock` in its run directory, and
+in `history/<uid>/` once the run directory has gone. A teardown holds both, and moves the
+run directory aside before deleting it, so a command that waited on the first finds the
+run directory gone and takes the second. `prune` takes the cache lock exclusively, and
 `run` holds it shared until the run's state names its commit, so `prune` can't delete a
 version that a starting job has just resolved. A write that can't get its lock fails, and
 never goes ahead unlocked.
@@ -1164,7 +1185,8 @@ named its task images by tag, so they go, and are pulled again if it runs.
   versions/<commit>/   read-only code, with a VERSION naming its commit and repository
   versions/.lock       the cache lock, held shared by starting jobs and exclusively by prune
   runs/<uid>/          run directories
-  history/<uid>/       job.yaml, record, final state and any error summary, kept after results go
+  history/<uid>/       job.yaml, record, final state and any error summary, kept after results
+                       go, and the run's lock once its run directory has gone
   expiry/<uid>         removal time of results still waiting to expire
   nextflow/            NXF_HOME and NXF_ASSETS
   images/              shared .sif files

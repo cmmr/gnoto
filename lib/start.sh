@@ -189,7 +189,7 @@ start_run() {
     echo "Started $uid, $JOB_PIPELINE, in $run_dir"
     [[ -z $fetch_after ]] || echo "It waits for the database fetches to finish."
     [[ $debug == false ]] || echo "With --debug, the whole run directory stays for ${KEEP_RUN_DAYS:-14} days."
-    echo "Follow it with: gnoto status $uid"
+    echo "Follow it with: $(gnoto_command status "$uid")"
 }
 
 # Submits a run's head job and followup, from its run directory, and records
@@ -232,6 +232,7 @@ start_failed() {
 # Why a run can't be resumed, or nothing when it can. Run in its directory.
 resume_refusal() {
     local status nextflow
+    [[ ! -e remove ]] || { echo "gnoto remove was asked to remove it"; return; }
     status=$(get_run_status)
     case $status in
         Completed) echo "it completed"; return ;;
@@ -256,7 +257,7 @@ resume_list() {
         is_valid_uid "$uid" && [[ -r $dir/$RUN_STATE_FILE ]] || continue
         why=$(cd "$dir" && resume_refusal)
         [[ -z $why ]] || continue
-        (( found > 0 )) || echo "Runs gnoto resume <uid> can resume:"
+        (( found > 0 )) || echo "Runs $(gnoto_command resume '<uid>') can resume:"
         found=$((found + 1))
         (cd "$dir" && printf '  %s  %-18s %-10s %-9s %s\n' "$uid" "$(short_version "$(state_get version)")" \
             "$(get_run_status)" "$(date -u -d "$(state_get ended_utc)" '+%b %-d' 2> /dev/null)" \
@@ -313,12 +314,13 @@ resume_main() {
     JOB_DATABASES=$(state_get_json databases | jq -r '.[]?')
     databases_check "$JOB_DATABASES" > /dev/null
     (( LINT_FAILS == 0 )) ||
-        fail "Run $uid can't be resumed: a database it needs is missing. gnoto lint $dir/job.yaml offers to fetch it."
+        fail "Run $uid can't be resumed: a database it needs is missing. $(gnoto_command lint "$dir/job.yaml") offers to fetch it."
     fetch_after=${JOB_FETCH_AFTER:-}
     nodes_prescan
 
     (
-        flock -w 30 9 || fail "Can't lock run $uid."
+        run_lock "$uid" || fail "Can't lock run $uid."
+        [[ -d $dir && ! -e remove ]] || fail "Run $uid can't be resumed: gnoto remove was asked to remove it."
         state_update '
             .attempts = ((.attempts // []) + [{status, message, created_utc, resumed_utc, started_utc,
                 ended_utc, host, scheduler, notes} | with_entries(select(.value != null))])
@@ -326,10 +328,10 @@ resume_main() {
             | .notes = [] | .resumed_utc = $now | .status = "Submitted"' \
             --arg now "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" || fail "Can't record run $uid's last attempt."
         rm -f cancel "$DATA_DIR/expiry/$uid"
-    ) 9>> .lock || exit 1
+    ) || exit 1
     exec 8>&-
 
     submit_run "$dir" "$fetch_after"
     echo "Resumed $uid, $(state_get version), in $dir. The tasks that finished come from its cache."
-    echo "Follow it with: gnoto status $uid"
+    echo "Follow it with: $(gnoto_command status "$uid")"
 }

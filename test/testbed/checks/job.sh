@@ -4,10 +4,12 @@
 # through gnoto start, then checks what it leaves: the dashboard, the record,
 # the zip, history, expiry and cleanup. With --cancel, it runs the job file
 # gnoto new printed through gnoto run instead, cancels it, and checks that it
-# stops and leaves no task running.
+# stops and leaves no task running. With --remove, it ends by removing the run
+# with gnoto remove, while it runs with --cancel, and checks that only its
+# history is left.
 #
 # Run by:  a developer, as any user, in the test bed or on the cluster:
-#          bash <install>/test/testbed/checks/job.sh [--cancel] [--small]
+#          bash <install>/test/testbed/checks/job.sh [--cancel] [--remove] [--small]
 # Requires:  the install's gnoto, and the 16s-v4 fixture in its database
 #            directory, which test/testbed/checks/ampliseq-16s-v4.sh fetches.
 #            Through gnoto lint --yes, it fetches the other databases the job
@@ -24,12 +26,14 @@ set -u
 CODE_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 GNOTO=$CODE_DIR/gnoto
 CANCEL=false
+REMOVE=false
 SMALL=false
 for ARG in "$@"; do
     case $ARG in
         --cancel) CANCEL=true ;;
+        --remove) REMOVE=true ;;
         --small) SMALL=true ;;
-        *) echo "Usage: job.sh [--cancel] [--small]" >&2; exit 1 ;;
+        *) echo "Usage: job.sh [--cancel] [--remove] [--small]" >&2; exit 1 ;;
     esac
 done
 DATA_DIR=$($GNOTO exec printenv GNOTO_DATA_DIR)
@@ -68,6 +72,28 @@ wait_for() {
     printf 'still %s' "$status"
 }
 
+# Waits up to $2 seconds for a run directory to go, printing whether it's there
+wait_gone() {
+    for (( i = 0; i < $2; i++ )); do
+        [[ -d $1 ]] || break
+        sleep 1
+    done
+    [[ -d $1 ]] && echo yes || echo no
+}
+
+# What gnoto remove leaves of a run: its history, and nothing in runs/ or expiry/
+check_removed() {
+    local uid=$1 files=$2
+    check "history keeps the record" "$files" \
+        "$(cd "$DATA_DIR/history/$uid" 2> /dev/null && ls $files | paste -sd ' ')"
+    check "and says the results were removed" "yes" \
+        "$(grep -q '"Results removed ' "$DATA_DIR/history/$uid/state.json" 2> /dev/null && echo yes)"
+    check "the expiry file went" "no" "$([[ -e $DATA_DIR/expiry/$uid ]] && echo yes || echo no)"
+    check "and nothing is left in runs/" "" "$(ls -d "$DATA_DIR"/runs/.tmp.remove."$uid".* 2> /dev/null)"
+    check "status shows the run from history" "yes" \
+        "$($GNOTO status "$uid" 2> /dev/null | grep -q "^  History    $DATA_DIR/history/$uid$" && echo yes)"
+}
+
 mkdir -p "$WORK"
 cd "$WORK" || exit 1
 printf '%s\t%s\t%s\n' mock1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380142_2.fastq.gz" > v4.tsv
@@ -91,7 +117,11 @@ fi
 grep '^Fetching db:' lint.log | sed 's/^/      /'
 
 if [[ $CANCEL == true ]]; then
-    echo "gnoto cancel on a running job"
+    if [[ $REMOVE == true ]]; then
+        echo "gnoto remove on a running job"
+    else
+        echo "gnoto cancel on a running job"
+    fi
     UID_=$($GNOTO run job.yaml | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
     check "run prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
     [[ -n $UID_ ]] || exit 1
@@ -100,6 +130,19 @@ if [[ $CANCEL == true ]]; then
         sleep 5
     done
     sleep 30
+    if [[ $REMOVE == true ]]; then
+        OUT=$($GNOTO remove --yes "$UID_" 2>&1)
+        check "it's asked to stop first" "yes" \
+            "$(grep -q "^Asked run $UID_ to stop. Its results go once it has" <<< "$OUT" && echo yes)"
+        check "it ends as Cancelled" "Cancelled" "$(wait_for "$UID_" 10)"
+        check "and its followup removes its run directory" "no" "$(wait_gone "$DATA_DIR/runs/$UID_" 120)"
+        if command -v squeue > /dev/null; then
+            check "no task of it is left in Slurm" "0" \
+                "$(squeue -h -o %Z 2> /dev/null | grep -c "^$DATA_DIR/runs/$UID_/")"
+        fi
+        check_removed "$UID_" "error.txt job.yaml record.yaml state.json"
+        exit $FAILED
+    fi
     $GNOTO cancel "$UID_" > /dev/null
     check "it ends as Cancelled" "Cancelled" "$(wait_for "$UID_" 10)"
     if command -v squeue > /dev/null && [[ -d $DATA_DIR/runs/$UID_ ]]; then
@@ -115,9 +158,15 @@ if [[ $CANCEL == true ]]; then
 fi
 
 echo "gnoto start, to the end"
-UID_=$($GNOTO start "${JOB[@]}" | sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p')
+START=$($GNOTO start "${JOB[@]}")
+UID_=$(sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p' <<< "$START")
 check "start prints the uid" "yes" "$([[ -n $UID_ ]] && echo yes)"
 [[ -n $UID_ ]] || exit 1
+# gnoto, when that's what gnoto on PATH runs, or else the install's launcher
+HINT=$(cd -P "$CODE_DIR" && pwd)/gnoto
+[[ $(readlink -f "$(command -v gnoto)" 2> /dev/null) != "$HINT" ]] || HINT=gnoto
+check "and how to follow it, in a command that runs as written" "Follow it with: $HINT status $UID_" \
+    "$(grep '^Follow it with: ' <<< "$START")"
 RUN=$DATA_DIR/runs/$UID_
 check "it ends as Completed" "Completed" "$(wait_for "$UID_" 120)"
 
@@ -146,5 +195,15 @@ check "expiry about a month away" "yes" "$(grep -q "remove_utc: \"$(date -u -d '
     "$DATA_DIR/expiry/$UID_" 2> /dev/null && echo yes)"
 check "everything left is group-writable" "" "$(find "$RUN" ! -perm -g+w 2> /dev/null | head -3)"
 check "status lists it as finished" "yes" "$($GNOTO status | grep -q "^  $UID_ .*Completed" && echo yes)"
+
+if [[ $REMOVE == true ]]; then
+    echo "gnoto remove on the finished run"
+    OUT=$($GNOTO remove --yes "$UID_" 2>&1)
+    check "removes it at once" "yes" "$(grep -q "^Removed run $UID_'s results." <<< "$OUT" && echo yes)"
+    check "the run directory went, with the dashboard and zip" "no" "$([[ -e $RUN ]] && echo yes || echo no)"
+    check_removed "$UID_" "job.yaml record.yaml state.json"
+    check "status lists it with its results removed" "yes" \
+        "$($GNOTO status | grep -q "^  $UID_ .*Completed .*results removed$" && echo yes)"
+fi
 
 exit $FAILED

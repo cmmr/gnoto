@@ -90,6 +90,9 @@ check "site paths become names, and only whole ones" \
     "$(printf '%s\n' "./work/ab/cd x" "db:kraken2/x,db:" "data:nextflow/assets y" \
         "${DATA_DIR}base/z" "/mnt$DATA_DIR/q" "gnoto:conf/a.config" "~/site.config" "./results")" \
     "$REDACTED"
+check "the install's launcher, in a command a message names, becomes gnoto" \
+    "Run gnoto lint <job file>, or edit gnoto:config.yaml" \
+    "$(printf '%s\n' "Run $INSTALL_DIR/gnoto lint <job file>, or edit $INSTALL_DIR/config.yaml" | present_redact)"
 
 state_set retention "3 Months" > /dev/null
 check "three months from today" "$(date -u -d '+3 months' +%F)" "$(present_expires abcdefgh)"
@@ -326,7 +329,7 @@ echo "biobakery, from synthetic results"
 new_run biobaker biobakery "Synthetic biobakery"
 state_set_json answers '{"delivered_reads": "Raw,Cleaned"}' > /dev/null
 state_set_json params "$(jq -n --arg db "$DB_DIR" '{input: "biobakery_samplesheet.csv",
-    kneaddata_db: "db:hostremoval/chm13v2phix", host_prefilter_bowtie2_options: "--fast",
+    kneaddata_db: "db:hostremoval/chm13v2phix/v1/chm13v2phix", host_prefilter_bowtie2_options: "--fast",
     host_bowtie2_options: "--very-sensitive-local", kneaddata_sequencer_source: "NexteraPE",
     metaphlan_db: "db:metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403", run_humann: true,
     run_motus: true, run_nonpareil: true, run_esviritu: true, run_markermagu: true,

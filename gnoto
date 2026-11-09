@@ -77,6 +77,23 @@ RESOLVED=${GNOTO_RESOLVED-}
 unset GNOTO_INSTALL_DIR GNOTO_RESOLVED
 CONFIG=$INSTALL_DIR/config.yaml
 
+# The launcher as a message names it, in a command it tells the user to run:
+# gnoto, when that's what gnoto on their PATH runs, or else the install
+# directory's launcher by its path, quoted for sh if it needs to be
+LAUNCHER=$INSTALL_DIR/gnoto
+FOUND=$(command -v gnoto 2> /dev/null) || FOUND=
+case $FOUND in
+    /*)
+        FOUND=$(readlink -f -- "$FOUND" 2> /dev/null) || FOUND=
+        if [ -n "$FOUND" ] && [ "$FOUND" = "$(readlink -f -- "$LAUNCHER" 2> /dev/null)" ]; then
+            LAUNCHER=gnoto
+        fi
+        ;;
+esac
+case $LAUNCHER in
+    *[!A-Za-z0-9_./@:+=-]*) LAUNCHER="'$(printf '%s\n' "$LAUNCHER" | sed "s/'/'\\\\''/g")'" ;;
+esac
+
 # Prints <section>.<key> from config.yaml, or nothing if it's unset. Exits 2 if
 # the key is there but not written as   key: "value",   key: true   or
 #   key: false
@@ -126,7 +143,7 @@ init() {
         ENGINE_PATH=$VALUE
     done
     [ -n "$ENGINE" ] || die "Usage: gnoto init --apptainer=/path/to/apptainer"
-    [ ! -e "$CONFIG" ] || die "$CONFIG already exists. Edit it by hand, or run gnoto config."
+    [ ! -e "$CONFIG" ] || die "$CONFIG already exists. Edit it by hand, or run $LAUNCHER config."
 
     case $ENGINE_PATH in /*) ;; *) ENGINE_PATH=$PWD/$ENGINE_PATH ;; esac
     ENGINE_DIR=${ENGINE_PATH%/}
@@ -139,8 +156,8 @@ init() {
         "" "$ENGINE:" "  enabled: true" "  bin_dir: \"$ENGINE_DIR\"" > "$CONFIG") 2> /dev/null ||
         die "can't write $CONFIG"
     chgrp "$(id -g)" "$CONFIG" && chmod 660 "$CONFIG" || die "can't set the group and mode of $CONFIG"
-    printf 'Wrote %s, with %s.bin_dir "%s". gnoto config lists the other sections.\n' \
-        "$CONFIG" "$ENGINE" "$ENGINE_DIR"
+    printf 'Wrote %s, with %s.bin_dir "%s". %s config lists the other sections.\n' \
+        "$CONFIG" "$ENGINE" "$ENGINE_DIR" "$LAUNCHER"
 }
 
 if [ "$HANDED" = false ] && [ "${1:-}" = init ]; then
@@ -249,7 +266,7 @@ if [ -n "$SLURM_CONF_SETTING" ]; then
     export SLURM_CONF
 fi
 if ! APPTAINER=$(command -v apptainer); then
-    [ -e "$CONFIG" ] || die "can't find apptainer. Put its directory on PATH, or run: gnoto init --apptainer=/path/to/apptainer"
+    [ -e "$CONFIG" ] || die "can't find apptainer. Put its directory on PATH, or run: $LAUNCHER init --apptainer=/path/to/apptainer"
     die "can't find apptainer. Put its directory on PATH, or set apptainer.bin_dir in $CONFIG."
 fi
 SBATCH=$(command -v sbatch) || SBATCH=
@@ -336,14 +353,15 @@ done
 APPTAINERENV_PREPEND_PATH=$PRIVATE/bin
 APPTAINERENV_GNOTO_CODE_DIR=$CODE_DIR
 APPTAINERENV_GNOTO_INSTALL_DIR=$INSTALL_DIR
+APPTAINERENV_GNOTO_LAUNCHER=$LAUNCHER
 APPTAINERENV_GNOTO_DATA_DIR=$DATA_DIR
 APPTAINERENV_GNOTO_DB_DIR=$DB_DIR
 APPTAINERENV_GNOTO_HELPER_DIR=$PRIVATE
 APPTAINERENV_GNOTO_IMAGE=$IMAGE
 APPTAINERENV_USER=$(id -un)
 export APPTAINERENV_PREPEND_PATH APPTAINERENV_GNOTO_CODE_DIR APPTAINERENV_GNOTO_INSTALL_DIR \
-    APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR APPTAINERENV_GNOTO_HELPER_DIR \
-    APPTAINERENV_GNOTO_IMAGE APPTAINERENV_USER
+    APPTAINERENV_GNOTO_LAUNCHER APPTAINERENV_GNOTO_DATA_DIR APPTAINERENV_GNOTO_DB_DIR \
+    APPTAINERENV_GNOTO_HELPER_DIR APPTAINERENV_GNOTO_IMAGE APPTAINERENV_USER
 if [ -n "$RESOLVED" ]; then
     export APPTAINERENV_GNOTO_RESOLVED="$RESOLVED"
 fi

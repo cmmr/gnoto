@@ -289,7 +289,7 @@ databases_wait() {
         if [[ ! -d $DB_DIR ]]; then
             [[ -z ${SLURMD_NODENAME:-} ]] ||
                 ! printf '+%s\t%s\n' "$SLURMD_NODENAME" "a job there couldn't see $DB_DIR" | excluded_nodes_update 2> /dev/null ||
-                fail "The job ran on $SLURMD_NODENAME, which can't see $DB_DIR, where the run's databases are, so gnoto's jobs avoid it from now on, until gnoto lint finds it working."
+                fail "The job ran on $SLURMD_NODENAME, which can't see $DB_DIR, where the run's databases are, so gnoto's jobs avoid it from now on, until $(gnoto_command lint) finds it working."
             fail "The job ran on $(uname -n), which can't see $DB_DIR, where the run's databases are. Until its mounts are fixed, jobs that run there will fail the same way."
         fi
         entry=$(db_entry_for "$name")

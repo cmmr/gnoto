@@ -1,13 +1,15 @@
 #
-# runs.sh - gnoto status and gnoto cancel: what's running and what ran, and
-# stopping a run.
+# runs.sh - gnoto status, gnoto cancel and gnoto remove: what's running and
+# what ran, stopping a run, and deleting its results.
 #
-# Sourced by:  lib/main.sh, for status and cancel
-# Defines:     status_main, cancel_main
-# Requires:    jq, flock; squeue and sacct through their stand-ins, with Slurm;
-#              the settings and helpers from lib/env.sh
+# Sourced by:  lib/main.sh, for status, cancel, resume and remove
+# Defines:     status_main, cancel_main, remove_main, live_status, run_lock
+# Requires:    jq, flock; squeue, sacct and scancel through their stand-ins,
+#              with Slurm; the settings and helpers from lib/env.sh; and for
+#              remove, record_history and utc_now from lib/followup.sh and
+#              teardown_run from service/expire.sh
 #
-# Both read state files rather than asking Slurm for the user's jobs, so they
+# They read state files rather than asking Slurm for the user's jobs, so they
 # see every user's runs. A run the state shows as running is checked against
 # its scheduler, and shows as Lost when nothing is running for it, as happens
 # when a job and its followup are killed together.
@@ -16,6 +18,10 @@
 # owner, an admin or an account coordinator cancel it, and any member of
 # gnoto's group may cancel any run. The run's progress watcher stops it when it
 # sees the file, and a job still queued stops as it starts.
+#
+# Removing deletes a run's results at once, keeping its record in history. A
+# run still going gets the cancel file and a remove marker instead, and its
+# followup removes the results once it has recorded the run's end.
 
 FINAL_STATUSES=" Completed Failed Cancelled Lost "
 
@@ -43,35 +49,83 @@ short_version() {
     fi
 }
 
-# What's running for a run the state shows as running, by asking its scheduler:
-# prints its status, or Lost when nothing is, run from the run directory
-live_status() {
-    local status kind head followup head_state followup_state alive=0
+# What's still running for a run, by asking its scheduler, run from the run
+# directory: queued or running while its head job is, finishing while only its
+# followup is, elsewhere for a local run on another machine, starting before
+# its job is recorded, or nothing
+run_activity() {
+    local head followup state alive=0
 
-    status=$(get_run_status)
-    kind=$(state_get scheduler.kind)
-    if [[ $kind == slurm ]]; then
+    if [[ $(state_get scheduler.kind) == slurm ]]; then
         head=$(state_get scheduler.job_id)
+        [[ -n $head ]] || { echo starting; return 0; }
+        case $(scheduler_job_state "$head") in
+            PENDING) echo queued; return 0 ;;
+            RUNNING | CONFIGURING | COMPLETING | SUSPENDED) echo running; return 0 ;;
+        esac
         followup=$(state_get scheduler.followup_id)
-        [[ -n $head ]] || { printf '%s' "$status"; return; }
-        head_state=$(scheduler_job_state "$head")
-        case $head_state in
-            PENDING) printf 'Queued'; return ;;
-            RUNNING | CONFIGURING | COMPLETING | SUSPENDED) printf '%s' "$status"; return ;;
+        state=""
+        [[ -z $followup ]] || state=$(scheduler_job_state "$followup")
+        case $state in
+            PENDING | RUNNING | CONFIGURING | COMPLETING) echo finishing ;;
         esac
-        followup_state=""
-        [[ -z $followup ]] || followup_state=$(scheduler_job_state "$followup")
-        case $followup_state in
-            PENDING | RUNNING | CONFIGURING | COMPLETING) printf 'Finishing'; return ;;
-        esac
-        printf 'Lost'
     else
+        [[ -n $(state_get scheduler.host) ]] || { echo starting; return 0; }
         scheduler_local_alive "$(state_get scheduler.host)" "$(state_get scheduler.pid)" || alive=$?
         case $alive in
-            0) printf '%s' "$status" ;;
-            2) printf '%s (on %s)' "$status" "$(state_get scheduler.host)" ;;
-            *) printf 'Lost' ;;
+            0) echo running ;;
+            2) echo elsewhere ;;
         esac
+    fi
+    return 0
+}
+
+# What's running for a run the state shows as running: prints its status, or
+# Lost when nothing is, run from the run directory. Takes run_activity's
+# answer, when the caller has it.
+live_status() {
+    local status activity=${1-$(run_activity)}
+    status=$(get_run_status)
+    case $activity in
+        queued) printf 'Queued' ;;
+        running | starting) printf '%s' "$status" ;;
+        finishing) printf 'Finishing' ;;
+        elsewhere) printf '%s (on %s)' "$status" "$(state_get scheduler.host)" ;;
+        *) printf 'Lost' ;;
+    esac
+}
+
+# run_lock <uid>: takes run <uid>'s lock on file descriptor 9, until the
+# (sub)shell exits. It's .lock in the run directory, or in history/<uid>/ once
+# that has gone. A teardown holds both while the run directory goes, so a
+# command that waited on the first finds it gone and takes the second.
+run_lock() {
+    local dir=$DATA_DIR/runs/$1 history=$DATA_DIR/history/$1 try
+    for try in 1 2; do
+        if [[ -d $dir ]]; then
+            { exec 9>> "$dir/.lock"; } 2> /dev/null && flock -w 30 9 || return 1
+            [[ ! -d $dir ]] || return 0
+        else
+            mkdir -p "$history" && { exec 9>> "$history/.lock"; } 2> /dev/null && flock -w 30 9 || return 1
+            [[ -d $dir ]] || return 0
+        fi
+        exec 9>&-
+    done
+    return 1
+}
+
+# Asks a run that's still going to stop, from its run directory, with its lock
+# held: writes the cancel file its progress watcher acts on, and takes a head
+# job still queued out of Slurm's queue. Only the job's owner can, and otherwise
+# it stops as it starts.
+request_stop() {
+    local head
+    : > cancel || return 1
+    if [[ $(state_get scheduler.kind) == slurm ]]; then
+        head=$(state_get scheduler.job_id)
+        if [[ -n $head && $(scheduler_job_state "$head") == PENDING ]]; then
+            scheduler_cancel "$head" || :
+        fi
     fi
 }
 
@@ -253,7 +307,7 @@ status_one() {
 }
 
 cancel_main() {
-    local uid=${1:-} dir status head
+    local uid=${1:-} dir status
     [[ $# -eq 1 ]] || fail "Usage: gnoto cancel <uid>"
     uid=${uid,,}
     is_valid_uid "$uid" || fail "\"$uid\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
@@ -267,18 +321,148 @@ cancel_main() {
     [[ $FINAL_STATUSES != *" $status "* && $status != "Publish failed" ]] ||
         fail "Run $uid has already ended, as $status."
     (
-        flock -w 30 9 || fail "Can't lock run $uid."
-        : > cancel || fail "Can't write $dir/cancel."
-    ) 9>> .lock || exit 1
+        run_lock "$uid" || fail "Can't lock run $uid."
+        [[ -d $dir ]] || fail "Run $uid has been removed."
+        request_stop || fail "Can't write $dir/cancel."
+    ) || exit 1
     state_append notes "Cancelled by $(id -un) at $(date -u '+%Y-%m-%dT%H:%M:%SZ')." || :
+    echo "Asked run $uid to stop. It stops within a minute, and $(gnoto_command status "$uid") shows when it has."
+}
 
-    # A job still queued has no watcher yet. It stops as it starts, and its owner
-    # can take it out of the queue now.
-    if [[ $(state_get scheduler.kind) == slurm ]]; then
-        head=$(state_get scheduler.job_id)
-        if [[ -n $head && $(scheduler_job_state "$head") == PENDING ]]; then
-            scheduler_cancel "$head" || :
-        fi
+# True once a run's followup has recorded its end in history/<uid>/, which it
+# does under the run's lock. Run from the run directory.
+followup_done() {
+    local ended history=$DATA_DIR/history/$1/state.json
+    ended=$(state_get ended_utc)
+    [[ -n $ended && -r $history && $(jq -r '.ended_utc // ""' "$history" 2> /dev/null) == "$ended" ]]
+}
+
+# What remove lists for a run with a run directory: a first line, "going" when
+# it's stopped first or "ended", then the run's line
+remove_line() (
+    local uid=$1 status activity="" going=ended
+    cd "$DATA_DIR/runs/$uid" || exit 1
+    status=$(get_run_status)
+    if ! followup_done "$uid"; then
+        activity=$(run_activity)
+        status=$(live_status "$activity")
+        case $activity in queued | running | finishing | elsewhere) going=going ;; esac
     fi
-    echo "Asked run $uid to stop. It stops within a minute, and gnoto status $uid shows when it has."
+    echo "$going"
+    printf '  %s  %-18s %-15s %-10s %s\n' "$uid" "$(short_version "$(state_get version)")" "$status" \
+        "$(state_get owner)" "$(state_get title)"
+)
+
+# Removes one run's results, or asks it to stop first: remove_one <uid>. Takes
+# the run's lock, so a run's followup and every other command on the run see
+# it before or after, and never halfway.
+remove_one() (
+    local uid=$1 dir=$DATA_DIR/runs/$1 user now status activity
+    user=$(id -un)
+    now=$(utc_now)
+    run_lock "$uid" || { warn "Can't lock run $uid, so it wasn't removed."; return 1; }
+    if [[ ! -d $dir ]]; then
+        if [[ -e $DATA_DIR/expiry/$uid ]]; then
+            teardown_run "$uid" "" || return 1
+            echo "Removed run $uid's leftover expiry file. Its results had already gone."
+        else
+            echo "Run $uid's results have already gone. Its record is in $DATA_DIR/history/$uid."
+        fi
+        return 0
+    fi
+    cd "$dir" || { warn "Can't enter $dir, so run $uid wasn't removed."; return 1; }
+    status=$(get_run_status)
+
+    if ! followup_done "$uid"; then
+        activity=$(run_activity)
+        case $activity in
+            queued | running | finishing | elsewhere)
+                # Deleting the run directory now would delete the cancel file,
+                # and the job could go on to publish the results
+                if [[ $activity != finishing && $FINAL_STATUSES != *" $status "* ]]; then
+                    request_stop || { warn "Can't write $dir/cancel, so run $uid wasn't removed."; return 1; }
+                fi
+                echo "Results removed once the run ended, as $user asked at $now." > remove ||
+                    { warn "Can't write $dir/remove, so run $uid wasn't removed."; return 1; }
+                state_append notes "Removal asked by $user at $now. The results go once the run has ended." || :
+                case $activity in
+                    finishing) echo "Run $uid has ended, and its results go once its followup has finished, within a few minutes." ;;
+                    elsewhere)
+                        echo "Run $uid runs on $(state_get scheduler.host), so it's asked to stop there, and its results go once it has. If it has already stopped, $(gnoto_command remove "$uid") on $(state_get scheduler.host) removes them."
+                        ;;
+                    *) echo "Asked run $uid to stop. Its results go once it has, and $(gnoto_command status "$uid") shows when." ;;
+                esac
+                return 0
+                ;;
+        esac
+        # Nothing is left to record the run's end, so it's recorded here, as its
+        # followup would have
+        if [[ $FINAL_STATUSES != *" $status "* ]]; then
+            set_run_status Lost
+            status=Lost
+        fi
+        [[ -n $(state_get message) ]] || state_set message "Nothing was running for the run when it was removed."
+        record_history "$uid" "$status" || { warn "Couldn't record run $uid in history, so it wasn't removed."; return 1; }
+    fi
+
+    teardown_run "$uid" "Results removed by $user at $now." || return 1
+    echo "Removed run $uid's results. Its record stays in $DATA_DIR/history/$uid."
+)
+
+# gnoto remove [--yes] <uid>...
+remove_main() {
+    local usage="Usage: gnoto remove [--yes] <uid>..." word uid dir line answer stopping=0 failed=0
+    local uids=() todo=() lines=() unknown=()
+
+    args_parse "$usage" "yes" "$@"
+    [[ ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto remove takes --yes, not --${ARG_KEYS[0]}. $usage"
+    [[ ${#ARG_WORDS[@]} -gt 0 ]] || fail "$usage"
+    for word in "${ARG_WORDS[@]}"; do
+        uid=${word,,}
+        is_valid_uid "$uid" || fail "\"$word\" isn't a run's uid: those are eight letters and digits, such as k3f9a2qx."
+        [[ " ${uids[*]} " == *" $uid "* ]] || uids+=("$uid")
+    done
+
+    for uid in "${uids[@]}"; do
+        dir=$DATA_DIR/runs/$uid
+        if [[ -d $dir ]]; then
+            [[ -r $dir/$RUN_STATE_FILE ]] ||
+                fail "$dir has no $RUN_STATE_FILE, so gnoto can't tell what it is, and nothing was removed. A run being submitted has one within seconds."
+            line=$(remove_line "$uid") || fail "Can't read $dir, so nothing was removed."
+            todo+=("$uid")
+            lines+=("${line#*$'\n'}")
+            [[ ${line%%$'\n'*} != going ]] || stopping=$((stopping + 1))
+        elif [[ -e $DATA_DIR/expiry/$uid ]]; then
+            todo+=("$uid")
+            lines+=("$(printf '  %s  results already gone, and its leftover expiry file goes' "$uid")")
+        elif [[ -e $DATA_DIR/history/$uid ]]; then
+            echo "Run $uid's results have already gone. Its record is in $DATA_DIR/history/$uid."
+        else
+            unknown+=("$uid")
+        fi
+    done
+    if (( ${#unknown[@]} == 1 )); then
+        fail "There's no run ${unknown[0]}, so nothing was removed."
+    elif (( ${#unknown[@]} > 1 )); then
+        fail "There are no runs ${unknown[*]}, so nothing was removed."
+    fi
+    (( ${#todo[@]} > 0 )) || return 0
+
+    if (( ${#todo[@]} == 1 )); then
+        echo "Deleting this run's results. Its record stays in $DATA_DIR/history."
+    else
+        echo "Deleting these ${#todo[@]} runs' results. Their records stay in $DATA_DIR/history."
+    fi
+    printf '%s\n' "${lines[@]}"
+    (( stopping == 0 )) || echo "A run still going is stopped first, and its results go once it has."
+    if [[ -z ${ARG_FLAGS[yes]:-} ]]; then
+        [[ -t 0 ]] || fail "No terminal to confirm on. Add --yes to remove."
+        printf 'Remove %s? [y/N] ' "$( (( ${#todo[@]} == 1 )) && echo it || echo them)" >&2
+        read -r answer || answer=""
+        [[ $answer == [yY]* ]] || fail "Nothing removed."
+    fi
+    for uid in "${todo[@]}"; do
+        remove_one "$uid" || failed=$((failed + 1))
+    done
+    (( failed == 0 )) || fail "$failed of the ${#todo[@]} runs couldn't be removed, as the messages above say."
 }
