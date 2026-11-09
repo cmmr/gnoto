@@ -478,7 +478,7 @@ host=${@: -2:1}
 case $host in
     good*) exec bash -c "${@: -1}" ;;
     bad) echo "missing /data/x"; exit 1 ;;
-    *) echo "ssh: connect to host $host port 22: Connection refused" >&2; exit 255 ;;
+    *) printf 'ssh: connect to host %s port 22: Connection refused\r\n' "$host" >&2; exit 255 ;;
 esac
 EOF
 chmod 755 "$WORK/bin/ssh"
@@ -506,11 +506,12 @@ check "one they avoid still, as it wasn't checked" "yes" \
     "$(has "$OUT" "WARN  compute node old: not checked this time, so gnoto's jobs still avoid it. On $(date -u +%Y-%m-%d), gnoto lint found it can't see /data/x")"
 check "and one Slurm no longer has" "yes" \
     "$(has "$OUT" "OK    compute node node09: Slurm no longer has it, so gnoto's jobs no longer avoid it")"
-check "a node ssh can't reach" "yes" \
-    "$(has "$OUT" "WARN  compute nodes: ssh couldn't reach far (ssh: connect to host far port 22: Connection refused), so they weren't checked")"
+check "a node ssh can't reach, when it reaches others, which gnoto's jobs then avoid" "yes" \
+    "$(has "$OUT" "WARN  compute node far: couldn't be reached over ssh, which reaches the other nodes (ssh: connect to host far port 22: Connection refused). gnoto's jobs avoid it until a check finds it working")"
+check "without the carriage return ssh ends its message with" "0" "$(grep -c $'\r' <<< "$OUT")"
 check "a drained node isn't checked" "yes" "$(has "$OUT" "not checked, as Slurm isn't starting jobs there: old (drained)")"
 check "and each node once" "1" "$(grep -o good1 <<< "$OUT" | wc -l)"
-check "leaves them avoiding the right nodes" "old bad" "$(excluded_nodes | cut -f1 | paste -sd ' ')"
+check "leaves them avoiding the right nodes" "old bad far" "$(excluded_nodes | cut -f1 | paste -sd ' ')"
 OUT=$(PATH=$WORK/bin:$PATH SLURM_MIN_TMP=999999.TB SLURM_ENABLED=true LINT_SLURM_OK=true LINT_PARTITION=p nodes_lint)
 check "a node with less free in /tmp than slurm.min_tmp" "yes" \
     "$(grep -qE "WARN  compute node good1: has [0-9.]+ [KMGT]B free in /tmp, less than slurm.min_tmp, 999999.TB. gnoto's jobs avoid it" <<< "$OUT" && echo yes || echo no)"
@@ -519,6 +520,7 @@ check "the check before a job takes it off once /tmp has room" "yes" \
     "$(has "$OUT" "OK    compute node good1: works now, so gnoto's jobs use it again")"
 check "and counts the nodes that pass" "yes" "$(has "$OUT" "OK    compute nodes: the 2 that ssh reached can run gnoto's jobs")"
 check "and still reports a node that fails" "yes" "$(has "$OUT" "WARN  compute node bad: can't see /data/x.")"
+check "and one ssh can't reach" "yes" "$(has "$OUT" "WARN  compute node far: couldn't be reached over ssh")"
 check "and the ones still avoided, on one line" "yes" \
     "$(has "$OUT" "OK    compute nodes: gnoto's jobs still avoid old, which weren't checked this time")"
 check "but not the drained ones" "no" "$(has "$OUT" "isn't starting jobs there")"

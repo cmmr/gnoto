@@ -16,9 +16,10 @@
 # A node fails the check when it can't see or write the data directory, see
 # the database directory or use flock in the data directory, any of which
 # fails every job Slurm puts there, or when its /tmp has less free than
-# slurm.min_tmp, since tools inside a task write there. A node that fails goes
-# on <data_dir>/excluded-nodes, which every job gnoto submits avoids, and one
-# that passes comes off it.
+# slurm.min_tmp, since tools inside a task write there. Over ssh, a node fails
+# too when ssh can't reach it but reaches others. A node that fails goes on
+# <data_dir>/excluded-nodes, which every job gnoto submits avoids, and one that
+# passes comes off it.
 #
 # The three checks, from quickest to fullest:
 #   before each job: over ssh, and nothing at all where ssh doesn't reach the
@@ -114,6 +115,9 @@ node_ssh_check() {
     local out status=0 last
     out=$(timeout 30 ssh -n -o BatchMode=yes -o ConnectTimeout=10 "$1" "sh -c '$NODES_SCRIPT'" 2>&1) ||
         status=$?
+    # ssh ends its own messages with a carriage return, which would garble the
+    # line lint prints them in
+    out=${out//$'\r'/}
     last=$(grep -v '^[[:space:]]*$' <<< "$out" | tail -1) || last=""
     if node_finding "$last" > /dev/null; then
         printf '%s\n' "$last"
@@ -181,10 +185,12 @@ node_bad() {
 }
 
 # Reports an ssh scan, puts each node that failed on the list, and leaves the
-# nodes that passed in NODES_OK. With NODES_BRIEF set, it counts them rather
-# than naming them.
+# nodes that passed in NODES_OK. ssh reached at least one node, so one it
+# couldn't reach fails too: a node the others' ssh doesn't reach is broken in
+# some way. With NODES_BRIEF set, it counts the nodes that passed rather than
+# naming them.
 nodes_ssh_report() {
-    local node result finding why="" unreachable=()
+    local node result finding why
     NODES_OK=()
     for node in "${NODE_NAMES[@]}"; do
         result=${NODE_RESULT[$node]:-}
@@ -193,8 +199,9 @@ nodes_ssh_report() {
         elif finding=$(node_finding "$result"); then
             node_bad "$node" "$finding"
         else
-            unreachable+=("$node")
-            why=${why:-${result#ssh: }}
+            why=${result#ssh: }
+            why=${why%.}
+            node_bad "$node" "couldn't be reached over ssh, which reaches the other nodes (${why:-no answer})"
         fi
     done
     if (( ${#NODES_OK[@]} == 0 )); then
@@ -208,8 +215,6 @@ nodes_ssh_report() {
     else
         lint_ok "compute nodes: $(lint_list "${NODES_OK[@]}") can run gnoto's jobs: they see $DATA_DIR and $DB_DIR, flock works there$(nodes_tmp_clause)"
     fi
-    (( ${#unreachable[@]} == 0 )) ||
-        lint_warn "compute nodes: ssh couldn't reach $(lint_list "${unreachable[@]}") (${why:-no answer}), so they weren't checked"
 }
 
 # ", and /tmp has <slurm.min_tmp> free", when that's checked

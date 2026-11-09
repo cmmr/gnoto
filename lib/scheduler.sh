@@ -172,8 +172,9 @@ excluded_nodes_update() {
         tmp=$(mktemp "$file.XXXXXX") && chmod 664 "$tmp" || return 1
         if ! {
             echo "# The nodes gnoto's Slurm jobs avoid, with when and why: each couldn't reach"
-            echo "# gnoto's directories or had too little free in /tmp. A node comes off once a"
-            echo "# check finds it working: gnoto lint, the check before each job, or the probe."
+            echo "# gnoto's directories, had too little free in /tmp, or couldn't be reached over"
+            echo "# ssh, which reaches the others. A node comes off once a check finds it working:"
+            echo "# gnoto lint, the check before each job, or the probe."
             awk -v today="$(date -u +%Y-%m-%d)" '
                 BEGIN { FS = OFS = "\t" }
                 NR == FNR {

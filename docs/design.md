@@ -544,8 +544,9 @@ The command a node runs is `sh`, in single quotes over `ssh`, with nothing a csh
 shell would change. A node missing a mount shows CPUs free, since each job there fails at
 once, and a check job that failed with no log fails the check the same way. A node that
 fails goes on the list, with a WARN that names it, and a node that passes comes off, as
-does one Slurm no longer has. A node `ssh` can't reach, and one whose check job never ran,
-is a WARN. Jobs that die at launch add their node too. Every `sbatch` gnoto makes, for a
+does one Slurm no longer has. Where `ssh` reaches some nodes, a node it can't reach fails
+too, since that's a sign of a broken node; one whose check job never ran is a WARN. Jobs
+that die at launch add their node too. Every `sbatch` gnoto makes, for a
 head job, followup or fetch, and the `clusterOptions` that `site.config` gives Nextflow's
 tasks, carry `--exclude` with the listed nodes that Slurm still has, since `sbatch`
 refuses a name it doesn't know. When the list holds every node in the partition, a check
