@@ -4,15 +4,16 @@ gnoto gets built by copying code out of `cmmr/nextflow` and restructuring it, in
 phases. Nothing is in production, so there's no cutover, and no old runs or published
 results to honor. [design.md](design.md) describes the target.
 
-Status on 2026-11-08: **phases 1 to 3 are done, in the test bed and on the cluster.** A CLI
+Status on 2026-11-09: **phases 1 to 3 are done, in the test bed and on the cluster.** A CLI
 job runs each of ampliseq, biobakery and taxprofiler from `gnoto start` to a full dashboard
 in `results/` under Slurm, with no Wrike, AWS or Globus, and ampliseq also does so on the
 machine itself. **Phase 4, the version cache, is done too:** it passes its finish test in the
-test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. Phase 5
-is next. The
+test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. **Phase 5,
+the lock files, passes its finish test in the test bed,** and waits for the cluster. The
 [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
-[phase 3](#phase-3-job-core) and [phase 4](#phase-4-version-cache) notes record what's built
-and every test result, and phase 1's notes list the two determinism probes still to run.
+[phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache) and
+[phase 5](#phase-5-lock-files) notes record what's built and every test result, and phase 1's
+notes list the two determinism probes still to run.
 
 ## Where the old code is
 
@@ -122,7 +123,8 @@ What building it taught, all now in `images/gnoto.nix`:
 recipe in `nixos/nix` in Docker, converts it with
 `apptainer build <sif> docker-archive:<tarball>` in the test bed, and points `IMAGE` at it. The
 launcher already accepts `docker://<image>@sha256:<digest>` and pulls it under a lock. Move to
-GHCR, by digest, once the image is stable, and no later than phase 5.
+GHCR, by digest, once the image is stable, and no later than phase 5. Phase 5 did, and the
+recipe now builds in CI.
 
 **Launcher and helper.** The launcher (`gnoto`) and helper (`host/helper.sh`) are POSIX `sh`,
 because they run before any image tools exist. The stand-in is one bash script,
@@ -256,10 +258,12 @@ sbatch` at setup for this reason.
 
 **Cluster runs.** The install directory is a clone of `cmmr/gnoto`. Until phase 4 it was
 updated with `git pull`; from phase 4 on, its first command makes the clone's commit current,
-and `./gnoto upgrade` moves it on, as phase 4's notes say. Until phase 5, the image goes over
-as the `.sif` the test bed built. On the login node:
+and `./gnoto upgrade` moves it on, as phase 4's notes say. Until phase 5, the image went over
+as the `.sif` the test bed built; since then, the launcher pulls it from GHCR. On the login
+node:
 
-1. Clone the repo, and put the `.sif` in `<data_dir>/images/` under the name `IMAGE` gives.
+1. Clone the repo. Until phase 5, put the `.sif` in `<data_dir>/images/` under the name
+   `IMAGE` gives.
    Without `config.yaml`, the data directory is `<install>/data`.
 2. With Slurm's module loaded, run `./gnoto config slurm --on`, which takes what `sinfo`
    suggests, and `./gnoto config core` from a terminal if the data directory is elsewhere.
@@ -722,14 +726,106 @@ Afterwards, at Daniel's request, `conf/` moved into `pipelines/`, so that `confi
 tab-completes from `c`: each pipeline's `resources.config` into `pipelines/<name>/`, and
 `databases.yaml` and `references.yaml` into `pipelines/`.
 
-### Phases 5 and 6
+### Phase 5: lock files
 
-- **Lock files:** today's container addresses are tags in `modules/*.nf`, in the step scripts,
-  and in the nf-core pipelines' own code. The old `pipelines/*_01.sh` pin the nf-core
-  revisions, but don't carry those pins over. Start from the most recent releases,
-  ampliseq 3.1.0 and taxprofiler 2.0.1 on 2026-11-05.
-- **Determinism:** start with the Nonpareil seed in the table below. Multi-threaded bowtie2
-  output order varies, so compare FASTQ as sorted records.
+Settled with Daniel before building (2026-11-08), as [decisions.md](decisions.md) records: CI
+publishes the images gnoto builds to GHCR whenever a push to `main` changes a recipe, and the
+workflow went to `main` on its own first; and the shotgun databases are fetched fresh on the
+cluster with gnoto's own fetchers, whose manifests give the lock files their digests.
+
+What's built:
+
+- **GHCR images.** `.github/workflows/images.yml` runs `images/publish.sh`, which builds gnoto
+  with Nix and `gnoto-rbiom` with Docker, copies the images `images/mirrors.txt` lists, and
+  pushes each to `ghcr.io/cmmr/`. An image's tag is the first 12 characters of its recipe's git
+  hash, so a recipe already published is left alone. skopeo runs from its own image, v1.22.3 by
+  digest. gnoto's digest is learned from a local registry first, and a tag that already holds
+  another digest fails the run, as a build that no longer reproduces. Both recipes carry the
+  `org.opencontainers.image.source` label, which links a package to this repo. The first run,
+  on `2beb27c`, published all three, and they were public from the start. `IMAGE` names
+  `docker://ghcr.io/cmmr/gnoto@sha256:c7129468…`, and both locks name
+  `ghcr.io/cmmr/gnoto-rbiom@sha256:533e61f1…`.
+- **Image identity.** The Nix tarball rebuilds byte for byte, and pushing it with the pinned
+  skopeo gives the same digest every time: twice here, into an empty registry each time, and
+  once from GitHub's runner, which published the same `c7129468…`. Copying Wave's image with
+  `--preserve-digests` keeps its digest.
+- **`containers.config`.** `pipelines/lock.sh containers <pipeline>`, run through
+  `gnoto exec --dev`, fetches the pinned upstream, reads each process's Docker-style address
+  and every alias it's included under, asks the registry for each address's digest, and
+  writes a `withName` selector for each name and alias, with the tag in a comment. An address
+  with no registry takes the pipeline's `apptainer.registry`, quay.io for both. ampliseq's has
+  184 names and aliases in 41 images, and taxprofiler's 74 in 37. Every module at both pinned
+  commits has exactly one address that can be read, none built from an expression, and every
+  one is in its registry. Under `-profile apptainer`, ampliseq's modules named `https://`
+  Singularity files; now its tasks run OCI images that Apptainer pulls by digest, but for one
+  kind. The first run in the test bed stopped at `DUCKDB_TABLE2PARQUET`, exit 127,
+  `duckdb: command not found`: Seqera's pixi-built images put their tools on `PATH` only in
+  their entrypoint, `/shell-hook.sh`, which `apptainer exec` never runs. Their older
+  micromamba-built ones, such as DADA2's, set `PATH` in the image's configuration and run
+  fine. So a process whose image is pixi-built takes its module's own file for Apptainer,
+  which Seqera serves at a path naming its SHA-256, and `lock.sh` checks each one against it:
+  in ampliseq, 5 images in 14 selectors, among them MultiQC and `FORMAT_TAXONOMY`; in
+  taxprofiler, none. The `check` also fails on any image by digest that would need its
+  entrypoint.
+  `pipeline.sh` passes the file with `-c`, after `resources.config`, as `lock.yaml`'s
+  `nextflow_containers` names it.
+- **gnoto's own modules** name their images by digest, with the tag in a comment after it, which
+  the biobakery methods page reads. Host depletion uses the GHCR copy of Wave's bowtie2 image.
+- **The CI check.** `.github/workflows/checks.yml`, on every push and pull request, runs
+  `pipelines/lock.sh check` in the image `IMAGE` names. `IMAGE`, each Dockerfile's `FROM`, every
+  lock's step images, every `containers.config` and gnoto's own modules must name their images
+  by digest, each in its registry, and each `containers.config` must match the modules at its
+  pinned commit, selector for selector and tag for tag.
+- **Database digests.** Each `lock.yaml` has `databases`, keyed by `db:` name, with `files`,
+  `bytes` and `tree_sha256`, which `lock.sh databases <pipeline>` writes from the manifests in
+  `core.db_dir`. `lint`, `run` and `start` compare each pinned database's file count and bytes,
+  following links, and so does the head job, and each fails on a mismatch. `lint --deep`, and
+  the head job of an exact re-run, compare its tree digest as well. A `db:` name no lock pins,
+  such as a site's own database or the test bed's `db:test/pplace-small`, gets a warning, and
+  the record keeps its file count and bytes, which an exact re-run then checks. `record.yaml`
+  gains `databases`, before `outputs`. biobakery has a `lock.yaml` for its databases.
+- **Shotgun fetchers.** `steps/fetch_shotgun_db.sh` ports `fetch_taxprofiler_db.sh` for
+  Kraken2, MetaPhlAn, mOTUs, HUMAnN, EsViritu and Marker-MAGu, and
+  `steps/build_host_reference.sh` ports the host builder, which builds in the images
+  taxprofiler's lock pins for it. Both fill the directory the fetch job gives them and write a
+  manifest. Every download's md5 and size is in `pipelines/databases.yaml`, 162 GB in all:
+  from Zenodo's API, the `.md5` files MetaPhlAn and Kraken2 publish beside their archives, and
+  NCBI's `md5checksums.txt`; and for HUMAnN's three archives and the MetaPhlAn tree, which have
+  none, from the files as fetched on 2026-11-08. The tree's matches the md5 the old script
+  pinned on 2026-09-04. The host references are versioned as `hostremoval/<name>/v1`, holding
+  `<name>.fa`, `<name>/` and `<name>.mmi`. An entry's `fetch_job` sets its fetch job's CPUs,
+  memory and time. The sewage reads stayed behind, since the fixtures cover them. `lbunzip2`
+  copies the archive's owner and group onto what it writes, which fails where the image's user
+  namespace doesn't map them, so MetaPhlAn's index decompresses through `lbzcat`.
+- **`prune`** removes every image file in `images/` that no version it keeps names, by the file
+  names gnoto, the step images and Nextflow each give them, except a local `.sif` a version
+  names and anything pulled in the last hour. A version from before the lock files named its
+  task images by tag, so they're pulled again if it runs.
+- **Found on the way.** The methods page looked a database up by its entry's own path only, so
+  mOTUs' `db:motus/db_mOTU_v3.1.0/db_mOTU` was named by its folder, with a warning. A name inside
+  an entry now finds the entry. `read` collapses an empty field between two tabs, which first
+  shifted the head job's database entries into the wrong variable; the field that can be empty
+  now comes last.
+
+Tested on 2026-11-08 and 9, in the test bed and in Docker:
+
+| Test | Result |
+| --- | --- |
+| `images/publish.sh` against a local registry, for gnoto, `gnoto-rbiom` and the mirror, each run twice | Pass: the second run of each left its tag alone. gnoto's tarball pushed with the pinned skopeo gave `sha256:c7129468…` each time, into an empty registry too, and CI's run on GitHub's runner published the same digest |
+| `pipelines/lock.sh check`, as CI runs it, in the gnoto image | Pass, 87 images, in about 4 minutes. On a copy of the tree with an image by tag in `IMAGE`, a module, a lock and a `FROM`, a digest the registry hasn't got, a `containers.config` missing a selector, and a selector swapped to another image, each failed, named |
+| A first command on a new install, pulling the gnoto image from GHCR | 2 minutes 51 seconds, fetching its version included |
+| `gnoto lint --yes` fetching SILVA, `pplace/v1` and `16s/v1` into an empty database directory | Each landed with its manifest. `pplace/v1` and `16s/v1` have the same tree digests as the test bed's builds of 2026-11-06, so both builders reproduce |
+| `test/lib/job-test.sh`, with new checks: the tree digest a manifest records, a database matching its lock by size and by digest, a byte added, the same size with other bytes (passing by size, failing by digest), an unpinned name measured, `lint` and `lint --deep` on each, the head job's entries, an exact re-run failing on a changed unpinned database and on a digest, and the record's `databases` | Pass, 161 checks |
+| `lib-test.sh`, `pipelines-test.sh` (the versioned host paths), `versions-test.sh` (`prune` keeping and removing image files by the names each puller gives them) and `steps-test.sh` | Pass: 60, 21, 98 and 15 checks |
+| `test/steps/fetch_shotgun_db-test.sh`: each of the six databases from fake archives as `file://` URLs, and a wrong md5, a Kraken2 file its list disagrees with, a MetaPhlAn tree of 2 tips, a missing mOTUs file, a ChocoPhlAn file of no version and an archive of another release | Pass, 22 checks. The first run found `lbunzip2` failing on ownership in the image's user namespace |
+| `test/steps/build_host_reference-test.sh`: PhiX built twice for real, then from a download with one base changed | Pass, 11 checks: the two builds identical, with the GHCR copy of Wave's bowtie2 image and minimap2, both by digest |
+| `test/steps/composition-test.sh`, with `gnoto-rbiom` pulled from GHCR by digest | Pass, 84 checks |
+| `test/testbed/checks/digests.sh --small`, phase 5's finish test, as `alice`: ampliseq on `16s-v4` with `--debug`, without any of its task images, then its record re-run with `--inputs` after removing every image the job pulled | Pass, 22 checks. The job pulled 17 images, every one by digest: 13 task images by registry digest, the 3 Apptainer files it needed by SHA-256, and vsearch for region detection; every task's script named its image so. `lint --deep` passed on the job file and on the record. The re-run pulled 16 of them again, all by digest, without vsearch, since an exact re-run reuses the recorded region; checked SILVA, the one pinned database it read, by its tree digest; and gave byte-identical core tables. 7 minutes each, with Apptainer's layer cache warm |
+
+### Phase 6: determinism
+
+- Start with the Nonpareil seed in the table below. Multi-threaded bowtie2 output order varies,
+  so compare FASTQ as sorted records.
 
 ### Phase 7: integrations
 
@@ -750,7 +846,8 @@ tab-completes from `c`: each pipeline's `resources.config` into `pipelines/<name
 - Release steps, in order. Daniel approves each outward-facing one:
   1. CI builds and pushes any changed image. Commit the new digests to `IMAGE` and
      `lock.yaml`.
-  2. Regenerate `containers.config` and the database digests, and commit them.
+  2. Regenerate `containers.config` and the database digests with `pipelines/lock.sh`, and
+     commit them.
   3. Check that CI on `main` passes every release check, including no image address by tag.
   4. Run `gnoto selftest --dev` on the cluster from the candidate's working tree.
   5. Where a pipeline's results changed on purpose, copy the new checksums from its report
@@ -858,7 +955,7 @@ in step.
 | `scripts/taxprofiler_humann.sh`, `taxprofiler_taxonomy_tree.sh` | `steps/` | 2 | The first runs its own Nextflow |
 | `scripts/R/ampliseq_tables.R`, `taxprofiler_tables.R` | `steps/R/` | 2 | Run in `gnoto-rbiom` |
 | `scripts/build_pplace_reference.sh`, `build_16s_reference.sh` | `steps/` | 3 | Done: md5s recorded, manifests as `<path>.manifest.yaml`, versioned paths, filling a directory the fetch job renames into place |
-| `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh` | `steps/` | 5 | Add tree digests and recorded download md5s, fix their manifest names, and fill the directory the fetch job gives them, as `steps/build_pplace_reference.sh` does |
+| `scripts/fetch_taxprofiler_db.sh`, `build_host_reference.sh` | `steps/fetch_shotgun_db.sh`, `steps/build_host_reference.sh` | 5 | Done: tree digests, recorded download md5s, manifests as `<path>.manifest.yaml`, host references at `hostremoval/<name>/v1`, filling the directory the fetch job gives them. The sewage reads stayed behind |
 | (new) | `steps/fetch_files.sh` | 3 | Fetches any `pipelines/databases.yaml` entry or fixture that lists `files` |
 
 ### Dashboard and publishing
@@ -879,13 +976,13 @@ in step.
 | --- | --- | --- | --- |
 | `pipelines/<NAME>_01.sh` | `pipelines/<name>/pipeline.sh` | 2 | Keep each parameter's reason. The nf-core pins move to `lock.yaml`, at the latest releases, and `PARAMS_LOCKED` becomes the list of keys gnoto owns |
 | `pipelines/<NAME>.sh` | Not copied | | Shortcuts aren't needed |
-| `modules/*.nf` | `modules/` | 2 | Add the Nonpareil seed in phase 6, and digests in phase 5 |
+| `modules/*.nf` | `modules/` | 2, 5 | Images by digest since phase 5. Add the Nonpareil seed in phase 6 |
 | `workflows/biobakery/`, `workflows/humann/` | `workflows/` | 2 | |
 | `config/slurm.config`, `config/{biobakery,taxprofiler}/slurm.config` | `pipelines/<name>/resources.config` | 2 | Keep resource requests. Site parts such as `cacheDir` and executor settings go |
 | `config/local.config` | Not copied | | Only `docs/layout.md` mentions it |
 | `config/taxprofiler/database.csv` | `pipelines/taxprofiler/database.csv` | 2, 5 | Uses `db:` names |
 | `config/databases.json`, `references.json` | `pipelines/databases.yaml`, `references.yaml` | 2 | `biobakery_methods.sh` reads these with `jq`, and `publish_dashboard.sh` reads the methods data it writes. The two `test-fastq` entries give way to the fixtures in [fixtures.md](fixtures.md) |
-| `nix/rbiom.nix` | `images/gnoto-rbiom/` | 3, 5 | Replaced in phase 3 by a Dockerfile on `rocker/r-ver`, with a pak lockfile from a dated Posit CRAN snapshot and rbiom from GitHub. Phase 5 builds it in CI and publishes it |
+| `nix/rbiom.nix` | `images/gnoto-rbiom/` | 3, 5 | Replaced in phase 3 by a Dockerfile on `rocker/r-ver`, with a pak lockfile from a dated Posit CRAN snapshot and rbiom from GitHub. Phase 5 builds it in CI and publishes it to GHCR |
 
 ### Docs, all for phase 8
 

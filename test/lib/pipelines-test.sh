@@ -67,10 +67,10 @@ check "ampliseq: merge by default, or the answer" "merge concatenate" \
     "$(with_pipeline ampliseq '{}' params_json | jq -r .mergepairs_strategy) $(with_pipeline ampliseq '{"mergepairs_strategy": "concatenate"}' params_json | jq -r .mergepairs_strategy)"
 
 JSON=$(with_pipeline taxprofiler '{}' params_json)
-check "taxprofiler: PhiX by default" "db:hostremoval/phix.fa db:hostremoval/phix" \
+check "taxprofiler: PhiX by default" "db:hostremoval/phix/v1/phix.fa db:hostremoval/phix/v1/phix" \
     "$(param hostremoval_reference <<< "$JSON") $(param shortread_hostremoval_index <<< "$JSON")"
 JSON=$(with_pipeline taxprofiler '{"hostremoval_reference": "Human + PhiX"}' params_json)
-check "taxprofiler: human" "db:hostremoval/chm13v2phix.mmi" "$(param longread_hostremoval_index <<< "$JSON")"
+check "taxprofiler: human" "db:hostremoval/chm13v2phix/v1/chm13v2phix.mmi" "$(param longread_hostremoval_index <<< "$JSON")"
 JSON=$(with_pipeline taxprofiler '{"hostremoval_reference": "None"}' params_json)
 check "taxprofiler: no host" "false null" "$(param perform_shortread_hostremoval <<< "$JSON") $(param hostremoval_reference <<< "$JSON")"
 check "taxprofiler: an unknown host fails" "1" \
@@ -79,7 +79,7 @@ check "taxprofiler: revision from lock.yaml" "70ecc15e49b4f1fcf79d876643b5d14b65
     "$(with_pipeline taxprofiler '{}' 'echo "${NEXTFLOW_ARGS[5]}"')"
 
 JSON=$(with_pipeline biobakery '{"hostremoval_reference": "Mouse + PhiX", "delivered_reads": "Raw,Cleaned"}' params_json)
-check "biobakery: mouse, cleaned reads only" "db:hostremoval/grcm39phix cleaned-sequences " \
+check "biobakery: mouse, cleaned reads only" "db:hostremoval/grcm39phix/v1/grcm39phix cleaned-sequences " \
     "$(param kneaddata_db <<< "$JSON") $(param cleaned_outdir <<< "$JSON") $(param host_depleted_outdir <<< "$JSON")"
 check "biobakery: no EsViritu database while it's off" "null" "$(param esviritu_db <<< "$JSON")"
 check "biobakery: host-depleted reads without a host leave a note" "No host was removed from these reads, so there are no host-depleted reads in the download." \

@@ -12,7 +12,7 @@
 process HUMANN_PREPARE_PROFILE {
     tag "${sample}"
 
-    container 'quay.io/biocontainers/humann:3.9--py312hdfd78af_0'
+    container 'quay.io/biocontainers/humann@sha256:5d4ad5983b133477b1738c0cc3505f60245836c3790db39361fa7a2c0fa84abf' // quay.io/biocontainers/humann:3.9--py312hdfd78af_0
 
     input:
     tuple val(sample), path(profile)
@@ -59,7 +59,7 @@ process HUMANN_PREPARE_PROFILE {
 process HUMANN_PROFILE {
     tag "${sample}"
 
-    container 'quay.io/biocontainers/humann:3.9--py312hdfd78af_0'
+    container 'quay.io/biocontainers/humann@sha256:5d4ad5983b133477b1738c0cc3505f60245836c3790db39361fa7a2c0fa84abf' // quay.io/biocontainers/humann:3.9--py312hdfd78af_0
 
     publishDir "${params.outdir}/humann/logs", mode: 'copy', pattern: '*.log'
 
@@ -108,7 +108,7 @@ process HUMANN_PROFILE {
 // requester loads. One process because each step reads what the one before it
 // wrote, and all of it is minutes against the hours above.
 process HUMANN_TABLES {
-    container 'quay.io/biocontainers/humann:3.9--py312hdfd78af_0'
+    container 'quay.io/biocontainers/humann@sha256:5d4ad5983b133477b1738c0cc3505f60245836c3790db39361fa7a2c0fa84abf' // quay.io/biocontainers/humann:3.9--py312hdfd78af_0
 
     publishDir "${params.outdir}/humann", mode: 'copy'
 

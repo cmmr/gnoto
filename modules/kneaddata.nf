@@ -18,7 +18,7 @@
 process KNEADDATA {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0'
+    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
 
     publishDir "${params.outdir}/kneaddata/logs", mode: 'copy', pattern: '*.log'
     publishDir "${params.outdir}/kneaddata", mode: 'copy', pattern: 'fastqc/*.{html,zip}'
@@ -244,7 +244,7 @@ def delivery(id) {
 process KNEADDATA_FASTQC {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0'
+    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
 
     publishDir "${params.outdir}/kneaddata", mode: 'copy', pattern: 'fastqc/*.{html,zip}'
 
@@ -302,7 +302,7 @@ process KNEADDATA_FASTQC {
 // for is NA. kneaddata_read_count_table is not used: it names a sample by its
 // log file name up to the first dot.
 process KNEADDATA_COUNTS {
-    container 'quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0'
+    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
 
     publishDir "${params.outdir}/kneaddata", mode: 'copy'
 

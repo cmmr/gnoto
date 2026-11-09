@@ -315,23 +315,27 @@ lint_config() {
     lint_integrations
 }
 
-# gnoto lint [--dev] [--yes] [job.yaml], or gnoto lint [--yes] --inputs=<dir>
-# record.yaml. --yes accepts fetching missing databases. --dev, which the
-# launcher acts on, checks with the install's own files.
+# gnoto lint [--dev] [--deep] [--yes] [job.yaml], or gnoto lint [--deep]
+# [--yes] --inputs=<dir> record.yaml. --deep checks each database by its tree
+# digest, rather than by its size. --yes accepts fetching missing databases.
+# --dev, which the launcher acts on, checks with the install's own files.
 lint_main() {
-    local usage="Usage: gnoto lint [--dev] [--yes] [job.yaml], or gnoto lint [--yes] --inputs=<dir> record.yaml"
+    local usage="Usage: gnoto lint [--dev] [--deep] [--yes] [job.yaml], or gnoto lint [--deep] [--yes] --inputs=<dir> record.yaml"
     local yes=false file="" i
 
-    args_parse "$usage" "dev yes" "$@"
+    args_parse "$usage" "dev deep yes" "$@"
     JOB_INPUTS_DIR=""
     for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
         [[ ${ARG_KEYS[i]} == inputs ]] ||
-            fail "gnoto lint takes --dev, --yes and --inputs, not --${ARG_KEYS[i]}. $usage"
+            fail "gnoto lint takes --dev, --deep, --yes and --inputs, not --${ARG_KEYS[i]}. $usage"
         JOB_INPUTS_DIR=${ARG_VALUES[i]}
     done
     [[ ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
     [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
+    LINT_DEEP=false
+    [[ -z ${ARG_FLAGS[deep]:-} ]] || LINT_DEEP=true
     file=${ARG_WORDS[0]:-}
+    [[ -n $file || $LINT_DEEP == false ]] || fail "--deep checks a job's databases, so it needs a job file. $usage"
     if [[ -z $file ]]; then
         lint_config
     else

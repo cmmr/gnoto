@@ -202,11 +202,78 @@ printf 'slurm 999999999\n' > "$WORK/db/fixtures/16s-v4/v1.fetching"
 check "a marker whose job has gone is removed" "no" \
     "$(has "$(lint_job db.yaml)" "being fetched")$([[ -e $WORK/db/fixtures/16s-v4/v1.fetching ]] && echo " still there")"
 mv "$WORK/db/fixtures/16s-v4/v1.away" "$WORK/db/fixtures/16s-v4/v1"
-check "entries by db: name" "pplace/v1 fixtures/16s-v4/v1 hostremoval/phix  " \
-    "$(for n in db:pplace/v1/bac16s.newick db:fixtures/16s-v4/v1/x db:hostremoval/phix.fa db:nothing/here; do
+check "entries by db: name" "pplace/v1 fixtures/16s-v4/v1 hostremoval/phix/v1  " \
+    "$(for n in db:pplace/v1/bac16s.newick db:fixtures/16s-v4/v1/x db:hostremoval/phix/v1/phix.fa db:nothing/here; do
         printf '%s ' "$(db_entry_for "$n")"; done)"
 check "a fixture's download size" "2924900" "$(db_bytes_for fixtures/16s-v4/v1)"
 check "a fixture's setup" "steps/fetch_files.sh fixtures/16s-v4/v1" "$(db_setup_for fixtures/16s-v4/v1)"
+check "a fetch job's resources, from fetch_job or the defaults" "16 64G 24:00:00|2 8G 24:00:00" \
+    "$(db_fetch_job_for hostremoval/chm13v2phix/v1)|$(db_fetch_job_for pplace/v1)"
+
+echo "databases against the lock"
+# A database at an entry's path, with the lock read from a scratch file
+source "$CODE/steps/fetch_files.sh"
+TEST_DB=esviritu/v3.2.4
+mkdir -p "$WORK/db/$TEST_DB/sub"
+printf 'genomes\n' > "$WORK/db/$TEST_DB/a.fna"
+printf 'meta\n' > "$WORK/db/$TEST_DB/sub/b.tsv"
+read -r FILES BYTES DIGEST <<< "$(tree_summary "$WORK/db/$TEST_DB")"
+TEST_LOCK=$WORK/test-lock.json
+printf '{"db:%s": {"files": %s, "bytes": %s, "tree_sha256": "%s"}}\n' "$TEST_DB" "$FILES" "$BYTES" "$DIGEST" > "$TEST_LOCK"
+db_lock_entry() {
+    jq -c --arg key "db:$2" '.[$key] // empty' "$TEST_LOCK"
+}
+verify() {
+    databases_verify biobakery "$1" "${2:-false}" | cut -f1,2,4 | tr '\t' '|'
+}
+check "the tree digest is the one a manifest records" "$DIGEST" "$(db_tree_digest "$WORK/db/$TEST_DB")"
+check "a pinned database that matches" "db:$TEST_DB|ok|" "$(verify "db:$TEST_DB/a.fna")"
+check "and by its tree digest" "db:$TEST_DB|ok|" "$(verify "db:$TEST_DB/a.fna" true)"
+check "its record entry is the lock's" "$(jq -c ".\"db:$TEST_DB\"" "$TEST_LOCK")" \
+    "$(databases_verify biobakery "db:$TEST_DB" | cut -f3)"
+check "each entry once" "1" "$(databases_verify biobakery "db:$TEST_DB/a.fna"$'\n'"db:$TEST_DB/sub/b.tsv" | wc -l)"
+printf 'x' >> "$WORK/db/$TEST_DB/a.fna"
+check "a byte more is wrong, by size" "db:$TEST_DB|wrong|db:$TEST_DB holds 2 files and $((BYTES + 1)) bytes, where biobakery's lock.yaml pins 2 files and $BYTES bytes" \
+    "$(verify "db:$TEST_DB")"
+printf 'genomez\n' > "$WORK/db/$TEST_DB/a.fna"
+check "the same size with other bytes passes by size" "db:$TEST_DB|ok|" "$(verify "db:$TEST_DB")"
+check "and fails by tree digest" "db:$TEST_DB|wrong|db:$TEST_DB's tree digest is $(db_tree_digest "$WORK/db/$TEST_DB"), where biobakery's lock.yaml pins $DIGEST" \
+    "$(verify "db:$TEST_DB" true 2> /dev/null)"
+printf 'genomes\n' > "$WORK/db/$TEST_DB/a.fna"
+mkdir -p "$WORK/db/test/small"
+printf 'tree\n' > "$WORK/db/test/small/t.newick"
+check "a database no entry or lock pins is measured" "db:test/small/t.newick|unpinned|{\"files\":1,\"bytes\":5}|" \
+    "$(databases_verify biobakery db:test/small/t.newick | tr '\t' '|')"
+check "a missing one is left to the presence check" "" "$(verify db:test/nothing)"
+OUT=$(JOB_PIPELINE=biobakery databases_check "db:$TEST_DB"$'\n'db:test/small/t.newick)
+check "lint: pinned and unpinned" "yes yes" \
+    "$(has "$OUT" "databases: all 2 present, 1 as lock.yaml pins them") $(has "$OUT" "db:test/small/t.newick isn't pinned by biobakery's lock.yaml, so the record keeps only its size")"
+OUT=$(JOB_PIPELINE=biobakery LINT_DEEP=true databases_check "db:$TEST_DB" 2> /dev/null)
+check "lint --deep" "yes" "$(has "$OUT" "databases: all 1 present, 1 as lock.yaml pins them, by tree digest")"
+printf 'x' >> "$WORK/db/$TEST_DB/a.fna"
+OUT=$(JOB_PIPELINE=biobakery databases_check "db:$TEST_DB"; echo "fails=$LINT_FAILS")
+check "lint fails on one that doesn't match" "yes no" \
+    "$(has "$OUT" "FAIL  db:$TEST_DB holds 2 files") $(has "$OUT" "fails=0")"
+printf 'genomes\n' > "$WORK/db/$TEST_DB/a.fna"
+
+mkdir -p "$WORK/dbrun" && cd "$WORK/dbrun" || exit 1
+state_init dbrunabc > /dev/null
+state_set pipeline biobakery > /dev/null
+(databases_job_check "db:$TEST_DB"$'\n'db:test/small/t.newick "" null) > /dev/null 2>&1
+check "the job keeps each one's record entry" "$(jq -c ".\"db:$TEST_DB\"" "$TEST_LOCK") {\"files\":1,\"bytes\":5}" \
+    "$(state_get_json database_record | jq -c ".\"db:$TEST_DB\", .\"db:test/small/t.newick\"" | paste -sd' ')"
+OUT=$( (databases_job_check db:test/small/t.newick true '{"db:test/small/t.newick": {"files": 1, "bytes": 6}}') 2>&1 )
+check "an exact re-run fails on an unpinned one that changed" "1 yes" \
+    "$? $(has "$OUT" "db:test/small/t.newick holds 1 files and 5 bytes, where the record has 1 files and 6 bytes.")"
+printf 'genomez\n' > "$WORK/db/$TEST_DB/a.fna"
+OUT=$( (databases_job_check "db:$TEST_DB" true null) 2>&1 )
+check "an exact re-run checks the tree digest" "1 yes" "$? $(has "$OUT" "tree digest is")"
+OUT=$( (databases_job_check "db:$TEST_DB" "" null) 2>&1 )
+check "an ordinary run checks the size" "0" "$?"
+printf 'genomes\n' > "$WORK/db/$TEST_DB/a.fna"
+unset -f db_lock_entry
+source "$CODE/lib/databases.sh"
+cd "$WORK/jobs" || exit 1
 
 echo "record.yaml"
 mkdir -p "$WORK/run" && cd "$WORK/run" || exit 1
@@ -221,6 +288,12 @@ check "keys in order, inputs last" "schema pipeline repository commit dev title 
 check "db: names kept" "db:pplace/v1/bac16s.newick" "$(yq .ampliseq.pplace_tree record.yaml)"
 check "no site paths" "no" "$(grep -qE "$WORK|$CODE" record.yaml && echo yes || echo no)"
 check "mode 664" "664" "$(stat -c %a record.yaml)"
+state_set_json database_record '{"db:pplace/v1": {"files": 2, "bytes": 3, "tree_sha256": "ab"}}' > /dev/null
+record_write
+check "the databases the job read, before the outputs" "schema pipeline repository commit dev title retention ampliseq databases outputs inputs" \
+    "$(yq -o=json . record.yaml | jq -r 'keys_unsorted | join(" ")')"
+check "each by its lock entry or size" "2 ab" \
+    "$(yq -o=json .databases record.yaml | jq -r '."db:pplace/v1" | "\(.files) \(.tree_sha256)"')"
 
 echo "expiry"
 EXPIRATION_NOTICE_DAYS=14 KEEP_RUN_DAYS=14 write_expiry abcdefgh Completed 2026-11-06T12:00:00Z

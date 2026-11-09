@@ -46,11 +46,11 @@ DATABASES=$(yq -o=json '.' "$CODE_DIR/pipelines/databases.yaml") ||
 REFERENCES=$(yq -o=json '.' "$CODE_DIR/pipelines/references.yaml") ||
     fail "Can't read $CODE_DIR/pipelines/references.yaml."
 
-# The image a module pins for a tool, such as
-# quay.io/biocontainers/humann:3.9--py312hdfd78af_0, or nothing
+# The image a module pins for a tool, by the tag in the comment after its
+# digest, such as quay.io/biocontainers/humann:3.9--py312hdfd78af_0, or nothing
 container_image() {
-    { grep -ho "container '[^']*/$1:[^']*'" "$CODE_DIR"/modules/*.nf || :; } |
-        head -n 1 | sed "s/^container '//; s/'\$//"
+    { grep -ho "container '[^']*' // [^ ,]*/$1:[^ ,]*" "$CODE_DIR"/modules/*.nf || :; } |
+        head -n 1 | sed 's#.* // ##'
 }
 
 # The tool's version in that image's tag, such as 3.9
@@ -104,7 +104,7 @@ cite_new() {
 }
 
 # The pipelines/databases.yaml entry for a db: name, as compact JSON, into
-# ENTRY: the entry whose path it is, or the component it names inside one.
+# ENTRY: the component it names inside an entry, or else the entry it's in.
 # Empty for a name the file doesn't describe.
 database_entry() {
     local name=${1#db:}
@@ -115,7 +115,7 @@ database_entry() {
         [.databases[] as $db
          | if $db.path == $path then $db
            elif ($path | startswith($db.path + "/"))
-           then ($db.components // {})[$path[($db.path | length) + 1:]] // empty
+           then ($db.components // {})[$path[($db.path | length) + 1:]] // $db
            else empty end][0] // empty' <<< "$DATABASES")
     [[ -n $ENTRY ]] ||
         warn "pipelines/databases.yaml doesn't describe $1, so the methods name it by its folder."

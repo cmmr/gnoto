@@ -19,7 +19,7 @@
 process MARKERMAGU {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_1'
+    container 'quay.io/biocontainers/marker-magu@sha256:640f96d2038c39b485697c506f6fbb0be5be9e5982d336b3d97f8b03873d7fff' // quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_1
 
     publishDir "${params.outdir}/markermagu/profiles", mode: 'copy', pattern: '*.detected_species.tsv'
 
@@ -95,7 +95,7 @@ process MARKERMAGU {
 // Every sample's profile as one long table, and the reads each abundance was
 // measured against
 process MARKERMAGU_MERGE {
-    container 'quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_1'
+    container 'quay.io/biocontainers/marker-magu@sha256:640f96d2038c39b485697c506f6fbb0be5be9e5982d336b3d97f8b03873d7fff' // quay.io/biocontainers/marker-magu:0.4.0--pyhdfd78af_1
 
     publishDir "${params.outdir}/markermagu", mode: 'copy'
 
@@ -166,7 +166,7 @@ process MARKERMAGU_MERGE {
 // which is where biom-format, h5py and numpy are; the Marker-MAGu image has
 // none of them.
 process MARKERMAGU_TABLES {
-    container 'quay.io/biocontainers/biom-format:2.1.17'
+    container 'quay.io/biocontainers/biom-format@sha256:25cd60ce74239ad322e9d7c01fedbae03c4f8bc8bf030c1c72e954feff38963c' // quay.io/biocontainers/biom-format:2.1.17
 
     publishDir "${params.outdir}/markermagu", mode: 'copy'
 

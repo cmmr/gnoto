@@ -16,7 +16,7 @@
 process ESVIRITU {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/esviritu:1.3.3--pyhdfd78af_0'
+    container 'quay.io/biocontainers/esviritu@sha256:a396157592d9f5adaf9b17f3455ef265fbef98387788c23dad96b153047b9fae' // quay.io/biocontainers/esviritu:1.3.3--pyhdfd78af_0
 
     publishDir "${params.outdir}/esviritu/consensus", mode: 'copy', pattern: '*.consensus.fasta'
 
@@ -149,7 +149,7 @@ process ESVIRITU {
 // names: read-counts.tsv for every sample, and the virus tables and HTML report
 // for the samples in which EsViritu found a virus
 process ESVIRITU_SUMMARY {
-    container 'quay.io/biocontainers/esviritu:1.3.3--pyhdfd78af_0'
+    container 'quay.io/biocontainers/esviritu@sha256:a396157592d9f5adaf9b17f3455ef265fbef98387788c23dad96b153047b9fae' // quay.io/biocontainers/esviritu:1.3.3--pyhdfd78af_0
 
     publishDir "${params.outdir}/esviritu", mode: 'copy'
 

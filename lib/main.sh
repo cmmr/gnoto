@@ -29,8 +29,8 @@ usage() {
     echo "Usage: gnoto init --apptainer=/path/to/apptainer" >&2
     echo "       gnoto config [<section> [--on|--off] [--<key>=<value> ...]]" >&2
     echo "       gnoto config slurm --probe" >&2
-    echo "       gnoto lint [--dev] [--yes] [job.yaml]" >&2
-    echo "       gnoto lint [--yes] --inputs=<dir> record.yaml" >&2
+    echo "       gnoto lint [--dev] [--deep] [--yes] [job.yaml]" >&2
+    echo "       gnoto lint [--deep] [--yes] --inputs=<dir> record.yaml" >&2
     echo "       gnoto new <pipeline>[@<version>] [--dev] [--<key>=<value> ...] > job.yaml" >&2
     echo "       gnoto run [--debug] [--dev] [--yes] job.yaml" >&2
     echo "       gnoto run [--debug] [--yes] --inputs=<dir> record.yaml" >&2

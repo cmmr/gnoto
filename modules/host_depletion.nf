@@ -22,7 +22,7 @@
 process HOST_DEPLETION {
     tag "${meta.id} ${meta.run}"
 
-    container 'community.wave.seqera.io/library/bowtie2_htslib_samtools_pigz:edeb13799090a2a6'
+    container 'ghcr.io/cmmr/bowtie2_htslib_samtools_pigz@sha256:26758d72855cd44c475c24360f2cdcc2120955e182c680427c5d099a06b1423e' // community.wave.seqera.io/library/bowtie2_htslib_samtools_pigz:edeb13799090a2a6, copied to ghcr.io/cmmr
 
     publishDir "${params.host_depleted_outdir}", mode: 'symlink', pattern: '*.fq.gz',
         enabled: params.host_depleted_outdir as boolean

@@ -419,9 +419,38 @@ version_image() {
     esac
 }
 
+# Every image file a version's code names in <data_dir>/images, as
+# "<file>\t<pullable>": its gnoto image; its step images, named as
+# container_sif names them; and its Nextflow task images, from containers.config
+# and its own modules, named as Nextflow names them in its cache. A version from
+# before the lock files named its task images by tag, which isn't read here.
+version_images() {
+    local dir=$1 lock address
+    version_image "$dir"
+    for lock in "$dir"/pipelines/*/lock.yaml; do
+        [[ -f $lock ]] || continue
+        while IFS= read -r address; do
+            if [[ $address =~ ^[A-Za-z0-9_][A-Za-z0-9._-]*\.sif$ ]]; then
+                printf '%s\tno\n' "$address"
+            elif [[ $address == *@sha256:* ]]; then
+                address=${address//\//-}
+                printf '%s.sif\tyes\n' "${address/@sha256:/@sha256-}"
+            fi
+        done < <(yq -r '.step_images // {} | .[]' "$lock" 2> /dev/null)
+    done
+    cat "$dir"/pipelines/*/containers.config "$dir"/modules/*.nf "$dir"/workflows/*/*.nf 2> /dev/null |
+        grep -oE "https://[a-z0-9.-]+/[^' ]*/blobs/sha256/[0-9a-f]{2}/[0-9a-f]{64}/data|[a-z0-9.-]+/[a-z0-9._/-]+@sha256:[0-9a-f]{64}" |
+        sort -u | while IFS= read -r address; do
+            address=${address#https://}
+            address=${address//\//-}
+            printf '%s.img\tyes\n' "${address//:/-}"
+        done
+}
+
 # gnoto prune [--yes]: removes the versions no running or waiting job uses,
-# keeping the current one and any used in the last hour, and the gnoto images
-# only they named that can be pulled again
+# keeping the current one and any used in the last hour, and every image file
+# no version it keeps names, except a local .sif a version names, which can't
+# be pulled again, and any pulled in the last hour
 prune_main() {
     local usage="Usage: gnoto prune [--yes]" dir commit status answer image pullable file bytes=0
     local -A keep=() why=() keep_image=()
@@ -455,24 +484,27 @@ prune_main() {
         commit=${dir##*/}
         [[ $commit =~ ^[0-9a-f]{40}$ ]] || continue
         if [[ -n ${keep[$commit]:-} ]]; then
-            image=$(version_image "$dir" | cut -f1)
-            [[ -z $image ]] || keep_image[$image]=1
+            while IFS=$'\t' read -r image _; do
+                keep_image[$image]=1
+            done < <(version_images "$dir")
         else
             remove+=("$commit")
         fi
     done
-    image=$(version_image "$INSTALL_DIR" | cut -f1)
-    [[ -z $image ]] || keep_image[$image]=1
-    for commit in ${remove[@]+"${remove[@]}"}; do
-        IFS=$'\t' read -r image pullable < <(version_image "$DATA_DIR/versions/$commit") || continue
-        [[ -n $image && -z ${keep_image[$image]:-} && -f $DATA_DIR/images/$image ]] || continue
+    while IFS=$'\t' read -r image _; do
         keep_image[$image]=1
-        if [[ $pullable == yes ]]; then
-            images+=("$image")
-        else
+    done < <(version_images "$INSTALL_DIR")
+    for commit in ${remove[@]+"${remove[@]}"}; do
+        while IFS=$'\t' read -r image pullable; do
+            [[ $pullable == no && -z ${keep_image[$image]:-} && -f $DATA_DIR/images/$image ]] || continue
+            keep_image[$image]=1
             unpullable=$((unpullable + 1))
-        fi
+        done < <(version_images "$DATA_DIR/versions/$commit")
     done
+    while IFS= read -r file; do
+        [[ -n ${keep_image[$file]:-} ]] || images+=("$file")
+    done < <(find "$DATA_DIR/images" -maxdepth 1 -type f \( -name '*.sif' -o -name '*.img' \) -mmin +60 \
+        -printf '%f\n' 2> /dev/null | sort)
 
     for commit in "${!keep[@]}"; do
         [[ -d $DATA_DIR/versions/$commit ]] && echo "Keeping $commit: ${why[$commit]}."
@@ -503,7 +535,8 @@ prune_main() {
         repo_git update-ref -d "refs/gnoto/$commit" 2> /dev/null || :
     done
     for image in ${images[@]+"${images[@]}"}; do
-        rm -f "$DATA_DIR/images/$image" || warn "Couldn't remove $DATA_DIR/images/$image."
+        rm -f "$DATA_DIR/images/$image" "$DATA_DIR/images/$image.lock" ||
+            warn "Couldn't remove $DATA_DIR/images/$image."
     done
     find "$DATA_DIR/versions" -mindepth 1 -maxdepth 1 -name '.tmp.*' -mmin +1440 -exec rm -rf {} + 2> /dev/null || :
     echo "Removed ${#remove[@]} version$( (( ${#remove[@]} == 1 )) || echo s) and ${#images[@]} image$( (( ${#images[@]} == 1 )) || echo s)."

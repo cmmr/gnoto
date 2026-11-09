@@ -17,6 +17,7 @@ NEXTFLOW_ARGS=(
     -r "$(lock_get taxprofiler .upstream.commit)"
     -profile apptainer
     -c "$CODE_DIR/pipelines/taxprofiler/resources.config"
+    -c "$CODE_DIR/pipelines/taxprofiler/$(lock_get taxprofiler .nextflow_containers)"
     -params-file taxprofiler_args.yaml
 )
 
@@ -104,10 +105,10 @@ esac
 # name isn't depleted.
 if [[ -n "$TAXPROFILER_HOST_REFERENCE" ]]; then
     params_set perform_shortread_hostremoval true
-    params_set hostremoval_reference "db:hostremoval/$TAXPROFILER_HOST_REFERENCE.fa"
-    params_set shortread_hostremoval_index "db:hostremoval/$TAXPROFILER_HOST_REFERENCE"
+    params_set hostremoval_reference "db:hostremoval/$TAXPROFILER_HOST_REFERENCE/v1/$TAXPROFILER_HOST_REFERENCE.fa"
+    params_set shortread_hostremoval_index "db:hostremoval/$TAXPROFILER_HOST_REFERENCE/v1/$TAXPROFILER_HOST_REFERENCE"
     params_set perform_longread_hostremoval true
-    params_set longread_hostremoval_index "db:hostremoval/$TAXPROFILER_HOST_REFERENCE.mmi"
+    params_set longread_hostremoval_index "db:hostremoval/$TAXPROFILER_HOST_REFERENCE/v1/$TAXPROFILER_HOST_REFERENCE.mmi"
 else
     params_set perform_shortread_hostremoval false
     params_set perform_longread_hostremoval false

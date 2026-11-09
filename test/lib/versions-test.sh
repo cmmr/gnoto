@@ -210,7 +210,31 @@ check "and keeps a version used in the last hour" "Nothing to prune." \
     "$(version_fetch "$REPO" "$V12" 2> /dev/null; prune_main --yes 2>&1 | tail -1)"
 mkdir -p "$DATA_DIR/versions/notacommit"
 check "versions not named by 40 characters are left alone" "Nothing to prune." "$(prune_main --yes 2>&1 | tail -1)"
-rm -rf "$DATA_DIR/runs"
+
+HEX=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+LOCKED=$WORK/locked
+mkdir -p "$LOCKED/pipelines/a" "$LOCKED/modules"
+echo "docker://ghcr.io/cmmr/gnoto@sha256:$HEX" > "$LOCKED/IMAGE"
+printf 'step_images:\n  r: "ghcr.io/cmmr/gnoto-rbiom@sha256:%s"\n  v: "local-v.sif"\n' "$HEX" > "$LOCKED/pipelines/a/lock.yaml"
+printf "    withName: 'X' { container = 'quay.io/biocontainers/x@sha256:%s' } // quay.io/biocontainers/x:1\n" "$HEX" \
+    > "$LOCKED/pipelines/a/containers.config"
+printf "    withName: 'Z' { container = 'https://c.example.org/docker/registry/v2/blobs/sha256/01/%s/data' } // c.example.org/z:3\n" "$HEX" \
+    >> "$LOCKED/pipelines/a/containers.config"
+printf "    container 'community.wave.seqera.io/library/y@sha256:%s' // community.wave.seqera.io/library/y:2\n" "$HEX" \
+    > "$LOCKED/modules/m.nf"
+check "the images a version names, as each puller names its file" \
+    "gnoto-$HEX.sif yes|ghcr.io-cmmr-gnoto-rbiom@sha256-$HEX.sif yes|local-v.sif no|community.wave.seqera.io-library-y@sha256-$HEX.img yes|c.example.org-docker-registry-v2-blobs-sha256-01-$HEX-data.img yes|quay.io-biocontainers-x@sha256-$HEX.img yes" \
+    "$(version_images "$LOCKED" | tr '\t' ' ' | paste -sd '|')"
+touch "$DATA_DIR/images/gnoto-test.sif" "$DATA_DIR/images/quay.io-biocontainers-x@sha256-$HEX.img" \
+    "$DATA_DIR/images/quay.io-biocontainers-old-1.0.img" "$DATA_DIR/images/quay.io-biocontainers-old-1.0.img.lock"
+touch -d '2 hours ago' "$DATA_DIR"/images/*
+touch "$DATA_DIR/images/fresh.img"
+OUT=$(prune_main --yes 2>&1)
+check "prune removes the images no version it keeps names" "yes yes" \
+    "$(grep -q "Removing image $DATA_DIR/images/quay.io-biocontainers-x@sha256-$HEX.img" <<< "$OUT" && echo yes) $(grep -q 'and 2 images.' <<< "$OUT" && echo yes)"
+check "and keeps a local .sif a kept version names, and one just pulled" \
+    "fresh.img gnoto-test.sif" "$(ls "$DATA_DIR/images" | paste -sd ' ')"
+rm -rf "$DATA_DIR/runs" "$DATA_DIR/images"/*
 
 echo "a record's inputs"
 mkdir -p "$WORK/inputs/a" "$WORK/inputs/b"

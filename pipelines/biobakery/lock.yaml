@@ -1,0 +1,4 @@
+# What a commit pins for biobakery, gnoto's own workflow, whose modules name
+# their images by digest. pipelines/lock.sh writes databases.
+schema: 1
+databases: {}

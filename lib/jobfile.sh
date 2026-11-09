@@ -33,7 +33,7 @@ SAMPLE_PATTERN='^[A-Za-z0-9][A-Za-z0-9._+-]{0,99}$'
 ANSWER_PATTERN='^[A-Za-z0-9 ,.:+=/_()-]*$'
 
 # The keys a record holds that a job file doesn't
-RECORD_KEYS=" schema repository commit dev nextflow_config_sha256 outputs inputs "
+RECORD_KEYS=" schema repository commit dev nextflow_config_sha256 databases outputs inputs "
 
 pipeline_names() {
     local dir
@@ -327,7 +327,7 @@ job_check() {
 
     JOB_FILE="" JOB_PIPELINE="" JOB_VERSION="" JOB_TOP="{}" JOB_ANSWERS="{}" JOB_PARAMS="{}"
     JOB_EVAL="" JOB_SAMPLESHEET="" JOB_SAMPLES_TEXT="" JOB_INPUT_BYTES=0 JOB_EXACT=false
-    JOB_EXPECTED_INPUTS="[]" JOB_RECORDED_RUNS="{}"
+    JOB_EXPECTED_INPUTS="[]" JOB_RECORDED_RUNS="{}" JOB_RECORDED_DATABASES="{}"
 
     if [[ ! -r $file ]]; then
         lint_fail "can't read $file"
@@ -624,6 +624,7 @@ job_check_inputs() {
     fi
     dir=$(cd "$dir" && pwd -P)
     JOB_EXPECTED_INPUTS=$(jq -c '.inputs // []' <<< "$json")
+    JOB_RECORDED_DATABASES=$(jq -c '.databases // {}' <<< "$json")
     JOB_RECORDED_RUNS=$(jq -c '[.inputs[]? | select(.run) | {(.sample): .run}] | add // {}' <<< "$json")
     while IFS=$'\t' read -r size path; do
         by_size[$size]+="$path"$'\n'
@@ -775,6 +776,7 @@ record_write() {
         + ([$top[] | select($state.answers[.] != null) | {(.): $state.answers[.]}] | add // {})
         + {(.pipeline): ((.params // {})
             + ([$measured[] | select($state.answers[.] != null) | {(.): $state.answers[.]}] | add // {}))}
+        + (if .database_record then {databases: .database_record} else {} end)
         + {outputs: (.outputs // [])}
         + {inputs: (.inputs // [])}' "$RUN_STATE_FILE") || return 1
     tmp=$(mktemp record.yaml.XXXXXX) && chmod 664 "$tmp" || return 1

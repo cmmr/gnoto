@@ -7,7 +7,7 @@
 process NONPAREIL {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/nonpareil:3.5.5--r43hdcf5f25_0'
+    container 'quay.io/biocontainers/nonpareil@sha256:4ab9ecb6a7c7cb9d08a73f476aa2cf5a615efc8acb1d42b5c2a1f872e8a1925c' // quay.io/biocontainers/nonpareil:3.5.5--r43hdcf5f25_0
 
     publishDir "${params.outdir}/nonpareil", mode: 'copy', pattern: '*.npo'
 
@@ -64,7 +64,7 @@ process NONPAREIL {
 // Every curve fitted and summarised together, each labelled with its sample:
 // the summary table, the curves as JSON for MultiQC, and one plot of them all
 process NONPAREIL_CURVES {
-    container 'quay.io/biocontainers/nonpareil:3.5.5--r43hdcf5f25_0'
+    container 'quay.io/biocontainers/nonpareil@sha256:4ab9ecb6a7c7cb9d08a73f476aa2cf5a615efc8acb1d42b5c2a1f872e8a1925c' // quay.io/biocontainers/nonpareil:3.5.5--r43hdcf5f25_0
 
     publishDir "${params.outdir}/nonpareil", mode: 'copy'
 

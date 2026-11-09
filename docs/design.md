@@ -1,8 +1,9 @@
 # gnoto design
 
-Status on 2026-11-08: the design is agreed. Phase 1, the image and the helper, is built and
+Status on 2026-11-09: the design is agreed. Phase 1, the image and the helper, is built and
 tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 4, the restructure, the
-job core and the version cache, are tested there too. This file describes the target.
+job core and the version cache, are tested there too, and phase 5, the lock files, in the test
+bed. This file describes the target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -89,6 +90,8 @@ pipelines/<name>/     definition, options.yaml, lock.yaml, resources.config (its
                       requests), containers.config, stable-files, selftest.yaml, and
                       taxprofiler's database.csv
 pipelines/*.yaml      databases.yaml and references.yaml, which the pipelines share
+pipelines/lock.sh     writes containers.config and lock files' databases, and checks every
+                      image is named by digest
 workflows/, modules/  Nextflow code
 steps/                compute steps: samplesheets, region detection, tables, reference builds
 present/              dashboard templates and rendering
@@ -97,10 +100,12 @@ service/aws/          CloudFormation stacks (IAM user, S3, SQS), Lambda, CloudFr
 service/systemd/      unit templates
 service/publish.sh    publish step: S3 upload and the Globus copy
 service/expire.sh     daily expiry check, and the teardown remove shares
-images/               Nix recipes for the images we build
+images/               recipes for the images gnoto builds; publish.sh, which publishes them
+                      and the copies mirrors.txt lists to GHCR
 test/                 helper tests with stub commands, and the Slurm and Apptainer test bed
 docs/, mkdocs.yml     the docs site, with docs_hooks.py
-.github/workflows/    release and docs CI
+.github/workflows/    CI: images.yml publishes the images, checks.yml runs the release
+                      checks, and the release and docs workflows come in phase 8
 README.md             install steps
 ```
 
@@ -898,8 +903,8 @@ only in the params file Nextflow reads, so the record names no site path.
 
 **`record.yaml`** is what makes a job re-runnable. It's the job file resolved: the same
 keys, plus `schema`, the `repository` and `commit` the version resolved to, a pipeline
-section that holds every parameter passed, `outputs`, and `inputs` in place of the
-samplesheet. A re-run reads it with the same code that reads a job file. Reference
+section that holds every parameter passed, `databases`, `outputs`, and `inputs` in place of
+the samplesheet. A re-run reads it with the same code that reads a job file. Reference
 choices appear as the local files gnoto passed, such as `dada_ref_tax_custom`. `inputs`
 always comes last: it can run to thousands of lines, and the parts people read most sit
 above it.
@@ -917,6 +922,10 @@ ampliseq:
   dada_ref_tax_custom: "db:dada2/silva-138.2/train_set.fa.gz"
   primer_fwd: "CCTACGGGNGGCWGCAG"
   pplace_tree: "db:pplace/v1/bac16s.newick"
+
+databases:
+  "db:pplace/v1": {files: 2, bytes: 87272859, tree_sha256: "..."}   # as lock.yaml pins it
+  "db:site/own.fa": {files: 1, bytes: 1048576}                      # one no lock pins
 
 outputs:
   - path: "<each file listed in stable-files>"
@@ -939,6 +948,9 @@ inputs:
   params file, without building it from `pipeline.sh` again. `pipeline.sh` at the same
   commit still gives the Nextflow command and the steps, which skip measuring what the
   record holds, and the job's own copy of `job.yaml` is the record.
+- **The databases it read.** The job writes each one's entry: the lock's, for one the
+  commit pins, or else its file count and bytes, which an exact re-run then checks, since
+  nothing else pins a site's own database.
 - **No site paths.** `db:` names resolve against `core.db_dir`, and `code:` names against
   the code directory. Hosts, the Wrike task ID, timings, the host's Apptainer version and
   the CPU model stay in `run_state.json`.
@@ -974,22 +986,26 @@ Wrike's `prev_run_id`, a request-form question naming an earlier run's uid, does
 second: it reads that run's `job.yaml` from
 `history/<uid>/`, so it works after the results expire, and swaps in the new samplesheet.
 
-**`lock.yaml`** is committed at each release:
+**`lock.yaml`** pins what a pipeline's commit runs with, and `pipelines/lock.sh` writes
+what it can: `containers.config`, and `databases` from the manifests in `core.db_dir`. Each
+image's tag sits in a comment beside its digest, for reading. A pipeline gnoto writes itself,
+such as biobakery, has no `upstream` or `containers.config`, because its modules name their
+images by digest.
 
 ```yaml
 schema: 1
 upstream:
   repository: "nf-core/ampliseq"
-  commit: "b9bd579c0480ee23ecf24655f51c0c67777cd6b3"
+  commit: "b9bd579c0480ee23ecf24655f51c0c67777cd6b3" # 3.1.0
 nextflow_containers: "containers.config"
 step_images:
-  rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:..."
-  vsearch: "quay.io/biocontainers/vsearch@sha256:..."
+  vsearch: "quay.io/biocontainers/vsearch@sha256:..." # 2.32.0--hd2be7a0_0
+  rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:..." # 008bf3987dab, from images/gnoto-rbiom
 databases:
-  "db:pplace/v1":
-    tree_sha256: "..."
+  db:pplace/v1:
     files: 2
-    bytes: 123456789
+    bytes: 87272859
+    tree_sha256: "..."
 ```
 
 Every version gnoto chooses starts at the most recent stable release: the upstream pipelines,
@@ -1001,12 +1017,30 @@ process a digest, including those in the nf-core pipelines, without editing thei
 code. CI on `main` fails if any address still uses a tag, so this is caught before a
 release is tagged.
 
-It's built by scanning every module in the pinned pipeline for its Docker-style address,
-the one a module uses for engines other than Singularity, and pinning each to an OCI
-digest. The `https://` image files that nf-core names for Singularity and Apptainer are
-ignored, because a downloaded file has no registry digest. Scanning every module, rather
-than running `nextflow inspect`, also covers processes that only a hand-added parameter
-turns on.
+`pipelines/lock.sh containers <pipeline>` builds it by reading every module in the pinned
+pipeline for its Docker-style address, the one a module uses for engines other than
+Singularity, and every alias a process is included under. It asks the registry for each
+address's digest, the SHA-256 of the manifest it serves for the tag, which for a
+multi-platform image is the index and must list `linux/amd64`. It then writes a `withName`
+selector for each process name and alias, which beats the module's own `container`. An
+address with no registry takes the pipeline's own `apptainer.registry`. The `https://` image
+files that nf-core names for Singularity and Apptainer are passed over, because a downloaded
+file generally has no registry digest. Reading every module, rather than running `nextflow
+inspect`, also covers processes that only a hand-added parameter turns on.
+
+One kind of image is the exception. Seqera's pixi-built images, whose entrypoint is
+`/shell-hook.sh`, put their tools on `PATH` only there, and `apptainer exec` never runs an
+entrypoint, so their tools can't be found. A process whose image is one of those takes its
+module's own `https://` file for Apptainer, which Seqera's registry serves at
+`.../blobs/sha256/<xx>/<digest>/data`, a path naming the file's SHA-256. `lock.sh` downloads
+each one to check it, and accepts no other kind of `https://` file. ampliseq has 5 such images,
+in 14 selectors, and taxprofiler none.
+
+`.github/workflows/checks.yml` runs `pipelines/lock.sh check` on every push, in the image
+`IMAGE` names. It fails on any image a job can run that isn't named by a digest its registry
+has, in `IMAGE`, a Dockerfile's `FROM`, the step images, `containers.config` or gnoto's own
+modules, and on a `containers.config` that no longer matches the modules at its pinned
+commit.
 
 **File formats.** Every structured file gnoto writes is YAML except `run_state.json` and
 `progress.json`.
@@ -1110,9 +1144,12 @@ used in the last hour, which covers a command being handed from one launcher to 
 It shows the plan and asks before deleting, unless given `--yes`. A version is renamed
 before it's deleted, so a half-deleted one never looks whole. Anything it removes is
 fetched again by commit or digest when a job needs it, so job files kept elsewhere don't
-have to be found first. Until phase 5 publishes the images gnoto builds, `IMAGE` names a
-local `.sif` that can't be pulled again, so `prune` keeps those and says how many it kept,
-and it leaves Nextflow's task images alone until `containers.config` pins them by digest.
+have to be found first. An image file stays while a version it keeps names it, by the file
+name each puller gives it: the launcher's `gnoto-<digest>.sif`, a step's
+`<address>@sha256-<digest>.sif`, and Nextflow's `<address>@sha256-<digest>.img`. So does
+anything pulled in the last hour, and a local `.sif` an `IMAGE` or `lock.yaml` names, which
+can't be pulled again, as an image under test can be. A version from before the lock files
+named its task images by tag, so they go, and are pulled again if it runs.
 
 ```text
 <data_dir>/
@@ -1279,10 +1316,19 @@ Registry (GHCR). Everything else is pinned by digest where it already lives.
 | KneadData, MetaPhlAn, HUMAnN, mOTUs, Nonpareil, Marker-MAGu, EsViritu, MultiQC, biom-format, vsearch, gotree, minimap2, sra-tools | `quay.io/biocontainers` | No | Pinned by digest, and archived on Zenodo by any release that changes them |
 | The images ampliseq and taxprofiler use | Wherever upstream names them | No | Pinned through `containers.config`, and archived the same way |
 
-Until phase 5 publishes them, the images gnoto builds are `.sif` files built in the test
-bed (`test/testbed/testbed.sh image [gnoto|gnoto-rbiom]`) and copied to a site's
-`<data_dir>/images/`. `IMAGE` names the gnoto image's file, and `lock.yaml` names
-`gnoto-rbiom`'s as a bare `<name>.sif`, which `container_sif` never pulls.
+**Publishing.** `.github/workflows/images.yml` runs `images/publish.sh` whenever a push to
+`main` changes a recipe, `IMAGE` or the workflow. It builds gnoto with Nix and `gnoto-rbiom`
+with Docker, copies each image `images/mirrors.txt` lists, by tag and digest, with its digest
+kept, and pushes them to `ghcr.io/cmmr/`. An image gnoto builds is tagged with the first 12
+characters of its recipe's git hash, so a recipe already published is left alone, and a copy
+keeps its source's tag. The run lists each digest, which `IMAGE` and `lock.yaml` then name in
+a commit of their own, since an image has to exist before a commit can pin it. Both recipes
+carry the `org.opencontainers.image.source` label, which links a package to this repo.
+
+To test a change to a recipe before it's published, `test/testbed/testbed.sh image
+[gnoto|gnoto-rbiom]` builds a `.sif` into the test bed's `<data_dir>/images/` and names it in
+`IMAGE` or `lock.yaml` as a bare `<name>.sif`, which is never pulled. CI's check refuses a
+bare name, so it never reaches `main`.
 
 **How GHCR works:**
 
@@ -1291,9 +1337,10 @@ bed (`test/testbed/testbed.sh image [gnoto|gnoto-rbiom]`) and copied to a site's
 - [Public packages are free](https://docs.github.com/en/billing/concepts/product-billing/github-packages).
   Container storage and bandwidth are "currently free", with at least a month's notice
   before any change.
-- Public images can be pulled anonymously. A new package starts private, so each must
-  be made public, and organization owners control publishing under
+- Public images can be pulled anonymously. A new package can start private, and
+  organization owners control publishing under
   [Package Creation](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility).
+  `cmmr`'s three were public from their first push.
 - GitHub Actions publishes with `GITHUB_TOKEN`, which also links the package to that
   repo. The limits are 10 GB per layer and a 10-minute upload.
 
@@ -1302,6 +1349,14 @@ bed (`test/testbed/testbed.sh image [gnoto|gnoto-rbiom]`) and copied to a site's
 images. Apptainer converts on pull and
 [the local `.sif` differs each time](https://apptainer.org/docs/user/main/docker_and_oci.html),
 which doesn't matter because identity is the registry digest.
+
+**gnoto's digest follows from its recipe.** The Nix tarball rebuilds byte for byte, and
+skopeo, run from its own image by digest, gzips each layer the same way every time, so the
+same recipe gives the same registry digest wherever it's built: the test bed's build and
+GitHub's runner gave the same one. `publish.sh` learns the digest from a local registry
+before pushing, and fails when the tag on GHCR holds another, as a build that no longer
+reproduces. Copying an image with `--preserve-digests`, as the mirrors are, keeps its
+digest.
 
 **`gnoto-rbiom` is built with Docker rather than Nix.** Its recipe,
 `images/gnoto-rbiom/Dockerfile`, starts from rocker's build of the most recent R release, by
@@ -1328,14 +1383,14 @@ with a one-time increase to 200 GB.
 
 `lint job.yaml` finds missing databases and offers to fetch them. It evaluates the
 pipeline definition with the job's answers and reads which databases the resulting
-parameters name, so a job asking for human depletion needs `hostremoval/chm13v2phix`
+parameters name, so a job asking for human depletion needs `hostremoval/chm13v2phix/v1`
 and nothing else from that family. `pipelines/databases.yaml` holds the command that
 rebuilds each one, and the lock file holds its size.
 
 ```text
 $ gnoto lint job.yaml
   OK    samplesheet: 24 paired samples, all readable
-  FAIL  db:hostremoval/chm13v2phix is missing
+  FAIL  db:hostremoval/chm13v2phix/v1 is missing
   FAIL  db:metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403 is missing
 Fetch 2 databases as Slurm jobs? They need <size>, and <free> is free. [y/N]
 ```
@@ -1361,7 +1416,11 @@ directory. An entry used as downloaded lists `files`, each with `url`, `md5`, `b
 optionally `file`, the name to save it as, and its setup is `steps/fetch_files.sh <name>`.
 Fixtures use the same script, as `fixtures/<name>/v1`. A builder lists its downloads under
 `sources`, with the same fields. Every download lands as `<file>.part` and is renamed only
-once its size and md5 match.
+once its size and md5 match. The shotgun pipelines' databases come as archives, which
+`steps/fetch_shotgun_db.sh` fetches, checks and unpacks, and then checks for the files each
+tool opens; `steps/build_host_reference.sh` builds the host references, in the images
+taxprofiler's lock pins for its own index builds. An entry's `fetch_job` gives its fetch job's
+CPUs, memory and time, which are otherwise 2, 8 GB and 24 hours.
 
 **Identifying a database.** Parameters use logical `db:` names that resolve against
 `core.db_dir`. Every name carries the database's version in its path, such as
@@ -1381,9 +1440,11 @@ downloads, such as the human reference genome. The fetch checks each file agains
 any transformation, such as `bowtie2-build` or unpacking, and fails on a mismatch. A changed
 upstream file is then caught before anything is built from it.
 
-**Checking one.** Hashing hundreds of GB is slow, so an ordinary run compares file count
-and bytes. `gnoto lint --deep` and an exact re-run from `record.yaml` compute the full
-digest.
+**Checking one.** Hashing hundreds of GB is slow, so `lint`, `run`, `start` and the job
+compare a pinned database's file count and bytes with the lock, following links, and fail
+on a mismatch. `gnoto lint --deep` and the job of an exact re-run from `record.yaml` compute
+the full digest too. A `db:` name no lock pins, such as a site's own database, gets a
+warning, and the record keeps its file count and bytes, which an exact re-run checks.
 
 **Rebuilt references may not match.** A human index built with `bowtie2-build` at another
 site may differ byte for byte, even with the same container and inputs, which the md5 check
@@ -1459,26 +1520,27 @@ retry as well, because nf-core's retries often raise `task.cpus` with `task.atte
 
 ## Not yet verified
 
-Phases 1 to 3 of [migration.md](migration.md) have been built: the image and the helper, the
-restructure, and the job core. Their test results are in each phase's notes there.
+Phases 1 to 5 of [migration.md](migration.md) have been built: the image and the helper, the
+restructure, the job core, the version cache and the lock files. Their test results are in
+each phase's notes there. Two questions this list held are answered: every module at the
+pinned ampliseq and taxprofiler commits names one Docker-style address that can be read,
+none built from an expression, and each is in its registry; and gnoto's image gets the same
+registry digest wherever it's built, while a copy made with `--preserve-digests` keeps its
+digest.
 
 - **The helper:** running Nextflow's driver in the image through stand-ins isn't the
   usual setup, and
   [the common advice keeps it on the host](https://docs.seqera.io/nextflow/executor/slurm).
   It works in the local Slurm and Apptainer test bed and on CMMR's cluster, signals and
   environment included, and ampliseq runs through it on both.
-- **Image size:** the AWS CLI and Java are large. The image is 760 MB as a `.sif`, and its
-  first pull on the cluster hasn't been timed.
+- **Image size:** the AWS CLI and Java are large. The image is 760 MB as a `.sif`. In the test
+  bed, a first command that pulled it from GHCR and fetched its version took 2 minutes 51
+  seconds; its first pull on the cluster hasn't been timed.
 - **Digest pinning:** running ampliseq and taxprofiler through Nextflow and Apptainer
   entirely by digest.
   [Apptainer's Docker and OCI page](https://apptainer.org/docs/user/main/docker_and_oci.html)
   doesn't cover pulling by digest, but Apptainer 1.5.5 does it, through the stand-in too.
-- **Scanning modules for `containers.config`:** whether every module's Docker-style
-  address can be read from its source, including any built from `task.ext` or other
-  expressions, and whether each one exists in its registry.
-- **Image identity:** whether a Nix-built image gets the same digest when rebuilt, and
-  whether copying the Wave image to GHCR keeps its digest. The Nix tarball rebuilds byte for
-  byte. The digest a push gives it is still to check.
+  ampliseq runs that way in the test bed; taxprofiler and biobakery wait for the cluster.
 - **Zenodo fit:** the real size of each image bundle.
 - **Globus listing:** whether the anonymous read rule on the run folder lets any logged-in
   Globus user list every run, and so download every zip. Test it from an unrelated Globus

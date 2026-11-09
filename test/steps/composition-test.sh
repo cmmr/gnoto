@@ -91,7 +91,10 @@ cd "$WORK" || exit 1
 OUT=$( (container_sif no-such-image.sif) 2>&1 )
 check "a missing bare .sif fails" "1" "$?"
 check "and names where it looked" "yes" "$([[ $OUT == *"$DATA_DIR/images/no-such-image.sif"* ]] && echo yes || echo "$OUT")"
-check "a bare .sif is found in the images directory" "$DATA_DIR/images/$RBIOM" "$(container_sif "$RBIOM")"
+mkdir -p "$DATA_DIR/images" && : > "$DATA_DIR/images/gnoto-local-test.sif"
+check "a bare .sif is found in the images directory" "$DATA_DIR/images/gnoto-local-test.sif" "$(container_sif gnoto-local-test.sif)"
+rm -f "$DATA_DIR/images/gnoto-local-test.sif"
+check "rbiom is pinned by digest" "yes" "$([[ $RBIOM =~ @sha256:[0-9a-f]{64}$ ]] && echo yes || echo "$RBIOM")"
 OUT=$( (container_sif quay.io/biocontainers/gotree:0.5.2) 2>&1 )
 check "an address by tag is still refused" "1" "$?"
 

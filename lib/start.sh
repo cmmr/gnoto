@@ -170,13 +170,15 @@ start_run() {
         --arg nextflow_sha "$nextflow_sha" \
         --argjson exact "$JOB_EXACT" \
         --argjson expected "$JOB_EXPECTED_INPUTS" \
-        --argjson runs "$JOB_RECORDED_RUNS" '
+        --argjson runs "$JOB_RECORDED_RUNS" \
+        --argjson recorded_databases "$JOB_RECORDED_DATABASES" '
         {pipeline: $pipeline, version: $version, commit: $commit, repository: $repository,
          dev: $dev, title: $top.title, retention: ($top.retention // "3 Months"),
          answers: $answers, job_params: $job_params, params: $params,
          debug: $debug, owner: $owner, job_file: $job_file, samplesheet: $samplesheet,
          databases: $databases}
-        + (if $exact then {exact: true, expected_inputs: $expected, recorded_runs: $runs} else {} end)
+        + (if $exact then {exact: true, expected_inputs: $expected, recorded_runs: $runs,
+            recorded_databases: $recorded_databases} else {} end)
         + (if $nextflow_config != "" then {nextflow_config: $nextflow_config,
             nextflow_config_sha256: $nextflow_sha} else {} end)')" ||
         fail "Can't write the run's state in $run_dir."

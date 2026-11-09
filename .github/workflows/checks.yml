@@ -1,0 +1,28 @@
+# checks.yml - The release checks, on every push and pull request, so they've
+# passed on main before anyone tags a release: every image a job can run is
+# named by digest, and is in its registry. pipelines/lock.sh check does the
+# work, in the gnoto image IMAGE names.
+
+name: checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  images:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Every image by digest
+        run: |
+          image=$(cat IMAGE)
+          if [[ ! $image =~ ^docker://[^@]+@sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error file=IMAGE::IMAGE names $image, not an image by digest"
+            exit 1
+          fi
+          docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e TMPDIR=/tmp \
+            -v "$PWD:/repo:ro" "${image#docker://}" bash /repo/pipelines/lock.sh check

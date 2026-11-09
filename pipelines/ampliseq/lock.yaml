@@ -1,9 +1,24 @@
-# What a commit pins for ampliseq. Image tags are in comments, for reading.
+# What a commit pins for ampliseq. Each image's tag is in a comment, for reading.
+# pipelines/lock.sh writes containers.config and databases.
 schema: 1
 upstream:
   repository: "nf-core/ampliseq"
-  commit: "b9bd579c0480ee23ecf24655f51c0c67777cd6b3"   # 3.1.0
+  commit: "b9bd579c0480ee23ecf24655f51c0c67777cd6b3" # 3.1.0
+nextflow_containers: "containers.config"
 step_images:
-  vsearch: "quay.io/biocontainers/vsearch@sha256:582a54b880d848aefad7b5a2244ae051e41ddb6afcc07cc51f1a20fdc02e05d4"   # 2.32.0--hd2be7a0_0
-  gotree: "quay.io/biocontainers/gotree@sha256:83dec412bb9e4428f8d76f6466f05443f72c2cd2d95c23c32909ecbd5fc75c40"   # 0.5.2--he881be0_0
-  rbiom: "gnoto-rbiom-5a6687ba951e.sif"   # images/gnoto-rbiom/, built into <data_dir>/images until it's published
+  vsearch: "quay.io/biocontainers/vsearch@sha256:582a54b880d848aefad7b5a2244ae051e41ddb6afcc07cc51f1a20fdc02e05d4" # 2.32.0--hd2be7a0_0
+  gotree: "quay.io/biocontainers/gotree@sha256:83dec412bb9e4428f8d76f6466f05443f72c2cd2d95c23c32909ecbd5fc75c40" # 0.5.2--he881be0_0
+  rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:533e61f1b0c8840bdd7a341bc6f376f8ee7ac70d23a7a62ee7ac16db68fbc257" # 008bf3987dab, from images/gnoto-rbiom
+databases:
+  db:dada2/silva-138.2:
+    files: 2
+    bytes: 210915821
+    tree_sha256: 6abc910e42eec5a3cd31b95ea46c840f86fdefacf3065e3ea8f728108df35872
+  db:pplace/v1:
+    files: 2
+    bytes: 87272859
+    tree_sha256: 2131684803d4882efaabc0e4b6a0c239bb02cc0baedb61c116279f6ed9c5329d
+  db:16s/v1:
+    files: 3
+    bytes: 329268
+    tree_sha256: cd16972da86736edd85a903d17b51696d53082fbc1d177e0867596a4b57cd4f2

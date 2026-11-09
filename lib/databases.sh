@@ -46,6 +46,13 @@ db_setup_for() {
     fi
 }
 
+# The resources an entry's fetch job asks for, as "<cpus> <memory> <time>":
+# its fetch_job, or 2 CPUs, 8G and 24 hours
+db_fetch_job_for() {
+    P=$1 yq -r '[.databases[] | select(.path == strenv(P)) | .fetch_job][0] // {}
+        | [.cpus // 2, .mem // "8G", .time // "24:00:00"] | join(" ")' "$CODE_DIR/pipelines/databases.yaml"
+}
+
 # What an entry downloads, in bytes, as the entry records it
 db_bytes_for() {
     local path=$1 fixture=${1#fixtures/}
@@ -79,12 +86,102 @@ db_fetching() {
     rm -f "$marker"
 }
 
+# A database's lock entry, as JSON {files, bytes, tree_sha256}, or nothing when
+# the pipeline's lock.yaml doesn't pin it
+db_lock_entry() {
+    local lock=$CODE_DIR/pipelines/$1/lock.yaml
+    [[ -f $lock ]] || return 0
+    K="db:$2" yq -o=json -I0 '.databases[strenv(K)] // ""' "$lock" 2> /dev/null | grep -v '^""$' || :
+}
+
+# "<files> <bytes>" under a path, following links, since a site may link a
+# database in
+db_measure() {
+    find -L "$1" -type f -printf '%s\n' 2> /dev/null | awk '{ n++; b += $1 } END { printf "%d %d\n", n, b }'
+}
+
+# A database directory's tree digest, as steps/fetch_files.sh writes it in a
+# manifest: the SHA-256 of sha256sum's lines for every file, named relative to
+# the directory and sorted bytewise
+db_tree_digest() {
+    local sum
+    sum=$(cd "$1" && find -L . -type f -printf '%P\0' | LC_ALL=C sort -z | xargs -0r sha256sum -- | sha256sum) ||
+        return 1
+    printf '%s' "${sum%% *}"
+}
+
+# Checks the databases a job reads against its pipeline's lock.yaml, and prints
+# a line for each: "<db: name><tab>ok, unpinned or wrong<tab><its record
+# entry, as JSON><tab><what's wrong>", last because read collapses an empty
+# field between tabs. A database the lock pins, by its
+# pipelines/databases.yaml entry, must have the lock's file count and bytes,
+# and, when deep is true, its tree digest, and its record entry is the lock's.
+# Any other is measured, and its entry is its file count and bytes. A missing
+# one is left to databases_check and the job.
+databases_verify() {
+    local pipeline=$1 names=$2 deep=${3:-false} name entry key path pinned files bytes want digest
+    local -A seen=()
+    while IFS= read -r name; do
+        [[ -n $name ]] || continue
+        entry=$(db_entry_for "$name")
+        key=db:${entry:-${name#db:}}
+        [[ -z ${seen[$key]:-} ]] || continue
+        seen[$key]=1
+        path=$DB_DIR/${key#db:}
+        [[ -e $path ]] || continue
+        read -r files bytes < <(db_measure "$path")
+        pinned=""
+        [[ -z $entry ]] || pinned=$(db_lock_entry "$pipeline" "$entry")
+        if [[ -z $pinned ]]; then
+            printf '%s\tunpinned\t{"files":%s,"bytes":%s}\t\n' "$key" "$files" "$bytes"
+            continue
+        fi
+        want=$(jq -r '"\(.files) \(.bytes)"' <<< "$pinned")
+        if [[ "$files $bytes" != "$want" ]]; then
+            printf '%s\twrong\t%s\t%s\n' "$key" "$pinned" \
+                "$key holds $files files and $bytes bytes, where $pipeline's lock.yaml pins ${want% *} files and ${want#* } bytes"
+            continue
+        fi
+        if [[ $deep == true ]]; then
+            echo "Computing the tree digest of $key, $(human_size "$bytes")..." >&2
+            digest=$(db_tree_digest "$path") || digest="unreadable"
+            want=$(jq -r .tree_sha256 <<< "$pinned")
+            if [[ $digest != "$want" ]]; then
+                printf '%s\twrong\t%s\t%s\n' "$key" "$pinned" "$key's tree digest is $digest, where $pipeline's lock.yaml pins $want"
+                continue
+            fi
+        fi
+        printf '%s\tok\t%s\t\n' "$key" "$pinned"
+    done <<< "$names"
+}
+
+# Run by the job once its databases are there: fails on one that isn't what
+# the lock pins, or on an exact re-run, what the record holds, and keeps each
+# one's record entry in the run's state. An exact re-run checks each pinned
+# database by its tree digest.
+databases_job_check() {
+    local names=$1 exact=$2 recorded=${3:-null} key status message entry was record='{}'
+    [[ $exact != true ]] || set_run_stage "Checking the databases against their digests."
+    while IFS=$'\t' read -r key status entry message; do
+        [[ $status != wrong ]] || fail "$message. A database's path never changes what it holds, so this isn't the database the run's commit pins."
+        [[ $exact != true || $status != ok ]] || log "$key matches its tree digest."
+        if [[ $exact == true && $status == unpinned ]]; then
+            was=$(jq -c --arg key "$key" '.[$key] // empty' <<< "$recorded")
+            [[ -z $was ]] || jq -en --argjson was "$was" --argjson now "$entry" '$was == $now' > /dev/null ||
+                fail "$key holds $(jq -r '"\(.files) files and \(.bytes) bytes"' <<< "$entry"), where the record has $(jq -r '"\(.files) files and \(.bytes) bytes"' <<< "$was")."
+        fi
+        record=$(jq -c --arg key "$key" --argjson entry "$entry" '.[$key] = $entry' <<< "$record")
+    done < <(databases_verify "$(state_get pipeline)" "$names" "$exact")
+    state_set_json database_record "$record" || fail "Can't write the run's state."
+}
+
 # Checks every database a job needs, from what pipeline_eval found. Missing
 # ones being fetched are WARNs; the rest FAIL. Sets JOB_MISSING_DATABASES, the
 # count of FAILs that a fetch could fix, JOB_FETCHABLE, their entries, and
-# JOB_FETCH_AFTER, the Slurm jobs a run must wait for.
+# JOB_FETCH_AFTER, the Slurm jobs a run must wait for. Those present are
+# checked against the lock, by tree digest when LINT_DEEP is true.
 databases_check() {
-    local names=$1 name path entry setup job count=0 unfetchable=0
+    local names=$1 name path entry setup job count=0 unfetchable=0 key status message pinned=0 wrong=0 total=0
     local -A entries=()
 
     JOB_MISSING_DATABASES=0
@@ -125,8 +222,19 @@ databases_check() {
         JOB_MISSING_DATABASES=$((JOB_MISSING_DATABASES + 1))
     done <<< "$names"
     [[ -z $JOB_FETCH_AFTER ]] || JOB_FETCH_AFTER=afterok:$JOB_FETCH_AFTER
-    if (( ${#entries[@]} == 0 && unfetchable == 0 )); then
-        lint_ok "databases: all $count present"
+
+    while IFS=$'\t' read -r key status _ message; do
+        total=$((total + 1))
+        case $status in
+            ok) pinned=$((pinned + 1)) ;;
+            unpinned) lint_warn "$key isn't pinned by $JOB_PIPELINE's lock.yaml, so the record keeps only its size" ;;
+            wrong) lint_fail "$message"; wrong=$((wrong + 1)) ;;
+        esac
+    done < <(databases_verify "$JOB_PIPELINE" "$names" "${LINT_DEEP:-false}")
+    if (( ${#entries[@]} == 0 && unfetchable == 0 && wrong == 0 && count > 0 )); then
+        lint_ok "databases: all $total present, $pinned as lock.yaml pins them$([[ ${LINT_DEEP:-false} == true ]] && echo ", by tree digest")"
+    elif (( count == 0 )); then
+        lint_ok "databases: none needed"
     fi
 }
 
@@ -134,7 +242,7 @@ databases_check() {
 # and submits a job for each. Prints the Slurm dependency a run should wait on.
 # Fails when the offer is declined or can't be asked.
 databases_offer() {
-    local yes=${1:-false} entry bytes=0 free answer id after=$JOB_FETCH_AFTER marker
+    local yes=${1:-false} entry bytes=0 free answer id after=$JOB_FETCH_AFTER marker cpus mem time
 
     (( ${#JOB_FETCHABLE[@]} > 0 )) || { printf '%s' "$after"; return 0; }
     for entry in "${JOB_FETCHABLE[@]}"; do
@@ -155,8 +263,9 @@ databases_offer() {
     for entry in "${JOB_FETCHABLE[@]}"; do
         mkdir -p "$(dirname "$DB_DIR/$entry")" || fail "Can't create $(dirname "$DB_DIR/$entry")."
         marker=$DB_DIR/$entry.fetching
+        read -r cpus mem time < <(db_fetch_job_for "$entry")
         id=$(scheduler_submit --name "gnoto-fetch-${entry//\//-}" --dir "$DB_DIR" \
-            --log "$DB_DIR/$entry.fetch.log" --cpus 2 --mem 8G --time 24:00:00 -- _fetch "$entry") ||
+            --log "$DB_DIR/$entry.fetch.log" --cpus "$cpus" --mem "$mem" --time "$time" -- _fetch "$entry") ||
             fail "Couldn't submit the fetch of db:$entry."
         if [[ $id == local ]]; then
             printf 'local\n' > "$marker"

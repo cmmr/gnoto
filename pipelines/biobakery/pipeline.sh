@@ -49,7 +49,7 @@ esac
 
 # The bowtie2 index. Empty trims without depleting anything.
 if [[ -n "$BIOBAKERY_HOST_REFERENCE" ]]; then
-    params_set kneaddata_db "db:hostremoval/$BIOBAKERY_HOST_REFERENCE"
+    params_set kneaddata_db "db:hostremoval/$BIOBAKERY_HOST_REFERENCE/v1/$BIOBAKERY_HOST_REFERENCE"
 else
     params_set kneaddata_db ""
 fi

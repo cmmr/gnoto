@@ -1,7 +1,15 @@
-# What a commit pins for taxprofiler
+# What a commit pins for taxprofiler. Each image's tag is in a comment, for
+# reading. pipelines/lock.sh writes containers.config and databases.
 schema: 1
 upstream:
   repository: "nf-core/taxprofiler"
-  commit: "70ecc15e49b4f1fcf79d876643b5d14b65c66178"   # 2.0.1
+  commit: "70ecc15e49b4f1fcf79d876643b5d14b65c66178" # 2.0.1
+nextflow_containers: "containers.config"
 step_images:
-  rbiom: "gnoto-rbiom-5a6687ba951e.sif"   # images/gnoto-rbiom/, built into <data_dir>/images until it's published
+  rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:533e61f1b0c8840bdd7a341bc6f376f8ee7ac70d23a7a62ee7ac16db68fbc257" # 008bf3987dab, from images/gnoto-rbiom
+  # The images taxprofiler's BOWTIE2_BUILD and MINIMAP2_INDEX run, so the host
+  # references steps/build_host_reference.sh builds suit the aligners that read
+  # them. bowtie2's is the copy images/mirrors.txt keeps, with Wave's digest.
+  bowtie2: "ghcr.io/cmmr/bowtie2_htslib_samtools_pigz@sha256:26758d72855cd44c475c24360f2cdcc2120955e182c680427c5d099a06b1423e" # edeb13799090a2a6
+  minimap2: "quay.io/biocontainers/minimap2@sha256:d8c6b621939fa1a376f2d2f83775b78d9f312ceceb286aa2ec888c35efc543af" # 2.29--h577a1d6_0
+databases: {}

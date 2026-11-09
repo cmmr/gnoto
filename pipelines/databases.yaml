@@ -43,11 +43,18 @@ databases:
     description: RefSeq archaea, bacteria, viruses, plasmids, human, UniVec_Core, protozoa and fungi, with nodes.dmp and names.dmp and Bracken distributions for 50-300-mers.
     used_by:
       - 'taxprofiler: pipelines/taxprofiler/database.csv (kraken2, bracken), taxpasta_taxonomy_dir'
-    setup: steps/fetch_taxprofiler_db.sh kraken2
-    manifest: kraken2/pluspf_20260626.manifest.json
+    setup: steps/fetch_shotgun_db.sh kraken2/pluspf_20260626
+    manifest: kraken2/pluspf_20260626.manifest.yaml
+    fetch_job: {cpus: 4, mem: 8G, time: "48:00:00"}
+    # pluspf.md5 lists the archive's md5, and each unpacked file's, which the
+    # fetch also checks
     sources:
+      - url: https://genome-idx.s3.amazonaws.com/kraken/pluspf_20260626/pluspf.md5
+        md5: e41122d2f3093a706c6961f73560870a
+        bytes: 971
       - url: https://genome-idx.s3.amazonaws.com/kraken/k2_pluspf_20260626.tar.gz
-        checksums: https://genome-idx.s3.amazonaws.com/kraken/pluspf_20260626/pluspf.md5
+        md5: 0e77cb8d6de14e083727555b6097d319
+        bytes: 91014091453
     homepage: https://benlangmead.github.io/aws-indexes/k2
     doi: null
     cite:
@@ -60,12 +67,22 @@ databases:
     used_by:
       - 'taxprofiler: pipelines/taxprofiler/database.csv (metaphlan)'
       - 'biobakery: metaphlan_db'
-    setup: steps/fetch_taxprofiler_db.sh metaphlan
-    manifest: metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403.manifest.json
+    setup: steps/fetch_shotgun_db.sh metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403
+    manifest: metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403.manifest.yaml
+    fetch_job: {cpus: 4, mem: 8G, time: "24:00:00"}
+    # The two tars' md5s are the .md5 files published beside them. The
+    # publisher lists none for the phylogeny, so its md5 is the file as fetched
+    # on 2026-09-04, and again on 2026-11-08.
     sources:
       - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/bowtie2_indexes/mpa_vJun23_CHOCOPhlAnSGB_202403_bt2.tar
+        md5: 8caae86b4d2931416cbdbb92f5985cef
+        bytes: 22989752320
       - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_vJun23_CHOCOPhlAnSGB_202403.tar
+        md5: d985de75a217cd319e721863f68e7d33
+        bytes: 3316336640
       - url: https://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_vJun23_CHOCOPhlAnSGB_202403.nwk
+        md5: b141b49693f541ae491605d2f1cfc981
+        bytes: 1227124
     doi: null
     cite:
       - blancomiguez2023
@@ -76,11 +93,13 @@ databases:
     used_by:
       - 'taxprofiler: pipelines/taxprofiler/database.csv (motus)'
       - 'biobakery: motus_db'
-    setup: steps/fetch_taxprofiler_db.sh motus
-    manifest: motus/db_mOTU_v3.1.0.manifest.json
+    setup: steps/fetch_shotgun_db.sh motus/db_mOTU_v3.1.0
+    manifest: motus/db_mOTU_v3.1.0.manifest.yaml
+    # The URL and md5 motus downloadDB itself uses for 3.1.0
     sources:
       - url: https://zenodo.org/record/7778108/files/db_mOTU_v3.1.0.tar.gz
         md5: f841c36150025af837f7a9a358c9a3c3
+        bytes: 3112910315
     doi: 10.5281/zenodo.7778108
     cite:
       - ruscheweyh2022
@@ -90,11 +109,12 @@ databases:
     description: '19,925 human, animal and plant virus genome assemblies in 63 families: virus_pathogen_database.fna, its minimap2 index (.mmi) and virus_pathogen_database.all_metadata.tsv, the taxonomy EsViritu names each by. EsViritu 1.0.0 and later read v3.1.0 or later.'
     used_by:
       - 'biobakery: esviritu_db'
-    setup: steps/fetch_taxprofiler_db.sh esviritu
-    manifest: esviritu/v3.2.4.manifest.json
+    setup: steps/fetch_shotgun_db.sh esviritu/v3.2.4
+    manifest: esviritu/v3.2.4.manifest.yaml
     sources:
       - url: https://zenodo.org/records/17716199/files/esviritu_db_v3.2.4.tar.gz
         md5: 24d85c1ec3cbffff12e921d2f39c91b2
+        bytes: 447285297
     doi: 10.5281/zenodo.17716199
     cite:
       - tisza2023
@@ -104,11 +124,12 @@ databases:
     description: 'Marker-MAGu_markerDB.fna, a 10.5 GB multi-FASTA of species-level marker genes: MetaPhlAn 4''s vOct22 markers for bacteria, archaea and microeukaryotes, with marker genes of the 49,111 phage taxa of the Trove of Gut Virus Genomes v1.1 added. Each header reads gene_name;lineage;genome_name.'
     used_by:
       - 'biobakery: markermagu_db'
-    setup: steps/fetch_taxprofiler_db.sh markermagu
-    manifest: markermagu/v1.1.manifest.json
+    setup: steps/fetch_shotgun_db.sh markermagu/v1.1
+    manifest: markermagu/v1.1.manifest.yaml
     sources:
       - url: https://zenodo.org/records/8342581/files/Marker-MAGu_markerDB_v1.1.tar.gz
         md5: e0947cb1d4a3df09829e98627021e0dd
+        bytes: 2796899965
     doi: 10.5281/zenodo.8342581
     cite:
       - tisza2025
@@ -120,80 +141,107 @@ databases:
       chocophlan:
         name: ChocoPhlAn
         release: v201901_v31
-        url: http://huttenhower.sph.harvard.edu/humann_data/chocophlan/full_chocophlan.v201901_v31.tar.gz
       uniref90:
         name: UniRef90
         release: v201901b
-        url: http://huttenhower.sph.harvard.edu/humann_data/uniprot/uniref_annotated/uniref90_annotated_v201901b_full.tar.gz
         cite:
           - suzek2015
       utility_mapping:
         name: HUMAnN utility mapping
         release: v201901b
-        url: http://huttenhower.sph.harvard.edu/humann_data/full_mapping_v201901b.tar.gz
     used_by:
       - 'taxprofiler: humann_chocophlan, humann_uniref, humann_utility_mapping (workflows/humann)'
       - 'biobakery: humann_chocophlan, humann_uniref, humann_utility_mapping'
-    setup: steps/fetch_taxprofiler_db.sh humann
-    manifest: humann/v201901b.manifest.json
+    setup: steps/fetch_shotgun_db.sh humann/v201901b
+    manifest: humann/v201901b.manifest.yaml
+    fetch_job: {cpus: 4, mem: 8G, time: "48:00:00"}
+    # The publisher lists no md5s, so these are the archives as fetched on
+    # 2026-11-08. Each unpacks into the directory its component names.
+    sources:
+      - component: chocophlan
+        url: http://huttenhower.sph.harvard.edu/humann_data/chocophlan/full_chocophlan.v201901_v31.tar.gz
+        md5: 6b5fa299766193bda6e73db93bf5982b
+        bytes: 16502062909
+      - component: uniref90
+        url: http://huttenhower.sph.harvard.edu/humann_data/uniprot/uniref_annotated/uniref90_annotated_v201901b_full.tar.gz
+        md5: da9359b6f09ff8ae49f01d0e4cf7281e
+        bytes: 20579913329
+      - component: utility_mapping
+        url: http://huttenhower.sph.harvard.edu/humann_data/full_mapping_v201901b.tar.gz
+        md5: ac2a21ebb2b4f10f656b015fe5d07d93
+        bytes: 2734293864
     doi: null
     cite:
       - beghini2021
-  - path: hostremoval/phix
+  - path: hostremoval/phix/v1
     name: PhiX
     description: bowtie2 index (phix/), FASTA (phix.fa) and minimap2 map-ont index (phix.mmi).
     used_by:
       - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
       - 'biobakery: kneaddata_db'
-    setup: steps/build_host_reference.sh phix GCF_000819615.1
-    manifest: hostremoval/phix.manifest.json
+    setup: steps/build_host_reference.sh hostremoval/phix/v1
+    manifest: hostremoval/phix/v1.manifest.yaml
+    # Each genome's _genomic.fna.gz. The md5s match NCBI's md5checksums.txt for
+    # each assembly on 2026-11-08.
     sources:
       - label: bacteriophage phiX174
         accession: GCF_000819615.1
         assembly: ViralProj14015
-        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/GCF_000819615.1_ViralProj14015/GCF_000819615.1_ViralProj14015_genomic.fna.gz
+        md5: f5d1109dd4fb01f4cd70570c8c9dbef4
+        bytes: 1906
     doi: null
     cite:
       - oleary2016
-  - path: hostremoval/chm13v2phix
+  - path: hostremoval/chm13v2phix/v1
     name: Human T2T-CHM13v2.0 + PhiX
     description: bowtie2 index (chm13v2phix/), FASTA (chm13v2phix.fa) and minimap2 map-ont index (chm13v2phix.mmi).
     used_by:
       - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
       - 'biobakery: kneaddata_db'
-    setup: steps/build_host_reference.sh chm13v2phix GCF_009914755.1 GCF_000819615.1
-    manifest: hostremoval/chm13v2phix.manifest.json
+    setup: steps/build_host_reference.sh hostremoval/chm13v2phix/v1
+    manifest: hostremoval/chm13v2phix/v1.manifest.yaml
+    fetch_job: {cpus: 16, mem: 64G, time: "24:00:00"}
     sources:
       - label: human T2T-CHM13v2.0
         accession: GCF_009914755.1
         assembly: T2T-CHM13v2.0
-        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/914/755/GCF_009914755.1_T2T-CHM13v2.0/GCF_009914755.1_T2T-CHM13v2.0_genomic.fna.gz
+        md5: 9e6bf6b586bc8954208d1cc1d5f2fc99
+        bytes: 932691275
         cite:
           - nurk2022
       - label: bacteriophage phiX174
         accession: GCF_000819615.1
         assembly: ViralProj14015
-        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/GCF_000819615.1_ViralProj14015/GCF_000819615.1_ViralProj14015_genomic.fna.gz
+        md5: f5d1109dd4fb01f4cd70570c8c9dbef4
+        bytes: 1906
     doi: null
     cite:
       - oleary2016
-  - path: hostremoval/grcm39phix
+  - path: hostremoval/grcm39phix/v1
     name: Mouse GRCm39 + PhiX
     description: bowtie2 index (grcm39phix/), FASTA (grcm39phix.fa) and minimap2 map-ont index (grcm39phix.mmi).
     used_by:
       - 'taxprofiler: hostremoval_reference, shortread_hostremoval_index, longread_hostremoval_index'
       - 'biobakery: kneaddata_db'
-    setup: steps/build_host_reference.sh grcm39phix GCF_000001635.27 GCF_000819615.1
-    manifest: hostremoval/grcm39phix.manifest.json
+    setup: steps/build_host_reference.sh hostremoval/grcm39phix/v1
+    manifest: hostremoval/grcm39phix/v1.manifest.yaml
+    fetch_job: {cpus: 16, mem: 64G, time: "24:00:00"}
     sources:
       - label: mouse GRCm39
         accession: GCF_000001635.27
         assembly: GRCm39
-        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/635/
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/635/GCF_000001635.27_GRCm39/GCF_000001635.27_GRCm39_genomic.fna.gz
+        md5: c0b0c4c3f54d2b480efe68a18bf7e42b
+        bytes: 834262758
       - label: bacteriophage phiX174
         accession: GCF_000819615.1
         assembly: ViralProj14015
-        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/
+        url: https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/819/615/GCF_000819615.1_ViralProj14015/GCF_000819615.1_ViralProj14015_genomic.fna.gz
+        md5: f5d1109dd4fb01f4cd70570c8c9dbef4
+        bytes: 1906
     doi: null
     cite:
       - oleary2016

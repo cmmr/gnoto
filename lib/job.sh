@@ -484,6 +484,8 @@ job_main() {
     set_run_status "Initializing"
     set_run_stage "Getting your run ready."
     databases_wait "$(state_get_json databases | jq -r '.[]?')"
+    databases_job_check "$(state_get_json databases | jq -r '.[]?')" "$(state_get exact)" \
+        "$(state_get_json recorded_databases)"
     if [[ -f $CODE_DIR/present/progress.sh ]]; then
         # Taken first: in a command started with &, $BASHPID would be the
         # watcher's own

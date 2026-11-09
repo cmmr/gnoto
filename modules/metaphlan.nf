@@ -9,7 +9,7 @@
 process METAPHLAN {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/metaphlan:4.1.1--pyhdfd78af_0'
+    container 'quay.io/biocontainers/metaphlan@sha256:12f13127d709817dd27342b91e5ff1ee5a649a789effc6b303bb620af2571019' // quay.io/biocontainers/metaphlan:4.1.1--pyhdfd78af_0
 
     publishDir "${params.outdir}/metaphlan/profiles", mode: 'copy', pattern: '*.metaphlan_profile.txt'
 
@@ -113,7 +113,7 @@ process METAPHLAN {
 // ships, pruned to those SGBs and also written on its own (taxa-*), by
 // bin/metaphlan_sgb_biom.py.
 process METAPHLAN_MERGE {
-    container 'quay.io/biocontainers/metaphlan:4.1.1--pyhdfd78af_0'
+    container 'quay.io/biocontainers/metaphlan@sha256:12f13127d709817dd27342b91e5ff1ee5a649a789effc6b303bb620af2571019' // quay.io/biocontainers/metaphlan:4.1.1--pyhdfd78af_0
 
     publishDir "${params.outdir}/metaphlan", mode: 'copy'
 

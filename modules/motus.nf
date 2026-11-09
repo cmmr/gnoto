@@ -9,7 +9,7 @@
 process MOTUS {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/motus:3.1.0--pyhdfd78af_0'
+    container 'quay.io/biocontainers/motus@sha256:59e04b6be75355e392c32556c36fa9056802de1b9dc75d4276b3fcca69a42e76' // quay.io/biocontainers/motus:3.1.0--pyhdfd78af_0
 
     publishDir "${params.outdir}/motus/profiles", mode: 'copy', pattern: '*.motus_profile.txt'
 
@@ -86,7 +86,7 @@ process MOTUS {
 // The per-sample profiles as one table, a row per cluster in the database and a
 // column per sample
 process MOTUS_MERGE {
-    container 'quay.io/biocontainers/motus:3.1.0--pyhdfd78af_0'
+    container 'quay.io/biocontainers/motus@sha256:59e04b6be75355e392c32556c36fa9056802de1b9dc75d4276b3fcca69a42e76' // quay.io/biocontainers/motus:3.1.0--pyhdfd78af_0
 
     publishDir "${params.outdir}/motus", mode: 'copy'
 
