@@ -10,6 +10,7 @@ set -u
 
 CODE=$(cd "$(dirname "$0")/../.." && pwd)
 source "$CODE/lib/env.sh" || exit 1
+source "$CODE/lib/jobfile.sh"
 WORK=$(mktemp -d "$DATA_DIR/test-pipelines.XXXXXX")
 FAILED=0
 trap 'rm -rf "$WORK"' EXIT
@@ -82,6 +83,16 @@ JSON=$(with_pipeline biobakery '{"hostremoval_reference": "Mouse + PhiX", "deliv
 check "biobakery: mouse, cleaned reads only" "db:hostremoval/grcm39phix/v1/grcm39phix cleaned-sequences " \
     "$(param kneaddata_db <<< "$JSON") $(param cleaned_outdir <<< "$JSON") $(param host_depleted_outdir <<< "$JSON")"
 check "biobakery: no EsViritu database while it's off" "null" "$(param esviritu_db <<< "$JSON")"
+# A job's own parameters, applied after pipeline.sh, as lint and the job apply them
+JSON=$(pipeline_eval biobakery '{}' '{"run_esviritu": true}' | jq .params)
+check "biobakery: a job that turns EsViritu on names its database" "true db:esviritu/v3.2.4" \
+    "$(param run_esviritu <<< "$JSON") $(param esviritu_db <<< "$JSON")"
+JSON=$(pipeline_eval biobakery '{}' '{"run_esviritu": false}' | jq .params)
+check "biobakery: one that turns it off doesn't" "false null" \
+    "$(param run_esviritu <<< "$JSON") $(param esviritu_db <<< "$JSON")"
+JSON=$(pipeline_eval biobakery '{}' '{"run_motus": false}' | jq .params)
+check "biobakery: nor one that leaves it off" "false null" \
+    "$(param run_esviritu <<< "$JSON") $(param esviritu_db <<< "$JSON")"
 check "biobakery: host-depleted reads without a host leave a note" "No host was removed from these reads, so there are no host-depleted reads in the download." \
     "$(with_pipeline biobakery '{"hostremoval_reference": "None", "delivered_reads": "Host Depleted"}' 'state_get notes | jq -r ".[0]"')"
 

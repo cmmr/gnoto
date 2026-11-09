@@ -1,4 +1,36 @@
 # What a commit pins for biobakery, gnoto's own workflow, whose modules name
 # their images by digest. pipelines/lock.sh writes databases.
 schema: 1
-databases: {}
+databases:
+  db:metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403:
+    files: 12
+    bytes: 34942098894
+    tree_sha256: 5607544791b55695df08475664d975d28e629a06bc8ad281e0d6a332d087396d
+  db:motus/db_mOTU_v3.1.0:
+    files: 31
+    bytes: 7748333764
+    tree_sha256: 08a905e40bb1b27c1c37cac627701c681e964c9605fce3b1370c7d551b572b61
+  db:esviritu/v3.2.4:
+    files: 3
+    bytes: 894643036
+    tree_sha256: 6984f3f1764635cff3211cb243350508bb6a499b2cc6cadedb858abdf675e1c1
+  db:markermagu/v1.1:
+    files: 2
+    bytes: 10572290258
+    tree_sha256: 77407d80cf0c5eca37512d9a82b25316dcf2410f25ad887de4e5392af8ef92b6
+  db:humann/v201901b:
+    files: 12794
+    bytes: 55580715340
+    tree_sha256: a9fb93b9aa7734d16721b03e5c103cb582fc2c0593023dad94b2ff697083f00a
+  db:hostremoval/phix/v1:
+    files: 8
+    bytes: 8552122
+    tree_sha256: dbc414eb9229466614d2fb9893786fc0fb4c8fb4a05d87d2e1e488cfa14de063
+  db:hostremoval/chm13v2phix/v1:
+    files: 8
+    bytes: 15131373429
+    tree_sha256: cc5b3104dce93f6c2a50db7074527177faa27da4ff37a8acac9047b145589c97
+  db:hostremoval/grcm39phix/v1:
+    files: 8
+    bytes: 13171380682
+    tree_sha256: 6c2b905f84e13fd1c37fbcebf06950bbf6e2ea1bb94a1c1cb2aad2875a0776b0

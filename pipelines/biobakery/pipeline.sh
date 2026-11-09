@@ -9,6 +9,8 @@
 # Defines:     NEXTFLOW_ARGS, PARAMS_FILE, PARAMS_LOCKED, PRE_PROCESS_CMDS,
 #              POST_PROCESS_CMDS, PIPELINE_DATABASES, ONE_READ_LAYOUT,
 #              and the parameter defaults
+# Env:         GNOTO_JOB_PARAMS, the job's own parameters as JSON, for
+#              run_esviritu
 #
 # Which host is depleted is the hostremoval_reference answer, PhiX alone when
 # it's unanswered.
@@ -92,8 +94,11 @@ params_set motus_db "db:motus/db_mOTU_v3.1.0/db_mOTU"
 params_set nonpareil_mode "kmer"
 
 # Named only when EsViritu runs, so the record names no database the run didn't
-# read
-if [[ "$(params_get run_esviritu)" == true ]]; then
+# read. A job turns it on with its own run_esviritu, which is applied after this
+# file, so that's read from the job's parameters.
+if jq -e --argjson default "$(params_get run_esviritu)" \
+    '(. // {}) | if has("run_esviritu") then .run_esviritu else $default end | . == true' \
+    > /dev/null 2>&1 <<< "${GNOTO_JOB_PARAMS:-null}"; then
     params_set esviritu_db "db:esviritu/v3.2.4"
 fi
 

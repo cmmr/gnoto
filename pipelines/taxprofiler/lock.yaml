@@ -12,4 +12,32 @@ step_images:
   # them. bowtie2's is the copy images/mirrors.txt keeps, with Wave's digest.
   bowtie2: "ghcr.io/cmmr/bowtie2_htslib_samtools_pigz@sha256:26758d72855cd44c475c24360f2cdcc2120955e182c680427c5d099a06b1423e" # edeb13799090a2a6
   minimap2: "quay.io/biocontainers/minimap2@sha256:d8c6b621939fa1a376f2d2f83775b78d9f312ceceb286aa2ec888c35efc543af" # 2.29--h577a1d6_0
-databases: {}
+databases:
+  db:kraken2/pluspf_20260626:
+    files: 18
+    bytes: 118594461081
+    tree_sha256: 1cd14fa5a76bf2d33ae8e7930311756f0e9423c1d64af9b8b4286f098a0aa612
+  db:metaphlan/mpa_vJun23_CHOCOPhlAnSGB_202403:
+    files: 12
+    bytes: 34942098894
+    tree_sha256: 5607544791b55695df08475664d975d28e629a06bc8ad281e0d6a332d087396d
+  db:motus/db_mOTU_v3.1.0:
+    files: 31
+    bytes: 7748333764
+    tree_sha256: 08a905e40bb1b27c1c37cac627701c681e964c9605fce3b1370c7d551b572b61
+  db:humann/v201901b:
+    files: 12794
+    bytes: 55580715340
+    tree_sha256: a9fb93b9aa7734d16721b03e5c103cb582fc2c0593023dad94b2ff697083f00a
+  db:hostremoval/phix/v1:
+    files: 8
+    bytes: 8552122
+    tree_sha256: dbc414eb9229466614d2fb9893786fc0fb4c8fb4a05d87d2e1e488cfa14de063
+  db:hostremoval/chm13v2phix/v1:
+    files: 8
+    bytes: 15131373429
+    tree_sha256: cc5b3104dce93f6c2a50db7074527177faa27da4ff37a8acac9047b145589c97
+  db:hostremoval/grcm39phix/v1:
+    files: 8
+    bytes: 13171380682
+    tree_sha256: 6c2b905f84e13fd1c37fbcebf06950bbf6e2ea1bb94a1c1cb2aad2875a0776b0

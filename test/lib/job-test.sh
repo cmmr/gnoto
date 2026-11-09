@@ -202,6 +202,29 @@ printf 'slurm 999999999\n' > "$WORK/db/fixtures/16s-v4/v1.fetching"
 check "a marker whose job has gone is removed" "no" \
     "$(has "$(lint_job db.yaml)" "being fetched")$([[ -e $WORK/db/fixtures/16s-v4/v1.fetching ]] && echo " still there")"
 mv "$WORK/db/fixtures/16s-v4/v1.away" "$WORK/db/fixtures/16s-v4/v1"
+cat > virus-on.yaml << EOF
+pipeline: biobakery
+title: "Viruses"
+samplesheet: "good.tsv"
+biobakery:
+  run_esviritu: true
+EOF
+sed 's/run_esviritu: true/run_esviritu: false/' virus-on.yaml > virus-off.yaml
+# What lint checks for and offers to fetch, and the names run passes to the record
+lint_databases() {
+    (
+        LINT_FAILS=0
+        LINT_WARNS=0
+        job_check "$1" > /dev/null 2>&1
+        printf '%s\n' "$JOB_DATABASES" ${JOB_FETCHABLE[@]+"${JOB_FETCHABLE[@]}"}
+    ) | grep -cxE "(db:)?esviritu/v3.2.4"
+}
+OUT=$(lint_job virus-on.yaml)
+check "a biobakery job that turns EsViritu on needs its database" "yes" \
+    "$(has "$OUT" "db:esviritu/v3.2.4 is missing, at $WORK/db/esviritu/v3.2.4. gnoto can fetch it")"
+check "which lint offers to fetch, and the record names" "2" "$(lint_databases virus-on.yaml)"
+check "one that turns it off doesn't" "no 0" \
+    "$(has "$(lint_job virus-off.yaml)" "db:esviritu") $(lint_databases virus-off.yaml)"
 check "entries by db: name" "pplace/v1 fixtures/16s-v4/v1 hostremoval/phix/v1  " \
     "$(for n in db:pplace/v1/bac16s.newick db:fixtures/16s-v4/v1/x db:hostremoval/phix/v1/phix.fa db:nothing/here; do
         printf '%s ' "$(db_entry_for "$n")"; done)"

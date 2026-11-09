@@ -841,7 +841,12 @@ file goes in the run directory as `job.yaml`, as `run`'s does.
 **How values combine.** `pipeline.sh` sets defaults for the pipeline's parameters and
 declares the keys gnoto owns, such as `input`, `outdir` and `metadata`. A job's section
 overrides those defaults, and `lint` refuses an owned key. The merged set is what runs,
-and it's what `record.yaml` stores in its pipeline section.
+and it's what `record.yaml` stores in its pipeline section. The section is applied after
+`pipeline.sh`, so where a default depends on a parameter the job sets, `pipeline.sh` reads
+it from `GNOTO_JOB_PARAMS`, the section as JSON: ampliseq needs no 16S reference for a
+job that gives `primer_fwd`, since it measures no region then, and biobakery names
+EsViritu's database, `db:esviritu/v3.2.4`, only for a job that sets `run_esviritu: true`,
+so `lint` checks for it and offers to fetch it only then.
 
 `new` always writes a pinned version, even when asked for plain `ampliseq`, so a
 later upgrade can't change what an existing job file means.
