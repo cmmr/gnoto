@@ -107,7 +107,7 @@ test/                 helper tests with stub commands, and the Slurm and Apptain
 docs/, mkdocs.yml     the docs site, with docs_hooks.py
 .github/workflows/    CI: images.yml publishes the images, checks.yml runs the release
                       checks, and the release and docs workflows come in phase 8
-README.md             install steps
+README.md             what gnoto is, what it solves, and the install steps
 ```
 
 One repo holds everything, so a commit pins everything at once. Pipelines have no

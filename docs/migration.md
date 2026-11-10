@@ -922,6 +922,14 @@ Tested on 2026-11-09, in the test bed:
 | `test/testbed/checks/selftest.sh --small`: `selftest --dev` on a copy whose ampliseq selftest is the `v4` job, with no reference tables, then against the tables that run made, committed to the test bed's repository | Pass, 14 checks: the refusals; a report against `main`'s tip, the run's 27 tables kept, the run removed with its history kept and no expiry, and `status` listing the selftest; then all 27 tables identical to the reference |
 | `pipelines/lock.sh check` | Pass, 88 images, sra-tools 3.2.1 among them |
 
+**On the cluster, 2026-11-10,** from `86eecb7`, on a queue busy with other work: the first
+`determinism.sh` gave up on its first run after two hours, still running, and went on
+through the checks that read its results. It now waits for as long as a run takes, since
+`status` says Lost when nothing runs for one, stops at a run that doesn't complete, with its
+message, and takes `--from=<uid>` to carry on from a run it started before. The last of
+those checks, `gnoto run --inputs` on a record it couldn't read, called the record a job
+file; `run` now says that only of a file it read.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs
@@ -1022,7 +1030,7 @@ in step.
 | `.gitignore` | `.gitignore` | 1 | Rewrite, adding `config.yaml` |
 | `run` | `gnoto` | 1, 3 | Rewritten. Its task creation moves to `service/wrike/` |
 | `.env` | `lib/config/`, `lib/env.sh` | 2 | Settings and sourcing split. Don't copy the values |
-| `README.md` | `README.md` | 8 | Rewritten around the install steps |
+| `README.md` | `README.md` | 8 | Written early, on 2026-11-09 at Daniel's request: what gnoto is and the problems it solves, for outside readers. Phase 8 updates its install steps and status, and links the docs site, which holds the detail |
 | `dev.md` | Not copied | | Holds emails and rule IDs. Move anything useful into `docs/` |
 | `mkdocs.yml`, `docs_hooks.py`, `requirements-docs.txt`, `.github/workflows/docs.yml` | Same paths | 8 | Update the repo name and URLs |
 | `images/bot_100px.png`, `images/bot_large.png` | `docs/images/` or similar | 8 | Note that `images/` now means Nix recipes |
