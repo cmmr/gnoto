@@ -55,6 +55,9 @@ check "ampliseq: revision from lock.yaml" "nf-core/ampliseq -r b9bd579c0480ee23e
     "$(with_pipeline ampliseq '{}' 'echo "${NEXTFLOW_ARGS[3]} ${NEXTFLOW_ARGS[4]} ${NEXTFLOW_ARGS[5]}"')"
 check "ampliseq: steps exist" "ok" \
     "$(with_pipeline ampliseq '{}' 'for c in "${PRE_PROCESS_CMDS[@]}" "${POST_PROCESS_CMDS[@]}" "${NEXTFLOW_ARGS[9]}"; do [[ -f $c ]] || echo "missing $c"; done; echo ok')"
+check "ampliseq: pairs joined with Ns skip the exact species match" "null true true" \
+    "$(for s in merge concatenate consensus; do with_pipeline ampliseq "{\"mergepairs_strategy\": \"$s\"}" params_json |
+        jq -r .skip_dada_addspecies; done | paste -sd ' ')"
 check "ampliseq: picrust and exclude_taxa answers" "true chloroplast" \
     "$(with_pipeline ampliseq '{"picrust": "true", "exclude_taxa": "chloroplast"}' params_json | jq -r '"\(.picrust) \(.exclude_taxa)"')"
 check "ampliseq: a choice without a database fails" "1" \

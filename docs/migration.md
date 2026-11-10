@@ -930,6 +930,32 @@ message, and takes `--from=<uid>` to carry on from a run it started before. The 
 those checks, `gnoto run --inputs` on a record it couldn't read, called the record a job
 file; `run` now says that only of a file it read.
 
+The second probe answered: `steps/build_host_reference.sh` built `hostremoval/chm13v2phix/v1`
+again as a Slurm job with 8 CPUs, against the 16 its fetch had, its indexes in 25 minutes, and its tree
+digest is the lock's, `cc5b3104…`. So the host references rebuild identically at any CPU
+count, as PhiX had, and none needs depositing on Zenodo.
+
+The first round of `repeat.sh` found that ampliseq's `single` job, on `16s-single`, fails
+every time: "Barrnap could not identify any rRNA in the ASV sequences". ampliseq runs Barrnap
+with `--reject 0.1`, and its 13 ASVs of 149 and 151 bp align about 9% of 16S, so none counted,
+and with `filter_ssu` set ampliseq stops the run. The test bed showed the same. At 0.08 or
+0.05, 12 of them were found as bacterial 16S, with e-values near 1e-29, and V4's 22 ASVs
+were found at either. At Daniel's call, `pipelines/ampliseq/resources.config` keeps
+`--reject 0.1` for paired reads that merge, the usual run, and passes `--reject 0.05` for
+any other, reading `sequencing_type` and `mergepairs_strategy`, and the filter stays on. The job then failed at the next
+check: region detection had given it a length window around V4's 253-base amplicon, which
+reads of 151 bases can't span, so the length filter removed every ASV. Where single-end reads
+end before the amplicon does, `steps/ampliseq_detect_region.sh` now sets no window, and its
+report says why. With both, the job completed in the test bed, with 12 of its 13 ASVs kept.
+So no short single-end 16S run had worked, in the old code either, which had both.
+
+Running ampliseq's other fixture jobs in the test bed then found one more: `v3v5`, whose
+pairs are joined end to end with 10 Ns, failed in DADA2's exact species match, which refuses
+any base that isn't ACGT ("Non-ACGT characters present in the query sequences"). At Daniel's
+call, a job with `mergepairs_strategy` `concatenate` or `consensus` skips that match. Then
+all six completed in the test bed, with `db:test/pplace-small`: `v1v3`, `v3v5` with 276
+ASVs, `v5v6`, `single` and `ont`, and `v4` as before.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs

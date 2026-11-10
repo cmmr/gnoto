@@ -92,6 +92,13 @@ params_set report_abstract "code:present/templates/ampliseq/abstract.md"
 MERGEPAIRS_STRATEGY=$(form_answer mergepairs_strategy)
 params_set mergepairs_strategy "${MERGEPAIRS_STRATEGY:-merge}"
 
+# concatenate, and consensus for the pairs that don't overlap, join a pair with
+# 10 Ns, and DADA2's exact species match refuses any base that isn't ACGT, so
+# those runs have no Species_exact. The classifier's Species stays.
+case $MERGEPAIRS_STRATEGY in
+    concatenate | consensus) params_set skip_dada_addspecies true ;;
+esac
+
 if [[ "$(form_answer picrust)" == true ]]; then
     params_set picrust true
 fi

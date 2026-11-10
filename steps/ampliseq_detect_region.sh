@@ -679,7 +679,23 @@ read -r MIN_LEN_ASV MAX_LEN_ASV < <(awk \
     -v length_of="$EXPECTED_ASV_LENGTH" -v tolerance="$ASV_LENGTH_TOLERANCE" \
     'BEGIN { printf "%d %d\n", length_of * (1 - tolerance), length_of * (1 + tolerance) + 0.5 }')
 
-log "Expecting ASVs of $EXPECTED_ASV_LENGTH bases; keeping $MIN_LEN_ASV to $MAX_LEN_ASV."
+#    Single-end reads that end before the amplicon does make ASVs as long as
+#    the reads, whatever the region, so their length is left unfiltered: a
+#    window around the amplicon's would remove every one
+NEAR_PRIMER=0
+if [[ "$OBSERVED_START" -ne 0 && "$BEST_FW_PRESENT" -eq 1 ]]; then
+    NEAR_PRIMER=${#BEST_FW_PRIMER}
+elif [[ "$OBSERVED_START" -eq 0 && "$BEST_RV_PRESENT" -eq 1 ]]; then
+    NEAR_PRIMER=${#BEST_RV_PRIMER}
+fi
+if [[ "$END_KNOWN" -eq 0 && "$MEDIAN_LENGTH" -lt $((EXPECTED_ASV_LENGTH + NEAR_PRIMER)) ]]; then
+    MIN_LEN_ASV=""
+    MAX_LEN_ASV=""
+    ASV_LENGTH="not filtered, as reads of $MEDIAN_LENGTH bases end before the $EXPECTED_ASV_LENGTH-base amplicon does"
+else
+    ASV_LENGTH="$MIN_LEN_ASV to $MAX_LEN_ASV bases kept, around the $EXPECTED_ASV_LENGTH the region predicts"
+fi
+log "Expecting ASVs of $EXPECTED_ASV_LENGTH bases; ASV length $ASV_LENGTH."
 
 state_set region "$BEST_REGION"
 
@@ -688,8 +704,10 @@ state_set region "$BEST_REGION"
     printf 'primer_fwd: "%s"\n' "$BEST_FW_PRIMER"
     printf 'primer_rev: "%s"\n' "$BEST_RV_PRIMER"
     printf 'skip_cutadapt: %s\n' "$SKIP_CUTADAPT"
-    printf 'min_len_asv: %s\n' "$MIN_LEN_ASV"
-    printf 'max_len_asv: %s\n' "$MAX_LEN_ASV"
+    if [[ -n "$MIN_LEN_ASV" ]]; then
+        printf 'min_len_asv: %s\n' "$MIN_LEN_ASV"
+        printf 'max_len_asv: %s\n' "$MAX_LEN_ASV"
+    fi
 
     # ampliseq would reach both of these from sequencing_type alone, since
     # asv_calling defaults to auto and savont_options to --fl-16s. Written out so
@@ -710,8 +728,7 @@ state_set region "$BEST_REGION"
     printf '  Primers:    %s\n' "$PRIMER_STATE"
     printf '  primer_fwd: %s\n' "$BEST_FW_PRIMER"
     printf '  primer_rev: %s\n' "$BEST_RV_PRIMER"
-    printf '  ASV length: %s to %s bases kept, around the %s the region predicts\n' \
-        "$MIN_LEN_ASV" "$MAX_LEN_ASV" "$EXPECTED_ASV_LENGTH"
+    printf '  ASV length: %s\n' "$ASV_LENGTH"
     printf '\n'
     printf '  Reads scanned: %s across %s samples\n' "$SCANNED_READS" "${#CHOSEN[@]}"
     printf '  Reads sampled: %s, of which %s aligned to the 16S landmarks\n' \

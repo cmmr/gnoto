@@ -1487,11 +1487,12 @@ on a mismatch. `gnoto lint --deep` and the job of an exact re-run from `record.y
 the full digest too. A `db:` name no lock pins, such as a site's own database, gets a
 warning, and the record keeps its file count and bytes, which an exact re-run checks.
 
-**Rebuilt references may not match.** A human index built with `bowtie2-build` at another
-site may differ byte for byte, even with the same container and inputs, which the md5 check
-confirms are the same. If testing shows that, we deposit our built host references on
-Zenodo, at about 4 GB each, and the lock points at that exact copy. That also protects
-against an upstream URL disappearing.
+**Rebuilt references match.** A host reference is built from downloads the md5 check
+confirms, in images pinned by digest, and `bowtie2-build` and minimap2 give the same bytes
+whatever their thread count: PhiX built identically at 6 CPUs in the test bed and 2 on the
+cluster, and the human reference at 8 CPUs as at 16 (2026-11-10). So the lock's tree digest
+holds for a build at any site, and nothing is deposited on Zenodo. An upstream URL that
+disappears is the remaining risk.
 
 ## What "same output" means
 
@@ -1631,8 +1632,8 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   CPU limits, and in phase 6 every one of its core tables repeated across two runs at 4 CPUs
   and one at 2. The pplace, 16S and PhiX references rebuild identically across sites, and
   PhiX across CPU counts. Nonpareil's k-mer mode takes no seed, so its values are left out
-  of the comparison. Still open: the shotgun pipelines' other outputs, and the human host
-  reference at another CPU count.
+  of the comparison. The human host reference rebuilt at 8 CPUs matched its build at 16.
+  Still open: the shotgun pipelines' other outputs.
 - **Trademark outside the US:** a USPTO search on 2026-11-05 found no GNOTO mark. The
   nearest was GNOTO-SAFE, a live registration for cardboard containers held by Charles
   River Laboratories. That was a knockout search, not a legal clearance, and no other
