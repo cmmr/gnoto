@@ -1,0 +1,21 @@
+# stable-files - taxprofiler's core tables, as paths under results/: what a
+# run's record keeps the checksums of, a re-run compares, and selftest checks.
+# A line may add how the file is read for its checksum, as lib/outputs.sh says.
+#
+# Chosen by running its fixture jobs twice, then at another CPU count, as
+# docs/migration.md's phase 6 notes record. Left out, because they vary from
+# run to run with a known cause: Nonpareil's curves, since its k-mer mode
+# subsamples at random with no seed; the BIOM files, which hold the time they
+# were written; and the reports, Krona's pages and logs. Within tables:
+# Nonpareil's columns of alpha_diversity.tsv. HUMAnN's tables are read with
+# their numbers at 12 significant digits, since a sum's last digit can differ
+# between CPUs.
+alpha_diversity.tsv drop nonpareil_diversity,coverage_pct,redundancy_pct,model_fit,effort_gbp,effort_95_gbp
+count_tables/*.tsv
+feature_table/feature-table.tsv
+taxpasta/*.tsv
+kraken2/*_combined_reports.txt
+bracken/*_combined_reports.txt
+metaphlan/*_combined_reports.txt
+motus/*_combined_reports.txt
+humann/*.tsv round 12

@@ -305,7 +305,9 @@ databases_wait() {
     done <<< "$names"
 }
 
-# The _fetch job: fetches or builds one entry into place, under its lock
+# The _fetch job: fetches or builds one entry into place, under its lock. Jobs
+# started together can each submit a fetch of the same entry, so a second
+# waits for the first, as long as its own time allows, and then finds it there.
 fetch_main() {
     local entry=${1:-} setup dir tmp status=0 job
     [[ -n $entry && $entry != /* && "/$entry/" != */../* ]] || fail "Usage: _fetch <database path>"
@@ -315,7 +317,7 @@ fetch_main() {
     job=${SLURM_JOB_ID:-$$}
     [[ -n ${SLURM_JOB_ID:-} ]] || printf 'local - %s %s\n' "$(uname -n)" "$$" > "$dir.fetching"
     (
-        flock -w 60 9 || fail "Another fetch of $entry holds its lock."
+        flock 9 || fail "Can't lock $entry to fetch it."
         if [[ -e $dir ]]; then
             log "$dir is already there."
             exit 0

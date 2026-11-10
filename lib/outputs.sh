@@ -18,6 +18,8 @@
 #                           expression, such as one holding a timestamp
 #   <path> drop <columns>   without the columns its header names, comma-separated,
 #                           for values that vary with a known cause
+#   <path> round <digits>   with every number rounded to that many significant
+#                           digits, for sums whose last digit varies with the CPU
 #
 # A file ending in .gz is read decompressed, and one ending in .csv, or .csv.gz,
 # is split on commas, any other on tabs. The published file is left as it is. A run's outputs are each matching file's path and the SHA-256 of what's
@@ -81,6 +83,15 @@ outputs_read() {
                     print line
                 }'
             ;;
+        round)
+            [[ $arg =~ ^[1-9][0-9]?$ ]] || { echo "stable-files: round takes a number of digits, not \"$arg\"" >&2; return 1; }
+            gawk -F "$sep" -v OFS="$sep" -v digits="$arg" '
+                BEGIN { number = "^[-+]?([0-9]+[.]?[0-9]*|[.][0-9]+)([eE][-+]?[0-9]+)?$" }
+                {
+                    for (i = 1; i <= NF; i++) if ($i ~ number) $i = sprintf("%." digits "g", $i)
+                    print
+                }'
+            ;;
         *) echo "stable-files: \"$how\" isn't a way to read a table" >&2; return 1 ;;
     esac
 }
@@ -88,12 +99,12 @@ outputs_read() {
 # The checksums of a pipeline's core tables under a directory, as a JSON list
 # of {path, sha256}: outputs_measure <pipeline> <directory>
 outputs_measure() {
-    local pipeline=$1 dir=$2 path how arg sum
+    local pipeline=$1 dir=$2 path how arg sum lines=""
     while IFS=$'\t' read -r path how arg; do
-        sum=$(outputs_read "$dir/$path" "$how" "$arg" | sha256sum) || return 1
-        printf '%s\t%s\n' "$path" "${sum%% *}"
-    done < <(outputs_list "$pipeline" "$dir") |
-        jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {path: .[0], sha256: .[1]})'
+        sum=$(set -o pipefail; outputs_read "$dir/$path" "$how" "$arg" | sha256sum) || return 1
+        lines+="$path"$'\t'"${sum%% *}"$'\n'
+    done < <(outputs_list "$pipeline" "$dir")
+    printf '%s' "$lines" | jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {path: .[0], sha256: .[1]})'
 }
 
 # Copies, from beside a record, each core table whose checksum is the one the
@@ -105,7 +116,7 @@ outputs_keep_recorded() {
     while IFS=$'\t' read -r path sum; do
         [[ -n $path && $path != /* && $path != *..* && -f $from/$path ]] || continue
         IFS=$'\t' read -r how arg < <(outputs_how "$pipeline" "$path"; echo)
-        [[ $(outputs_read "$from/$path" "$how" "$arg" | sha256sum) == "$sum "* ]] || continue
+        [[ $(set -o pipefail; outputs_read "$from/$path" "$how" "$arg" | sha256sum) == "$sum "* ]] || continue
         mkdir -p "$to/$(dirname "$path")" && cp "$from/$path" "$to/$path" || return 1
         kept=$((kept + 1))
     done < <(jq -r '.[]? | [.path, .sha256] | @tsv' <<< "$recorded")

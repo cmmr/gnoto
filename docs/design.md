@@ -1539,9 +1539,13 @@ Each pipeline lists its core tables in `pipelines/<name>/stable-files`, one a li
 paths under `results/` in which `*` and `?` match any characters, such as a sample's name.
 A line may say how its file is read for the checksum: `sort`, its lines in byte order, for
 rows whose order varies; `strip <regex>`, without the lines that match, such as a
-timestamp; or `drop <column>,...`, without the columns its header names, such as Nonpareil's
-in `alpha_diversity.tsv`, whose k-mer mode takes no seed. A `.gz` file is read decompressed,
-and the comparison reads the same text. The published file is left as it is. That
+timestamp; `drop <column>,...`, without the columns its header names, such as Nonpareil's in
+`alpha_diversity.tsv`, whose k-mer mode takes no seed; or `round <digits>`, with every number
+rounded to that many significant digits, for sums whose last digit follows the CPU, such
+as HUMAnN's. A cluster's nodes needn't share one CPU type, so two runs of a job needn't land
+on the same hardware, and those modes keep such a value from making the whole table
+differ. A `.gz` file is read decompressed, and the comparison reads the same text. The
+published file is left as it is. That
 list comes from a test:
 
 1. Run each pipeline on its fixtures, the public datasets listed in [fixtures.md](fixtures.md).

@@ -5,19 +5,22 @@
 # Chosen by running its fixture jobs twice, then at another CPU count, as
 # docs/migration.md's phase 6 notes record. Left out, because they vary from
 # run to run with a known cause: the placement trees in pplace/, whose ASVs
-# placed on one edge come in an order EPA-NG's threads decide; the BIOM files,
-# which hold the time they were written; and the reports, PDFs and logs.
+# placed on one edge come in an order EPA-NG's threads decide, and whose
+# placements themselves can differ between CPUs; the BIOM files, which hold
+# the time they were written; and the reports, PDFs and logs. Within tables:
+# Faith's PD, measured on that tree, and DADA2's bootstrap confidences, which
+# can differ by a replicate between CPUs, though the taxa don't.
 dada2/ASV_table.tsv
 dada2/ASV_seqs.fasta
-dada2/ASV_tax.user.tsv
-dada2/ASV_tax_species.user.tsv
+dada2/ASV_tax.user.tsv drop confidence,domain_confidence,phylum_confidence,class_confidence,order_confidence,family_confidence,genus_confidence,species_confidence
+dada2/ASV_tax_species.user.tsv drop confidence,domain_confidence,phylum_confidence,class_confidence,order_confidence,family_confidence,genus_confidence,species_confidence
 dada2/DADA2_table.tsv
 dada2/DADA2_stats.tsv
 asv_length_filter/ASV_table.len.tsv
 asv_length_filter/stats.len.tsv
 barrnap/summary.tsv
 abundance_tables/*.tsv
-alpha_diversity.tsv
+alpha_diversity.tsv drop faith
 feature_table/feature-table.tsv
 feature_table/feature-sequences.fasta
 overall_summary.tsv

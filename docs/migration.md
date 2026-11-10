@@ -956,6 +956,32 @@ call, a job with `mergepairs_strategy` `concatenate` or `consensus` skips that m
 all six completed in the test bed, with `db:test/pplace-small`: `v1v3`, `v3v5` with 276
 ASVs, `v5v6`, `single` and `ont`, and `v4` as before.
 
+The rest of the first round, at `2600665`, with each job twice at 32 CPUs and once at 8:
+
+- **Four runs never started.** Jobs started together each submitted a fetch of the same
+  fixture, and a second fetch failed after 60 seconds waiting for the first's lock, so every
+  job waiting on it was cancelled: taxprofiler's `mouse` and its `human` at 8 CPUs, and
+  biobakery's `human` and `mouse`. A fetch now waits for the lock for as long as its job may
+  run, then finds the entry there; two fetches of `16s-single` at once in the test bed both
+  succeeded, with the lock's tree digest.
+- **taxprofiler's `mixed` failed in MetaPhlAn** on `wgs-phix`: "no reads longer than 70 bp
+  found". At Daniel's call, that fixture is now a job of its own, `phix`, which fails until a
+  follow-up lets taxprofiler drop such a sample.
+- **What repeated.** ampliseq's `v4`, `v1v3`, `v5v6` and `ont`, taxprofiler's `ont` and
+  biobakery's `mixed` and `virus` completed three times each, with their core tables
+  identical but for three values: Faith's PD in ampliseq's `alpha_diversity.tsv`, 10.64
+  against 10.7 between the finish test's job and its re-run, since EPA-NG's placements on the
+  full reference differed; DADA2's bootstrap confidences, by one or two replicates in `v1v3`
+  and `v5v6`, with the same taxa; and one sum in HUMAnN's `pathway-abundance-rpk.tsv`, 3e-15
+  apart. Each came from two runs at the same CPU count, and in the test bed DADA2's classifier
+  gave the same output twice at 4 threads and twice at 1, so the likely cause is tasks
+  landing on nodes of different CPUs. At Daniel's call, `stable-files` leaves Faith's PD and
+  the confidences out and reads HUMAnN's tables at 12 significant digits, with a new `round`
+  mode. EsViritu's assemblies repeat with their rows sorted, and Nonpareil's curves vary, as
+  expected.
+- Every pipeline now has its `stable-files`. The finish test passed but for Faith's PD, and
+  the doctored record reported its changed count exactly.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs

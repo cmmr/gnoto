@@ -13,13 +13,18 @@ jobs:
     samples:
       - [mouse, fixtures/wgs-mouse/v1/SRR19086211_1.fastq.gz, fixtures/wgs-mouse/v1/SRR19086211_2.fastq.gz]
     args: ["--hostremoval_reference=Mouse + PhiX"]
-  # The mock with known truth, a sample PhiX removal leaves empty, and one
-  # single-end sample beside them
+  # The mock with known truth, and one single-end sample beside it
   - name: mixed
     samples:
       - [mock, fixtures/wgs-mock/v1/SRR37882354_1.fastq.gz, fixtures/wgs-mock/v1/SRR37882354_2.fastq.gz]
-      - [phix, fixtures/wgs-phix/v1/SRR353672_1.fastq.gz, fixtures/wgs-phix/v1/SRR353672_2.fastq.gz]
       - [single, fixtures/wgs-single/v1/SRR22959674.fastq.gz]
+  # A sample PhiX removal leaves almost empty, beside the mock. It fails until
+  # taxprofiler can drop a sample with no reads MetaPhlAn can use, which stops
+  # the run as "no reads longer than 70 bp found"
+  - name: phix
+    samples:
+      - [mock, fixtures/wgs-mock/v1/SRR37882354_1.fastq.gz, fixtures/wgs-mock/v1/SRR37882354_2.fastq.gz]
+      - [phix, fixtures/wgs-phix/v1/SRR353672_1.fastq.gz, fixtures/wgs-phix/v1/SRR353672_2.fastq.gz]
   - name: ont
     samples:
       - [ont, fixtures/wgs-ont/v1/ERR3078231.fastq.gz]

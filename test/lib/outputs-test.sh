@@ -153,7 +153,24 @@ RESULT=$(outputs_compare u "$DROPPED" "$(outputs_measure u "$WORK/d2")" "$WORK/d
 check "a kept column that differs is compared alone" "1 kept 2" \
     "$(jq -r '.tables[] | select(.path == "alpha.tsv") | .figures | "\(.numbers_differing) \(.column) \(.numbers)"' <<< "$RESULT")"
 
-# 5. A record's own tables, kept for a re-run
+# 5. Numbers rounded, as HUMAnN's are
+printf 'sums.tsv round 12\n' >> "$CODE_DIR/pipelines/u/stable-files"
+mkdir -p "$WORK/r1" "$WORK/r2" "$WORK/r3"
+printf 'pathway\tS1\tS2\nUNMAPPED\t30226.9081424064\t7\nPWY-1\t1.5e-3\tlow\n' > "$WORK/r1/sums.tsv"
+printf 'pathway\tS1\tS2\nUNMAPPED\t30226.9081424065\t7\nPWY-1\t1.5e-3\tlow\n' > "$WORK/r2/sums.tsv"
+printf 'pathway\tS1\tS2\nUNMAPPED\t30226.9081\t7\nPWY-1\t1.5e-3\tlow\n' > "$WORK/r3/sums.tsv"
+ROUNDED=$(outputs_measure u "$WORK/r1")
+check "a number's last digit changes nothing at 12 digits" "true" \
+    "$(jq -r .identical <<< "$(outputs_compare u "$ROUNDED" "$(outputs_measure u "$WORK/r2")" "$WORK/r1" "$WORK/r2")")"
+check "but its sixth does" "false" \
+    "$(jq -r .identical <<< "$(outputs_compare u "$ROUNDED" "$(outputs_measure u "$WORK/r3")" "$WORK/r1" "$WORK/r3")")"
+check "and text and whole numbers are read as they are" "$(printf 'pathway\tS1\tS2\nUNMAPPED\t30226.9081424\t7\nPWY-1\t0.0015\tlow\n' | sum)" \
+    "$(jq -r '.[] | select(.path == "sums.tsv") | .sha256' <<< "$ROUNDED")"
+printf 'bad.tsv round x\n' > "$CODE_DIR/pipelines/u/stable-files"
+cp "$WORK/r1/sums.tsv" "$WORK/r1/bad.tsv"
+check "round takes a number of digits" "1" "$(outputs_measure u "$WORK/r1" > /dev/null 2>&1; echo $?)"
+
+# 6. A record's own tables, kept for a re-run
 KEEP=$WORK/keep
 printf 'id\tS1\tS2\nASV_1\t1\t1\n' > "$B/table.tsv"
 check "only the tables matching the record's checksums are kept" "5" \

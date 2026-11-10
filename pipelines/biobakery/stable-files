@@ -1,0 +1,25 @@
+# stable-files - biobakery's core tables, as paths under results/: what a
+# run's record keeps the checksums of, a re-run compares, and selftest checks.
+# A line may add how the file is read for its checksum, as lib/outputs.sh says.
+#
+# Chosen by running its fixture jobs twice, then at another CPU count, as
+# docs/migration.md's phase 6 notes record. Left out, because they vary from
+# run to run with a known cause: Nonpareil's curves, since its k-mer mode
+# subsamples at random with no seed; the BIOM files, which hold the time they
+# were written; and the reports, PDFs and logs. Within tables: Nonpareil's
+# columns of alpha_diversity.tsv. HUMAnN's tables are read with their numbers
+# at 12 significant digits, since a sum's last digit can differ between CPUs,
+# and EsViritu's assemblies with their rows sorted, since their order varies.
+kneaddata/read-counts.tsv
+metaphlan/*.tsv
+humann/*.tsv round 12
+alpha_diversity.tsv drop nonpareil_diversity,coverage_pct,redundancy_pct,model_fit,effort_gbp,effort_95_gbp
+motus/motus-counts.tsv
+esviritu/virus-taxa.tsv
+esviritu/virus-assemblies.tsv sort
+esviritu/virus-contigs.tsv
+esviritu/virus-coverage.tsv
+esviritu/read-counts.tsv
+markermagu/virome-counts.tsv
+markermagu/virome-relab.tsv
+markermagu/markermagu-profile.tsv

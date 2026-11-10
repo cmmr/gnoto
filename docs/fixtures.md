@@ -73,7 +73,9 @@ tables.
 | ampliseq | `ont` | `16s-ont`, six samples | |
 | taxprofiler, biobakery | `human` | `wgs-human` | `Human + PhiX` |
 | taxprofiler, biobakery | `mouse` | `wgs-mouse` | `Mouse + PhiX` |
-| taxprofiler, biobakery | `mixed` | `wgs-mock`, `wgs-phix` and `wgs-single` | PhiX, the default |
+| biobakery | `mixed` | `wgs-mock`, `wgs-phix` and `wgs-single` | PhiX, the default |
+| taxprofiler | `mixed` | `wgs-mock` and `wgs-single` | PhiX, the default |
+| taxprofiler | `phix` | `wgs-mock` and `wgs-phix` | PhiX, the default. It fails until taxprofiler can drop a sample MetaPhlAn finds no read over 70 bp in |
 | taxprofiler | `ont` | `wgs-ont` | |
 | biobakery | `virus` | `wgs-virus` | `run_esviritu` |
 
