@@ -1349,18 +1349,20 @@ Registry (GHCR). Everything else is pinned by digest where it already lives.
 | --- | --- | --- | --- |
 | `gnoto`: the tools listed under "Host and image" | Built with Nix | **Yes** | Every script and Nextflow run on it |
 | `gnoto-rbiom`: R, rbiom, h5lite | Built with Docker from rocker's R image, with pak installing a lockfile resolved against Posit's dated CRAN snapshot | **Yes** | Nobody else can provide it |
+| `gnoto-kneaddata`: KneadData from its `master` branch | Built with Docker from KneadData 0.12.4's BioContainers image, with `master`'s `kneaddata` package in place of the release's | **Yes** | No release has the fix for its parallel TRF yet |
 | `bowtie2_htslib_samtools_pigz` | `community.wave.seqera.io` | **Yes, a mirror** | It's one vendor's registry, with no formal retention policy that we could find |
-| KneadData, MetaPhlAn, HUMAnN, mOTUs, Nonpareil, Marker-MAGu, EsViritu, MultiQC, biom-format, vsearch, gotree, minimap2, sra-tools | `quay.io/biocontainers` | No | Pinned by digest, and archived on Zenodo by any release that changes them |
+| KneadData's base, MetaPhlAn, HUMAnN, mOTUs, Nonpareil, Marker-MAGu, EsViritu, MultiQC, biom-format, vsearch, gotree, minimap2, sra-tools | `quay.io/biocontainers` | No | Pinned by digest, and archived on Zenodo by any release that changes them |
 | The images ampliseq and taxprofiler use | Wherever upstream names them | No | Pinned through `containers.config`, and archived the same way |
 
 **Publishing.** `.github/workflows/images.yml` runs `images/publish.sh` whenever a push to
 `main` changes a recipe, `IMAGE` or the workflow. It builds gnoto with Nix and `gnoto-rbiom`
-with Docker, copies each image `images/mirrors.txt` lists, by tag and digest, with its digest
-kept, and pushes them to `ghcr.io/cmmr/`. An image gnoto builds is tagged with the first 12
-characters of its recipe's git hash, so a recipe already published is left alone, and a copy
-keeps its source's tag. The run lists each digest, which `IMAGE` and `lock.yaml` then name in
-a commit of their own, since an image has to exist before a commit can pin it. Both recipes
-carry the `org.opencontainers.image.source` label, which links a package to this repo.
+and `gnoto-kneaddata` with Docker, copies each image `images/mirrors.txt` lists, by tag and
+digest, with its digest kept, and pushes them to `ghcr.io/cmmr/`. An image gnoto builds is
+tagged with the first 12 characters of its recipe's git hash, so a recipe already published
+is left alone, and a copy keeps its source's tag. The run lists each digest, which `IMAGE`,
+`lock.yaml` and the modules then name in a commit of their own, since an image has to exist
+before a commit can pin it. Every recipe carries the `org.opencontainers.image.source` label,
+which links a package to this repo.
 
 To test a change to a recipe before it's published, `test/testbed/testbed.sh image
 [gnoto|gnoto-rbiom]` builds a `.sif` into the test bed's `<data_dir>/images/` and names it in
@@ -1409,6 +1411,20 @@ and rbiom 4.0.0 needs 2.3.1.
 commit as the script that depends on it. A general image for rbiom's own users would be
 a separate product built from the `rbiom` repo, and the pipeline could adopt it by
 changing one digest.
+
+**`gnoto-kneaddata` is KneadData's latest release with `master`'s code.** KneadData 0.12.4's
+parallel Tandem Repeats Finder splits a file's reads across `--threads` processes, and fails
+when the last read lands just as one process's share is closed. That happens only for a file
+of at most `threads * (threads - 1)` reads: 49 read counts of 1 to 240 at 16 CPUs, such as a
+blank left with 4 reads, or a sample's 98 orphans. `master` has the fix, and no release does.
+`images/gnoto-kneaddata/Dockerfile` starts from 0.12.4's BioContainers image, by digest, so
+Python, Trimmomatic, TRF, Bowtie2 and FastQC are the release's. It replaces the `kneaddata`
+package with the one in `master`'s tarball at a commit, checked by its SHA-256, and keeps the
+release's Trimmomatic adapters, which `setup.py` downloads rather than the repository
+holding. KneadData's three processes run in it. Once a release has the fix, they go back to
+that release's BioContainers image and the recipe goes. Either way, KNEADDATA gives KneadData
+at least 2 threads: with 1, KneadData sends its own progress into the file Tandem Repeats
+Finder's results go to, overwriting their start, so each file's first repeat read is kept.
 
 **Archive.** A release that changes any image also gets an image bundle on Zenodo, in
 case a registry changes. `nf-core pipelines download` can

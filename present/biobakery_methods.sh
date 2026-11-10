@@ -17,10 +17,12 @@
 # profiles were made from its reads: the steps, the tools, and the databases.
 #
 # Versions are the BioContainers tags the modules pin, and the tools inside
-# those images, such as Trimmomatic and Bowtie2, are named by the image. Host
-# depletion is described by the Bowtie2 options in the run's params, and
-# KneadData's steps as each sample's log recorded them. A run whose logs are
-# gone is described by KneadData 0.12.4's defaults, without the read length.
+# those images, such as Trimmomatic and Bowtie2, are named by the image. While
+# the modules name gnoto-kneaddata, KneadData is the version its code reports,
+# at the commit images/gnoto-kneaddata/Dockerfile names. Host depletion is
+# described by the Bowtie2 options in the run's params, and KneadData's steps
+# as each sample's log recorded them. A run whose logs are gone is described by
+# KneadData's defaults, without the read length.
 #
 # Databases are the run's db: names, described by their entry in
 # pipelines/databases.yaml: a release, the genomes a host reference was built
@@ -191,7 +193,7 @@ kneaddata_setting() {
     sed -n "s/^$1 = //p" "${KNEADDATA_LOGS[@]}" | LC_ALL=C sort -u
 }
 
-# What KneadData 0.12.4 logs for these when nothing overrides them
+# What KneadData logs for these when nothing overrides them
 declare -A KNEADDATA_DEFAULTS=(
     [bypass_trim]=False [bypass_trf]=False [trimmomatic_options]=None
     [match]=2 [mismatch]=7 [delta]=7 [pm]=80 [pi]=10 [minscore]=50 [maxperiod]=500
@@ -338,6 +340,21 @@ for tool in "${TOOLS[@]}"; do
     [[ -n $image ]] && IMAGES+=("$image")
 done
 
+# KneadData as the text names it, and gnoto-kneaddata's base image and commit
+# when the modules name that image
+KNEADDATA_IMAGE=$(container_image gnoto-kneaddata)
+KNEADDATA_BASE=""
+KNEADDATA_COMMIT=""
+if [[ -n $KNEADDATA_IMAGE ]]; then
+    RECIPE=$CODE_DIR/images/gnoto-kneaddata/Dockerfile
+    KNEADDATA_BASE=$(sed -n 's/^FROM \([^@ ]*\).*/\1/p' "$RECIPE" 2> /dev/null | head -n 1)
+    KNEADDATA_COMMIT=$(sed -n 's#.*/archive/\([0-9a-f]\{7\}\)[0-9a-f]*\.tar\.gz.*#\1#p' "$RECIPE" 2> /dev/null | head -n 1)
+    KNEADDATA_NAME=$(named KneadData "$(sed -n "s/.*'kneaddata v\([0-9.]*\)'.*/\1/p" "$RECIPE" 2> /dev/null | head -n 1)")
+    KNEADDATA_NAME+=${KNEADDATA_COMMIT:+ (commit $KNEADDATA_COMMIT)}
+else
+    KNEADDATA_NAME=$(named KneadData "$(tool_version kneaddata)")
+fi
+
 # 2. The workflow, and the images the tools ran from
 cite ditommaso2017
 TEXT="Sequencing reads were processed with a $(named Nextflow "$NEXTFLOW_VERSION")$CITATION workflow"
@@ -349,6 +366,12 @@ if [[ -n $HOST_DB && -n $HOST_IMAGE ]]; then
     TEXT+=", and Bowtie2 for host depletion from the Seqera Containers image $HOST_IMAGE"
 fi
 TEXT+="."
+if [[ -n $KNEADDATA_IMAGE ]]; then
+    TEXT+=" KneadData ran from $KNEADDATA_IMAGE"
+    [[ -n $KNEADDATA_BASE ]] && TEXT+=", which is $KNEADDATA_BASE"
+    [[ -n $KNEADDATA_COMMIT ]] && TEXT+=" with KneadData's code from commit $KNEADDATA_COMMIT of its repository"
+    TEXT+="."
+fi
 
 # 3. Host depletion, KneadData as its logs recorded it, and the quality reports
 if (( ${#KNEADDATA_LOGS[@]} == 0 )); then
@@ -373,7 +396,7 @@ if (( ${#SAMPLE_RUNS[@]} > 0 )); then
 fi
 
 cite beghini2021
-TEXT+=" Reads were quality controlled with $(named KneadData "$(tool_version kneaddata)")$CITATION"
+TEXT+=" Reads were quality controlled with $KNEADDATA_NAME$CITATION"
 TEXT+="$(extra_options "$KNEADDATA_ARGS")."
 
 TRIMMED=""

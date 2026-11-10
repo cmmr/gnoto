@@ -7,6 +7,7 @@
 #            recipe, or by hand with a local registry for a test
 # Usage:     images/publish.sh gnoto <docker-archive tarball>
 #            images/publish.sh gnoto-rbiom
+#            images/publish.sh gnoto-kneaddata
 #            images/publish.sh mirrors
 # Requires:  bash, git and docker. skopeo runs from its image, pinned below.
 # Env:       REGISTRY, where images go, ghcr.io/cmmr by default; REGISTRY_USER
@@ -19,15 +20,16 @@
 #            GITHUB_STEP_SUMMARY, where CI collects the digests
 #
 # Each image is tagged with the first 12 characters of its recipe's git hash,
-# images/gnoto.nix or images/gnoto-rbiom/, so a recipe that's already published
-# is left alone. A mirror keeps its source's tag and digest. The digests then go
-# into IMAGE and lock.yaml by hand, in a commit of their own.
+# images/gnoto.nix or images/<name>/, so a recipe that's already published is
+# left alone. A mirror keeps its source's tag and digest. The digests then go
+# into IMAGE, lock.yaml and the modules by hand, in a commit of their own.
 #
 # gnoto's image rebuilds byte for byte, and skopeo's gzip is deterministic, so
 # the same recipe and skopeo give the same digest. Its digest is learned from
 # CHECK_REGISTRY first: an existing tag with another digest fails, as a build
-# that no longer reproduces. gnoto-rbiom doesn't rebuild byte for byte, so an
-# existing tag is kept as it is.
+# that no longer reproduces. The Dockerfile images, gnoto-rbiom and
+# gnoto-kneaddata, don't rebuild byte for byte, so an existing tag is kept as
+# it is.
 
 set -euo pipefail
 
@@ -115,17 +117,19 @@ publish_gnoto() {
     report "docker://$REGISTRY/gnoto@$digest" "$REPO/IMAGE"
 }
 
-publish_rbiom() {
-    local tag digest
-    tag=$(recipe_tag images/gnoto-rbiom)
-    digest=$(registry_digest "$REGISTRY/gnoto-rbiom:$tag")
+# The image a Dockerfile in images/<name>/ builds, which the files named_in
+# name by digest
+publish_docker() {
+    local name=$1 named_in=$2 tag digest
+    tag=$(recipe_tag "images/$name")
+    digest=$(registry_digest "$REGISTRY/$name:$tag")
     if [[ -z $digest ]]; then
-        docker build --platform linux/amd64 -t "gnoto-rbiom:$tag" "$(host_path "$REPO/images/gnoto-rbiom")" >&2 ||
-            fail "can't build images/gnoto-rbiom"
-        docker save -o "$(host_path "$WORK/gnoto-rbiom.tar")" "gnoto-rbiom:$tag" || fail "can't save gnoto-rbiom:$tag"
-        digest=$(push_archive /work/gnoto-rbiom.tar "$REGISTRY/gnoto-rbiom:$tag" "$TLS_VERIFY")
+        docker build --platform linux/amd64 -t "$name:$tag" "$(host_path "$REPO/images/$name")" >&2 ||
+            fail "can't build images/$name"
+        docker save -o "$(host_path "$WORK/$name.tar")" "$name:$tag" || fail "can't save $name:$tag"
+        digest=$(push_archive "/work/$name.tar" "$REGISTRY/$name:$tag" "$TLS_VERIFY")
     fi
-    report "$REGISTRY/gnoto-rbiom@$digest" "$REPO/pipelines/*/lock.yaml"
+    report "$REGISTRY/$name@$digest" "$named_in"
 }
 
 # Each line of mirrors.txt is a source address, by tag and digest
@@ -152,7 +156,8 @@ publish_mirrors() {
 
 case ${1:-} in
     gnoto) publish_gnoto "${2:?Usage: publish.sh gnoto <tarball>}" ;;
-    gnoto-rbiom) publish_rbiom ;;
+    gnoto-rbiom) publish_docker gnoto-rbiom "$REPO/pipelines/*/lock.yaml" ;;
+    gnoto-kneaddata) publish_docker gnoto-kneaddata "$REPO/modules" ;;
     mirrors) publish_mirrors ;;
-    *) fail "Usage: publish.sh gnoto <tarball> | gnoto-rbiom | mirrors" ;;
+    *) fail "Usage: publish.sh gnoto <tarball> | gnoto-rbiom | gnoto-kneaddata | mirrors" ;;
 esac

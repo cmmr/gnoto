@@ -1,7 +1,7 @@
 # images.yml - Publishes the images gnoto builds, and the ones it keeps a copy
 # of, to ghcr.io/cmmr, whenever a push to main changes a recipe.
 # images/publish.sh does the work, and lists each image's digest in the run's
-# summary, for IMAGE and lock.yaml to name in a later commit.
+# summary, for IMAGE, lock.yaml and the modules to name in a later commit.
 
 name: images
 
@@ -47,6 +47,16 @@ jobs:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: images/publish.sh gnoto-rbiom
+
+  gnoto-kneaddata:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build and publish
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: images/publish.sh gnoto-kneaddata
 
   mirrors:
     runs-on: ubuntu-24.04

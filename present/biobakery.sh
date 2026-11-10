@@ -101,8 +101,8 @@ if [[ $TOTAL_READS =~ ^[0-9]+$ ]] && (( TOTAL_READS > 0 )); then
         "$TOTAL_READS" "$KNEADDATA_SECTION"
     dashboard_stat_share "Retained reads" "${STATS[retained_total]:-}" "$TOTAL_READS" growth reads
 
-    # The samples KneadData left with no reads, under a bar of those that
-    # remain, and those HUMAnN or Nonpareil couldn't finish
+    # The samples KneadData left with no reads, or no pairs, under a bar of
+    # those that remain, and those HUMAnN or Nonpareil couldn't finish
     if [[ -n ${STATS[samples_dropped]:-}${STATS[humann_missing]:-}${STATS[nonpareil_missing]:-} ]]; then
         dashboard_stat_group "SAMPLES"
         if [[ -n ${STATS[samples_dropped]:-} ]]; then
@@ -116,7 +116,7 @@ if [[ $TOTAL_READS =~ ^[0-9]+$ ]] && (( TOTAL_READS > 0 )); then
             DROPPED_LIST=$(printf '%s, ' "${DROPPED[@]}")
             dashboard_stat_bar "Samples analysed" "$KEPT_SAMPLES of $GIVEN_SAMPLES" \
                 "$KEPT_PCT" growth "" "Dropped: ${DROPPED_LIST%, }" \
-                "Samples with no reads left after trimming and host depletion, and so in none of the run's tables"
+                "Samples with no reads left after trimming and host depletion, or paired samples with no pairs left, and so in none of the run's tables"
         fi
         for GAP in "No HUMAnN profile|humann_missing" "No Nonpareil estimate|nonpareil_missing"; do
             GAP_SAMPLES=${STATS[${GAP##*|}]:-}

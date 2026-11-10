@@ -7,7 +7,7 @@
 //
 // A sample with no reads to start with, or none left after host depletion,
 // trimming or repeat removal, exits 10, which conf/base.config drops from the
-// run.
+// run. So does a paired sample left with no pairs, only orphans.
 
 // One sample's runs, host-depleted or raw, with HOST_DEPLETION's summary of
 // each run when there are any. The cleaned reads are named as KneadData names
@@ -40,6 +40,9 @@ process KNEADDATA {
     def input    = meta.single_end ? "--unpaired ${id}_R1.fastq" : "--input1 ${id}_R1.fastq --input2 ${id}_R2.fastq"
     def heap     = task.memory ? "--max-memory ${(task.memory.toMega() * 3 / 4) as long}m" : ''
     def depleted = host ? true : false
+    // At least two: with one, KneadData writes its own progress into Tandem
+    // Repeats Finder's results, and so keeps each file's first repeat read
+    def threads  = Math.max(task.cpus as int, 2)
     """
     no_reads() {
         echo "${id} has no reads \$1; dropping it from the run" >&2
@@ -71,7 +74,7 @@ process KNEADDATA {
     kneaddata ${input} \\
         --output out \\
         --output-prefix ${id} \\
-        --threads ${task.cpus} \\
+        --threads ${threads} \\
         --trimmomatic trimmomatic \\
         ${heap} \\
         --sequencer-source ${params.kneaddata_sequencer_source} \\
@@ -108,7 +111,12 @@ process KNEADDATA {
                 file="${id}_unmatched_\${name: -7:1}.fastq" ;;
             *[._]1.fastq) type=pair1;  file=${id}_paired_1.fastq ;;
             *[._]2.fastq) type=pair2;  file=${id}_paired_2.fastq ;;
-            *)            type=single; file=${id}.fastq ;;
+            # A paired sample's file is named this way only when trimming left
+            # it no pairs: orphans alone, and only mate 2's when both have some
+            *)
+                ${meta.single_end ? '' : 'no_reads "in pairs left after trimming"'}
+                type=single
+                file=${id}.fastq ;;
         esac
 
         mv "out/\$name" "\$file"
@@ -120,18 +128,25 @@ process KNEADDATA {
         exit 1
     fi
 
-    # Repeat removal can remove every read without KneadData failing
+    # Repeat removal can remove every read without KneadData failing, or every
+    # read of one mate's pairs, since it removes each mate's reads on its own
     kept=0
+    paired=0
 
     while IFS=\$'\\t' read -r type file; do
         if [ -s "\$file" ]; then
             kept=\$((kept + 1))
+
+            case "\$type" in
+                pair1|pair2) paired=\$((paired + 1)) ;;
+            esac
         fi
     done < files.txt
 
     if [ \$kept -eq 0 ]; then
         no_reads "left after trimming and repeat removal"
     fi
+    ${meta.single_end ? '' : 'if [ $paired -lt 2 ]; then no_reads "in pairs left after trimming and repeat removal"; fi'}
 
     # KneadData logs no count after Tandem Repeats Finder, so the final files
     # are counted into the log in its own READ COUNT format
