@@ -96,7 +96,8 @@ run_job() {
     [[ -z ${ARG_FLAGS[debug]:-} ]] || debug=true
     [[ -z ${ARG_FLAGS[yes]:-} ]] || yes=true
     job_check "$file"
-    if [[ $JOB_EXACT == false && -n ${JOB_INPUTS_DIR:-} ]]; then
+    # Only a file read as naming its pipeline is known to be a job file
+    if [[ $JOB_EXACT == false && -n ${JOB_INPUTS_DIR:-} && -n $JOB_PIPELINE ]]; then
         fail "--inputs is for re-running a record.yaml, and $file is a job file, which names its samplesheet."
     fi
     if (( LINT_FAILS == ${JOB_MISSING_DATABASES:-0} )); then

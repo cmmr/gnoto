@@ -5,7 +5,9 @@
 # reports by how much.
 #
 # Run by:    a developer, as any user, in the test bed or on the cluster:
-#            bash <install>/test/testbed/checks/determinism.sh [--small]
+#            bash <install>/test/testbed/checks/determinism.sh [--small] [--from=<uid>]
+#            --from takes the job from a run this check started before, which
+#            it waits for if it's still going, rather than starting another
 # Requires:  the install's gnoto. gnoto lint --yes fetches the 16s-v4 fixture
 #            and the databases the job needs.
 #
@@ -19,17 +21,21 @@
 #      copy to compare its numbers with
 # --small uses db:test/pplace-small, for a node that can't hold EPA-NG on the
 # full placement reference. Writes in <data_dir>/test/$USER/determinism. Takes
-# about 30 minutes in the test bed.
+# about 30 minutes in the test bed, and as long as the queue holds its three
+# runs, one after another, on a busy cluster. A run that doesn't complete stops
+# it.
 
 set -u
 
 CODE_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 GNOTO=$CODE_DIR/gnoto
 SMALL=false
+FROM=""
 for ARG in "$@"; do
     case $ARG in
         --small) SMALL=true ;;
-        *) echo "Usage: determinism.sh [--small]" >&2; exit 1 ;;
+        --from=[a-z2-7]*) FROM=${ARG#--from=} ;;
+        *) echo "Usage: determinism.sh [--small] [--from=<uid>]" >&2; exit 1 ;;
     esac
 done
 DATA_DIR=$($GNOTO exec printenv GNOTO_DATA_DIR)
@@ -51,10 +57,12 @@ run_status() {
     $GNOTO status "$1" 2> /dev/null | sed -n 's/^  Status     \([^:]*\).*/\1/p'
 }
 
-# Waits up to $2 minutes for a run to end, printing its stage as it changes
+# Waits for a run to end, printing its stage as it changes. A busy queue can
+# hold a run for hours, and status says Lost when nothing runs for it, so
+# there's no time limit.
 wait_for() {
     local uid=$1 status stage last=""
-    for (( i = 0; i < $2 * 6; i++ )); do
+    while :; do
         status=$(run_status "$uid")
         case $status in
             Completed | Failed | Cancelled | "Publish failed" | Lost) printf '%s' "$status"; return ;;
@@ -62,9 +70,17 @@ wait_for() {
         stage=$($GNOTO status "$uid" 2> /dev/null | sed -n 's/^  Status     //p')
         [[ $stage == "$last" ]] || echo "      $stage" >&2
         last=$stage
-        sleep 10
+        sleep 30
     done
-    printf 'still %s' "$status"
+}
+
+# Checks that a run completed, and stops the check when it didn't, since
+# everything after it reads its results
+completed() {
+    local status
+    status=$(wait_for "$1")
+    check "it ends as Completed" "Completed" "$status"
+    [[ $status == Completed ]] || { echo "      $($GNOTO status "$1" 2> /dev/null | grep '^  Message ')"; exit 1; }
 }
 
 # Starts a run, waits for it, and prints its uid: started <gnoto arguments>
@@ -76,7 +92,7 @@ started() {
     printf '%s' "$uid"
 }
 
-rm -rf "$WORK"
+rm -rf "$WORK/doctored"
 mkdir -p "$WORK"
 cd "$WORK" || exit 1
 printf '%s\t%s\t%s\n' mock1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380142_2.fastq.gz" > v4.tsv
@@ -87,8 +103,13 @@ if [[ $SMALL == true ]]; then
 fi
 
 echo "The job, to the end"
-FIRST=$(started start "${JOB[@]}") || exit 1
-check "it ends as Completed" "Completed" "$(wait_for "$FIRST" 120)"
+if [[ -n $FROM ]]; then
+    FIRST=$FROM
+    echo "      run $FIRST, started before"
+else
+    FIRST=$(started start "${JOB[@]}") || exit 1
+fi
+completed "$FIRST"
 RUN=$DATA_DIR/runs/$FIRST
 # The core tables' checksums, as the code measures them, and as the record holds them
 MEASURED=$($GNOTO exec bash -c 'source "$GNOTO_CODE_DIR/lib/env.sh" && outputs_measure ampliseq "$1"' _ "$RUN/results")
@@ -101,7 +122,7 @@ check "status shows no comparison for a first run" "no" \
 
 echo "Its record, re-run exactly"
 SECOND=$(started run --inputs="$FIXTURE" --yes "$RUN/results/record.yaml") || exit 1
-check "it ends as Completed" "Completed" "$(wait_for "$SECOND" 120)"
+completed "$SECOND"
 STATUS=$($GNOTO status "$SECOND")
 check "status reports every core table identical" "  Compared   with the record's core tables: $COUNT of $COUNT identical" \
     "$(grep '^  Compared ' <<< "$STATUS")"
@@ -136,7 +157,7 @@ $GNOTO exec bash -c 'source "$GNOTO_CODE_DIR/lib/env.sh" &&
 EXPECTED=$($GNOTO exec jq -n "$(awk -v v="$VALUE" 'BEGIN { printf "%.3g", 1 / (v + 1) }')")
 
 THIRD=$(started run --inputs="$FIXTURE" --yes "$WORK/doctored/record.yaml") || exit 1
-check "it ends as Completed" "Completed" "$(wait_for "$THIRD" 120)"
+completed "$THIRD"
 STATUS=$($GNOTO status "$THIRD")
 check "status counts the tables that differ" "  Compared   with the record's core tables: $((COUNT - 2)) of $COUNT identical" \
     "$(grep '^  Compared ' <<< "$STATUS")"
