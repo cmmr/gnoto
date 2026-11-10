@@ -13,7 +13,8 @@
 #            stable      the same bytes in all three
 #            cpus        the same in the first two, but not at other CPUs
 #            unstable    different between the first two
-#            missing     not in all three
+#            missing     not in all three, with which have it, and where the
+#                        first two do, whether they're the same
 #          For one that isn't stable, detail says whether it's the same once
 #          its lines are sorted ("rows reordered"), or once lines that look
 #          like a date or time are taken out ("timestamp"), or neither.
@@ -40,11 +41,12 @@ sorted_same() {
     [[ $(content "$1" | LC_ALL=C sort | sha256sum) == "$(content "$2" | LC_ALL=C sort | sha256sum)" ]]
 }
 
-# Lines holding a date, a time of day, or a Unix time in milliseconds
-DATED='[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}:[0-9]{2}:[0-9]{2}|(Mon|Tue|Wed|Thu|Fri|Sat|Sun),? |1[0-9]{12}'
+# Lines holding a date, a time of day, or a Unix time in milliseconds standing
+# alone, rather than inside a longer number such as a branch length
+DATED='[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}:[0-9]{2}:[0-9]{2}|(Mon|Tue|Wed|Thu|Fri|Sat|Sun),? |(^|[^0-9.])1[0-9]{12}([^0-9]|$)'
 
 undated_same() {
-    [[ $(content "$1" | grep -Ev "$DATED" | sha256sum) == "$(content "$2" | grep -Ev "$DATED" | sha256sum)" ]]
+    [[ $(content "$1" | grep -aEv "$DATED" | sha256sum) == "$(content "$2" | grep -aEv "$DATED" | sha256sum)" ]]
 }
 
 why() {
@@ -52,7 +54,7 @@ why() {
         echo "rows reordered"
     elif undated_same "$1" "$2"; then
         echo "timestamp"
-    elif [[ $(content "$1" | grep -Ev "$DATED" | LC_ALL=C sort | sha256sum) == "$(content "$2" | grep -Ev "$DATED" | LC_ALL=C sort | sha256sum)" ]]; then
+    elif [[ $(content "$1" | grep -aEv "$DATED" | LC_ALL=C sort | sha256sum) == "$(content "$2" | grep -aEv "$DATED" | LC_ALL=C sort | sha256sum)" ]]; then
         echo "timestamp, rows reordered"
     else
         echo "content"
@@ -65,7 +67,13 @@ why() {
     (cd "$C" && find . -type f -printf '%P\n')
 } | LC_ALL=C sort -u | while IFS= read -r FILE; do
     if [[ ! -f $A/$FILE || ! -f $B/$FILE || ! -f $C/$FILE ]]; then
-        printf 'missing\t%s\t%s\n' "$FILE" "$(for D in "$A" "$B" "$C"; do [[ -f $D/$FILE ]] && printf 'y' || printf 'n'; done)"
+        WHERE=$(for D in "$A" "$B" "$C"; do [[ -f $D/$FILE ]] && printf 'y' || printf 'n'; done)
+        if [[ $WHERE == yy? ]] && same "$A/$FILE" "$B/$FILE"; then
+            WHERE+=", the first two the same"
+        elif [[ $WHERE == yy? ]]; then
+            WHERE+=", the first two differ: $(why "$A/$FILE" "$B/$FILE")"
+        fi
+        printf 'missing\t%s\t%s\n' "$FILE" "$WHERE"
     elif ! same "$A/$FILE" "$B/$FILE"; then
         printf 'unstable\t%s\t%s\n' "$FILE" "$(why "$A/$FILE" "$B/$FILE")"
     elif ! same "$A/$FILE" "$C/$FILE"; then
