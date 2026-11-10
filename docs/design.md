@@ -1379,7 +1379,7 @@ bare name, so it never reaches `main`.
 - Public images can be pulled anonymously. A new package can start private, and
   organization owners control publishing under
   [Package Creation](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility).
-  `cmmr`'s three were public from their first push.
+  `cmmr`'s four were public from their first push.
 - GitHub Actions publishes with `GITHUB_TOKEN`, which also links the package to that
   repo. The limits are 10 GB per layer and a 10-minute upload.
 

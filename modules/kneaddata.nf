@@ -1,4 +1,5 @@
-// KneadData 0.12.4: Trimmomatic trimming and tandem repeat removal over each
+// KneadData, as gnoto-kneaddata builds it, 0.12.4 with master's code at
+// 353d1ca: Trimmomatic trimming and tandem repeat removal over each
 // sample's reads, once HOST_DEPLETION (modules/host_depletion.nf) has removed
 // the host from each of its runs, or over its raw reads when no host is
 // depleted. FastQC reports on the raw reads (KNEADDATA_FASTQC) and on what
@@ -18,7 +19,7 @@
 process KNEADDATA {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
+    container 'ghcr.io/cmmr/gnoto-kneaddata@sha256:d222ffe54d0b4158e50fc58c970d84d6b57a83af6c52892fc6465b9cff532844' // ghcr.io/cmmr/gnoto-kneaddata:933f133cb40f, from images/gnoto-kneaddata
 
     publishDir "${params.outdir}/kneaddata/logs", mode: 'copy', pattern: '*.log'
     publishDir "${params.outdir}/kneaddata", mode: 'copy', pattern: 'fastqc/*.{html,zip}'
@@ -259,7 +260,7 @@ def delivery(id) {
 process KNEADDATA_FASTQC {
     tag "${meta.id}"
 
-    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
+    container 'ghcr.io/cmmr/gnoto-kneaddata@sha256:d222ffe54d0b4158e50fc58c970d84d6b57a83af6c52892fc6465b9cff532844' // ghcr.io/cmmr/gnoto-kneaddata:933f133cb40f, from images/gnoto-kneaddata
 
     publishDir "${params.outdir}/kneaddata", mode: 'copy', pattern: 'fastqc/*.{html,zip}'
 
@@ -317,7 +318,7 @@ process KNEADDATA_FASTQC {
 // for is NA. kneaddata_read_count_table is not used: it names a sample by its
 // log file name up to the first dot.
 process KNEADDATA_COUNTS {
-    container 'quay.io/biocontainers/kneaddata@sha256:1be0e0706e46a831965ceb9b0c7f6bb4936a8884236e661dd1fde34fa6830937' // quay.io/biocontainers/kneaddata:0.12.4--pyhdfd78af_0
+    container 'ghcr.io/cmmr/gnoto-kneaddata@sha256:d222ffe54d0b4158e50fc58c970d84d6b57a83af6c52892fc6465b9cff532844' // ghcr.io/cmmr/gnoto-kneaddata:933f133cb40f, from images/gnoto-kneaddata
 
     publishDir "${params.outdir}/kneaddata", mode: 'copy'
 
