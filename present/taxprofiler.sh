@@ -15,8 +15,8 @@
 #            run directory
 #
 # The same steps as present/ampliseq.sh, with taxprofiler's statistics: read
-# totals from fastp and bowtie2, and a Feature Table tab each for MetaPhlAn,
-# Kraken2 and Bracken, and HUMAnN. A shotgun run writes about ten times more
+# totals from fastp and bowtie2, the samples a tool left out, and a Feature
+# Table tab each for MetaPhlAn, Kraken2 and Bracken, and HUMAnN. A shotgun run writes about ten times more
 # bytes than anyone reads, so pruning is most of what keeps the zip a sensible
 # size.
 
@@ -125,6 +125,35 @@ if [[ $TOTAL_READS =~ ^[0-9]+$ ]] && (( TOTAL_READS > 0 )); then
     dashboard_stat_share_detail reads "After host depletion" "$HOST_KEPT" "$TOTAL_READS" \
         "$(dashboard_report_section "$MULTIQC_REPORT" "$MULTIQC_REPORT_HREF" "bowtie2 general_stats")"
     dashboard_stat_share "Retained reads" "$RETAINED_READS" "$TOTAL_READS" growth reads
+
+    # The samples the plotted profiler had no report on, under a bar of those
+    # that remain, and those another tool left out
+    if [[ -n ${STATS[samples_dropped]:-}${STATS[metaphlan_missing]:-}${STATS[motus_missing]:-}${STATS[nonpareil_missing]:-}${STATS[humann_missing]:-} ]]; then
+        dashboard_stat_group "SAMPLES"
+        if [[ -n ${STATS[samples_dropped]:-} ]]; then
+            read -ra DROPPED <<< "${STATS[samples_dropped]}"
+            GIVEN_SAMPLES=$(present_sample_count)
+            if [[ ! $GIVEN_SAMPLES =~ ^[0-9]+$ ]] || (( GIVEN_SAMPLES < ${#DROPPED[@]} )); then
+                GIVEN_SAMPLES=$(( ${STATS[samples]:-0} + ${#DROPPED[@]} ))
+            fi
+            KEPT_SAMPLES=$((GIVEN_SAMPLES - ${#DROPPED[@]}))
+            KEPT_PCT=$((KEPT_SAMPLES * 100 / GIVEN_SAMPLES))
+            DROPPED_LIST=$(printf '%s, ' "${DROPPED[@]}")
+            DROPPED_INFO="Samples left with no reads by quality filtering and host removal"
+            if [[ ${STATS[profiler]:-} == Bracken ]]; then
+                DROPPED_INFO+=", or with too few for any species to reach Bracken's threshold"
+            fi
+            DROPPED_INFO+=", as a blank can be, and so in none of the plots or feature tables"
+            dashboard_stat_bar "Samples analysed" "$KEPT_SAMPLES of $GIVEN_SAMPLES" \
+                "$KEPT_PCT" growth "" "Dropped: ${DROPPED_LIST%, }" "$DROPPED_INFO"
+        fi
+        for GAP in "No MetaPhlAn profile|metaphlan_missing" "No mOTUs profile|motus_missing" \
+                   "No Nonpareil estimate|nonpareil_missing" "No HUMAnN profile|humann_missing"; do
+            GAP_SAMPLES=${STATS[${GAP##*|}]:-}
+            [[ -n $GAP_SAMPLES ]] || continue
+            dashboard_stat_row "${GAP%%|*}" "${GAP_SAMPLES// /, }"
+        done
+    fi
 
     dashboard_stat_group "READS PER SAMPLE"
     dashboard_stat_chips "$(human_count "${STATS[reads_min]:-0}")|Min" \

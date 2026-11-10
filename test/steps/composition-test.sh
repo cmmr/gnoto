@@ -185,10 +185,24 @@ done
 (cd "$TAXPROFILER_RESULTS" && find kraken2 -name '*.txt' -exec cp --parents {} "$WORK/taxprofiler/results/" \;)
 state_set samples.platform ILLUMINA
 
+# The samples given, and two more that Bracken has no report on: a blank left
+# with no reads, which the profilers skipped, and a sparse one whose reads
+# Kraken2 couldn't classify
+KRAKEN_SAMPLES=$(ls results/bracken/*/*.report_bracken.txt | sed 's|.*/||; s|_[^_]*\.bracken\..*||' | sort | tr '\n' ' ' | sed 's/ $//')
+{
+    printf 'sample,run_accession,instrument_platform,fastq_1,fastq_2,fasta\n'
+    for sample in $KRAKEN_SAMPLES blank sparse; do
+        printf '%s,run1,ILLUMINA,%s_1.fastq.gz,%s_2.fastq.gz,\n' "$sample" "$sample" "$sample"
+    done
+} > taxprofiler_samplesheet.csv
+printf '100.00\t5\t5\tU\t0\tunclassified\n' > results/kraken2/db2/sparse_db2.kraken2.kraken2.report.txt
+
 "$CODE/steps/taxprofiler_composition.sh" > composition.log 2>&1
 check_step "composition step exits 0" "$?" composition.log
-KRAKEN_SAMPLES=$(ls results/bracken/*/*.report_bracken.txt | sed 's|.*/||; s|_[^_]*\.bracken\..*||' | sort | tr '\n' ' ' | sed 's/ $//')
 check "plot data names bracken's samples" "$KRAKEN_SAMPLES" "$(json '.samples | join(" ")')"
+check "the blank and the sparse sample are reported dropped" "blank sparse" "$(stat_of samples_dropped)"
+check "the sparse sample's reads are counted" "5" "$(stat_of reads_min)"
+check "no sample is missing a MetaPhlAn profile" "" "$(stat_of metaphlan_missing)"
 check "ranks Phylum to Species are charted" "Phylum Class Order Family Genus Species" \
     "$(json '[.levels[].name] | join(" ")')"
 check "every column closes at the whole sample" "true" "$(levels_close exact)"
@@ -317,6 +331,9 @@ check "mOTUs counted, unassigned left out" "2 1" \
 check "the chart offers mOTUs and the SGB Faith's PD" "coverage diversity motus effort95 faithsgb reads" \
     "$(json '[.metrics[].key] | join(" ")')"
 check "MetaPhlAn mapped share is weighed by depth" "yes" "$([[ $(stat_of metaphlan_mapped) -gt 0 && $(stat_of metaphlan_mapped) -le $(stat_of metaphlan_total) ]] && echo yes)"
+check "2611, with no MetaPhlAn or mOTUs profile, is named under each" "2611 2611" \
+    "$(stat_of metaphlan_missing) $(stat_of motus_missing)"
+check "without a samplesheet, no sample is called dropped" "" "$(stat_of samples_dropped)"
 
 echo "biobakery, on synthetic outputs"
 new_run biobakery

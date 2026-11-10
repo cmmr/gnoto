@@ -30,6 +30,13 @@
 # each mapped, off every MetaPhlAn profile's header and HUMAnN's
 # alignment-summary.tsv.
 #
+# A sample left with no reads by quality filtering and host removal, as a blank
+# can be, is skipped by every profiler, and one left with too few for Bracken
+# or MetaPhlAn is left out by that tool, rather than failing the run
+# (pipelines/taxprofiler/resources.config). The sidebar names it: as dropped
+# when the plotted profiler has no report on it, which leaves it out of the
+# plots and feature tables, and otherwise under each tool that left it out.
+#
 # Diversity isn't computed from those reports. Half the reads of a shotgun sample
 # routinely reach no taxon, and an index over the half a database names
 # describes the database as much as the sample. Two tools that don't depend on
@@ -60,7 +67,8 @@
 # Requires:  GNU awk; jq, for the fastp reports; the rbiom image
 #            pipelines/taxprofiler/lock.yaml pins, for the feature tables
 # Runs:      steps/taxprofiler_taxonomy_tree.sh and steps/R/taxprofiler_tables.R
-# Reads:     <results_dir>/, ./taxprofiler_database.csv, and samples.platform in
+# Reads:     <results_dir>/, ./taxprofiler_database.csv,
+#            ./taxprofiler_samplesheet.csv, and samples.platform in
 #            ./run_state.json
 # Writes:    <results_dir>/alpha_diversity.tsv, <results_dir>/feature_table/,
 #            <results_dir>/count_tables/, ./composition_data.json, and the
@@ -102,6 +110,9 @@ readonly METAPHLAN_DIR="$RESULTS_DIR/metaphlan"
 # The run's own database sheet first, which its Nextflow read, then any copy in
 # the results
 readonly DB_SHEET="taxprofiler_database.csv"
+
+# The samples the run was given, written by taxprofiler_samplesheet.sh
+readonly SAMPLESHEET="taxprofiler_samplesheet.csv"
 
 readonly R_DIR="$CODE_DIR/steps/R"
 readonly TABLES_SCRIPT="$R_DIR/taxprofiler_tables.R"
@@ -238,16 +249,17 @@ read_totals() {
     LC_ALL=C awk -F'\t' '
         NR == FNR { sample[$2] = $1; next }
 
-        FNR == 1 { name = sample[FILENAME] }
+        FNR == 1 { name = sample[FILENAME]; seen[name] = 1 }
 
         # The rank code and taxon id sit at the end of the row, because a report
         # with minimizer counts carries two more columns than one without
         $(NF - 2) == "U"                   { unclassified[name] += $2 }
         $(NF - 2) == "R" && $(NF - 1) == 1 { classified[name] += $2 }
 
+        # Every sample with a report, a blank Kraken2 classified nothing in too
         END {
-            for (name in classified)
-                printf "%s\t%d\t%d\n", name, unclassified[name] + 0, classified[name]
+            for (name in seen)
+                printf "%s\t%d\t%d\n", name, unclassified[name] + 0, classified[name] + 0
         }
     ' "$KRAKEN2_SET" "${reports[@]}" | LC_ALL=C sort -k1,1
 }
@@ -1170,6 +1182,48 @@ humann_mapping() {
     ' "$READ_TOTALS" "$HUMANN_SUMMARY"
 }
 
+# The samples the run was given, one per line in samplesheet order. A sample
+# sequenced in more than one run has a row for each.
+given_samples() {
+    LC_ALL=C awk -F',' 'NR > 1 && !seen[$1]++ { print $1 }' "$SAMPLESHEET"
+}
+
+# Of the samples on stdin, those that aren't the first column of any row of a
+# table after its header lines, space-separated
+not_in_table() {
+    local table="$1" header="$2"
+
+    LC_ALL=C awk -F'\t' -v header="$header" '
+        NR == FNR     { if (FNR > header) have[$1] = 1; next }
+        !($1 in have) { printf "%s%s", (n++ ? " " : ""), $1 }
+        END           { if (n) printf "\n" }
+    ' "$table" -
+}
+
+# The samples missing from the run's outputs, as statistics: those the plotted
+# profiler has no report on, which are in none of the plots or feature tables,
+# and of the rest, those MetaPhlAn, mOTUs, Nonpareil or HUMAnN left out. A tool
+# that profiled no sample, such as MetaPhlAn on a long-read run, names none.
+sample_gaps() {
+    local dropped gap entry key table header
+
+    if [[ -r "$SAMPLESHEET" ]]; then
+        dropped=$(given_samples | not_in_table "$PROFILE_SET" 0)
+        [[ -z "$dropped" ]] || printf 'samples_dropped\t%s\n' "$dropped"
+    fi
+
+    for entry in "metaphlan_missing|$METAPHLAN_SET|0" "motus_missing|$MOTUS_SET|0" \
+                 "nonpareil_missing|$NONPAREIL_TABLE|0" "humann_missing|$HUMANN_SUMMARY|1"; do
+        IFS='|' read -r key table header <<< "$entry"
+        [[ -s "$table" ]] || continue
+
+        gap=$(cut -f1 "$PROFILE_SET" | not_in_table "$table" "$header")
+        [[ -z "$gap" ]] || printf '%s\t%s\n' "$key" "$gap"
+    done
+
+    return 0
+}
+
 # The run's headline numbers, keyed for the sidebar. Each is left out rather
 # than guessed when the reports behind it are missing.
 write_run_statistics() {
@@ -1208,6 +1262,8 @@ write_run_statistics() {
         if [[ -s "$HUMANN_SUMMARY" ]]; then
             humann_mapping
         fi
+
+        sample_gaps
     } | state_set_tsv "$STATS_KEY"
 }
 

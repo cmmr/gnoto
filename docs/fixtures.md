@@ -75,7 +75,7 @@ tables.
 | taxprofiler, biobakery | `mouse` | `wgs-mouse` | `Mouse + PhiX` |
 | biobakery | `mixed` | `wgs-mock`, `wgs-phix` and `wgs-single` | PhiX, the default |
 | taxprofiler | `mixed` | `wgs-mock` and `wgs-single` | PhiX, the default |
-| taxprofiler | `phix` | `wgs-mock` and `wgs-phix` | PhiX, the default. It fails until taxprofiler can drop a sample MetaPhlAn finds no read over 70 bp in |
+| taxprofiler | `phix` | `wgs-mock` and `wgs-phix` | PhiX, the default. MetaPhlAn finds no read of 70 bp in `wgs-phix`, and Bracken may find no species, so the run drops it there and names it on the Overview |
 | taxprofiler | `ont` | `wgs-ont` | |
 | biobakery | `virus` | `wgs-virus` | `run_esviritu` |
 

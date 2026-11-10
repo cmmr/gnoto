@@ -306,7 +306,9 @@ if [[ -d $TAXPROFILER_SOURCE ]]; then
         "qc_cut_ncontent": 100, "qc_cut_length": 5000, "qc_cut_complexity": 1000, "host_total": 973900,
         "host_removed": 3900, "reads_total": 970000, "reads_min": 300000, "reads_median": 320000,
         "reads_max": 350000, "phylum_reads": 800000, "genus_reads": 600000, "species_reads": 400000,
-        "database": "Kraken2 PlusPF", "metaphlan_total": 970000, "metaphlan_mapped": 50000}' > /dev/null
+        "database": "Kraken2 PlusPF", "metaphlan_total": 970000, "metaphlan_mapped": 50000,
+        "profiler": "Bracken", "samples": 2, "samples_dropped": "blank",
+        "metaphlan_missing": "2612", "humann_missing": "2612 2613"}' > /dev/null
 
     "$CODE/present/taxprofiler.sh" results > present.out 2>&1
     check "taxprofiler.sh exits 0" "0" "$?"
@@ -317,6 +319,15 @@ if [[ -d $TAXPROFILER_SOURCE ]]; then
         "$(< results/taxprofiler_database.csv)"
     check "the bar offers a Krona chart" "1" "$(grep -c 'data-view="krona" href="krona/' results/index.html)"
     check "the sidebar shows the read totals" "1" "$(grep -c 'READ TOTALS' results/overview.html)"
+    check "the dropped sample is named, of the three given" "1 1" \
+        "$(grep -c 'Dropped: blank' results/overview.html) $(grep -c 'Samples analysed.*>2 of 3<' results/overview.html)"
+    check "and why, with Bracken's threshold" "1" \
+        "$(grep -c 'no reads by quality filtering and host removal, or with too few for any species to reach Bracken&#39;s threshold' results/overview.html)"
+    check "a sample MetaPhlAn left out is named" "1" \
+        "$(grep -c 'No MetaPhlAn profile</span><span[^>]*>2612</span>' results/overview.html)"
+    check "and those HUMAnN left out, as a list" "1" \
+        "$(grep -c 'No HUMAnN profile</span><span[^>]*>2612, 2613</span>' results/overview.html)"
+    check "no row for a tool that left none out" "0" "$(grep -c 'No mOTUs profile\|No Nonpareil estimate' results/overview.html)"
     check "no plots without composition data" "1" "$(grep -c 'var DATA = null;' results/overview.html)"
     check "multiqc_data's copies were pruned" "no" "$([[ -e results/multiqc/multiqc_data/multiqc_data.json ]] && echo yes || echo no)"
     check "the execution report names no site path" "0" "$(cat results/pipeline_info/execution_report*.html | grep -c "$DATA_DIR")"

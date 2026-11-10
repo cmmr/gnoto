@@ -18,9 +18,9 @@ jobs:
     samples:
       - [mock, fixtures/wgs-mock/v1/SRR37882354_1.fastq.gz, fixtures/wgs-mock/v1/SRR37882354_2.fastq.gz]
       - [single, fixtures/wgs-single/v1/SRR22959674.fastq.gz]
-  # A sample PhiX removal leaves almost empty, beside the mock. It fails until
-  # taxprofiler can drop a sample with no reads MetaPhlAn can use, which stops
-  # the run as "no reads longer than 70 bp found"
+  # A sample PhiX removal leaves almost empty, beside the mock. MetaPhlAn finds
+  # no read of 70 bp in it, and Bracken may find no species, so each drops it
+  # rather than stopping the run, and the Overview names it
   - name: phix
     samples:
       - [mock, fixtures/wgs-mock/v1/SRR37882354_1.fastq.gz, fixtures/wgs-mock/v1/SRR37882354_2.fastq.gz]

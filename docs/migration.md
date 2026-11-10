@@ -965,8 +965,8 @@ The rest of the first round, at `2600665`, with each job twice at 32 CPUs and on
   run, then finds the entry there; two fetches of `16s-single` at once in the test bed both
   succeeded, with the lock's tree digest.
 - **taxprofiler's `mixed` failed in MetaPhlAn** on `wgs-phix`: "no reads longer than 70 bp
-  found". At Daniel's call, that fixture is now a job of its own, `phix`, which fails until a
-  follow-up lets taxprofiler drop such a sample.
+  found". At Daniel's call, that fixture is now a job of its own, `phix`, and a follow-up,
+  below, lets taxprofiler drop such a sample.
 - **What repeated.** ampliseq's `v4`, `v1v3`, `v5v6` and `ont`, taxprofiler's `ont` and
   biobakery's `mixed` and `virus` completed three times each, with their core tables
   identical but for three values: Faith's PD in ampliseq's `alpha_diversity.tsv`, 10.64
@@ -981,6 +981,58 @@ The rest of the first round, at `2600665`, with each job twice at 32 CPUs and on
   expected.
 - Every pipeline now has its `stable-files`. The finish test passed but for Faith's PD, and
   the doctored record reported its changed count exactly.
+
+**Dropping a nearly empty taxprofiler sample,** the follow-up, as
+[decisions.md](decisions.md) records. `wgs-phix` is 2×50 bp PhiX, so after PhiX removal
+the few reads left are all shorter than MetaPhlAn's 70 bp minimum. Each tool on such a
+sample, run in its pinned image:
+
+- **MetaPhlAn 4.1.1** exits 1 with "Error: no reads longer than 70 bp found.", run as the
+  module runs it on a pair of 50 bp reads.
+- **Bracken 3.1** exits 1 with "Error: no reads found. Please check your Kraken report" when
+  no species has its 10 reads, which a blank whose reads Kraken2 can't classify, as on a
+  one-species test database, won't. With 12 reads of one species it passed. Whether PlusPF
+  places 10 of `wgs-phix`'s leftovers at one species decides whether it's dropped there too.
+- **Kraken2, taxpasta's Kraken2 merge, Krona and HUMAnN** take it: Kraken2 writes a report
+  with only its unclassified line, taxpasta merges it as a column of zeros, Krona draws
+  nothing for it, and `taxprofiler_humann.sh` already skips a sample with no MetaPhlAn
+  profile and says so in the run's notes. **Nonpareil** runs before host removal, on all
+  100,000 reads. **mOTUs 3.1.0** only warns when no read maps, but needs its 7.7 GB database
+  to run, so the cluster is its test.
+
+So `pipelines/taxprofiler/resources.config` gives MetaPhlAn and Bracken an `errorStrategy`
+that reads the task's `.command.err` and ignores the task when it holds that message, and
+otherwise retries or finishes as taxprofiler's base config does. In
+`nextflow/nextflow:26.10.5`, with the real `resources.config` and `scratch` on, stand-ins
+under the two process names writing each message were ignored, and the merge after them
+ran on the other sample. A different message stopped the run, and exit 137 was retried once.
+`steps/taxprofiler_composition.sh` records as statistics the samples in the samplesheet the
+plotted profiler has no report on, `samples_dropped`, and of the rest those without a
+MetaPhlAn, mOTUs, Nonpareil or HUMAnN result, and `present/taxprofiler.sh` names them on the
+Overview as biobakery's page does. A tool that profiled no sample names none, as MetaPhlAn on
+a long-read run.
+
+**A sample with no reads at all** after quality filtering and host removal, the second
+follow-up, would still have stopped the run. In the pinned images, fastp exits 0 on it but
+writes 0-byte files, not gzip, and FastQC exits 1 on those. bowtie2 reads them as 0 reads and
+writes empty gzip files. Kraken2 writes an empty report, and taxpasta's Kraken2 merge, which
+`resources.config` requires to pass, fails on that for every sample with "No columns to parse
+from file". MetaPhlAn says "Error, input data has to be in fastq or fasta format", Bracken
+fails on an `IndexError` and Nonpareil on "No reads found". samtools, MultiQC beside a sample
+with reads, and FastQC on a raw empty gzip take it. So every step from FastQC on the processed
+reads to the profilers gets an `ext.when` that skips a sample whose files are all 0 bytes or
+gzip that decompresses to nothing, as [decisions.md](decisions.md) records. In
+`nextflow/nextflow:26.10.5`, with the real `resources.config` after a config setting
+`ext.args` and `ext.prefix` as taxprofiler's does, stand-ins under the six process names ran
+on a sample with reads, one whose first merged run was empty, and one named `.gz` that isn't
+gzip, and skipped an empty gzip, a 0-byte file and two empty runs merged, with `ext.args` and
+`ext.prefix` intact. The closure is handed a `TaskPath`, whose `size()` works but whose
+streams don't, so it opens `toRealPath()`; strict syntax has no `finally`, so
+`withInputStream` closes the file. The composition step's read totals left out a sample whose
+reads Kraken2 classified none of, so `wgs-phix` was missing from them; they now count every
+sample with a report. `composition-test.sh` (89 checks, with both kinds of dropped sample)
+and `present-test.sh` (138) pass in the test bed. The long-read path's own steps are untested
+on an empty sample.
 
 ### Phase 7: integrations
 
