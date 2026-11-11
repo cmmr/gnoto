@@ -1089,6 +1089,23 @@ copy. Then the cluster's tables from taxprofiler's `human` and `phix` and biobak
 `human` and `virus`, with the two copies and two empty mOTUs rows put back, came back from
 it identical to what was published, and `checks/selftest.sh --small` passed again, 14 checks.
 
+**The second selftest,** `trfwbesx` at `1a55349`, found 12 of the 15 jobs identical to the
+reference. biobakery's `human` had HUMAnN's one-read difference again, 8,378 gene families
+against 8,377. taxprofiler's `mouse` and `mixed` each had one mOTUs count one apart, in its
+merge, its count table and taxpasta's table: a Muribaculaceae mOTU 2 then 1, and *C.
+difficile* in the mock 2 then 3. taxprofiler's host removal is nf-core's `BOWTIE2_ALIGN` on
+16 threads, given no `--reorder`. Its bowtie2 command, in its pinned image, run three times
+on `wgs-mock` at 8 threads, wrote the same 99,987 unaligned pairs in three different orders,
+and with `--reorder` in one order all three times. fastp, before it, wrote one order in
+three runs at 8 threads. bwa 0.7.17, which mOTUs runs, breaks a tie between equal hits by
+the read's place in its input, and mOTUs sorts each read's alignment lines, whose flags and
+clipping follow that choice. biobakery's mOTUs, behind gnoto's own host depletion with
+`--reorder`, repeated in every run. So `pipelines/taxprofiler/resources.config` gives
+`BOWTIE2_ALIGN` `--reorder`, which in `nextflow/nextflow:26.10.5` reached a stand-in under
+that name in a subworkflow, with the real config. Running mOTUs itself on one input in two
+orders, which needs its database, wasn't done. taxprofiler's short-read jobs may then make
+slightly different tables, so their reference tables come from the next selftest.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs

@@ -1559,7 +1559,9 @@ taxprofiler's merges, which take their samples in the order their tasks ended: w
 lines above its header, the first line with the most fields, with every column after the
 first in its header's order, and its rows sorted. Some tools don't repeat a value to its
 last digit from run to run, even on one node, and those modes keep such a value from making
-the whole table differ. A `.gz` file is read decompressed, and the
+the whole table differ. A step that writes reads is kept to their input order, as bowtie2's
+`--reorder` does in both pipelines' host removal, since a later tool's counts can follow the
+order it reads them in. A `.gz` file is read decompressed, and the
 comparison reads the same text. The published file is left as it is. That list comes from
 a test:
 
