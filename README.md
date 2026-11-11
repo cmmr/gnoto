@@ -120,6 +120,15 @@ of them. *These integrations are being built now.*
 The shotgun pipelines remove human, mouse or PhiX reads, as each job chooses. gnoto sets
 sensible defaults, and any option the upstream pipeline accepts can be added to a job.
 
+HUMAnN is the slowest step in both shotgun pipelines. Most of its time goes to its translated
+search, which runs DIAMOND against UniRef90 for every read that didn't align to the pangenome
+of a species MetaPhlAn found, and one deep sample can spend most of a day there. HUMAnN's
+`--bypass-translated-search` skips that search, and it's worth considering when time matters
+more than completeness: it's far faster, but the functions in those reads, such as those of
+species with no pangenome, go uncounted. Each run's `humann/alignment-summary.tsv` shows what
+share of each sample's reads reached the translated search, and so what skipping it would
+leave out. A job can't set it yet; that option is planned.
+
 ## How it works
 
 A job is a short text file: a title, a samplesheet listing the FASTQ files, and any options.

@@ -838,6 +838,16 @@ The section's keys and values are the pipeline's own, so the upstream documentat
 describes them. A taxprofiler job has a `taxprofiler` section and a biobakery job has
 a `biobakery` section, which work the same way.
 
+**Planned: skipping HUMAnN's translated search.** HUMAnN is the slowest step of both
+shotgun pipelines, and most of its time goes to DIAMOND's search of UniRef90 for the reads
+that didn't align to a pangenome: one sample of 526 million reads spent 19 hours there on
+16 CPUs. A job option will pass HUMAnN `--bypass-translated-search`, in a biobakery job's
+section as a parameter of gnoto's workflow, and at the top level of a taxprofiler job,
+whose HUMAnN step isn't part of nf-core/taxprofiler. It changes the results, so it's the
+job's choice and the record keeps it, and the methods text says when the search was
+skipped. Until it's built, `modules/humann.nf` passes HUMAnN a fixed set of arguments, and
+the README names the flag as planned.
+
 **Values as arguments.** `gnoto new` prints only the job file, so it can be redirected
 anywhere, and its messages go to stderr. It takes any key of the file as
 `--<key>=<value>`: `--title`, `--samplesheet` and gnoto's other options at the top, and
