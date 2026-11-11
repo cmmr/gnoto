@@ -1,0 +1,65 @@
+name	taxonomy_id	taxonomy_lvl	mouse_pluspf_20260626_bracken.bracken.tsv_num	mouse_pluspf_20260626_bracken.bracken.tsv_frac
+Phocaeicola vulgatus	821	S	14145	0.42667
+Phocaeicola dorei	357276	S	233	0.00703
+Bacteroides caecimuris	1796613	S	1695	0.05113
+Bacteroides thetaiotaomicron	818	S	1259	0.03798
+Bacteroides uniformis	820	S	2078	0.06268
+Bacteroides faecium	2715212	S	683	0.02060
+Bacteroides xylanisolvens	371601	S	343	0.01035
+Bacteroides ovatus	28116	S	362	0.01092
+Bacteroides caccae	47678	S	78	0.00235
+Bacteroides stercoris	46506	S	38	0.00115
+Bacteroides finegoldii	338188	S	60	0.00181
+Bacteroides zoogleoformans	28119	S	24	0.00072
+Bacteroides cellulosilyticus	246787	S	44	0.00133
+Bacteroides luhongzhouii	2650158	S	26	0.00078
+Bacteroides parvus	2763025	S	369	0.01113
+Bacteroides salyersiae	291644	S	19	0.00057
+Bacteroides faecis	674529	S	22	0.00066
+Bacteroides zhangwenhongii	2650157	S	36	0.00109
+Muribaculum intestinale	1796646	S	566	0.01707
+Muribaculum gordoncarteri	2530390	S	256	0.00772
+Duncaniella dubosii	2518971	S	253	0.00763
+Paramuribaculum intestinale	2094151	S	548	0.01653
+Sodaliphilus pleomorphus	2606626	S	15	0.00045
+Parabacteroides distasonis	823	S	622	0.01876
+Parabacteroides goldsteinii	328812	S	27	0.00081
+Parabacteroides sp. KHUB-01	3680488	S	15	0.00045
+Alistipes communis	2585118	S	100	0.00302
+Alistipes onderdonkii	328813	S	213	0.00642
+uncultured Alistipes sp.	538949	S	35	0.00106
+Akkermansia muciniphila	239935	S	2739	0.08262
+Lactococcus cremoris	1359	S	1475	0.04449
+Lactococcus lactis	1358	S	207	0.00624
+Lactococcus sp.	44273	S	371	0.01119
+Streptococcus thermophilus	1308	S	18	0.00054
+Streptococcus danieliae	747656	S	12	0.00036
+Lactobacillus johnsonii	33959	S	650	0.01961
+Limosilactobacillus reuteri	1598	S	557	0.01680
+Ligilactobacillus murinus	1622	S	348	0.01050
+Enterococcus faecalis	1351	S	103	0.00311
+Dysosmobacter sp. Phy	3465159	S	50	0.00151
+Flavonifractor plautii	292800	S	148	0.00446
+Lawsonibacter asaccharolyticus	2108523	S	76	0.00229
+Clostridium sp. MD294	97138	S	29	0.00087
+Clostridium sp. 10cd*	3373596	S	214	0.00646
+[Clostridium] innocuum	1522	S	101	0.00305
+Pilosibacter sp. YYHA0881	3380348	S	110	0.00332
+Acutalibacter muris	1796620	S	159	0.00480
+Enterocloster bolteae	208479	S	139	0.00419
+Blautia producta	33035	S	72	0.00217
+Blautia wexlerae	418240	S	139	0.00419
+Blautia pseudococcoides	1796616	S	16	0.00048
+Sporofaciens musculi	2681861	S	50	0.00151
+[Clostridium] scindens	29347	S	70	0.00211
+Mediterraneibacter gnavus	33038	S	50	0.00151
+[Clostridium] symbiosum	1512	S	46	0.00139
+Eisenbergiella porci	2652274	S	34	0.00103
+Emergencia sp. JLR.KK010	3114296	S	139	0.00419
+Ihubacter sp. rT4E-8	3242369	S	41	0.00124
+Romboutsia ilealis	1115758	S	25	0.00075
+Faecalibaculum rodentium	1702221	S	496	0.01496
+Adlercreutzia hattorii	2707299	S	72	0.00217
+Curtobacterium flaccumfaciens	2035	S	85	0.00256
+Corynebacterium stationis	1705	S	12	0.00036
+Homo sapiens	9606	S	135	0.00407

@@ -1,0 +1,1398 @@
+# Gene Family	human_genefamilies-RELAB
+UNGROUPED|g__Bacteroides.s__Bacteroides_fragilis	0.171254
+UNGROUPED|g__Bacteroides.s__Bacteroides_ovatus	0.0778867
+UNGROUPED|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.0431247
+UNGROUPED|g__Bacteroides.s__Bacteroides_uniformis	0.0840626
+UNGROUPED|g__Bifidobacterium.s__Bifidobacterium_longum	0.0060771
+UNGROUPED|g__Blautia.s__Blautia_obeum	0.0123302
+UNGROUPED|g__Blautia.s__Blautia_wexlerae	0.00988862
+UNGROUPED|g__Blautia.s__Ruminococcus_torques	0.00738005
+UNGROUPED|g__Dialister.s__Dialister_invisus	0.00367442
+UNGROUPED|g__Flavonifractor.s__Flavonifractor_plautii	0.00925414
+UNGROUPED|g__Parabacteroides.s__Parabacteroides_distasonis	0.0340005
+UNGROUPED|unclassified	0.0616882
+1.1.1.100: 3-oxoacyl-[acyl-carrier-protein] reductase|g__Bacteroides.s__Bacteroides_fragilis	1.26153e-05
+1.1.1.100: 3-oxoacyl-[acyl-carrier-protein] reductase|g__Bacteroides.s__Bacteroides_ovatus	1.26153e-05
+1.1.1.100: 3-oxoacyl-[acyl-carrier-protein] reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8923e-05
+1.1.1.100: 3-oxoacyl-[acyl-carrier-protein] reductase|g__Bacteroides.s__Bacteroides_uniformis	5.04614e-05
+1.1.1.100: 3-oxoacyl-[acyl-carrier-protein] reductase|unclassified	2.74227e-05
+1.1.1.103: L-threonine 3-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.42724e-05
+1.1.1.103: L-threonine 3-dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.79918e-05
+1.1.1.122: D-threo-aldose 1-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.07402e-05
+1.1.1.122: D-threo-aldose 1-dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.44279e-05
+1.1.1.122: D-threo-aldose 1-dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.8093e-06
+1.1.1.132: GDP-mannose 6-dehydrogenase|g__Parabacteroides.s__Parabacteroides_distasonis	2.14264e-05
+1.1.1.132: GDP-mannose 6-dehydrogenase|unclassified	1.67736e-05
+1.1.1.133: dTDP-4-dehydrorhamnose reductase|g__Bacteroides.s__Bacteroides_fragilis	5.82851e-05
+1.1.1.133: dTDP-4-dehydrorhamnose reductase|g__Bacteroides.s__Bacteroides_ovatus	5.25199e-06
+1.1.1.133: dTDP-4-dehydrorhamnose reductase|unclassified	1.41567e-05
+1.1.1.136: UDP-N-acetylglucosamine 6-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	2.14569e-05
+1.1.1.14: L-iditol 2-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.42724e-05
+1.1.1.159: 7-alpha-hydroxysteroid dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	6.83232e-05
+1.1.1.169: 2-dehydropantoate 2-reductase|g__Bacteroides.s__Bacteroides_ovatus	1.47097e-05
+1.1.1.169: 2-dehydropantoate 2-reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.88367e-06
+1.1.1.169: 2-dehydropantoate 2-reductase|g__Bacteroides.s__Bacteroides_uniformis	2.93049e-05
+1.1.1.18: Inositol 2-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	2.56169e-05
+1.1.1.18: Inositol 2-dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.60105e-05
+1.1.1.193: 5-amino-6-(5-phosphoribosylamino)uracil reductase|unclassified	1.43557e-05
+1.1.1.2: Alcohol dehydrogenase (NADP(+))|g__Parabacteroides.s__Parabacteroides_distasonis	1.99242e-05
+1.1.1.205: IMP dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	4.21755e-05
+1.1.1.205: IMP dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	2.83347e-05
+1.1.1.205: IMP dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.41673e-05
+1.1.1.205: IMP dehydrogenase|g__Blautia.s__Blautia_wexlerae	3.16686e-05
+1.1.1.22: UDP-glucose 6-dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	7.70203e-05
+1.1.1.22: UDP-glucose 6-dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.81479e-05
+1.1.1.22: UDP-glucose 6-dehydrogenase|unclassified	2.4139e-05
+1.1.1.25: Shikimate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	2.49796e-05
+1.1.1.25: Shikimate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.26153e-05
+1.1.1.262: 4-hydroxythreonine-4-phosphate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	1.56414e-05
+1.1.1.262: 4-hydroxythreonine-4-phosphate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	3.14264e-05
+1.1.1.267: 1-deoxy-D-xylulose-5-phosphate reductoisomerase|g__Bacteroides.s__Bacteroides_ovatus	1.4572e-05
+1.1.1.267: 1-deoxy-D-xylulose-5-phosphate reductoisomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.84051e-05
+1.1.1.267: 1-deoxy-D-xylulose-5-phosphate reductoisomerase|g__Bacteroides.s__Bacteroides_uniformis	5.29236e-05
+1.1.1.267: 1-deoxy-D-xylulose-5-phosphate reductoisomerase|g__Flavonifractor.s__Flavonifractor_plautii	1.48511e-05
+1.1.1.27: L-lactate dehydrogenase|g__Blautia.s__Blautia_obeum	3.76098e-05
+1.1.1.271: GDP-L-fucose synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.22661e-05
+1.1.1.271: GDP-L-fucose synthase|g__Bacteroides.s__Bacteroides_uniformis	2.03111e-05
+1.1.1.271: GDP-L-fucose synthase|unclassified	1.82552e-05
+1.1.1.29: Glycerate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.79976e-05
+1.1.1.290: 4-phosphoerythronate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.8608e-05
+1.1.1.290: 4-phosphoerythronate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.86593e-05
+1.1.1.290: 4-phosphoerythronate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.10514e-05
+1.1.1.336: UDP-N-acetyl-D-mannosamine dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	2.14569e-05
+1.1.1.37: Malate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.32825e-05
+1.1.1.37: Malate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	2.37732e-05
+1.1.1.37: Malate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.50929e-06
+1.1.1.37: Malate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.36676e-05
+1.1.1.40: Malate dehydrogenase (oxaloacetate-decarboxylating) (NADP(+))|g__Bacteroides.s__Bacteroides_fragilis	3.52097e-06
+1.1.1.40: Malate dehydrogenase (oxaloacetate-decarboxylating) (NADP(+))|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2252e-05
+1.1.1.40: Malate dehydrogenase (oxaloacetate-decarboxylating) (NADP(+))|g__Bacteroides.s__Bacteroides_uniformis	1.40839e-05
+1.1.1.44: Phosphogluconate dehydrogenase (NADP(+)-dependent, decarboxylating)|g__Bacteroides.s__Bacteroides_uniformis	2.2719e-05
+1.1.1.49: Glucose-6-phosphate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_fragilis	5.59121e-06
+1.1.1.49: Glucose-6-phosphate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_ovatus	8.38681e-06
+1.1.1.49: Glucose-6-phosphate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.39739e-05
+1.1.1.58: Tagaturonate reductase|g__Bacteroides.s__Bacteroides_fragilis	5.78494e-06
+1.1.1.58: Tagaturonate reductase|g__Bacteroides.s__Bacteroides_ovatus	5.83826e-06
+1.1.1.58: Tagaturonate reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.45957e-05
+1.1.1.58: Tagaturonate reductase|g__Bacteroides.s__Bacteroides_uniformis	1.44945e-05
+1.1.1.6: Glycerol dehydrogenase|g__Flavonifractor.s__Flavonifractor_plautii	0.000119545
+1.1.1.77: Lactaldehyde reductase|g__Bifidobacterium.s__Bifidobacterium_longum	1.50327e-05
+1.1.1.77: Lactaldehyde reductase|unclassified	2.03154e-05
+1.1.1.85: 3-isopropylmalate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	1.65161e-05
+1.1.1.85: 3-isopropylmalate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.25807e-06
+1.1.1.85: 3-isopropylmalate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	1.23871e-05
+1.1.1.85: 3-isopropylmalate dehydrogenase|g__Parabacteroides.s__Parabacteroides_distasonis	1.23871e-05
+1.1.1.86: Ketol-acid reductoisomerase (NADP(+))|g__Bacteroides.s__Bacteroides_fragilis	3.75835e-05
+1.1.1.86: Ketol-acid reductoisomerase (NADP(+))|g__Bacteroides.s__Bacteroides_ovatus	1.68487e-05
+1.1.1.86: Ketol-acid reductoisomerase (NADP(+))|g__Bacteroides.s__Bacteroides_uniformis	5.0546e-05
+1.1.1.94: Glycerol-3-phosphate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_ovatus	1.74961e-05
+1.1.1.94: Glycerol-3-phosphate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.78046e-05
+1.1.1.95: Phosphoglycerate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.90732e-05
+1.1.1.95: Phosphoglycerate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.92986e-05
+1.1.5.3: Glycerol-3-phosphate dehydrogenase|unclassified	2.38578e-05
+1.11.1.1: NADH peroxidase|g__Bacteroides.s__Bacteroides_fragilis	1.84592e-05
+1.11.1.15: Peroxiredoxin|g__Bacteroides.s__Bacteroides_fragilis	9.83851e-05
+1.11.1.15: Peroxiredoxin|g__Bacteroides.s__Bacteroides_uniformis	4.5152e-05
+1.11.1.6: Catalase|g__Bacteroides.s__Bacteroides_fragilis	1.14895e-05
+1.11.1.6: Catalase|g__Bacteroides.s__Bacteroides_ovatus	2.28775e-05
+1.11.1.6: Catalase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.71857e-06
+1.12.7.2: Ferredoxin hydrogenase|g__Bacteroides.s__Bacteroides_uniformis	3.73408e-05
+1.12.7.2: Ferredoxin hydrogenase|g__Parabacteroides.s__Parabacteroides_distasonis	3.06153e-05
+1.12.99.6: Hydrogenase (acceptor)|unclassified	2.0355e-05
+1.13.11.24: Quercetin 2,3-dioxygenase|g__Bacteroides.s__Bacteroides_fragilis	6.78501e-05
+1.15.1.1: Superoxide dismutase|g__Bacteroides.s__Bacteroides_fragilis	1.60926e-05
+1.15.1.1: Superoxide dismutase|g__Bacteroides.s__Bacteroides_ovatus	4.02316e-05
+1.15.1.1: Superoxide dismutase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.60926e-05
+1.15.1.1: Superoxide dismutase|g__Parabacteroides.s__Parabacteroides_distasonis	2.26848e-05
+1.16.1.1: Mercury(II) reductase|g__Bacteroides.s__Bacteroides_uniformis	2.74466e-05
+1.16.3.2: Bacterial non-heme ferritin|g__Bacteroides.s__Bacteroides_fragilis	2.28223e-05
+1.16.3.2: Bacterial non-heme ferritin|g__Bacteroides.s__Bacteroides_ovatus	3.4199e-05
+1.16.3.2: Bacterial non-heme ferritin|g__Bacteroides.s__Bacteroides_uniformis	2.26167e-05
+1.16.3.2: Bacterial non-heme ferritin|g__Dialister.s__Dialister_invisus	2.22164e-05
+1.16.3.2: Bacterial non-heme ferritin|unclassified	3.26386e-05
+1.17.1.8: 4-hydroxy-tetrahydrodipicolinate reductase|g__Bacteroides.s__Bacteroides_uniformis	1.83692e-05
+1.17.4.1: Ribonucleoside-diphosphate reductase|g__Bacteroides.s__Bacteroides_fragilis	3.82028e-05
+1.17.4.1: Ribonucleoside-diphosphate reductase|g__Bacteroides.s__Bacteroides_ovatus	1.88756e-05
+1.17.4.1: Ribonucleoside-diphosphate reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.15384e-06
+1.17.4.1: Ribonucleoside-diphosphate reductase|g__Bifidobacterium.s__Bifidobacterium_longum	2.21815e-05
+1.17.7.3: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase (flavodoxin)|g__Bacteroides.s__Bacteroides_uniformis	2.40304e-05
+1.17.7.4: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	2.08336e-05
+1.17.99.6: Epoxyqueuosine reductase|g__Bacteroides.s__Bacteroides_fragilis	5.23011e-05
+1.17.99.6: Epoxyqueuosine reductase|g__Bacteroides.s__Bacteroides_uniformis	3.43898e-05
+1.2.1.11: Aspartate-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	1.74944e-05
+1.2.1.11: Aspartate-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	8.53156e-06
+1.2.1.11: Aspartate-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.31667e-05
+1.2.1.11: Aspartate-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	1.75556e-05
+1.2.1.12: Glyceraldehyde-3-phosphate dehydrogenase (phosphorylating)|g__Bacteroides.s__Bacteroides_fragilis	1.76792e-05
+1.2.1.12: Glyceraldehyde-3-phosphate dehydrogenase (phosphorylating)|g__Parabacteroides.s__Parabacteroides_distasonis	1.32543e-05
+1.2.1.38: N-acetyl-gamma-glutamyl-phosphate reductase|g__Bacteroides.s__Bacteroides_fragilis	1.83916e-05
+1.2.1.38: N-acetyl-gamma-glutamyl-phosphate reductase|g__Bacteroides.s__Bacteroides_ovatus	1.83916e-05
+1.2.1.38: N-acetyl-gamma-glutamyl-phosphate reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.1958e-06
+1.2.1.38: N-acetyl-gamma-glutamyl-phosphate reductase|g__Bacteroides.s__Bacteroides_uniformis	4.5979e-06
+1.2.1.39: Phenylacetaldehyde dehydrogenase|unclassified	1.85046e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	2.05775e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.02051e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.36438e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	3.08631e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Blautia.s__Blautia_obeum	1.02607e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Blautia.s__Blautia_wexlerae	6.84047e-06
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|unclassified	1.88861e-05
+1.2.7.1: Pyruvate synthase|unclassified	1.54966e-05
+1.2.7.8: Indolepyruvate ferredoxin oxidoreductase|g__Bacteroides.s__Bacteroides_fragilis	2.33576e-05
+1.2.7.8: Indolepyruvate ferredoxin oxidoreductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.21924e-06
+1.2.7.8: Indolepyruvate ferredoxin oxidoreductase|g__Bacteroides.s__Bacteroides_uniformis	1.30002e-05
+1.3.1.1: Dihydrouracil dehydrogenase (NAD(+))|g__Bacteroides.s__Bacteroides_ovatus	3.15091e-05
+1.3.1.1: Dihydrouracil dehydrogenase (NAD(+))|g__Parabacteroides.s__Parabacteroides_distasonis	2.24148e-05
+1.3.1.26: Transferred entry: 1.17.1.8|g__Bacteroides.s__Bacteroides_fragilis	3.21853e-05
+1.3.1.26: Transferred entry: 1.17.1.8|g__Bacteroides.s__Bacteroides_ovatus	6.12306e-06
+1.3.1.76: Precorrin-2 dehydrogenase|unclassified	1.98542e-05
+1.3.1.9: Enoyl-[acyl-carrier-protein] reductase (NADH)|g__Bacteroides.s__Bacteroides_fragilis	4.255e-05
+1.3.1.9: Enoyl-[acyl-carrier-protein] reductase (NADH)|g__Bacteroides.s__Bacteroides_ovatus	1.06375e-05
+1.3.1.9: Enoyl-[acyl-carrier-protein] reductase (NADH)|g__Bacteroides.s__Bacteroides_uniformis	1.59563e-05
+1.3.1.98: UDP-N-acetylmuramate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.99189e-05
+1.3.1.98: UDP-N-acetylmuramate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.7868e-05
+1.3.98.1: Dihydroorotate oxidase (fumarate)|g__Bacteroides.s__Bacteroides_ovatus	3.15091e-05
+1.3.99.1: Deleted entry|g__Blautia.s__Blautia_obeum	2.72875e-05
+1.3.99.22: Coproporphyrinogen dehydrogenase|g__Blautia.s__Blautia_wexlerae	2.48266e-05
+1.4.1.1: Alanine dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	1.96088e-05
+1.4.1.1: Alanine dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	2.75442e-05
+1.4.1.1: Alanine dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.57395e-05
+1.4.1.1: Alanine dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.36011e-05
+1.4.1.16: Diaminopimelate dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	2.91913e-05
+1.4.1.16: Diaminopimelate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	1.00418e-05
+1.4.1.16: Diaminopimelate dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.02091e-06
+1.4.1.16: Diaminopimelate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	2.00836e-05
+1.4.1.2: Glutamate dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	3.48541e-05
+1.4.1.2: Glutamate dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	1.26791e-05
+1.4.1.3: Glutamate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_fragilis	1.58889e-05
+1.4.1.3: Glutamate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_ovatus	6.35558e-06
+1.4.1.3: Glutamate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+1.4.3.16: L-aspartate oxidase|g__Bacteroides.s__Bacteroides_fragilis	1.05908e-05
+1.4.3.16: L-aspartate oxidase|g__Bacteroides.s__Bacteroides_ovatus	5.29631e-06
+1.4.3.16: L-aspartate oxidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.94447e-06
+1.4.3.16: L-aspartate oxidase|g__Bacteroides.s__Bacteroides_uniformis	3.69214e-05
+1.4.3.5: Pyridoxal 5'-phosphate synthase|g__Bacteroides.s__Bacteroides_uniformis	3.04297e-05
+1.4.4.2: Glycine dehydrogenase (aminomethyl-transferring)|g__Bacteroides.s__Bacteroides_ovatus	2.64941e-05
+1.4.4.2: Glycine dehydrogenase (aminomethyl-transferring)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.11576e-05
+1.4.4.2: Glycine dehydrogenase (aminomethyl-transferring)|g__Bacteroides.s__Bacteroides_uniformis	3.48669e-05
+1.5.1.2: Pyrroline-5-carboxylate reductase|g__Bacteroides.s__Bacteroides_fragilis	3.62085e-05
+1.5.1.2: Pyrroline-5-carboxylate reductase|g__Blautia.s__Blautia_wexlerae	2.91913e-05
+1.5.1.20: Methylenetetrahydrofolate reductase (NAD(P)H)|g__Bacteroides.s__Bacteroides_uniformis	5.5378e-05
+1.5.1.20: Methylenetetrahydrofolate reductase (NAD(P)H)|unclassified	2.79169e-05
+1.5.1.38: FMN reductase (NADPH)|g__Parabacteroides.s__Parabacteroides_distasonis	5.6769e-05
+1.5.1.39: FMN reductase (NAD(P)H)|g__Flavonifractor.s__Flavonifractor_plautii	2.05775e-05
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_fragilis	3.08662e-05
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_ovatus	1.54331e-05
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.14437e-06
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_uniformis	5.14437e-06
+1.6.1.1: NAD(P)(+) transhydrogenase (Si-specific)|g__Bacteroides.s__Bacteroides_fragilis	2.34309e-05
+1.6.1.1: NAD(P)(+) transhydrogenase (Si-specific)|g__Bacteroides.s__Bacteroides_ovatus	2.00777e-05
+1.6.5.11: NADH dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_fragilis	0.000124605
+1.6.5.11: NADH dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_ovatus	5.41621e-05
+1.6.5.11: NADH dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.50883e-05
+1.6.5.11: NADH dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_uniformis	0.000163808
+1.6.5.3: NADH:ubiquinone reductase (H(+)-translocating)|g__Bacteroides.s__Bacteroides_fragilis	3.41399e-05
+1.6.5.3: NADH:ubiquinone reductase (H(+)-translocating)|g__Bacteroides.s__Bacteroides_ovatus	2.22164e-05
+1.6.5.3: NADH:ubiquinone reductase (H(+)-translocating)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.2624e-05
+1.6.5.3: NADH:ubiquinone reductase (H(+)-translocating)|g__Bacteroides.s__Bacteroides_uniformis	4.46971e-05
+1.6.99.3: NADH dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	5.85111e-05
+1.6.99.5: Transferred entry: 1.6.5.11|g__Bacteroides.s__Bacteroides_fragilis	1.11082e-05
+1.6.99.5: Transferred entry: 1.6.5.11|g__Bacteroides.s__Bacteroides_ovatus	2.22164e-05
+1.6.99.5: Transferred entry: 1.6.5.11|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.11082e-05
+1.7.1.13: PreQ(1) synthase|g__Bacteroides.s__Bacteroides_fragilis	1.23061e-05
+1.7.1.13: PreQ(1) synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.23061e-05
+1.7.1.13: PreQ(1) synthase|g__Bacteroides.s__Bacteroides_uniformis	1.23061e-05
+1.7.2.2: Nitrite reductase (cytochrome; ammonia-forming)|unclassified	1.8426e-05
+1.7.99.1: Hydroxylamine reductase|g__Bacteroides.s__Bacteroides_fragilis	1.82276e-05
+1.7.99.1: Hydroxylamine reductase|g__Bacteroides.s__Bacteroides_ovatus	2.54094e-06
+1.7.99.1: Hydroxylamine reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.55127e-06
+1.8.1.14: CoA-disulfide reductase|unclassified	1.50477e-05
+1.8.1.4: Dihydrolipoyl dehydrogenase|g__Bacteroides.s__Bacteroides_fragilis	3.77514e-05
+1.8.1.4: Dihydrolipoyl dehydrogenase|g__Bacteroides.s__Bacteroides_ovatus	3.15384e-06
+1.8.1.4: Dihydrolipoyl dehydrogenase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.20768e-05
+1.8.1.4: Dihydrolipoyl dehydrogenase|g__Bacteroides.s__Bacteroides_uniformis	3.42618e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Bacteroides.s__Bacteroides_ovatus	2.82073e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.88049e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Blautia.s__Blautia_obeum	1.00418e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Blautia.s__Blautia_wexlerae	1.50627e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Flavonifractor.s__Flavonifractor_plautii	0.00094142
+1.8.1.9: Thioredoxin-disulfide reductase|unclassified	5.13005e-05
+1.8.4.11: Peptide-methionine (S)-S-oxide reductase|unclassified	1.42639e-05
+1.8.4.14: L-methionine (R)-S-oxide reductase|g__Bacteroides.s__Bacteroides_fragilis	2.31736e-05
+1.8.4.14: L-methionine (R)-S-oxide reductase|g__Bacteroides.s__Bacteroides_uniformis	4.69243e-05
+1.8.4.14: L-methionine (R)-S-oxide reductase|g__Parabacteroides.s__Parabacteroides_distasonis	2.30317e-05
+1.97.1.4: [Formate-C-acetyltransferase]-activating enzyme|g__Bacteroides.s__Bacteroides_ovatus	1.95113e-05
+1.97.1.4: [Formate-C-acetyltransferase]-activating enzyme|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.80452e-05
+2.1.1.13: Methionine synthase|g__Bacteroides.s__Bacteroides_fragilis	1.73934e-05
+2.1.1.13: Methionine synthase|g__Bacteroides.s__Bacteroides_ovatus	2.89891e-06
+2.1.1.13: Methionine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.00475e-05
+2.1.1.13: Methionine synthase|g__Bacteroides.s__Bacteroides_uniformis	2.44347e-05
+2.1.1.130: Precorrin-2 C(20)-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	3.37426e-05
+2.1.1.133: Precorrin-4 C(11)-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.09387e-05
+2.1.1.148: Thymidylate synthase (FAD)|unclassified	1.54262e-05
+2.1.1.156: Glycine/sarcosine N-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.4959e-05
+2.1.1.171: 16S rRNA (guanine(966)-N(2))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.90507e-05
+2.1.1.173: 23S rRNA (guanine(2445)-N(2))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.62621e-05
+2.1.1.177: 23S rRNA (pseudouridine(1915)-N(3))-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	5.81123e-05
+2.1.1.177: 23S rRNA (pseudouridine(1915)-N(3))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.48674e-05
+2.1.1.177: 23S rRNA (pseudouridine(1915)-N(3))-methyltransferase|unclassified	1.75966e-05
+2.1.1.181: 23S rRNA (adenine(1618)-N(6))-methyltransferase|unclassified	1.73634e-05
+2.1.1.191: 23S rRNA (cytosine(1962)-C(5))-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.09751e-05
+2.1.1.191: 23S rRNA (cytosine(1962)-C(5))-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	7.3191e-06
+2.1.1.191: 23S rRNA (cytosine(1962)-C(5))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.55424e-05
+2.1.1.193: 16S rRNA (uracil(1498)-N(3))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.74366e-05
+2.1.1.195: Cobalt-precorrin-5B (C(1))-methyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	2.93984e-05
+2.1.1.197: Malonyl-[acyl-carrier protein] O-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.75938e-05
+2.1.1.198: 16S rRNA (cytidine(1402)-2'-O)-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.30363e-05
+2.1.1.198: 16S rRNA (cytidine(1402)-2'-O)-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.3925e-05
+2.1.1.198: 16S rRNA (cytidine(1402)-2'-O)-methyltransferase|g__Blautia.s__Blautia_obeum	2.14569e-05
+2.1.1.198: 16S rRNA (cytidine(1402)-2'-O)-methyltransferase|g__Blautia.s__Blautia_wexlerae	5.36422e-06
+2.1.1.199: 16S rRNA (cytosine(1402)-N(4))-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	3.9399e-05
+2.1.1.199: 16S rRNA (cytosine(1402)-N(4))-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	9.84491e-06
+2.1.1.199: 16S rRNA (cytosine(1402)-N(4))-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.92246e-06
+2.1.1.199: 16S rRNA (cytosine(1402)-N(4))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.90732e-05
+2.1.1.199: 16S rRNA (cytosine(1402)-N(4))-methyltransferase|unclassified	1.64216e-05
+2.1.1.217: tRNA (adenine(22)-N(1))-methyltransferase|g__Blautia.s__Blautia_obeum	6.74853e-06
+2.1.1.217: tRNA (adenine(22)-N(1))-methyltransferase|g__Blautia.s__Blautia_wexlerae	2.69941e-05
+2.1.1.223: tRNA(1)(Val) (adenine(37)-N(6))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.72276e-05
+2.1.1.223: tRNA(1)(Val) (adenine(37)-N(6))-methyltransferase|g__Blautia.s__Blautia_obeum	1.27434e-05
+2.1.1.223: tRNA(1)(Val) (adenine(37)-N(6))-methyltransferase|g__Blautia.s__Blautia_wexlerae	6.37171e-06
+2.1.1.228: tRNA (guanine(37)-N(1))-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	7.13197e-06
+2.1.1.228: tRNA (guanine(37)-N(1))-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.42639e-05
+2.1.1.228: tRNA (guanine(37)-N(1))-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+2.1.1.33: tRNA (guanine(46)-N(7))-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.23668e-05
+2.1.1.33: tRNA (guanine(46)-N(7))-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.23668e-05
+2.1.1.33: tRNA (guanine(46)-N(7))-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.85501e-05
+2.1.1.33: tRNA (guanine(46)-N(7))-methyltransferase|unclassified	1.39585e-05
+2.1.1.45: Thymidylate synthase|g__Bacteroides.s__Bacteroides_fragilis	5.82922e-06
+2.1.1.45: Thymidylate synthase|g__Bacteroides.s__Bacteroides_ovatus	5.83826e-06
+2.1.1.45: Thymidylate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.75148e-05
+2.1.1.45: Thymidylate synthase|g__Bacteroides.s__Bacteroides_uniformis	1.16765e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.97673e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.1155e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.77512e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|unclassified	2.44878e-05
+2.1.1.72: Site-specific DNA-methyltransferase (adenine-specific)|g__Bacteroides.s__Bacteroides_fragilis	1.09867e-05
+2.1.1.72: Site-specific DNA-methyltransferase (adenine-specific)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.96744e-05
+2.1.1.72: Site-specific DNA-methyltransferase (adenine-specific)|g__Bacteroides.s__Bacteroides_uniformis	3.3249e-05
+2.1.1.72: Site-specific DNA-methyltransferase (adenine-specific)|g__Parabacteroides.s__Parabacteroides_distasonis	1.10837e-05
+2.1.2.1: Glycine hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.31575e-05
+2.1.2.1: Glycine hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_ovatus	2.33066e-05
+2.1.2.1: Glycine hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_uniformis	1.66476e-05
+2.1.2.10: Aminomethyltransferase|g__Bacteroides.s__Bacteroides_fragilis	8.04632e-06
+2.1.2.10: Aminomethyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.80722e-05
+2.1.2.11: 3-methyl-2-oxobutanoate hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.92126e-05
+2.1.2.11: 3-methyl-2-oxobutanoate hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.48295e-05
+2.1.2.11: 3-methyl-2-oxobutanoate hydroxymethyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.24148e-05
+2.1.2.2: Phosphoribosylglycinamide formyltransferase|g__Blautia.s__Blautia_obeum	2.29615e-05
+2.1.2.2: Phosphoribosylglycinamide formyltransferase|g__Blautia.s__Blautia_wexlerae	1.53076e-05
+2.1.2.2: Phosphoribosylglycinamide formyltransferase|g__Blautia.s__Ruminococcus_torques	4.7071e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|g__Bacteroides.s__Bacteroides_fragilis	4.89749e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.76652e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.74217e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|g__Bacteroides.s__Bacteroides_uniformis	1.63855e-05
+2.1.2.5: Glutamate formimidoyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.00054e-05
+2.1.2.5: Glutamate formimidoyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.00036e-05
+2.1.2.9: Methionyl-tRNA formyltransferase|g__Blautia.s__Blautia_obeum	1.41567e-05
+2.1.2.9: Methionyl-tRNA formyltransferase|g__Blautia.s__Blautia_wexlerae	9.43779e-06
+2.1.3.2: Aspartate carbamoyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.90786e-05
+2.1.3.2: Aspartate carbamoyltransferase|g__Bacteroides.s__Bacteroides_ovatus	9.50929e-06
+2.1.3.2: Aspartate carbamoyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.50929e-06
+2.1.3.2: Aspartate carbamoyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.35945e-05
+2.1.3.2: Aspartate carbamoyltransferase|g__Blautia.s__Blautia_wexlerae	3.40565e-05
+2.1.3.2: Aspartate carbamoyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	2.93049e-05
+2.1.3.9: N-acetylornithine carbamoyltransferase|g__Bacteroides.s__Bacteroides_fragilis	4.66627e-06
+2.1.3.9: N-acetylornithine carbamoyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.66627e-06
+2.1.3.9: N-acetylornithine carbamoyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.39988e-05
+2.1.3.9: N-acetylornithine carbamoyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.68368e-05
+2.2.1.6: Acetolactate synthase|g__Bacteroides.s__Bacteroides_fragilis	8.934e-06
+2.2.1.6: Acetolactate synthase|g__Bacteroides.s__Bacteroides_ovatus	3.89801e-05
+2.2.1.6: Acetolactate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.73044e-06
+2.2.1.6: Acetolactate synthase|g__Bacteroides.s__Bacteroides_uniformis	1.88049e-05
+2.2.1.6: Acetolactate synthase|g__Parabacteroides.s__Parabacteroides_distasonis	5.57878e-05
+2.2.1.6: Acetolactate synthase|unclassified	2.02946e-05
+2.2.1.7: 1-deoxy-D-xylulose-5-phosphate synthase|g__Bacteroides.s__Bacteroides_fragilis	2.10766e-05
+2.2.1.7: 1-deoxy-D-xylulose-5-phosphate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.68368e-06
+2.2.1.7: 1-deoxy-D-xylulose-5-phosphate synthase|g__Bacteroides.s__Bacteroides_uniformis	3.49782e-05
+2.3.1.129: Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.5756e-05
+2.3.1.129: Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.21867e-05
+2.3.1.129: Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.21867e-05
+2.3.1.129: Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.04667e-05
+2.3.1.179: Beta-ketoacyl-[acyl-carrier-protein] synthase II|g__Bacteroides.s__Bacteroides_ovatus	2.02971e-05
+2.3.1.179: Beta-ketoacyl-[acyl-carrier-protein] synthase II|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.7217e-05
+2.3.1.179: Beta-ketoacyl-[acyl-carrier-protein] synthase II|g__Bacteroides.s__Bacteroides_uniformis	2.36168e-05
+2.3.1.180: Beta-ketoacyl-[acyl-carrier-protein] synthase III|g__Bacteroides.s__Bacteroides_fragilis	2.17921e-05
+2.3.1.180: Beta-ketoacyl-[acyl-carrier-protein] synthase III|g__Bacteroides.s__Bacteroides_uniformis	2.64258e-05
+2.3.1.181: Lipoyl(octanoyl) transferase|g__Bacteroides.s__Bacteroides_fragilis	3.3925e-05
+2.3.1.181: Lipoyl(octanoyl) transferase|g__Bacteroides.s__Bacteroides_uniformis	2.95203e-05
+2.3.1.183: Phosphinothricin acetyltransferase|unclassified	1.48401e-05
+2.3.1.234: N(6)-L-threonylcarbamoyladenine synthase|g__Bacteroides.s__Bacteroides_fragilis	1.73085e-05
+2.3.1.234: N(6)-L-threonylcarbamoyladenine synthase|g__Bacteroides.s__Bacteroides_ovatus	4.27205e-05
+2.3.1.234: N(6)-L-threonylcarbamoyladenine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.02986e-05
+2.3.1.234: N(6)-L-threonylcarbamoyladenine synthase|g__Bacteroides.s__Bacteroides_uniformis	4.31349e-06
+2.3.1.234: N(6)-L-threonylcarbamoyladenine synthase|unclassified	2.33249e-05
+2.3.1.28: Chloramphenicol O-acetyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.95347e-05
+2.3.1.29: Glycine C-acetyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.17669e-05
+2.3.1.29: Glycine C-acetyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.24628e-05
+2.3.1.29: Glycine C-acetyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.23134e-06
+2.3.1.29: Glycine C-acetyltransferase|g__Bacteroides.s__Bacteroides_uniformis	1.81391e-05
+2.3.1.31: Homoserine O-acetyltransferase|g__Bacteroides.s__Bacteroides_fragilis	4.41291e-05
+2.3.1.31: Homoserine O-acetyltransferase|g__Bacteroides.s__Bacteroides_ovatus	2.45161e-05
+2.3.1.31: Homoserine O-acetyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.92258e-05
+2.3.1.39: [Acyl-carrier-protein] S-malonyltransferase|g__Bacteroides.s__Bacteroides_fragilis	5.10255e-06
+2.3.1.39: [Acyl-carrier-protein] S-malonyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.02051e-05
+2.3.1.39: [Acyl-carrier-protein] S-malonyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.01708e-05
+2.3.1.47: 8-amino-7-oxononanoate synthase|g__Bacteroides.s__Bacteroides_ovatus	2.24817e-05
+2.3.1.47: 8-amino-7-oxononanoate synthase|g__Bacteroides.s__Bacteroides_uniformis	2.2549e-05
+2.3.1.57: Diamine N-acetyltransferase|unclassified	2.76381e-05
+2.3.1.79: Maltose O-acetyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.71949e-05
+2.3.1.85: Fatty-acid synthase|unclassified	6.00906e-05
+2.3.1.89: Tetrahydrodipicolinate N-acetyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.38334e-05
+2.3.1.89: Tetrahydrodipicolinate N-acetyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	1.68487e-05
+2.3.3.13: 2-isopropylmalate synthase|g__Bacteroides.s__Bacteroides_fragilis	1.11824e-05
+2.3.3.13: 2-isopropylmalate synthase|g__Bacteroides.s__Bacteroides_ovatus	2.7956e-06
+2.3.3.13: 2-isopropylmalate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.38474e-06
+2.4.1.1: Glycogen phosphorylase|g__Bacteroides.s__Bacteroides_uniformis	2.65079e-05
+2.4.1.1: Glycogen phosphorylase|g__Blautia.s__Blautia_wexlerae	2.84462e-05
+2.4.1.1: Glycogen phosphorylase|unclassified	2.24754e-05
+2.4.1.129: Peptidoglycan glycosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	0.000114381
+2.4.1.18: 1,4-alpha-glucan branching enzyme|g__Bacteroides.s__Bacteroides_ovatus	1.81917e-05
+2.4.1.18: 1,4-alpha-glucan branching enzyme|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.01054e-05
+2.4.1.18: 1,4-alpha-glucan branching enzyme|g__Bacteroides.s__Bacteroides_uniformis	4.04707e-05
+2.4.1.182: Lipid-A-disaccharide synthase|g__Bacteroides.s__Bacteroides_fragilis	2.6393e-05
+2.4.1.182: Lipid-A-disaccharide synthase|g__Bacteroides.s__Bacteroides_uniformis	2.63861e-05
+2.4.1.21: Starch synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.01805e-05
+2.4.1.21: Starch synthase|g__Blautia.s__Blautia_obeum	5.6516e-06
+2.4.1.21: Starch synthase|g__Blautia.s__Blautia_wexlerae	1.73934e-05
+2.4.1.212: Hyaluronan synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.68977e-05
+2.4.1.212: Hyaluronan synthase|g__Bacteroides.s__Bacteroides_uniformis	9.38938e-05
+2.4.1.227: acetylglucosaminyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.64899e-05
+2.4.1.246: Mannosylfructose-phosphate synthase|unclassified	2.1708e-05
+2.4.1.248: Cycloisomaltooligosaccharide glucanotransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.16097e-05
+2.4.1.250: D-inositol-3-phosphate glycosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.02464e-05
+2.4.1.280: N,N'-diacetylchitobiose phosphorylase|g__Bacteroides.s__Bacteroides_uniformis	2.25389e-05
+2.4.1.281: 4-O-beta-D-mannosyl-D-glucose phosphorylase|g__Bacteroides.s__Bacteroides_uniformis	2.94481e-05
+2.4.1.290: acetylgalactosaminyltransferase|unclassified	2.1708e-05
+2.4.1.320: 1,4-beta-mannosyl-N-acetylglucosamine phosphorylase|g__Bacteroides.s__Bacteroides_fragilis	1.83916e-05
+2.4.1.320: 1,4-beta-mannosyl-N-acetylglucosamine phosphorylase|g__Bacteroides.s__Bacteroides_ovatus	9.1958e-06
+2.4.1.5: Dextransucrase|g__Blautia.s__Blautia_obeum	1.54335e-05
+2.4.1.5: Dextransucrase|g__Blautia.s__Blautia_wexlerae	1.69843e-05
+2.4.1.52: Poly(glycerol-phosphate) alpha-glucosyltransferase|g__Bacteroides.s__Bacteroides_fragilis	3.97182e-05
+2.4.1.57: Phosphatidylinositol alpha-mannosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.50561e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Bacteroides.s__Bacteroides_fragilis	1.83692e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Bacteroides.s__Bacteroides_ovatus	1.13853e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.28223e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Bacteroides.s__Bacteroides_uniformis	2.85192e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Blautia.s__Blautia_obeum	6.78501e-06
+2.4.2.1: Purine-nucleoside phosphorylase|g__Blautia.s__Blautia_wexlerae	2.0355e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Flavonifractor.s__Flavonifractor_plautii	5.70557e-05
+2.4.2.1: Purine-nucleoside phosphorylase|unclassified	4.48972e-05
+2.4.2.10: Orotate phosphoribosyltransferase|g__Blautia.s__Blautia_wexlerae	3.54584e-05
+2.4.2.10: Orotate phosphoribosyltransferase|unclassified	1.46953e-05
+2.4.2.14: Amidophosphoribosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.2875e-05
+2.4.2.14: Amidophosphoribosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.97727e-06
+2.4.2.14: Amidophosphoribosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	2.36976e-05
+2.4.2.17: ATP phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	1.60926e-05
+2.4.2.18: Anthranilate phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	5.30648e-05
+2.4.2.18: Anthranilate phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.87086e-06
+2.4.2.18: Anthranilate phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.56093e-05
+2.4.2.18: Anthranilate phosphoribosyltransferase|g__Blautia.s__Blautia_obeum	1.74944e-05
+2.4.2.18: Anthranilate phosphoribosyltransferase|g__Blautia.s__Blautia_wexlerae	8.74722e-06
+2.4.2.19: Nicotinate-nucleotide diphosphorylase (carboxylating)|g__Bacteroides.s__Bacteroides_fragilis	1.0915e-05
+2.4.2.19: Nicotinate-nucleotide diphosphorylase (carboxylating)|g__Bacteroides.s__Bacteroides_ovatus	4.25696e-05
+2.4.2.19: Nicotinate-nucleotide diphosphorylase (carboxylating)|g__Bacteroides.s__Bacteroides_uniformis	2.69362e-05
+2.4.2.21: Nicotinate-nucleotide--dimethylbenzimidazole phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.11373e-05
+2.4.2.22: Xanthine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	8.90231e-06
+2.4.2.22: Xanthine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.90231e-06
+2.4.2.29: tRNA-guanine(34) transglycosylase|g__Bacteroides.s__Bacteroides_fragilis	7.67723e-06
+2.4.2.29: tRNA-guanine(34) transglycosylase|g__Bacteroides.s__Bacteroides_ovatus	1.91931e-05
+2.4.2.29: tRNA-guanine(34) transglycosylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.67723e-06
+2.4.2.29: tRNA-guanine(34) transglycosylase|g__Bacteroides.s__Bacteroides_uniformis	1.14467e-05
+2.4.2.3: Uridine phosphorylase|unclassified	1.51232e-05
+2.4.2.7: Adenine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_fragilis	8.94275e-05
+2.4.2.7: Adenine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	2.00836e-05
+2.4.2.7: Adenine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9651e-05
+2.4.2.7: Adenine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	8.03345e-05
+2.4.2.7: Adenine phosphoribosyltransferase|unclassified	1.54016e-05
+2.4.2.8: Hypoxanthine phosphoribosyltransferase|g__Flavonifractor.s__Flavonifractor_plautii	1.84592e-05
+2.4.2.8: Hypoxanthine phosphoribosyltransferase|unclassified	2.42849e-05
+2.4.2.9: Uracil phosphoribosyltransferase|unclassified	1.62139e-05
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_fragilis	7.03208e-06
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_ovatus	4.18095e-05
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.10962e-05
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_uniformis	6.41775e-05
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|unclassified	1.4958e-05
+2.5.1.101: N,N'-diacetyllegionaminate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.69054e-05
+2.5.1.15: Dihydropteroate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.10962e-05
+2.5.1.15: Dihydropteroate synthase|g__Bacteroides.s__Bacteroides_uniformis	3.75495e-05
+2.5.1.17: Cob(I)yrinic acid a,c-diamide adenosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.81917e-05
+2.5.1.17: Cob(I)yrinic acid a,c-diamide adenosyltransferase|g__Blautia.s__Blautia_obeum	8.0722e-06
+2.5.1.17: Cob(I)yrinic acid a,c-diamide adenosyltransferase|g__Blautia.s__Blautia_wexlerae	1.61444e-05
+2.5.1.17: Cob(I)yrinic acid a,c-diamide adenosyltransferase|unclassified	2.44878e-05
+2.5.1.19: 3-phosphoshikimate 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.04602e-05
+2.5.1.19: 3-phosphoshikimate 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.73854e-05
+2.5.1.3: Thiamine-phosphate diphosphorylase|g__Bacteroides.s__Bacteroides_ovatus	3.21853e-05
+2.5.1.47: Cysteine synthase|g__Bacteroides.s__Bacteroides_fragilis	1.26791e-05
+2.5.1.47: Cysteine synthase|g__Bacteroides.s__Bacteroides_ovatus	4.70829e-05
+2.5.1.47: Cysteine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.33894e-05
+2.5.1.48: Cystathionine gamma-synthase|g__Flavonifractor.s__Flavonifractor_plautii	2.39416e-05
+2.5.1.55: 3-deoxy-8-phosphooctulonate synthase|g__Bacteroides.s__Bacteroides_ovatus	1.15689e-05
+2.5.1.55: 3-deoxy-8-phosphooctulonate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.31378e-05
+2.5.1.55: 3-deoxy-8-phosphooctulonate synthase|g__Bacteroides.s__Bacteroides_uniformis	2.31378e-05
+2.5.1.6: Methionine adenosyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.64728e-05
+2.5.1.6: Methionine adenosyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.31188e-05
+2.5.1.6: Methionine adenosyltransferase|g__Blautia.s__Blautia_wexlerae	2.91913e-05
+2.5.1.6: Methionine adenosyltransferase|g__Flavonifractor.s__Flavonifractor_plautii	7.38368e-05
+2.5.1.6: Methionine adenosyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	2.31807e-05
+2.5.1.7: UDP-N-acetylglucosamine 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_fragilis	9.78098e-06
+2.5.1.7: UDP-N-acetylglucosamine 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_ovatus	9.77816e-06
+2.5.1.7: UDP-N-acetylglucosamine 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.52066e-06
+2.5.1.7: UDP-N-acetylglucosamine 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.24609e-05
+2.5.1.72: Quinolinate synthase|g__Bacteroides.s__Bacteroides_fragilis	5.6712e-06
+2.5.1.72: Quinolinate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.7165e-05
+2.5.1.72: Quinolinate synthase|g__Bacteroides.s__Bacteroides_uniformis	2.86303e-05
+2.5.1.74: 1,4-dihydroxy-2-naphthoate polyprenyltransferase|g__Bacteroides.s__Bacteroides_ovatus	4.55526e-05
+2.5.1.74: 1,4-dihydroxy-2-naphthoate polyprenyltransferase|g__Bacteroides.s__Bacteroides_uniformis	6.37685e-05
+2.5.1.75: tRNA dimethylallyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.87814e-05
+2.5.1.75: tRNA dimethylallyltransferase|g__Bacteroides.s__Bacteroides_ovatus	5.37256e-05
+2.5.1.75: tRNA dimethylallyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.44207e-05
+2.5.1.75: tRNA dimethylallyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.94993e-05
+2.5.1.78: 6,7-dimethyl-8-ribityllumazine synthase|g__Parabacteroides.s__Parabacteroides_distasonis	2.26167e-05
+2.6.1.1: Aspartate transaminase|g__Bacteroides.s__Bacteroides_ovatus	1.79318e-05
+2.6.1.1: Aspartate transaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.41546e-05
+2.6.1.1: Aspartate transaminase|g__Bacteroides.s__Bacteroides_uniformis	2.15182e-05
+2.6.1.1: Aspartate transaminase|g__Parabacteroides.s__Parabacteroides_distasonis	1.07591e-05
+2.6.1.16: Glutamine--fructose-6-phosphate transaminase (isomerizing)|g__Bacteroides.s__Bacteroides_ovatus	2.43547e-05
+2.6.1.16: Glutamine--fructose-6-phosphate transaminase (isomerizing)|g__Bacteroides.s__Bacteroides_uniformis	2.4438e-05
+2.6.1.37: 2-aminoethylphosphonate--pyruvate transaminase|g__Bacteroides.s__Bacteroides_fragilis	3.60928e-05
+2.6.1.42: Branched-chain-amino-acid transaminase|g__Bacteroides.s__Bacteroides_fragilis	1.29851e-05
+2.6.1.42: Branched-chain-amino-acid transaminase|g__Bacteroides.s__Bacteroides_ovatus	2.93866e-05
+2.6.1.42: Branched-chain-amino-acid transaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.57754e-05
+2.6.1.42: Branched-chain-amino-acid transaminase|g__Bacteroides.s__Bacteroides_uniformis	1.73135e-05
+2.6.1.52: Phosphoserine transaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.23061e-05
+2.6.1.52: Phosphoserine transaminase|g__Bacteroides.s__Bacteroides_uniformis	1.64082e-05
+2.6.1.62: Adenosylmethionine--8-amino-7-oxononanoate transaminase|g__Bacteroides.s__Bacteroides_fragilis	5.52794e-06
+2.6.1.62: Adenosylmethionine--8-amino-7-oxononanoate transaminase|g__Bacteroides.s__Bacteroides_ovatus	3.32503e-05
+2.6.1.62: Adenosylmethionine--8-amino-7-oxononanoate transaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.27401e-06
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Bacteroides.s__Bacteroides_ovatus	1.73822e-05
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.73854e-05
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Bacteroides.s__Bacteroides_uniformis	2.78167e-05
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Blautia.s__Blautia_obeum	1.06042e-05
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Blautia.s__Blautia_wexlerae	1.41434e-05
+2.6.1.85: Aminodeoxychorismate synthase|g__Bacteroides.s__Bacteroides_fragilis	1.80608e-05
+2.6.1.85: Aminodeoxychorismate synthase|g__Bacteroides.s__Bacteroides_uniformis	3.94899e-05
+2.6.1.85: Aminodeoxychorismate synthase|g__Blautia.s__Blautia_obeum	3.51112e-05
+2.6.1.85: Aminodeoxychorismate synthase|g__Blautia.s__Blautia_wexlerae	2.63334e-05
+2.6.1.87: UDP-4-amino-4-deoxy-L-arabinose aminotransferase|g__Bacteroides.s__Bacteroides_uniformis	3.44842e-05
+2.7.1.11: 6-phosphofructokinase|g__Bacteroides.s__Bacteroides_fragilis	4.08954e-05
+2.7.1.11: 6-phosphofructokinase|g__Bacteroides.s__Bacteroides_ovatus	1.35945e-05
+2.7.1.11: 6-phosphofructokinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.31208e-05
+2.7.1.11: 6-phosphofructokinase|g__Bacteroides.s__Bacteroides_uniformis	5.37465e-05
+2.7.1.11: 6-phosphofructokinase|g__Parabacteroides.s__Parabacteroides_distasonis	8.99804e-06
+2.7.1.130: Tetraacyldisaccharide 4'-kinase|g__Bacteroides.s__Bacteroides_uniformis	3.06933e-05
+2.7.1.144: Tagatose-6-phosphate kinase|g__Blautia.s__Blautia_obeum	1.48255e-05
+2.7.1.144: Tagatose-6-phosphate kinase|g__Blautia.s__Blautia_wexlerae	9.88367e-06
+2.7.1.148: 4-(cytidine 5'-diphospho)-2-C-methyl-D-erythritol kinase|g__Bacteroides.s__Bacteroides_uniformis	2.20215e-05
+2.7.1.16: Ribulokinase|unclassified	2.05775e-05
+2.7.1.17: Xylulokinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.47074e-05
+2.7.1.180: FAD:protein FMN transferase|g__Bacteroides.s__Bacteroides_fragilis	3.38108e-05
+2.7.1.2: Glucokinase|g__Bacteroides.s__Bacteroides_fragilis	9.1958e-06
+2.7.1.2: Glucokinase|g__Bacteroides.s__Bacteroides_ovatus	9.1958e-06
+2.7.1.21: Thymidine kinase|g__Bacteroides.s__Bacteroides_ovatus	1.67364e-05
+2.7.1.21: Thymidine kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.18409e-05
+2.7.1.23: NAD(+) kinase|unclassified	2.99149e-05
+2.7.1.24: Dephospho-CoA kinase|g__Bacteroides.s__Bacteroides_fragilis	2.4139e-05
+2.7.1.24: Dephospho-CoA kinase|g__Bacteroides.s__Bacteroides_ovatus	1.60926e-05
+2.7.1.26: Riboflavin kinase|g__Bifidobacterium.s__Bifidobacterium_longum	1.93112e-05
+2.7.1.26: Riboflavin kinase|g__Blautia.s__Blautia_obeum	1.00821e-05
+2.7.1.26: Riboflavin kinase|g__Blautia.s__Blautia_wexlerae	3.02464e-05
+2.7.1.26: Riboflavin kinase|unclassified	1.73834e-05
+2.7.1.33: Pantothenate kinase|g__Bacteroides.s__Bacteroides_fragilis	2.71563e-05
+2.7.1.33: Pantothenate kinase|g__Bacteroides.s__Bacteroides_ovatus	1.17862e-05
+2.7.1.33: Pantothenate kinase|g__Bacteroides.s__Bacteroides_uniformis	5.16634e-05
+2.7.1.33: Pantothenate kinase|unclassified	7.20972e-05
+2.7.1.35: Pyridoxal kinase|g__Bacteroides.s__Bacteroides_fragilis	2.08336e-05
+2.7.1.35: Pyridoxal kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.20841e-06
+2.7.1.4: Fructokinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.51232e-05
+2.7.1.40: Pyruvate kinase|g__Bacteroides.s__Bacteroides_fragilis	3.16686e-05
+2.7.1.40: Pyruvate kinase|g__Bacteroides.s__Bacteroides_ovatus	5.75792e-06
+2.7.1.40: Pyruvate kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.75792e-06
+2.7.1.40: Pyruvate kinase|g__Bacteroides.s__Bacteroides_uniformis	1.43948e-05
+2.7.1.48: Uridine kinase|g__Bacteroides.s__Bacteroides_fragilis	1.61965e-05
+2.7.1.48: Uridine kinase|g__Bacteroides.s__Bacteroides_ovatus	2.44525e-05
+2.7.1.5: Rhamnulokinase|g__Bacteroides.s__Bacteroides_ovatus	1.76355e-05
+2.7.1.5: Rhamnulokinase|g__Bacteroides.s__Bacteroides_uniformis	5.408e-05
+2.7.1.50: Hydroxyethylthiazole kinase|unclassified	2.92358e-05
+2.7.1.51: L-fuculokinase|g__Bacteroides.s__Bacteroides_ovatus	1.76355e-05
+2.7.1.6: Galactokinase|g__Blautia.s__Blautia_obeum	1.38317e-05
+2.7.1.6: Galactokinase|g__Blautia.s__Blautia_wexlerae	3.45792e-06
+2.7.1.69: Protein-N(pi)-phosphohistidine--sugar phosphotransferase|g__Blautia.s__Ruminococcus_torques	3.21853e-05
+2.7.1.69: Protein-N(pi)-phosphohistidine--sugar phosphotransferase|unclassified	1.77208e-05
+2.7.1.71: Shikimate kinase|g__Bacteroides.s__Bacteroides_uniformis	3.98485e-05
+2.7.1.71: Shikimate kinase|g__Blautia.s__Blautia_obeum	4.11631e-05
+2.7.1.71: Shikimate kinase|g__Blautia.s__Blautia_wexlerae	5.02091e-05
+2.7.1.71: Shikimate kinase|unclassified	3.1545e-05
+2.7.1.73: Inosine kinase|unclassified	3.69184e-05
+2.7.1.90: Diphosphate--fructose-6-phosphate 1-phosphotransferase|g__Bacteroides.s__Bacteroides_fragilis	7.29783e-06
+2.7.1.90: Diphosphate--fructose-6-phosphate 1-phosphotransferase|g__Bacteroides.s__Bacteroides_ovatus	1.76084e-05
+2.7.1.90: Diphosphate--fructose-6-phosphate 1-phosphotransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.25232e-05
+2.7.1.90: Diphosphate--fructose-6-phosphate 1-phosphotransferase|g__Bacteroides.s__Bacteroides_uniformis	3.01858e-05
+2.7.11.1: Non-specific serine/threonine protein kinase|g__Flavonifractor.s__Flavonifractor_plautii	2.75874e-05
+2.7.13.3: Histidine kinase|g__Bacteroides.s__Bacteroides_fragilis	0.000135679
+2.7.13.3: Histidine kinase|g__Bacteroides.s__Bacteroides_ovatus	5.50323e-05
+2.7.13.3: Histidine kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.000189548
+2.7.13.3: Histidine kinase|g__Bacteroides.s__Bacteroides_uniformis	0.000364477
+2.7.13.3: Histidine kinase|g__Blautia.s__Blautia_obeum	4.49501e-05
+2.7.13.3: Histidine kinase|g__Blautia.s__Blautia_wexlerae	7.87024e-05
+2.7.13.3: Histidine kinase|g__Blautia.s__Ruminococcus_torques	3.28381e-05
+2.7.13.3: Histidine kinase|g__Flavonifractor.s__Flavonifractor_plautii	1.41585e-05
+2.7.13.3: Histidine kinase|g__Parabacteroides.s__Parabacteroides_distasonis	1.49432e-05
+2.7.13.3: Histidine kinase|unclassified	0.000123874
+2.7.2.1: Acetate kinase|g__Bacteroides.s__Bacteroides_uniformis	5.02987e-05
+2.7.2.1: Acetate kinase|unclassified	1.73005e-05
+2.7.2.11: Glutamate 5-kinase|g__Bacteroides.s__Bacteroides_fragilis	3.61118e-05
+2.7.2.11: Glutamate 5-kinase|g__Bacteroides.s__Bacteroides_uniformis	5.25743e-05
+2.7.2.3: Phosphoglycerate kinase|g__Bacteroides.s__Bacteroides_ovatus	2.0352e-05
+2.7.2.3: Phosphoglycerate kinase|g__Bacteroides.s__Bacteroides_uniformis	6.80339e-06
+2.7.2.3: Phosphoglycerate kinase|unclassified	1.97673e-05
+2.7.2.4: Aspartate kinase|g__Bacteroides.s__Bacteroides_fragilis	9.65559e-06
+2.7.2.4: Aspartate kinase|g__Bacteroides.s__Bacteroides_ovatus	1.60926e-05
+2.7.2.4: Aspartate kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.28741e-05
+2.7.2.4: Aspartate kinase|g__Bacteroides.s__Bacteroides_uniformis	4.45182e-05
+2.7.2.8: Acetylglutamate kinase|g__Bacteroides.s__Bacteroides_ovatus	6.03474e-06
+2.7.2.8: Acetylglutamate kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.4139e-05
+2.7.3.9: Phosphoenolpyruvate--protein phosphotransferase|g__Bifidobacterium.s__Bifidobacterium_longum	5.36149e-05
+2.7.3.9: Phosphoenolpyruvate--protein phosphotransferase|unclassified	3.38054e-05
+2.7.4.16: Thiamine-phosphate kinase|g__Bacteroides.s__Bacteroides_ovatus	8.48126e-06
+2.7.4.16: Thiamine-phosphate kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9785e-05
+2.7.4.22: UMP kinase|g__Bacteroides.s__Bacteroides_fragilis	2.01373e-05
+2.7.4.22: UMP kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.01254e-05
+2.7.4.22: UMP kinase|g__Bacteroides.s__Bacteroides_uniformis	5.36876e-05
+2.7.4.22: UMP kinase|unclassified	1.71167e-05
+2.7.4.25: (d)CMP kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.09204e-05
+2.7.4.3: Adenylate kinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.79318e-05
+2.7.4.8: Guanylate kinase|g__Blautia.s__Blautia_obeum	1.71949e-05
+2.7.4.9: dTMP kinase|unclassified	3.03195e-05
+2.7.6.1: Ribose-phosphate diphosphokinase|g__Bacteroides.s__Bacteroides_fragilis	4.90323e-06
+2.7.6.1: Ribose-phosphate diphosphokinase|g__Bacteroides.s__Bacteroides_uniformis	4.29545e-05
+2.7.6.1: Ribose-phosphate diphosphokinase|g__Blautia.s__Blautia_obeum	1.45113e-05
+2.7.6.1: Ribose-phosphate diphosphokinase|g__Blautia.s__Blautia_wexlerae	1.10755e-05
+2.7.6.2: Thiamine diphosphokinase|g__Bacteroides.s__Bacteroides_fragilis	3.1578e-05
+2.7.6.2: Thiamine diphosphokinase|g__Bacteroides.s__Bacteroides_ovatus	6.3156e-05
+2.7.6.2: Thiamine diphosphokinase|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+2.7.6.2: Thiamine diphosphokinase|g__Parabacteroides.s__Parabacteroides_distasonis	4.42877e-05
+2.7.6.5: GTP diphosphokinase|unclassified	1.55126e-05
+2.7.7.12: UDP-glucose--hexose-1-phosphate uridylyltransferase|g__Blautia.s__Blautia_obeum	1.40385e-05
+2.7.7.12: UDP-glucose--hexose-1-phosphate uridylyltransferase|g__Blautia.s__Blautia_wexlerae	5.61413e-06
+2.7.7.13: Mannose-1-phosphate guanylyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.63249e-05
+2.7.7.13: Mannose-1-phosphate guanylyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.81188e-05
+2.7.7.13: Mannose-1-phosphate guanylyltransferase|unclassified	3.44686e-05
+2.7.7.2: FAD synthetase|g__Bifidobacterium.s__Bifidobacterium_longum	1.93112e-05
+2.7.7.2: FAD synthetase|g__Blautia.s__Blautia_obeum	1.00821e-05
+2.7.7.2: FAD synthetase|g__Blautia.s__Blautia_wexlerae	3.02464e-05
+2.7.7.2: FAD synthetase|unclassified	1.73834e-05
+2.7.7.22: Mannose-1-phosphate guanylyltransferase (GDP)|g__Bacteroides.s__Bacteroides_uniformis	1.60926e-05
+2.7.7.24: Glucose-1-phosphate thymidylyltransferase|g__Bacteroides.s__Bacteroides_uniformis	5.70454e-05
+2.7.7.3: Pantetheine-phosphate adenylyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.4856e-05
+2.7.7.3: Pantetheine-phosphate adenylyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	2.32449e-05
+2.7.7.33: Glucose-1-phosphate cytidylyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.89973e-05
+2.7.7.33: Glucose-1-phosphate cytidylyltransferase|unclassified	4.19964e-05
+2.7.7.38: 3-deoxy-manno-octulosonate cytidylyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.97017e-05
+2.7.7.39: Glycerol-3-phosphate cytidylyltransferase|g__Blautia.s__Blautia_wexlerae	3.248e-05
+2.7.7.4: Sulfate adenylyltransferase|g__Bacteroides.s__Bacteroides_fragilis	8.18174e-05
+2.7.7.4: Sulfate adenylyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.94989e-05
+2.7.7.4: Sulfate adenylyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.70463e-05
+2.7.7.4: Sulfate adenylyltransferase|g__Bacteroides.s__Bacteroides_uniformis	4.45479e-05
+2.7.7.4: Sulfate adenylyltransferase|g__Parabacteroides.s__Parabacteroides_distasonis	4.8402e-06
+2.7.7.41: Phosphatidate cytidylyltransferase|g__Bacteroides.s__Bacteroides_fragilis	5.24304e-05
+2.7.7.41: Phosphatidate cytidylyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.86535e-05
+2.7.7.41: Phosphatidate cytidylyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.17355e-05
+2.7.7.41: Phosphatidate cytidylyltransferase|unclassified	5.02426e-05
+2.7.7.49: RNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_fragilis	2.26985e-06
+2.7.7.49: RNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_ovatus	4.5397e-06
+2.7.7.49: RNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_uniformis	1.36164e-05
+2.7.7.49: RNA-directed DNA polymerase|unclassified	2.01882e-05
+2.7.7.56: tRNA nucleotidyltransferase|unclassified	1.93772e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Bacteroides.s__Bacteroides_fragilis	3.07308e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Bacteroides.s__Bacteroides_ovatus	4.48304e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.11732e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Bacteroides.s__Bacteroides_uniformis	6.21872e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Blautia.s__Blautia_obeum	1.03854e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Blautia.s__Blautia_wexlerae	3.16636e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Blautia.s__Ruminococcus_torques	1.01638e-06
+2.7.7.6: DNA-directed RNA polymerase|unclassified	5.13148e-05
+2.7.7.60: 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase|g__Bacteroides.s__Bacteroides_uniformis	5.02201e-05
+2.7.7.60: 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase|unclassified	2.2241e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_fragilis	1.54681e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_ovatus	1.33861e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.09169e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_uniformis	6.08359e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Blautia.s__Blautia_obeum	2.56169e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Blautia.s__Blautia_wexlerae	1.79301e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Parabacteroides.s__Parabacteroides_distasonis	2.75382e-05
+2.7.7.7: DNA-directed DNA polymerase|unclassified	2.52014e-05
+2.7.7.71: D-glycero-alpha-D-manno-heptose 1-phosphate guanylyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.89973e-05
+2.7.7.8: Polyribonucleotide nucleotidyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.14265e-05
+2.7.7.8: Polyribonucleotide nucleotidyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.14285e-05
+2.7.7.8: Polyribonucleotide nucleotidyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.9573e-05
+2.7.7.87: L-threonylcarbamoyladenylate synthase|g__Bacteroides.s__Bacteroides_ovatus	3.23929e-05
+2.7.8.13: Phospho-N-acetylmuramoyl-pentapeptide-transferase|g__Bacteroides.s__Bacteroides_fragilis	4.35508e-05
+2.7.8.13: Phospho-N-acetylmuramoyl-pentapeptide-transferase|g__Bacteroides.s__Bacteroides_ovatus	3.0143e-05
+2.7.8.13: Phospho-N-acetylmuramoyl-pentapeptide-transferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.00511e-05
+2.7.8.13: Phospho-N-acetylmuramoyl-pentapeptide-transferase|g__Bacteroides.s__Bacteroides_uniformis	4.03826e-05
+2.7.8.26: Adenosylcobinamide-GDP ribazoletransferase|g__Bacteroides.s__Bacteroides_fragilis	3.16976e-05
+2.7.8.33: N-acetylglucosaminephosphotransferase|g__Parabacteroides.s__Parabacteroides_distasonis	2.28223e-05
+2.7.8.5: CDP-diacylglycerol--glycerol-3-phosphate 3-phosphatidyltransferase|g__Blautia.s__Blautia_wexlerae	1.93112e-05
+2.7.8.6: Undecaprenyl-phosphate galactose phosphotransferase|g__Bacteroides.s__Bacteroides_uniformis	3.70237e-05
+2.7.8.7: Holo-[acyl-carrier-protein] synthase|unclassified	2.81555e-05
+2.7.8.8: CDP-diacylglycerol--serine O-phosphatidyltransferase|g__Bacteroides.s__Bacteroides_ovatus	2.697e-05
+2.7.8.8: CDP-diacylglycerol--serine O-phosphatidyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.34971e-05
+2.7.9.1: Pyruvate, phosphate dikinase|g__Bacteroides.s__Bacteroides_fragilis	1.61114e-05
+2.7.9.1: Pyruvate, phosphate dikinase|g__Bacteroides.s__Bacteroides_ovatus	1.90408e-05
+2.7.9.1: Pyruvate, phosphate dikinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.31821e-05
+2.7.9.1: Pyruvate, phosphate dikinase|g__Bacteroides.s__Bacteroides_uniformis	1.4609e-05
+2.7.9.1: Pyruvate, phosphate dikinase|g__Blautia.s__Blautia_obeum	4.55342e-06
+2.7.9.1: Pyruvate, phosphate dikinase|g__Blautia.s__Blautia_wexlerae	2.12396e-05
+2.8.1.10: Thiazole synthase|g__Bacteroides.s__Bacteroides_fragilis	3.00293e-05
+2.8.1.10: Thiazole synthase|g__Bacteroides.s__Bacteroides_ovatus	1.81042e-05
+2.8.1.10: Thiazole synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.01641e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Bacteroides.s__Bacteroides_ovatus	8.04632e-06
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.60412e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Bacteroides.s__Bacteroides_uniformis	6.10701e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Blautia.s__Blautia_obeum	1.21083e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Blautia.s__Blautia_wexlerae	1.21083e-05
+2.8.1.6: Biotin synthase|g__Bacteroides.s__Bacteroides_fragilis	5.52794e-06
+2.8.1.6: Biotin synthase|g__Bacteroides.s__Bacteroides_ovatus	3.32503e-05
+2.8.1.6: Biotin synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.27401e-06
+2.8.1.7: Cysteine desulfurase|g__Bacteroides.s__Bacteroides_fragilis	3.42224e-05
+2.8.1.7: Cysteine desulfurase|g__Bacteroides.s__Bacteroides_ovatus	2.83667e-05
+2.8.1.8: Lipoyl synthase|g__Bacteroides.s__Bacteroides_ovatus	4.30979e-05
+2.8.1.8: Lipoyl synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.61617e-05
+2.8.4.3: tRNA-2-methylthio-N(6)-dimethylallyladenosine synthase|g__Bacteroides.s__Bacteroides_ovatus	3.05408e-05
+2.8.4.3: tRNA-2-methylthio-N(6)-dimethylallyladenosine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.70091e-05
+2.8.4.3: tRNA-2-methylthio-N(6)-dimethylallyladenosine synthase|g__Bacteroides.s__Bacteroides_uniformis	1.23061e-05
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|g__Bacteroides.s__Bacteroides_fragilis	9.73044e-06
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|g__Bacteroides.s__Bacteroides_ovatus	9.73044e-06
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.62174e-05
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|g__Flavonifractor.s__Flavonifractor_plautii	2.57482e-05
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|unclassified	3.54579e-05
+3.1.1.11: Pectinesterase|g__Bacteroides.s__Bacteroides_ovatus	3.53253e-05
+3.1.1.29: Aminoacyl-tRNA hydrolase|g__Bacteroides.s__Bacteroides_uniformis	1.81917e-05
+3.1.1.29: Aminoacyl-tRNA hydrolase|g__Dialister.s__Dialister_invisus	1.78046e-05
+3.1.1.29: Aminoacyl-tRNA hydrolase|unclassified	3.56734e-05
+3.1.1.3: Triacylglycerol lipase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.73897e-05
+3.1.1.31: 6-phosphogluconolactonase|g__Bacteroides.s__Bacteroides_fragilis	7.96852e-05
+3.1.1.31: 6-phosphogluconolactonase|g__Bacteroides.s__Bacteroides_uniformis	3.98485e-05
+3.1.1.41: Cephalosporin-C deacetylase|g__Flavonifractor.s__Flavonifractor_plautii	1.67364e-05
+3.1.1.72: Acetylxylan esterase|g__Bacteroides.s__Bacteroides_fragilis	1.8923e-05
+3.1.1.72: Acetylxylan esterase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.76792e-05
+3.1.11.2: Exodeoxyribonuclease III|g__Bacteroides.s__Bacteroides_fragilis	1.8923e-05
+3.1.11.2: Exodeoxyribonuclease III|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.15307e-06
+3.1.11.6: Exodeoxyribonuclease VII|g__Bacteroides.s__Bacteroides_ovatus	6.27613e-05
+3.1.11.6: Exodeoxyribonuclease VII|unclassified	8.18189e-05
+3.1.13.1: Exoribonuclease II|g__Bacteroides.s__Bacteroides_fragilis	2.99747e-05
+3.1.13.1: Exoribonuclease II|g__Bacteroides.s__Bacteroides_ovatus	1.87627e-06
+3.1.13.1: Exoribonuclease II|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.87609e-05
+3.1.21.2: Deoxyribonuclease IV|g__Bacteroides.s__Bacteroides_ovatus	2.20215e-05
+3.1.21.3: Type I site-specific deoxyribonuclease|g__Bacteroides.s__Bacteroides_fragilis	4.60147e-05
+3.1.21.3: Type I site-specific deoxyribonuclease|g__Bacteroides.s__Bacteroides_uniformis	1.87764e-05
+3.1.21.3: Type I site-specific deoxyribonuclease|unclassified	2.48901e-05
+3.1.21.4: Type II site-specific deoxyribonuclease|g__Bacteroides.s__Bacteroides_uniformis	2.29653e-05
+3.1.22.4: Crossover junction endodeoxyribonuclease|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.80608e-05
+3.1.22.4: Crossover junction endodeoxyribonuclease|g__Bacteroides.s__Bacteroides_uniformis	8.9659e-06
+3.1.26.11: Ribonuclease Z|g__Bacteroides.s__Bacteroides_uniformis	2.91432e-05
+3.1.26.11: Ribonuclease Z|g__Blautia.s__Blautia_obeum	9.92274e-06
+3.1.26.11: Ribonuclease Z|g__Blautia.s__Blautia_wexlerae	9.92274e-06
+3.1.26.11: Ribonuclease Z|g__Parabacteroides.s__Parabacteroides_distasonis	2.95347e-05
+3.1.26.4: Ribonuclease H|g__Bacteroides.s__Bacteroides_fragilis	2.49383e-05
+3.1.26.4: Ribonuclease H|g__Bacteroides.s__Bacteroides_ovatus	8.31276e-06
+3.1.26.4: Ribonuclease H|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.31276e-06
+3.1.26.4: Ribonuclease H|g__Bacteroides.s__Bacteroides_uniformis	7.80665e-05
+3.1.26.5: Ribonuclease P|g__Bacteroides.s__Bacteroides_fragilis	3.06153e-05
+3.1.26.5: Ribonuclease P|g__Bacteroides.s__Bacteroides_ovatus	2.09204e-05
+3.1.26.5: Ribonuclease P|g__Bacteroides.s__Bacteroides_uniformis	2.82073e-05
+3.1.3.1: Alkaline phosphatase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.55735e-05
+3.1.3.103: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.183e-05
+3.1.3.104: NO_NAME|unclassified	1.9831e-05
+3.1.3.11: Fructose-bisphosphatase|g__Bacteroides.s__Bacteroides_fragilis	1.22461e-05
+3.1.3.11: Fructose-bisphosphatase|g__Bacteroides.s__Bacteroides_ovatus	8.16407e-06
+3.1.3.15: Histidinol-phosphatase|g__Bacteroides.s__Bacteroides_fragilis	7.72447e-06
+3.1.3.15: Histidinol-phosphatase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.31734e-05
+3.1.3.15: Histidinol-phosphatase|g__Bacteroides.s__Bacteroides_uniformis	3.00653e-05
+3.1.3.16: Protein-serine/threonine phosphatase|g__Blautia.s__Blautia_obeum	1.68865e-05
+3.1.3.16: Protein-serine/threonine phosphatase|g__Blautia.s__Blautia_wexlerae	1.12576e-05
+3.1.3.18: Phosphoglycolate phosphatase|g__Bacteroides.s__Bacteroides_uniformis	5.23011e-05
+3.1.3.25: Inositol-phosphate phosphatase|g__Bacteroides.s__Bacteroides_fragilis	5.17424e-05
+3.1.3.25: Inositol-phosphate phosphatase|g__Bacteroides.s__Bacteroides_uniformis	3.48674e-05
+3.1.3.25: Inositol-phosphate phosphatase|g__Blautia.s__Blautia_obeum	2.44823e-05
+3.1.3.27: Phosphatidylglycerophosphatase|unclassified	2.18935e-05
+3.1.3.45: 3-deoxy-manno-octulosonate-8-phosphatase|g__Bacteroides.s__Bacteroides_uniformis	1.97673e-05
+3.1.3.48: Protein-tyrosine-phosphatase|g__Parabacteroides.s__Parabacteroides_distasonis	4.60377e-05
+3.1.3.5: 5'-nucleotidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.39091e-05
+3.1.3.5: 5'-nucleotidase|g__Bacteroides.s__Bacteroides_uniformis	3.38833e-05
+3.1.3.5: 5'-nucleotidase|g__Dialister.s__Dialister_invisus	3.00293e-05
+3.1.3.7: 3'(2'),5'-bisphosphate nucleotidase|g__Parabacteroides.s__Parabacteroides_distasonis	2.28223e-05
+3.1.3.7: 3'(2'),5'-bisphosphate nucleotidase|unclassified	1.4963e-05
+3.1.3.73: Adenosylcobalamin/alpha-ribazole phosphatase|unclassified	2.03673e-05
+3.1.4.46: Glycerophosphodiester phosphodiesterase|g__Bacteroides.s__Bacteroides_fragilis	3.69184e-05
+3.1.4.46: Glycerophosphodiester phosphodiesterase|g__Bacteroides.s__Bacteroides_uniformis	7.48529e-05
+3.1.6.1: Arylsulfatase|g__Bacteroides.s__Bacteroides_fragilis	6.87375e-05
+3.1.6.1: Arylsulfatase|g__Bacteroides.s__Bacteroides_ovatus	9.77445e-05
+3.1.6.1: Arylsulfatase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.61619e-05
+3.1.6.1: Arylsulfatase|g__Bacteroides.s__Bacteroides_uniformis	9.41305e-05
+3.1.6.6: Choline-sulfatase|g__Bacteroides.s__Bacteroides_fragilis	2.62033e-05
+3.1.6.6: Choline-sulfatase|g__Bacteroides.s__Bacteroides_uniformis	2.85929e-05
+3.11.1.1: Phosphonoacetaldehyde hydrolase|g__Bacteroides.s__Bacteroides_fragilis	3.51933e-05
+3.11.1.1: Phosphonoacetaldehyde hydrolase|g__Bacteroides.s__Bacteroides_ovatus	4.7367e-05
+3.2.1.1: Alpha-amylase|g__Bacteroides.s__Bacteroides_uniformis	3.16239e-05
+3.2.1.10: Oligo-1,6-glucosidase|g__Blautia.s__Blautia_obeum	1.9772e-05
+3.2.1.10: Oligo-1,6-glucosidase|g__Blautia.s__Blautia_wexlerae	7.45679e-06
+3.2.1.131: Xylan alpha-1,2-glucuronosidase|g__Bacteroides.s__Bacteroides_fragilis	1.70157e-05
+3.2.1.131: Xylan alpha-1,2-glucuronosidase|g__Bacteroides.s__Bacteroides_ovatus	1.32728e-05
+3.2.1.135: Neopullulanase|g__Bacteroides.s__Bacteroides_fragilis	1.2065e-05
+3.2.1.135: Neopullulanase|g__Bacteroides.s__Bacteroides_ovatus	2.43261e-06
+3.2.1.135: Neopullulanase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.43261e-06
+3.2.1.135: Neopullulanase|g__Parabacteroides.s__Parabacteroides_distasonis	2.00658e-05
+3.2.1.136: Glucuronoarabinoxylan endo-1,4-beta-xylanase|g__Bacteroides.s__Bacteroides_uniformis	2.31743e-05
+3.2.1.165: Exo-1,4-beta-D-glucosaminidase|g__Bacteroides.s__Bacteroides_ovatus	4.66627e-05
+3.2.1.165: Exo-1,4-beta-D-glucosaminidase|g__Bacteroides.s__Bacteroides_uniformis	1.89093e-05
+3.2.1.17: Lysozyme|g__Bacteroides.s__Bacteroides_fragilis	3.19125e-05
+3.2.1.172: Unsaturated rhamnogalacturonyl hydrolase|g__Bacteroides.s__Bacteroides_ovatus	1.7772e-05
+3.2.1.172: Unsaturated rhamnogalacturonyl hydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.43012e-05
+3.2.1.172: Unsaturated rhamnogalacturonyl hydrolase|g__Bacteroides.s__Bacteroides_uniformis	2.69488e-05
+3.2.1.172: Unsaturated rhamnogalacturonyl hydrolase|unclassified	3.60362e-05
+3.2.1.177: Alpha-D-xyloside xylohydrolase|g__Bacteroides.s__Bacteroides_ovatus	2.21673e-05
+3.2.1.177: Alpha-D-xyloside xylohydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.58151e-05
+3.2.1.177: Alpha-D-xyloside xylohydrolase|g__Bacteroides.s__Bacteroides_uniformis	1.6031e-05
+3.2.1.179: Gellan tetrasaccharide unsaturated glucuronyl hydrolase|g__Bacteroides.s__Bacteroides_fragilis	5.64683e-05
+3.2.1.179: Gellan tetrasaccharide unsaturated glucuronyl hydrolase|g__Bacteroides.s__Bacteroides_ovatus	3.55588e-06
+3.2.1.179: Gellan tetrasaccharide unsaturated glucuronyl hydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.63016e-05
+3.2.1.180: Unsaturated chondroitin disaccharide hydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.63016e-05
+3.2.1.185: Non-reducing end beta-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_fragilis	2.36093e-05
+3.2.1.20: Alpha-glucosidase|g__Bacteroides.s__Bacteroides_uniformis	1.6031e-05
+3.2.1.21: Beta-glucosidase|g__Bacteroides.s__Bacteroides_fragilis	2.1223e-05
+3.2.1.21: Beta-glucosidase|g__Bacteroides.s__Bacteroides_ovatus	4.42425e-05
+3.2.1.21: Beta-glucosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.34785e-05
+3.2.1.21: Beta-glucosidase|g__Bacteroides.s__Bacteroides_uniformis	0.000182608
+3.2.1.21: Beta-glucosidase|unclassified	8.48945e-05
+3.2.1.22: Alpha-galactosidase|g__Bacteroides.s__Bacteroides_fragilis	9.9186e-05
+3.2.1.22: Alpha-galactosidase|g__Bacteroides.s__Bacteroides_ovatus	8.95631e-06
+3.2.1.22: Alpha-galactosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.24913e-05
+3.2.1.22: Alpha-galactosidase|unclassified	1.78037e-05
+3.2.1.23: Beta-galactosidase|g__Bacteroides.s__Bacteroides_fragilis	1.96901e-05
+3.2.1.23: Beta-galactosidase|g__Bacteroides.s__Bacteroides_ovatus	5.8823e-05
+3.2.1.23: Beta-galactosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.68546e-05
+3.2.1.23: Beta-galactosidase|g__Bacteroides.s__Bacteroides_uniformis	5.03692e-05
+3.2.1.23: Beta-galactosidase|unclassified	2.41364e-05
+3.2.1.25: Beta-mannosidase|g__Bacteroides.s__Bacteroides_ovatus	4.66627e-05
+3.2.1.25: Beta-mannosidase|g__Bacteroides.s__Bacteroides_uniformis	1.89093e-05
+3.2.1.26: Beta-fructofuranosidase|g__Bacteroides.s__Bacteroides_fragilis	7.96127e-06
+3.2.1.26: Beta-fructofuranosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.05926e-05
+3.2.1.26: Beta-fructofuranosidase|unclassified	2.13202e-05
+3.2.1.3: Glucan 1,4-alpha-glucosidase|g__Bacteroides.s__Bacteroides_fragilis	9.05932e-06
+3.2.1.3: Glucan 1,4-alpha-glucosidase|g__Bacteroides.s__Bacteroides_ovatus	1.45544e-05
+3.2.1.3: Glucan 1,4-alpha-glucosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.093e-05
+3.2.1.37: Xylan 1,4-beta-xylosidase|g__Bacteroides.s__Bacteroides_uniformis	2.09552e-05
+3.2.1.37: Xylan 1,4-beta-xylosidase|g__Blautia.s__Blautia_wexlerae	2.0015e-05
+3.2.1.37: Xylan 1,4-beta-xylosidase|g__Parabacteroides.s__Parabacteroides_distasonis	1.62314e-05
+3.2.1.37: Xylan 1,4-beta-xylosidase|unclassified	1.64896e-05
+3.2.1.4: Cellulase|g__Bacteroides.s__Bacteroides_fragilis	2.00111e-05
+3.2.1.4: Cellulase|g__Bacteroides.s__Bacteroides_ovatus	1.20695e-05
+3.2.1.4: Cellulase|g__Bacteroides.s__Bacteroides_uniformis	8.39334e-05
+3.2.1.4: Cellulase|unclassified	4.16693e-05
+3.2.1.41: Pullulanase|unclassified	3.39846e-05
+3.2.1.49: Alpha-N-acetylgalactosaminidase|g__Bacteroides.s__Bacteroides_fragilis	2.00302e-05
+3.2.1.50: Alpha-N-acetylglucosaminidase|g__Bacteroides.s__Bacteroides_ovatus	2.62107e-05
+3.2.1.51: Alpha-L-fucosidase|g__Bacteroides.s__Bacteroides_fragilis	1.93112e-05
+3.2.1.52: Beta-N-acetylhexosaminidase|g__Bacteroides.s__Bacteroides_fragilis	2.26953e-05
+3.2.1.52: Beta-N-acetylhexosaminidase|g__Bacteroides.s__Bacteroides_ovatus	2.28893e-05
+3.2.1.52: Beta-N-acetylhexosaminidase|g__Bacteroides.s__Bacteroides_uniformis	2.09979e-05
+3.2.1.55: Non-reducing end alpha-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_fragilis	5.58706e-06
+3.2.1.55: Non-reducing end alpha-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_ovatus	1.0788e-05
+3.2.1.55: Non-reducing end alpha-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.54147e-05
+3.2.1.55: Non-reducing end alpha-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_uniformis	4.8851e-05
+3.2.1.78: Mannan endo-1,4-beta-mannosidase|g__Bacteroides.s__Bacteroides_fragilis	2.31853e-05
+3.2.1.78: Mannan endo-1,4-beta-mannosidase|g__Bacteroides.s__Bacteroides_uniformis	5.92118e-05
+3.2.1.8: Endo-1,4-beta-xylanase|g__Bacteroides.s__Bacteroides_uniformis	7.17272e-05
+3.2.1.8: Endo-1,4-beta-xylanase|g__Blautia.s__Blautia_obeum	2.74067e-05
+3.2.1.80: Fructan beta-fructosidase|g__Bacteroides.s__Bacteroides_fragilis	4.82212e-05
+3.2.1.80: Fructan beta-fructosidase|g__Bacteroides.s__Bacteroides_uniformis	3.66695e-05
+3.2.1.82: Exo-poly-alpha-galacturonosidase|g__Bacteroides.s__Bacteroides_fragilis	1.78989e-05
+3.2.1.86: 6-phospho-beta-glucosidase|unclassified	2.82073e-05
+3.2.1.89: Arabinogalactan endo-beta-1,4-galactanase|g__Bacteroides.s__Bacteroides_fragilis	3.5766e-05
+3.2.1.89: Arabinogalactan endo-beta-1,4-galactanase|g__Bacteroides.s__Bacteroides_ovatus	2.50211e-05
+3.2.1.96: Mannosyl-glycoprotein endo-beta-N-acetylglucosaminidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.05775e-05
+3.2.1.96: Mannosyl-glycoprotein endo-beta-N-acetylglucosaminidase|g__Bacteroides.s__Bacteroides_uniformis	2.67069e-05
+3.2.1.99: Arabinan endo-1,5-alpha-L-arabinosidase|g__Bacteroides.s__Bacteroides_uniformis	4.06809e-05
+3.2.1.n1: Blood group B branched chain alpha-1,3-galactosidase|g__Bacteroides.s__Bacteroides_fragilis	2.03184e-05
+3.2.2.20: DNA-3-methyladenine glycosylase I|g__Bacteroides.s__Bacteroides_fragilis	8.90231e-06
+3.2.2.20: DNA-3-methyladenine glycosylase I|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.78046e-05
+3.2.2.20: DNA-3-methyladenine glycosylase I|g__Bacteroides.s__Bacteroides_uniformis	2.67069e-05
+3.2.2.23: DNA-formamidopyrimidine glycosylase|g__Bacteroides.s__Bacteroides_uniformis	1.65161e-05
+3.2.2.27: Uracil-DNA glycosylase|g__Bacteroides.s__Bacteroides_ovatus	5.1175e-05
+3.2.2.9: Adenosylhomocysteine nucleosidase|g__Bacteroides.s__Bacteroides_uniformis	2.0355e-05
+3.2.2.n1: Cytokinin riboside 5'-monophosphate phosphoribohydrolase|g__Bacteroides.s__Bacteroides_fragilis	5.92248e-05
+3.2.2.n1: Cytokinin riboside 5'-monophosphate phosphoribohydrolase|g__Bacteroides.s__Bacteroides_uniformis	4.29872e-05
+3.3.1.1: Adenosylhomocysteinase|g__Bacteroides.s__Bacteroides_fragilis	1.48163e-05
+3.3.1.1: Adenosylhomocysteinase|g__Bacteroides.s__Bacteroides_ovatus	1.48372e-05
+3.3.1.1: Adenosylhomocysteinase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.81892e-06
+3.4.11.18: Methionyl aminopeptidase|g__Bacteroides.s__Bacteroides_uniformis	2.67069e-05
+3.4.11.18: Methionyl aminopeptidase|g__Dialister.s__Dialister_invisus	2.49796e-05
+3.4.11.4: Tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_fragilis	1.05187e-05
+3.4.11.4: Tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_ovatus	1.74765e-05
+3.4.11.4: Tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.01244e-06
+3.4.11.4: Tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_uniformis	3.1556e-05
+3.4.11.9: Xaa-Pro aminopeptidase|g__Bacteroides.s__Bacteroides_ovatus	4.92246e-05
+3.4.11.9: Xaa-Pro aminopeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.84592e-05
+3.4.13.18: Cytosol nonspecific dipeptidase|g__Bacteroides.s__Bacteroides_fragilis	2.01527e-05
+3.4.13.18: Cytosol nonspecific dipeptidase|g__Bacteroides.s__Bacteroides_ovatus	2.59106e-05
+3.4.13.18: Cytosol nonspecific dipeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.43948e-05
+3.4.13.20: Beta-Ala-His dipeptidase|g__Bacteroides.s__Bacteroides_ovatus	1.72342e-05
+3.4.13.20: Beta-Ala-His dipeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.3757e-06
+3.4.13.22: D-Ala-D-Ala dipeptidase|g__Bacteroides.s__Bacteroides_fragilis	5.96981e-05
+3.4.13.22: D-Ala-D-Ala dipeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.54966e-05
+3.4.13.22: D-Ala-D-Ala dipeptidase|g__Bacteroides.s__Bacteroides_uniformis	3.656e-05
+3.4.14.12: Xaa-Xaa-Pro tripeptidyl-peptidase|g__Bacteroides.s__Bacteroides_ovatus	1.46169e-05
+3.4.14.12: Xaa-Xaa-Pro tripeptidyl-peptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.48134e-06
+3.4.16.4: Serine-type D-Ala-D-Ala carboxypeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.09704e-05
+3.4.16.4: Serine-type D-Ala-D-Ala carboxypeptidase|g__Blautia.s__Blautia_obeum	2.67069e-05
+3.4.16.4: Serine-type D-Ala-D-Ala carboxypeptidase|g__Blautia.s__Blautia_wexlerae	1.77417e-05
+3.4.16.4: Serine-type D-Ala-D-Ala carboxypeptidase|unclassified	2.73585e-05
+3.4.17.13: Muramoyltetrapeptide carboxypeptidase|g__Bacteroides.s__Bacteroides_uniformis	2.86363e-05
+3.4.19.11: Gamma-D-glutamyl-meso-diaminopimelate peptidase|unclassified	4.00094e-05
+3.4.21.102: C-terminal processing peptidase|g__Bacteroides.s__Bacteroides_fragilis	3.42557e-05
+3.4.21.102: C-terminal processing peptidase|g__Bacteroides.s__Bacteroides_ovatus	3.13498e-05
+3.4.21.102: C-terminal processing peptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.57526e-06
+3.4.21.102: C-terminal processing peptidase|g__Bacteroides.s__Bacteroides_uniformis	5.622e-05
+3.4.21.105: Rhomboid protease|g__Bacteroides.s__Bacteroides_fragilis	7.06506e-06
+3.4.21.105: Rhomboid protease|g__Bacteroides.s__Bacteroides_ovatus	2.12895e-05
+3.4.21.105: Rhomboid protease|unclassified	1.81236e-05
+3.4.21.53: Endopeptidase La|unclassified	3.75109e-05
+3.4.21.89: Signal peptidase I|g__Bacteroides.s__Bacteroides_fragilis	6.17418e-05
+3.4.21.89: Signal peptidase I|g__Bacteroides.s__Bacteroides_uniformis	5.3235e-05
+3.4.21.89: Signal peptidase I|g__Blautia.s__Blautia_obeum	1.79318e-05
+3.4.21.89: Signal peptidase I|g__Blautia.s__Blautia_wexlerae	1.79318e-05
+3.4.21.89: Signal peptidase I|g__Parabacteroides.s__Parabacteroides_distasonis	3.17779e-05
+3.4.21.89: Signal peptidase I|unclassified	5.17916e-05
+3.4.21.92: Endopeptidase Clp|g__Bacteroides.s__Bacteroides_ovatus	8.6656e-05
+3.4.21.92: Endopeptidase Clp|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.8724e-05
+3.4.21.92: Endopeptidase Clp|g__Bacteroides.s__Bacteroides_uniformis	1.4681e-05
+3.4.22.8: Clostripain|g__Parabacteroides.s__Parabacteroides_distasonis	2.65379e-05
+3.4.23.36: Signal peptidase II|g__Bacteroides.s__Bacteroides_fragilis	9.73044e-06
+3.4.23.36: Signal peptidase II|g__Bacteroides.s__Bacteroides_ovatus	2.97095e-05
+3.4.23.36: Signal peptidase II|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.42737e-06
+3.4.23.36: Signal peptidase II|g__Bacteroides.s__Bacteroides_uniformis	7.01679e-05
+3.4.24.55: Pitrilysin|g__Bacteroides.s__Bacteroides_fragilis	1.8212e-05
+3.4.24.55: Pitrilysin|g__Bacteroides.s__Bacteroides_ovatus	4.20277e-06
+3.4.24.71: Endothelin-converting enzyme 1|g__Bacteroides.s__Bacteroides_uniformis	4.20162e-05
+3.5.1.10: Formyltetrahydrofolate deformylase|g__Bacteroides.s__Bacteroides_uniformis	1.59488e-05
+3.5.1.104: Peptidoglycan-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.99228e-05
+3.5.1.104: Peptidoglycan-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_uniformis	4.45642e-05
+3.5.1.108: UDP-3-O-acyl-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_ovatus	1.828e-05
+3.5.1.108: UDP-3-O-acyl-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.13168e-05
+3.5.1.108: UDP-3-O-acyl-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_uniformis	4.86954e-05
+3.5.1.16: Acetylornithine deacetylase|g__Bacteroides.s__Bacteroides_uniformis	2.45321e-05
+3.5.1.19: Nicotinamidase|unclassified	4.17546e-05
+3.5.1.2: Glutaminase|g__Bacteroides.s__Bacteroides_fragilis	5.07628e-05
+3.5.1.2: Glutaminase|g__Bacteroides.s__Bacteroides_ovatus	4.61424e-05
+3.5.1.2: Glutaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.23036e-05
+3.5.1.24: Choloylglycine hydrolase|g__Bacteroides.s__Bacteroides_uniformis	2.4139e-05
+3.5.1.24: Choloylglycine hydrolase|g__Blautia.s__Blautia_obeum	1.36438e-05
+3.5.1.24: Choloylglycine hydrolase|g__Blautia.s__Blautia_wexlerae	4.54792e-06
+3.5.1.24: Choloylglycine hydrolase|g__Blautia.s__Ruminococcus_torques	4.54792e-06
+3.5.1.25: N-acetylglucosamine-6-phosphate deacetylase|g__Bacteroides.s__Bacteroides_ovatus	2.2083e-05
+3.5.1.25: N-acetylglucosamine-6-phosphate deacetylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.28002e-05
+3.5.1.25: N-acetylglucosamine-6-phosphate deacetylase|g__Blautia.s__Blautia_obeum	5.13102e-05
+3.5.1.25: N-acetylglucosamine-6-phosphate deacetylase|g__Parabacteroides.s__Parabacteroides_distasonis	1.11082e-05
+3.5.1.25: N-acetylglucosamine-6-phosphate deacetylase|unclassified	2.05931e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bacteroides.s__Bacteroides_fragilis	9.81359e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bacteroides.s__Bacteroides_ovatus	6.18243e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.19545e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bacteroides.s__Bacteroides_uniformis	3.58636e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bifidobacterium.s__Bifidobacterium_longum	2.33313e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Blautia.s__Blautia_obeum	1.83916e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Blautia.s__Blautia_wexlerae	3.21853e-05
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|unclassified	2.90226e-05
+3.5.1.88: Peptide deformylase|g__Bacteroides.s__Bacteroides_ovatus	9.29797e-06
+3.5.1.88: Peptide deformylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.29797e-06
+3.5.1.88: Peptide deformylase|g__Parabacteroides.s__Parabacteroides_distasonis	2.76888e-05
+3.5.2.3: Dihydroorotase|g__Bacteroides.s__Bacteroides_uniformis	1.88756e-05
+3.5.2.3: Dihydroorotase|unclassified	3.26563e-05
+3.5.2.7: Imidazolonepropionase|g__Bacteroides.s__Bacteroides_fragilis	4.09313e-05
+3.5.4.10: IMP cyclohydrolase|g__Bacteroides.s__Bacteroides_fragilis	1.96129e-05
+3.5.4.10: IMP cyclohydrolase|g__Bacteroides.s__Bacteroides_ovatus	1.09627e-05
+3.5.4.10: IMP cyclohydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.74067e-06
+3.5.4.10: IMP cyclohydrolase|g__Bacteroides.s__Bacteroides_uniformis	1.63855e-05
+3.5.4.16: GTP cyclohydrolase I|g__Bacteroides.s__Bacteroides_fragilis	1.72738e-05
+3.5.4.16: GTP cyclohydrolase I|g__Bacteroides.s__Bacteroides_uniformis	3.43898e-05
+3.5.4.19: Phosphoribosyl-AMP cyclohydrolase|g__Bacteroides.s__Bacteroides_fragilis	8.15082e-06
+3.5.4.19: Phosphoribosyl-AMP cyclohydrolase|g__Bacteroides.s__Bacteroides_ovatus	1.40643e-05
+3.5.4.19: Phosphoribosyl-AMP cyclohydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.63016e-05
+3.5.4.2: Adenine deaminase|unclassified	1.50627e-05
+3.5.4.25: GTP cyclohydrolase II|g__Bacteroides.s__Bacteroides_fragilis	2.8267e-05
+3.5.4.25: GTP cyclohydrolase II|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.47509e-05
+3.5.4.25: GTP cyclohydrolase II|g__Bacteroides.s__Bacteroides_uniformis	4.5966e-05
+3.5.4.26: Diaminohydroxyphosphoribosylaminopyrimidine deaminase|unclassified	1.43557e-05
+3.5.4.3: Guanine deaminase|g__Blautia.s__Blautia_obeum	1.00151e-05
+3.5.4.3: Guanine deaminase|g__Blautia.s__Blautia_wexlerae	2.00302e-05
+3.5.4.30: dCTP deaminase (dUMP-forming)|unclassified	1.58889e-05
+3.5.4.33: tRNA(adenine(34)) deaminase|g__Bifidobacterium.s__Bifidobacterium_longum	2.30317e-05
+3.5.4.33: tRNA(adenine(34)) deaminase|g__Parabacteroides.s__Parabacteroides_distasonis	3.88214e-05
+3.5.4.33: tRNA(adenine(34)) deaminase|unclassified	1.73135e-05
+3.5.4.5: Cytidine deaminase|g__Bacteroides.s__Bacteroides_fragilis	2.26167e-05
+3.5.4.5: Cytidine deaminase|g__Bacteroides.s__Bacteroides_uniformis	5.65417e-05
+3.5.4.5: Cytidine deaminase|g__Blautia.s__Blautia_wexlerae	2.56169e-05
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Bacteroides.s__Bacteroides_fragilis	7.0092e-05
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Bacteroides.s__Bacteroides_ovatus	1.54331e-05
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.14437e-06
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Bacteroides.s__Bacteroides_uniformis	3.6525e-05
+3.5.99.6: Glucosamine-6-phosphate deaminase|g__Bacteroides.s__Bacteroides_fragilis	2.28452e-05
+3.5.99.6: Glucosamine-6-phosphate deaminase|g__Bacteroides.s__Bacteroides_ovatus	1.13595e-05
+3.5.99.6: Glucosamine-6-phosphate deaminase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.5043e-05
+3.5.99.6: Glucosamine-6-phosphate deaminase|g__Bacteroides.s__Bacteroides_uniformis	4.60214e-05
+3.5.99.6: Glucosamine-6-phosphate deaminase|unclassified	1.51367e-05
+3.6.1.1: Inorganic diphosphatase|unclassified	4.54369e-05
+3.6.1.15: Nucleoside-triphosphate phosphatase|unclassified	1.90667e-05
+3.6.1.22: NAD(+) diphosphatase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.34022e-05
+3.6.1.23: dUTP diphosphatase|g__Bacteroides.s__Bacteroides_uniformis	2.64258e-05
+3.6.1.23: dUTP diphosphatase|unclassified	5.7128e-05
+3.6.1.27: Undecaprenyl-diphosphate phosphatase|g__Bacteroides.s__Bacteroides_fragilis	1.60242e-05
+3.6.1.27: Undecaprenyl-diphosphate phosphatase|g__Bacteroides.s__Bacteroides_ovatus	5.34139e-06
+3.6.1.27: Undecaprenyl-diphosphate phosphatase|g__Bacteroides.s__Bacteroides_uniformis	1.75966e-05
+3.6.1.27: Undecaprenyl-diphosphate phosphatase|g__Blautia.s__Blautia_obeum	2.60601e-05
+3.6.1.27: Undecaprenyl-diphosphate phosphatase|g__Blautia.s__Blautia_wexlerae	3.01621e-05
+3.6.1.31: Phosphoribosyl-ATP diphosphatase|g__Bacteroides.s__Bacteroides_fragilis	8.15082e-06
+3.6.1.31: Phosphoribosyl-ATP diphosphatase|g__Bacteroides.s__Bacteroides_ovatus	1.40643e-05
+3.6.1.31: Phosphoribosyl-ATP diphosphatase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.63016e-05
+3.6.1.31: Phosphoribosyl-ATP diphosphatase|unclassified	2.75874e-05
+3.6.1.40: Guanosine-5'-triphosphate,3'-diphosphate diphosphatase|g__Bacteroides.s__Bacteroides_fragilis	2.95347e-05
+3.6.1.54: UDP-2,3-diacylglucosamine diphosphatase|g__Bacteroides.s__Bacteroides_uniformis	4.28614e-05
+3.6.1.66: XTP/dITP diphosphatase|unclassified	2.74617e-05
+3.6.1.7: Acylphosphatase|g__Blautia.s__Blautia_obeum	2.98863e-05
+3.6.1.7: Acylphosphatase|unclassified	6.14324e-05
+3.6.3.12: Potassium-transporting ATPase|unclassified	1.95383e-05
+3.6.3.17: Monosaccharide-transporting ATPase|g__Blautia.s__Blautia_wexlerae	2.71694e-05
+3.6.3.3: Cadmium-exporting ATPase|g__Bacteroides.s__Bacteroides_uniformis	3.56841e-05
+3.6.3.3: Cadmium-exporting ATPase|unclassified	1.86559e-05
+3.6.3.30: Fe(3+)-transporting ATPase|g__Blautia.s__Blautia_obeum	2.87855e-05
+3.6.3.31: Polyamine-transporting ATPase|unclassified	3.32741e-05
+3.6.3.41: Heme-transporting ATPase|g__Bacteroides.s__Bacteroides_fragilis	3.4887e-05
+3.6.3.41: Heme-transporting ATPase|g__Bacteroides.s__Bacteroides_ovatus	9.71162e-06
+3.6.3.41: Heme-transporting ATPase|g__Bacteroides.s__Bacteroides_uniformis	1.72325e-05
+3.6.3.41: Heme-transporting ATPase|unclassified	1.74337e-05
+3.6.3.54: Cu(+) exporting ATPase|g__Bacteroides.s__Bacteroides_fragilis	1.78786e-05
+3.6.3.54: Cu(+) exporting ATPase|g__Bacteroides.s__Bacteroides_ovatus	1.46169e-05
+3.6.3.54: Cu(+) exporting ATPase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8149e-05
+3.6.3.8: Calcium-transporting ATPase|g__Blautia.s__Blautia_obeum	1.21126e-05
+3.6.3.8: Calcium-transporting ATPase|g__Blautia.s__Blautia_wexlerae	6.05658e-06
+3.6.4.12: DNA helicase|g__Bacteroides.s__Bacteroides_fragilis	9.043e-05
+3.6.4.12: DNA helicase|g__Bacteroides.s__Bacteroides_ovatus	5.99034e-05
+3.6.4.12: DNA helicase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.45197e-05
+3.6.4.12: DNA helicase|g__Bacteroides.s__Bacteroides_uniformis	0.000138726
+3.6.4.12: DNA helicase|g__Blautia.s__Blautia_wexlerae	5.11007e-05
+3.6.4.12: DNA helicase|g__Parabacteroides.s__Parabacteroides_distasonis	3.57347e-05
+3.6.4.12: DNA helicase|unclassified	4.21817e-05
+3.6.4.13: RNA helicase|g__Bacteroides.s__Bacteroides_fragilis	1.03453e-05
+3.6.4.13: RNA helicase|g__Bacteroides.s__Bacteroides_ovatus	9.4549e-06
+3.6.4.13: RNA helicase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.17779e-05
+3.6.5.n1: Elongation factor 4|g__Bacteroides.s__Bacteroides_fragilis	2.3074e-05
+3.6.5.n1: Elongation factor 4|g__Bacteroides.s__Bacteroides_ovatus	2.53814e-05
+3.6.5.n1: Elongation factor 4|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.30599e-06
+3.6.5.n1: Elongation factor 4|g__Bacteroides.s__Bacteroides_uniformis	2.07666e-05
+3.6.5.n1: Elongation factor 4|g__Blautia.s__Blautia_wexlerae	2.49683e-05
+4.1.1.11: Aspartate 1-decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	3.69184e-05
+4.1.1.12: Aspartate 4-decarboxylase|unclassified	1.88581e-05
+4.1.1.15: Glutamate decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	2.91236e-06
+4.1.1.15: Glutamate decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	2.91236e-06
+4.1.1.15: Glutamate decarboxylase|g__Bacteroides.s__Bacteroides_uniformis	2.04815e-05
+4.1.1.19: Arginine decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	2.48888e-06
+4.1.1.19: Arginine decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	2.16046e-06
+4.1.1.19: Arginine decarboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.08023e-05
+4.1.1.19: Arginine decarboxylase|g__Bacteroides.s__Bacteroides_uniformis	2.15327e-05
+4.1.1.23: Orotidine-5'-phosphate decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	5.57878e-06
+4.1.1.23: Orotidine-5'-phosphate decarboxylase|g__Bacteroides.s__Bacteroides_uniformis	3.90515e-05
+4.1.1.23: Orotidine-5'-phosphate decarboxylase|g__Bifidobacterium.s__Bifidobacterium_longum	1.87347e-05
+4.1.1.3: Oxaloacetate decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	3.48674e-05
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|g__Bacteroides.s__Bacteroides_fragilis	5.16554e-06
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|g__Bacteroides.s__Bacteroides_ovatus	2.32449e-05
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|g__Bacteroides.s__Bacteroides_uniformis	2.83182e-05
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|g__Parabacteroides.s__Parabacteroides_distasonis	5.16554e-06
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|unclassified	5.15127e-05
+4.1.1.65: Phosphatidylserine decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	3.08662e-05
+4.1.1.65: Phosphatidylserine decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	1.40249e-05
+4.1.1.65: Phosphatidylserine decarboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.80498e-05
+4.1.1.70: Glutaconyl-CoA decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	2.47115e-05
+4.1.1.70: Glutaconyl-CoA decarboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.09808e-05
+4.1.1.82: Phosphonopyruvate decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	3.43375e-05
+4.1.1.96: Carboxynorspermidine decarboxylase|g__Bacteroides.s__Bacteroides_fragilis	1.88815e-05
+4.1.2.19: Rhamnulose-1-phosphate aldolase|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+4.1.2.25: Dihydroneopterin aldolase|g__Bacteroides.s__Bacteroides_uniformis	3.48674e-05
+4.1.2.4: Deoxyribose-phosphate aldolase|g__Bacteroides.s__Bacteroides_fragilis	5.0009e-06
+4.1.2.4: Deoxyribose-phosphate aldolase|g__Bacteroides.s__Bacteroides_ovatus	3.47475e-05
+4.1.2.4: Deoxyribose-phosphate aldolase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9926e-05
+4.1.2.48: Low-specificity L-threonine aldolase|g__Bacteroides.s__Bacteroides_fragilis	3.92258e-05
+4.1.2.48: Low-specificity L-threonine aldolase|g__Bacteroides.s__Bacteroides_uniformis	3.02986e-05
+4.1.2.48: Low-specificity L-threonine aldolase|unclassified	2.28878e-05
+4.1.2.5: L-threonine aldolase|g__Bacteroides.s__Bacteroides_uniformis	3.02986e-05
+4.1.2.5: L-threonine aldolase|unclassified	1.54966e-05
+4.1.2.50: 6-carboxytetrahydropterin synthase|g__Bacteroides.s__Bacteroides_uniformis	8.23099e-05
+4.1.3.3: N-acetylneuraminate lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.93112e-05
+4.1.3.36: 1,4-dihydroxy-2-naphthoyl-CoA synthase|g__Bacteroides.s__Bacteroides_ovatus	6.13666e-05
+4.1.3.36: 1,4-dihydroxy-2-naphthoyl-CoA synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.34727e-05
+4.1.3.38: Aminodeoxychorismate lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.21217e-05
+4.1.99.12: 3,4-dihydroxy-2-butanone-4-phosphate synthase|g__Bacteroides.s__Bacteroides_fragilis	2.8267e-05
+4.1.99.12: 3,4-dihydroxy-2-butanone-4-phosphate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.47509e-05
+4.1.99.12: 3,4-dihydroxy-2-butanone-4-phosphate synthase|g__Bacteroides.s__Bacteroides_uniformis	4.5966e-05
+4.1.99.17: Phosphomethylpyrimidine synthase|g__Bacteroides.s__Bacteroides_fragilis	9.74933e-06
+4.1.99.17: Phosphomethylpyrimidine synthase|g__Bacteroides.s__Bacteroides_ovatus	2.91481e-05
+4.1.99.17: Phosphomethylpyrimidine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.86522e-06
+4.1.99.17: Phosphomethylpyrimidine synthase|g__Bacteroides.s__Bacteroides_uniformis	3.43882e-05
+4.1.99.22: NO_NAME|unclassified	1.6262e-05
+4.2.1.10: 3-dehydroquinate dehydratase|g__Bacteroides.s__Bacteroides_uniformis	6.97348e-05
+4.2.1.10: 3-dehydroquinate dehydratase|g__Flavonifractor.s__Flavonifractor_plautii	2.46123e-05
+4.2.1.11: Phosphopyruvate hydratase|g__Bacteroides.s__Bacteroides_fragilis	3.28671e-05
+4.2.1.11: Phosphopyruvate hydratase|g__Bacteroides.s__Bacteroides_ovatus	2.66361e-05
+4.2.1.11: Phosphopyruvate hydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.98854e-06
+4.2.1.126: N-acetylmuramic acid 6-phosphate etherase|g__Bacteroides.s__Bacteroides_ovatus	2.26167e-05
+4.2.1.126: N-acetylmuramic acid 6-phosphate etherase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.15699e-05
+4.2.1.126: N-acetylmuramic acid 6-phosphate etherase|unclassified	1.77522e-05
+4.2.1.136: ADP-dependent NAD(P)H-hydrate dehydratase|g__Bacteroides.s__Bacteroides_ovatus	1.10572e-05
+4.2.1.136: ADP-dependent NAD(P)H-hydrate dehydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.22711e-06
+4.2.1.136: ADP-dependent NAD(P)H-hydrate dehydratase|g__Bacteroides.s__Bacteroides_uniformis	2.76482e-05
+4.2.1.17: Enoyl-CoA hydratase|g__Bacteroides.s__Bacteroides_fragilis	1.19545e-05
+4.2.1.17: Enoyl-CoA hydratase|g__Bacteroides.s__Bacteroides_ovatus	4.78181e-05
+4.2.1.19: Imidazoleglycerol-phosphate dehydratase|g__Bacteroides.s__Bacteroides_fragilis	7.72447e-06
+4.2.1.19: Imidazoleglycerol-phosphate dehydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.31734e-05
+4.2.1.19: Imidazoleglycerol-phosphate dehydratase|g__Bacteroides.s__Bacteroides_uniformis	3.00653e-05
+4.2.1.2: Fumarate hydratase|g__Bacteroides.s__Bacteroides_fragilis	2.56693e-05
+4.2.1.2: Fumarate hydratase|g__Bacteroides.s__Bacteroides_ovatus	2.5307e-06
+4.2.1.2: Fumarate hydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.5236e-05
+4.2.1.2: Fumarate hydratase|g__Bacteroides.s__Bacteroides_uniformis	2.52292e-05
+4.2.1.2: Fumarate hydratase|g__Parabacteroides.s__Parabacteroides_distasonis	2.5461e-06
+4.2.1.2: Fumarate hydratase|unclassified	2.21801e-05
+4.2.1.20: Tryptophan synthase|g__Bacteroides.s__Bacteroides_fragilis	3.18566e-05
+4.2.1.20: Tryptophan synthase|g__Bacteroides.s__Bacteroides_ovatus	2.43599e-05
+4.2.1.20: Tryptophan synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.58704e-05
+4.2.1.20: Tryptophan synthase|g__Bacteroides.s__Bacteroides_uniformis	5.08634e-05
+4.2.1.20: Tryptophan synthase|g__Flavonifractor.s__Flavonifractor_plautii	2.37958e-05
+4.2.1.3: Aconitate hydratase|unclassified	2.2329e-05
+4.2.1.32: L(+)-tartrate dehydratase|g__Flavonifractor.s__Flavonifractor_plautii	3.41558e-05
+4.2.1.32: L(+)-tartrate dehydratase|unclassified	2.98091e-05
+4.2.1.33: 3-isopropylmalate dehydratase|g__Bacteroides.s__Bacteroides_uniformis	2.11725e-05
+4.2.1.33: 3-isopropylmalate dehydratase|unclassified	8.5472e-05
+4.2.1.46: dTDP-glucose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_fragilis	6.24891e-05
+4.2.1.46: dTDP-glucose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_uniformis	2.27533e-05
+4.2.1.47: GDP-mannose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_fragilis	8.15082e-06
+4.2.1.47: GDP-mannose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_ovatus	2.86208e-05
+4.2.1.47: GDP-mannose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_uniformis	4.85309e-05
+4.2.1.49: Urocanate hydratase|g__Bacteroides.s__Bacteroides_ovatus	2.03771e-05
+4.2.1.49: Urocanate hydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.45321e-05
+4.2.1.49: Urocanate hydratase|g__Bacteroides.s__Bacteroides_uniformis	2.46526e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Bacteroides.s__Bacteroides_ovatus	1.828e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.13168e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Bacteroides.s__Bacteroides_uniformis	9.14e-06
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Blautia.s__Blautia_wexlerae	4.00604e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|unclassified	1.91446e-05
+4.2.1.8: Mannonate dehydratase|g__Bacteroides.s__Bacteroides_fragilis	6.915e-05
+4.2.1.8: Mannonate dehydratase|g__Bacteroides.s__Bacteroides_ovatus	2.20835e-05
+4.2.1.8: Mannonate dehydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.1895e-05
+4.2.1.8: Mannonate dehydratase|g__Bacteroides.s__Bacteroides_uniformis	4.73093e-05
+4.2.1.9: Dihydroxy-acid dehydratase|g__Bacteroides.s__Bacteroides_fragilis	6.83426e-06
+4.2.1.9: Dihydroxy-acid dehydratase|g__Bacteroides.s__Bacteroides_ovatus	1.14111e-05
+4.2.1.9: Dihydroxy-acid dehydratase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.11097e-06
+4.2.1.9: Dihydroxy-acid dehydratase|g__Bacteroides.s__Bacteroides_uniformis	2.73261e-05
+4.2.2.23: Rhamnogalacturonan endolyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.12031e-05
+4.2.2.5: Chondroitin AC lyase|g__Bacteroides.s__Bacteroides_uniformis	3.23096e-05
+4.2.3.1: Threonine synthase|g__Bacteroides.s__Bacteroides_ovatus	6.53764e-06
+4.2.3.1: Threonine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.96101e-05
+4.2.3.3: Methylglyoxal synthase|g__Bacteroides.s__Bacteroides_fragilis	1.00418e-05
+4.2.3.3: Methylglyoxal synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.00836e-05
+4.2.3.4: 3-dehydroquinate synthase|g__Bacteroides.s__Bacteroides_fragilis	1.79318e-05
+4.2.3.4: 3-dehydroquinate synthase|g__Bacteroides.s__Bacteroides_ovatus	1.23871e-05
+4.2.3.4: 3-dehydroquinate synthase|g__Bacteroides.s__Bacteroides_uniformis	2.06452e-05
+4.2.3.5: Chorismate synthase|g__Bacteroides.s__Bacteroides_fragilis	8.12444e-06
+4.2.3.5: Chorismate synthase|g__Bacteroides.s__Bacteroides_ovatus	8.12444e-06
+4.2.3.5: Chorismate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.21867e-05
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|g__Bacteroides.s__Bacteroides_fragilis	2.85279e-05
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.13197e-06
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|g__Bacteroides.s__Bacteroides_uniformis	1.65161e-05
+4.3.1.17: L-serine ammonia-lyase|g__Bacteroides.s__Bacteroides_ovatus	1.42235e-05
+4.3.1.17: L-serine ammonia-lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.42235e-05
+4.3.1.17: L-serine ammonia-lyase|g__Blautia.s__Blautia_obeum	2.17669e-05
+4.3.1.17: L-serine ammonia-lyase|g__Blautia.s__Blautia_wexlerae	1.45113e-05
+4.3.1.3: Histidine ammonia-lyase|g__Bacteroides.s__Bacteroides_fragilis	8.38474e-06
+4.3.1.3: Histidine ammonia-lyase|g__Bacteroides.s__Bacteroides_ovatus	2.51045e-05
+4.3.1.3: Histidine ammonia-lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.57878e-06
+4.3.1.3: Histidine ammonia-lyase|g__Bacteroides.s__Bacteroides_uniformis	5.59121e-06
+4.3.1.4: Formimidoyltetrahydrofolate cyclodeaminase|g__Bacteroides.s__Bacteroides_uniformis	3.13807e-05
+4.3.2.1: Argininosuccinate lyase|g__Bacteroides.s__Bacteroides_fragilis	1.8923e-05
+4.3.2.1: Argininosuccinate lyase|g__Bacteroides.s__Bacteroides_ovatus	2.50993e-05
+4.3.2.1: Argininosuccinate lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.88433e-05
+4.3.2.1: Argininosuccinate lyase|g__Bacteroides.s__Bacteroides_uniformis	3.16178e-05
+4.3.2.10: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	2.09977e-05
+4.3.2.10: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	3.107e-05
+4.3.2.10: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8642e-05
+4.3.2.2: Adenylosuccinate lyase|g__Bacteroides.s__Bacteroides_ovatus	1.87875e-05
+4.3.2.2: Adenylosuccinate lyase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.57297e-05
+4.3.2.2: Adenylosuccinate lyase|g__Bacteroides.s__Bacteroides_uniformis	1.88756e-05
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|g__Bacteroides.s__Bacteroides_fragilis	5.55884e-05
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|g__Bacteroides.s__Bacteroides_ovatus	4.83399e-06
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.51842e-05
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|g__Bacteroides.s__Bacteroides_uniformis	6.07096e-05
+4.3.99.2: Carboxybiotin decarboxylase|g__Bacteroides.s__Bacteroides_ovatus	2.47115e-05
+4.3.99.2: Carboxybiotin decarboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.09808e-05
+4.3.99.3: 7-carboxy-7-deazaguanine synthase|g__Bacteroides.s__Bacteroides_fragilis	3.80372e-05
+4.3.99.3: 7-carboxy-7-deazaguanine synthase|g__Bacteroides.s__Bacteroides_ovatus	9.50929e-06
+4.3.99.3: 7-carboxy-7-deazaguanine synthase|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+4.4.1.21: S-ribosylhomocysteine lyase|g__Bacteroides.s__Bacteroides_uniformis	5.50538e-05
+4.4.1.8: Cystathionine beta-lyase|g__Bacteroides.s__Bacteroides_fragilis	3.2429e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|g__Bacteroides.s__Bacteroides_ovatus	3.38912e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.28223e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|g__Blautia.s__Blautia_obeum	1.13083e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|g__Blautia.s__Blautia_wexlerae	1.13083e-05
+4.6.1.13: Phosphatidylinositol diacylglycerol-lyase|g__Bacteroides.s__Bacteroides_uniformis	3.98943e-05
+5.1.1.1: Alanine racemase|g__Bacteroides.s__Bacteroides_uniformis	3.65909e-05
+5.1.1.3: Glutamate racemase|g__Bacteroides.s__Bacteroides_ovatus	2.17355e-05
+5.1.1.3: Glutamate racemase|g__Blautia.s__Blautia_obeum	1.12074e-05
+5.1.1.3: Glutamate racemase|g__Blautia.s__Blautia_wexlerae	2.24148e-05
+5.1.3.1: Ribulose-phosphate 3-epimerase|g__Bacteroides.s__Bacteroides_fragilis	3.75816e-05
+5.1.3.1: Ribulose-phosphate 3-epimerase|g__Bacteroides.s__Bacteroides_uniformis	6.01306e-05
+5.1.3.1: Ribulose-phosphate 3-epimerase|unclassified	2.5115e-05
+5.1.3.11: Cellobiose epimerase|g__Bacteroides.s__Bacteroides_uniformis	0.000124718
+5.1.3.13: dTDP-4-dehydrorhamnose 3,5-epimerase|g__Bacteroides.s__Bacteroides_uniformis	2.83134e-05
+5.1.3.2: UDP-glucose 4-epimerase|g__Bacteroides.s__Bacteroides_fragilis	2.19586e-05
+5.1.3.2: UDP-glucose 4-epimerase|g__Bacteroides.s__Bacteroides_uniformis	2.85279e-05
+5.1.3.2: UDP-glucose 4-epimerase|g__Parabacteroides.s__Parabacteroides_distasonis	5.66268e-05
+5.1.3.2: UDP-glucose 4-epimerase|unclassified	3.12533e-05
+5.1.3.3: Aldose 1-epimerase|g__Bacteroides.s__Bacteroides_fragilis	1.52611e-05
+5.1.3.3: Aldose 1-epimerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.91345e-05
+5.1.3.3: Aldose 1-epimerase|g__Bacteroides.s__Bacteroides_uniformis	0.000129187
+5.1.3.4: L-ribulose-5-phosphate 4-epimerase|g__Bacteroides.s__Bacteroides_ovatus	1.41037e-05
+5.1.3.4: L-ribulose-5-phosphate 4-epimerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.41037e-05
+5.1.3.4: L-ribulose-5-phosphate 4-epimerase|g__Bacteroides.s__Bacteroides_uniformis	2.80498e-05
+5.1.3.4: L-ribulose-5-phosphate 4-epimerase|g__Blautia.s__Blautia_obeum	6.93495e-06
+5.1.3.4: L-ribulose-5-phosphate 4-epimerase|g__Blautia.s__Blautia_wexlerae	2.08049e-05
+5.1.99.6: NAD(P)H-hydrate epimerase|g__Bacteroides.s__Bacteroides_ovatus	1.10572e-05
+5.1.99.6: NAD(P)H-hydrate epimerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.22711e-06
+5.1.99.6: NAD(P)H-hydrate epimerase|g__Bacteroides.s__Bacteroides_uniformis	2.76482e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Bacteroides.s__Bacteroides_fragilis	9.94268e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Bacteroides.s__Bacteroides_ovatus	4.34748e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.66633e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Bacteroides.s__Bacteroides_uniformis	0.000161225
+5.2.1.8: Peptidylprolyl isomerase|g__Blautia.s__Blautia_wexlerae	1.58222e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Blautia.s__Ruminococcus_torques	2.04102e-05
+5.3.1.1: Triose-phosphate isomerase|g__Bacteroides.s__Bacteroides_ovatus	1.23668e-05
+5.3.1.1: Triose-phosphate isomerase|g__Bacteroides.s__Bacteroides_uniformis	1.2428e-05
+5.3.1.12: Glucuronate isomerase|g__Bacteroides.s__Bacteroides_ovatus	8.9873e-06
+5.3.1.12: Glucuronate isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.98492e-06
+5.3.1.12: Glucuronate isomerase|g__Bacteroides.s__Bacteroides_uniformis	8.9873e-06
+5.3.1.14: L-rhamnose isomerase|g__Bacteroides.s__Bacteroides_ovatus	1.70085e-05
+5.3.1.14: L-rhamnose isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.04102e-05
+5.3.1.16: isomerase|g__Bacteroides.s__Bacteroides_fragilis	1.98194e-05
+5.3.1.16: isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.98194e-05
+5.3.1.16: isomerase|g__Bacteroides.s__Bacteroides_uniformis	5.91468e-05
+5.3.1.17: 5-dehydro-4-deoxy-D-glucuronate isomerase|g__Bacteroides.s__Bacteroides_fragilis	1.02887e-05
+5.3.1.17: 5-dehydro-4-deoxy-D-glucuronate isomerase|g__Bacteroides.s__Bacteroides_ovatus	4.87782e-06
+5.3.1.17: 5-dehydro-4-deoxy-D-glucuronate isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.46524e-05
+5.3.1.17: 5-dehydro-4-deoxy-D-glucuronate isomerase|g__Bacteroides.s__Bacteroides_uniformis	2.74526e-05
+5.3.1.24: Phosphoribosylanthranilate isomerase|unclassified	2.47437e-05
+5.3.1.25: L-fucose isomerase|g__Bacteroides.s__Bacteroides_fragilis	3.01626e-05
+5.3.1.25: L-fucose isomerase|g__Bacteroides.s__Bacteroides_ovatus	2.54737e-05
+5.3.1.25: L-fucose isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.63183e-06
+5.3.1.4: L-arabinose isomerase|unclassified	1.7833e-05
+5.3.1.5: Xylose isomerase|g__Bacteroides.s__Bacteroides_ovatus	9.68041e-06
+5.3.1.5: Xylose isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.45361e-06
+5.3.1.5: Xylose isomerase|g__Bacteroides.s__Bacteroides_uniformis	1.29072e-05
+5.3.1.8: Mannose-6-phosphate isomerase|g__Bacteroides.s__Bacteroides_fragilis	1.82316e-05
+5.3.1.9: Glucose-6-phosphate isomerase|g__Bacteroides.s__Bacteroides_ovatus	4.12069e-05
+5.3.1.9: Glucose-6-phosphate isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.33953e-06
+5.3.1.9: Glucose-6-phosphate isomerase|g__Blautia.s__Blautia_obeum	5.25199e-06
+5.3.1.9: Glucose-6-phosphate isomerase|g__Blautia.s__Blautia_wexlerae	2.626e-05
+5.3.3.2: Isopentenyl-diphosphate Delta-isomerase|g__Bacteroides.s__Bacteroides_fragilis	4.15974e-05
+5.3.3.2: Isopentenyl-diphosphate Delta-isomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.91638e-05
+5.4.2.1: Transferred entry: 5.4.2.11 and 5.4.2.12|unclassified	2.03673e-05
+5.4.2.10: Phosphoglucosamine mutase|unclassified	2.05775e-05
+5.4.2.11: Phosphoglycerate mutase (2,3-diphosphoglycerate-dependent)|g__Bacteroides.s__Bacteroides_fragilis	3.70313e-05
+5.4.2.11: Phosphoglycerate mutase (2,3-diphosphoglycerate-dependent)|g__Bacteroides.s__Bacteroides_ovatus	1.19365e-05
+5.4.2.12: Phosphoglycerate mutase (2,3-diphosphoglycerate-independent)|unclassified	4.88839e-05
+5.4.2.2: Phosphoglucomutase (alpha-D-glucose-1,6-bisphosphate-dependent)|g__Bacteroides.s__Bacteroides_fragilis	1.88741e-05
+5.4.2.2: Phosphoglucomutase (alpha-D-glucose-1,6-bisphosphate-dependent)|g__Bacteroides.s__Bacteroides_ovatus	9.39141e-06
+5.4.2.2: Phosphoglucomutase (alpha-D-glucose-1,6-bisphosphate-dependent)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.65147e-05
+5.4.4.2: Isochorismate synthase|g__Bacteroides.s__Bacteroides_ovatus	3.5084e-05
+5.4.99.12: tRNA pseudouridine(38-40) synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.71167e-05
+5.4.99.18: 5-(carboxyamino)imidazole ribonucleotide mutase|g__Bacteroides.s__Bacteroides_ovatus	7.32215e-05
+5.4.99.18: 5-(carboxyamino)imidazole ribonucleotide mutase|g__Bacteroides.s__Bacteroides_uniformis	2.09204e-05
+5.4.99.18: 5-(carboxyamino)imidazole ribonucleotide mutase|unclassified	2.11706e-05
+5.4.99.23: 23S rRNA pseudouridine(1911/1915/1917) synthase|g__Blautia.s__Blautia_obeum	6.80955e-06
+5.4.99.23: 23S rRNA pseudouridine(1911/1915/1917) synthase|g__Blautia.s__Blautia_wexlerae	2.04656e-05
+5.4.99.25: tRNA pseudouridine(55) synthase|g__Bacteroides.s__Bacteroides_ovatus	1.26652e-05
+5.4.99.25: tRNA pseudouridine(55) synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.31437e-05
+5.4.99.25: tRNA pseudouridine(55) synthase|unclassified	8.40558e-06
+5.4.99.9: UDP-galactopyranose mutase|unclassified	1.93112e-05
+5.5.1.1: Muconate cycloisomerase|unclassified	4.65516e-05
+5.5.1.4: Inositol-3-phosphate synthase|unclassified	4.25191e-05
+5.99.1.2: DNA topoisomerase|g__Bacteroides.s__Bacteroides_fragilis	7.72447e-06
+5.99.1.2: DNA topoisomerase|g__Bacteroides.s__Bacteroides_ovatus	4.24529e-05
+5.99.1.2: DNA topoisomerase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.36996e-05
+5.99.1.2: DNA topoisomerase|g__Bacteroides.s__Bacteroides_uniformis	7.51334e-05
+5.99.1.2: DNA topoisomerase|g__Blautia.s__Blautia_obeum	7.84516e-06
+5.99.1.2: DNA topoisomerase|g__Blautia.s__Blautia_wexlerae	2.54958e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|g__Bacteroides.s__Bacteroides_fragilis	4.41848e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|g__Bacteroides.s__Bacteroides_ovatus	7.75161e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.67263e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|g__Blautia.s__Blautia_obeum	1.06016e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|g__Blautia.s__Blautia_wexlerae	5.08591e-05
+6.1.1.1: Tyrosine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.31782e-05
+6.1.1.1: Tyrosine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.58911e-06
+6.1.1.1: Tyrosine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	2.30619e-05
+6.1.1.10: Methionine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.18893e-05
+6.1.1.10: Methionine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.99242e-05
+6.1.1.10: Methionine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.92894e-06
+6.1.1.11: Serine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.33891e-05
+6.1.1.11: Serine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.33891e-05
+6.1.1.11: Serine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.69454e-06
+6.1.1.11: Serine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	6.69454e-06
+6.1.1.12: Aspartate--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.86651e-05
+6.1.1.12: Aspartate--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	2.57602e-05
+6.1.1.14: Glycine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	8.11569e-06
+6.1.1.14: Glycine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	2.16321e-05
+6.1.1.14: Glycine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.16399e-05
+6.1.1.14: Glycine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	8.11569e-06
+6.1.1.15: Proline--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.12074e-05
+6.1.1.15: Proline--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	3.08203e-05
+6.1.1.15: Proline--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.38836e-05
+6.1.1.15: Proline--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	5.60369e-06
+6.1.1.15: Proline--tRNA ligase|unclassified	1.62703e-05
+6.1.1.16: Cysteine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	3.67916e-05
+6.1.1.17: Glutamate--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.92688e-05
+6.1.1.17: Glutamate--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.92688e-05
+6.1.1.17: Glutamate--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.75874e-06
+6.1.1.18: Glutamine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	2.46123e-06
+6.1.1.18: Glutamine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.64993e-05
+6.1.1.18: Glutamine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6577e-05
+6.1.1.18: Glutamine--tRNA ligase|g__Blautia.s__Blautia_wexlerae	3.96877e-05
+6.1.1.18: Glutamine--tRNA ligase|g__Parabacteroides.s__Parabacteroides_distasonis	1.42639e-05
+6.1.1.19: Arginine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.82861e-05
+6.1.1.19: Arginine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.35456e-05
+6.1.1.20: Phenylalanine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	3.5182e-05
+6.1.1.20: Phenylalanine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	3.46516e-05
+6.1.1.20: Phenylalanine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.92656e-05
+6.1.1.20: Phenylalanine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	1.79085e-05
+6.1.1.20: Phenylalanine--tRNA ligase|unclassified	2.32569e-05
+6.1.1.21: Histidine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	1.23973e-05
+6.1.1.21: Histidine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.85959e-05
+6.1.1.21: Histidine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.19865e-06
+6.1.1.22: Asparagine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	3.60352e-05
+6.1.1.22: Asparagine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.20093e-05
+6.1.1.22: Asparagine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.00587e-06
+6.1.1.22: Asparagine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	1.20117e-05
+6.1.1.24: Glutamate--tRNA(Gln) ligase|unclassified	1.63725e-05
+6.1.1.3: Threonine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	3.15384e-05
+6.1.1.3: Threonine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.1007e-05
+6.1.1.3: Threonine--tRNA ligase|unclassified	4.00831e-05
+6.1.1.4: Leucine--tRNA ligase|unclassified	5.11799e-05
+6.1.1.5: Isoleucine--tRNA ligase|g__Blautia.s__Blautia_wexlerae	2.00435e-05
+6.1.1.6: Lysine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	3.48674e-05
+6.1.1.7: Alanine--tRNA ligase|g__Bacteroides.s__Bacteroides_fragilis	7.62592e-06
+6.1.1.7: Alanine--tRNA ligase|g__Bacteroides.s__Bacteroides_ovatus	1.52518e-05
+6.1.1.7: Alanine--tRNA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.61488e-06
+6.1.1.7: Alanine--tRNA ligase|g__Bacteroides.s__Bacteroides_uniformis	1.36869e-05
+6.1.1.7: Alanine--tRNA ligase|unclassified	2.73868e-05
+6.2.1.3: Long-chain-fatty-acid--CoA ligase|g__Bacteroides.s__Bacteroides_ovatus	2.23704e-05
+6.2.1.3: Long-chain-fatty-acid--CoA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2428e-05
+6.2.1.3: Long-chain-fatty-acid--CoA ligase|g__Parabacteroides.s__Parabacteroides_distasonis	2.74175e-05
+6.2.1.30: Phenylacetate--CoA ligase|g__Bacteroides.s__Bacteroides_fragilis	9.699e-06
+6.2.1.30: Phenylacetate--CoA ligase|g__Bacteroides.s__Bacteroides_ovatus	2.60151e-05
+6.2.1.30: Phenylacetate--CoA ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.30075e-05
+6.2.1.30: Phenylacetate--CoA ligase|g__Bacteroides.s__Bacteroides_uniformis	5.52535e-05
+6.2.1.5: Succinate--CoA ligase (ADP-forming)|g__Bacteroides.s__Bacteroides_fragilis	5.41046e-06
+6.2.1.5: Succinate--CoA ligase (ADP-forming)|g__Bacteroides.s__Bacteroides_ovatus	2.11853e-05
+6.3.1.1: Aspartate--ammonia ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.27219e-05
+6.3.1.1: Aspartate--ammonia ligase|g__Bacteroides.s__Bacteroides_uniformis	4.24063e-05
+6.3.1.2: Glutamate--ammonia ligase|g__Bacteroides.s__Bacteroides_fragilis	1.10755e-05
+6.3.1.2: Glutamate--ammonia ligase|g__Bacteroides.s__Bacteroides_ovatus	1.47674e-05
+6.3.1.2: Glutamate--ammonia ligase|g__Bacteroides.s__Bacteroides_uniformis	1.47674e-05
+6.3.2.1: Pantoate--beta-alanine ligase (AMP-forming)|g__Bacteroides.s__Bacteroides_fragilis	6.59488e-06
+6.3.2.1: Pantoate--beta-alanine ligase (AMP-forming)|g__Bacteroides.s__Bacteroides_ovatus	3.24628e-05
+6.3.2.1: Pantoate--beta-alanine ligase (AMP-forming)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.69362e-05
+6.3.2.1: Pantoate--beta-alanine ligase (AMP-forming)|g__Parabacteroides.s__Parabacteroides_distasonis	5.45751e-05
+6.3.2.10: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase|g__Bacteroides.s__Bacteroides_fragilis	2.62188e-05
+6.3.2.10: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase|g__Bacteroides.s__Bacteroides_uniformis	3.25744e-05
+6.3.2.10: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase|g__Parabacteroides.s__Parabacteroides_distasonis	3.6467e-05
+6.3.2.4: D-alanine--D-alanine ligase|g__Bacteroides.s__Bacteroides_fragilis	3.65157e-05
+6.3.2.4: D-alanine--D-alanine ligase|g__Bacteroides.s__Bacteroides_ovatus	9.12892e-06
+6.3.2.8: UDP-N-acetylmuramate--L-alanine ligase|g__Bacteroides.s__Bacteroides_ovatus	1.22761e-05
+6.3.2.8: UDP-N-acetylmuramate--L-alanine ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.00587e-06
+6.3.2.8: UDP-N-acetylmuramate--L-alanine ligase|g__Parabacteroides.s__Parabacteroides_distasonis	2.73536e-05
+6.3.2.9: UDP-N-acetylmuramoyl-L-alanine--D-glutamate ligase|g__Bacteroides.s__Bacteroides_fragilis	3.16583e-05
+6.3.2.9: UDP-N-acetylmuramoyl-L-alanine--D-glutamate ligase|g__Bacteroides.s__Bacteroides_ovatus	9.53336e-06
+6.3.2.9: UDP-N-acetylmuramoyl-L-alanine--D-glutamate ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.17779e-06
+6.3.3.2: 5-formyltetrahydrofolate cyclo-ligase|unclassified	3.16649e-05
+6.3.3.3: Dethiobiotin synthase|g__Bacteroides.s__Bacteroides_ovatus	5.23011e-05
+6.3.3.3: Dethiobiotin synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.51232e-05
+6.3.4.13: Phosphoribosylamine--glycine ligase|g__Bacteroides.s__Bacteroides_fragilis	3.33495e-05
+6.3.4.13: Phosphoribosylamine--glycine ligase|g__Bacteroides.s__Bacteroides_ovatus	4.01613e-05
+6.3.4.13: Phosphoribosylamine--glycine ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.682e-05
+6.3.4.13: Phosphoribosylamine--glycine ligase|g__Bacteroides.s__Bacteroides_uniformis	2.34279e-05
+6.3.4.14: Biotin carboxylase|g__Bacteroides.s__Bacteroides_fragilis	5.52963e-06
+6.3.4.14: Biotin carboxylase|g__Bacteroides.s__Bacteroides_ovatus	4.12835e-05
+6.3.4.14: Biotin carboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.14722e-05
+6.3.4.15: Biotin--[acetyl-CoA-carboxylase] ligase|g__Bacteroides.s__Bacteroides_fragilis	2.47335e-05
+6.3.4.15: Biotin--[acetyl-CoA-carboxylase] ligase|g__Bacteroides.s__Bacteroides_ovatus	3.7284e-05
+6.3.4.15: Biotin--[acetyl-CoA-carboxylase] ligase|g__Bacteroides.s__Bacteroides_uniformis	3.01737e-05
+6.3.4.2: CTP synthase (glutamine hydrolyzing)|g__Bacteroides.s__Bacteroides_fragilis	3.44348e-05
+6.3.4.2: CTP synthase (glutamine hydrolyzing)|g__Bacteroides.s__Bacteroides_ovatus	2.04102e-05
+6.3.4.2: CTP synthase (glutamine hydrolyzing)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.02887e-05
+6.3.4.2: CTP synthase (glutamine hydrolyzing)|g__Bacteroides.s__Bacteroides_uniformis	2.29372e-05
+6.3.4.2: CTP synthase (glutamine hydrolyzing)|unclassified	3.21285e-05
+6.3.4.21: Nicotinate phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_uniformis	3.2745e-05
+6.3.4.3: Formate--tetrahydrofolate ligase|g__Bacteroides.s__Bacteroides_ovatus	1.72554e-05
+6.3.4.3: Formate--tetrahydrofolate ligase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.24034e-05
+6.3.4.3: Formate--tetrahydrofolate ligase|unclassified	2.29615e-05
+6.3.4.4: Adenylosuccinate synthase|g__Bacteroides.s__Bacteroides_fragilis	1.00687e-05
+6.3.4.4: Adenylosuccinate synthase|g__Bacteroides.s__Bacteroides_ovatus	2.34935e-05
+6.3.4.4: Adenylosuccinate synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.34935e-05
+6.3.4.4: Adenylosuccinate synthase|g__Bacteroides.s__Bacteroides_uniformis	2.00642e-05
+6.3.4.5: Argininosuccinate synthase|g__Blautia.s__Blautia_obeum	3.47708e-06
+6.3.4.5: Argininosuccinate synthase|g__Blautia.s__Blautia_wexlerae	1.39858e-05
+6.3.4.5: Argininosuccinate synthase|g__Blautia.s__Ruminococcus_torques	3.46748e-06
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_fragilis	3.39085e-05
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_ovatus	1.96959e-05
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.46184e-05
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_uniformis	4.57607e-05
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|g__Parabacteroides.s__Parabacteroides_distasonis	1.30075e-05
+6.3.5.3: Phosphoribosylformylglycinamidine synthase|g__Bacteroides.s__Bacteroides_fragilis	4.23705e-06
+6.3.5.3: Phosphoribosylformylglycinamidine synthase|g__Bacteroides.s__Bacteroides_ovatus	1.90664e-05
+6.3.5.3: Phosphoribosylformylglycinamidine synthase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5876e-05
+6.3.5.3: Phosphoribosylformylglycinamidine synthase|g__Bacteroides.s__Bacteroides_uniformis	2.54039e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_fragilis	1.93955e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_ovatus	2.08005e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.20502e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_uniformis	3.54152e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Blautia.s__Blautia_wexlerae	1.83963e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Blautia.s__Ruminococcus_torques	1.22821e-06
+6.4.1.2: Acetyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_fragilis	1.09635e-05
+6.4.1.2: Acetyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_ovatus	5.74942e-05
+6.4.1.2: Acetyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.50569e-05
+6.4.1.3: Propionyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_fragilis	2.4324e-05
+6.4.1.3: Propionyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_ovatus	3.24072e-05
+6.4.1.3: Propionyl-CoA carboxylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.43804e-05
+6.4.1.7: 2-oxoglutarate carboxylase|g__Parabacteroides.s__Parabacteroides_distasonis	4.1155e-05
+6.5.1.2: DNA ligase (NAD(+))|g__Bacteroides.s__Bacteroides_fragilis	1.62194e-05
+6.5.1.2: DNA ligase (NAD(+))|g__Bacteroides.s__Bacteroides_ovatus	1.62752e-05
+6.5.1.2: DNA ligase (NAD(+))|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.06881e-06
+6.5.1.2: DNA ligase (NAD(+))|g__Bacteroides.s__Bacteroides_uniformis	3.4641e-05
+7.1.2.2: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	2.07742e-05
+7.1.2.2: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	1.40249e-05
+7.1.2.2: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.52494e-05
+7.1.2.2: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	0.000105991
+7.1.2.2: NO_NAME|g__Blautia.s__Blautia_obeum	3.49954e-05
+7.1.2.2: NO_NAME|g__Blautia.s__Blautia_wexlerae	5.49976e-05
+7.1.2.2: NO_NAME|unclassified	2.79795e-05
+7.2.1.1: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	9.38787e-05
+7.2.1.1: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	6.64035e-05
+7.2.1.1: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.70265e-05
+7.2.1.1: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	0.000114427
+7.2.1.1: NO_NAME|g__Parabacteroides.s__Parabacteroides_distasonis	1.98717e-05
+7.3.2.1: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	4.9467e-05
+7.3.2.1: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.85501e-05

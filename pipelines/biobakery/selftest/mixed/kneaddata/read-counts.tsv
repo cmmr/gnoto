@@ -1,0 +1,3 @@
+sample	raw pair1	raw pair2	raw single	decontaminated phix pair1	decontaminated phix pair2	decontaminated phix single	trimmed pair1	trimmed pair2	trimmed orphan1	trimmed orphan2	trimmed single	final pair1	final pair2	final orphan1	final orphan2	final single
+mock	100000	100000	NA	100000	100000	NA	93526	93526	3953	519	NA	93147	93131	3935	514	NA
+single	NA	NA	100000	NA	NA	99999	NA	NA	NA	NA	98086	NA	NA	NA	NA	97793

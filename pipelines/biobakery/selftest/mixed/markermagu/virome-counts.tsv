@@ -1,0 +1,6 @@
+# Constructed from biom file
+#OTU ID	mock	single	taxonomy
+vSGB_82874	0	22	k__Viruses; p__Uroviricota; c__Caudoviricetes; o__Crassvirales; f__Unclassified_viruses; g__VC_604_0; s__vSGB_82874
+vSGB_41704	0	36	k__Viruses; p__Uroviricota; c__Caudoviricetes; o__Unclassified_viruses; f__Unclassified_viruses; g__VC_2221_3; s__vSGB_41704
+vSGB_23578	62	0	k__Viruses; p__Uroviricota; c__Caudoviricetes; o__Unclassified_viruses; f__Unclassified_viruses; g__VC_3459_0; s__vSGB_23578
+vSGB_10872	0	29	k__Viruses; p__Uroviricota; c__Caudoviricetes; o__Unclassified_viruses; f__Unclassified_viruses; g__singleton_10872; s__vSGB_10872

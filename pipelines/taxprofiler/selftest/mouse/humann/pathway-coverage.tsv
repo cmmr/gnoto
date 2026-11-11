@@ -1,0 +1,28 @@
+# Pathway	mouse_pathcoverage
+UNMAPPED	1.0000000000
+UNINTEGRATED	1.0000000000
+ARGININE-SYN4-PWY: L-ornithine biosynthesis II	0.5554548377
+COA-PWY: coenzyme A biosynthesis I (prokaryotic)	0.1176439375
+DTDPRHAMSYN-PWY: dTDP-&beta;-L-rhamnose biosynthesis	0.2943773521
+PWY-5686: UMP biosynthesis I	0.0857144867
+PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I	0.2813492330
+PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II	0.2568006083
+PWY-6123: inosine-5'-phosphate biosynthesis I	0.7189579259
+PWY-6124: inosine-5'-phosphate biosynthesis II	0.8190918317
+PWY-6147: 6-hydroxymethyl-dihydropterin diphosphate biosynthesis I	0.2159446285
+PWY-6151: S-adenosyl-L-methionine salvage I	0.3819216166
+PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis	0.2568006083
+PWY-6609: adenine and adenosine salvage III	0.4400348985
+PWY-6700: queuosine biosynthesis I (de novo)	0.3626876446
+PWY-6703: preQ0 biosynthesis	0.0437864018
+PWY-7111: pyruvate fermentation to isobutanol (engineered)	0.3256604794
+PWY-7221: guanosine ribonucleotides de novo biosynthesis	0.9827059143
+PWY-7228: superpathway of guanosine nucleotides de novo biosynthesis I	0.4486716701
+PWY-7663: gondoate biosynthesis (anaerobic)	0.0939308419
+PWY-7790: UMP biosynthesis II	0.0857144867
+PWY-7791: UMP biosynthesis III	0.5160685844
+PWY0-1296: purine ribonucleosides degradation	0.1930594665
+PWY0-1297: superpathway of purine deoxyribonucleosides degradation	0.1681084008
+PWY66-429: fatty acid biosynthesis initiation (mitochondria)	0.1984581290
+RIBOSYN2-PWY: flavin biosynthesis I (bacteria and plants)	0.1366602901
+VALSYN-PWY: L-valine biosynthesis	0.3063320703

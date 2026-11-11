@@ -1,0 +1,7 @@
+sample	chopper_input	chopper_output	savont_output	ssufilter_input	ssufilter_output
+log1	3000	3000	2449	2449	2449
+log2	3001	3000	2453	2453	2453
+log3	3000	3000	2445	2445	2445
+std1	1001	1001	794	794	794
+std2	1000	1000	776	776	776
+std3	1000	1000	749	749	749

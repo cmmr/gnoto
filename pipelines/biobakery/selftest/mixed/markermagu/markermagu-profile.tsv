@@ -1,0 +1,11 @@
+lineage	total_genes	detected_genes	total_length	total_aligned_reads	RPKM	rel_abundance	sampleID
+k__Bacteria|p__Bacteroidetes|c__Bacteroidia|o__Bacteroidales|f__Bacteroidaceae|g__Bacteroides|s__Bacteroides_fragilis|t__SGB1855	200	197	167600	1437	44.9542313368895	0.17803	mock
+k__Bacteria|p__Bacteroidetes|c__Bacteroidia|o__Bacteroidales|f__Prevotellaceae|g__Prevotella|s__Prevotella_corporis|t__SGB1504	200	183	188500	1073	29.8453165640297	0.11819	mock
+k__Bacteria|p__Firmicutes|c__Clostridia|o__Eubacteriales|f__Oscillospiraceae|g__Faecalibacterium|s__Faecalibacterium_prausnitzii|t__SGB15323	200	191	153750	1346	45.9005360788742	0.18177	mock
+k__Bacteria|p__Firmicutes|c__Negativicutes|o__Veillonellales|f__Veillonellaceae|g__Veillonella|s__Veillonella_rogosae|t__SGB6956	200	190	152150	1914	65.956529984296	0.2612	mock
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_coli|t__SGB10068	128	120	101850	793	40.8225355860609	0.16166	mock
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_3459_0|s__vSGB_23578	12	11	12984	62	25.0363494681687	0.09915	mock
+k__Bacteria|p__Bacteroidetes|c__Bacteroidia|o__Bacteroidales|f__Bacteroidaceae|g__Phocaeicola|s__Phocaeicola_dorei|t__SGB1815	200	160	233250	555	24.3312018433319	0.08531	single
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Crassvirales|f__Unclassified_viruses|g__VC_604_0|s__vSGB_82874	5	4	14490	22	15.5255332673117	0.05443	single
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_2221_3|s__vSGB_41704	8	7	13095	36	28.1118371812992	0.09856	single
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__singleton_10872|s__vSGB_10872	4	3	1365	29	217.248895579655	0.7617	single

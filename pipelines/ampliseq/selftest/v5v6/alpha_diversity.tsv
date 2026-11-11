@@ -1,0 +1,2 @@
+sample	reads	shannon	observed_asvs	simpson	inv_simpson	faith	berger	brillouin	fisher	margalef	menhinick	mcintosh
+mock	139677	3.03	38	0.941	17.05	50.67	0.123	3.033	3.6	3.12	0.102	0.76

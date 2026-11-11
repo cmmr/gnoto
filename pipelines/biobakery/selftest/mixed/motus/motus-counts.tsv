@@ -1,0 +1,37 @@
+# motus version 3.1.0 | merge 3.1.0 | info merged profiles: # git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0 
+# call: python /usr/local/bin/motus merge -db db_mOTU -d profiles -o motus-counts.tsv
+#consensus_taxonomy	NCBI_tax_id	mock	single
+Escherichia coli [ref_mOTU_v31_00095]	562	8	0
+Clostridioides difficile [ref_mOTU_v31_00721]	1496	2	0
+Roseburia hominis [ref_mOTU_v31_00861]	301301	3	0
+Fusobacterium nucleatum subsp. animalis [ref_mOTU_v31_01001]	851	7	0
+Alistipes shahii [ref_mOTU_v31_01014]	328814	0	1
+Lactobacillus fermentum [ref_mOTU_v31_01407]	1613	1	0
+Bacteroides fragilis [ref_mOTU_v31_01597]	817	8	0
+Veillonella rogosae [ref_mOTU_v31_01939]	423477	11	0
+Bacteroides dorei/vulgatus [ref_mOTU_v31_02367]	NA	0	3
+[Eubacterium] siraeum [ref_mOTU_v31_02370]	39492	0	2
+Prevotella corporis [ref_mOTU_v31_02390]	28128	5	0
+Bifidobacterium adolescentis [ref_mOTU_v31_02703]	1680	3	0
+Akkermansia muciniphila [ref_mOTU_v31_03591]	239935	1	0
+Barnesiella intestinihominis [ref_mOTU_v31_03595]	487174	0	1
+Clostridium sp. CAG:567 [ref_mOTU_v31_03617]	1262820	0	1
+[Eubacterium] rectale [ref_mOTU_v31_03657]	39491	0	2
+Alistipes putredinis [ref_mOTU_v31_03683]	28117	0	2
+Odoribacter splanchnicus [ref_mOTU_v31_03697]	28118	0	1
+Prevotella copri [ref_mOTU_v31_03701]	165179	0	1
+Oscillibacter sp. [ref_mOTU_v31_04664]	NA	0	1
+Faecalibacterium prausnitzii [ref_mOTU_v31_06109]	853	0	1
+Clostridium sp. CAG:343 [ref_mOTU_v31_07621]	1262796	0	1
+Staphylococcus sp. CAG:324 [ref_mOTU_v31_07714]	1262969	0	2
+Clostridiales species incertae sedis [meta_mOTU_v31_12254]	NA	0	1
+Ruminococcaceae species incertae sedis [meta_mOTU_v31_12264]	NA	0	1
+Faecalibacterium species incertae sedis [meta_mOTU_v31_12303]	NA	11	0
+Faecalibacterium species incertae sedis [meta_mOTU_v31_12376]	NA	0	1
+Firmicutes species incertae sedis [meta_mOTU_v31_12384]	NA	0	1
+Alistipes sp. An31A [meta_mOTU_v31_12393]	1965631	0	2
+Clostridium sp. CAG:343 [meta_mOTU_v31_12430]	1262796	0	1
+Clostridiales species incertae sedis [meta_mOTU_v31_12452]	NA	0	1
+Clostridium sp. CAG:780 [meta_mOTU_v31_12821]	1262839	0	1
+Alistipes species incertae sedis [meta_mOTU_v31_13041]	NA	0	1
+unassigned	NA	3	1

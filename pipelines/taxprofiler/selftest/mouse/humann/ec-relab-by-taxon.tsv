@@ -1,0 +1,393 @@
+# Gene Family	mouse_genefamilies-RELAB
+UNGROUPED|g__Akkermansia.s__Akkermansia_muciniphila	0.0103104
+UNGROUPED|g__Bacteroides.s__Bacteroides_vulgatus	0.115659
+UNGROUPED|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	0.00628768
+UNGROUPED|g__Lactococcus.s__Lactococcus_lactis	0.0181193
+UNGROUPED|unclassified	0.0904138
+1.1.1.1: Alcohol dehydrogenase|g__Lactococcus.s__Lactococcus_lactis	4.98672e-05
+1.1.1.133: dTDP-4-dehydrorhamnose reductase|g__Bacteroides.s__Bacteroides_vulgatus	6.45177e-05
+1.1.1.193: 5-amino-6-(5-phosphoribosylamino)uracil reductase|g__Bacteroides.s__Bacteroides_vulgatus	2.81642e-05
+1.1.1.193: 5-amino-6-(5-phosphoribosylamino)uracil reductase|unclassified	1.92806e-05
+1.1.1.205: IMP dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	7.26657e-05
+1.1.1.205: IMP dehydrogenase|unclassified	4.17946e-05
+1.1.1.267: 1-deoxy-D-xylulose-5-phosphate reductoisomerase|g__Bacteroides.s__Bacteroides_vulgatus	6.10986e-05
+1.1.1.271: GDP-L-fucose synthase|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	3.81008e-05
+1.1.1.290: 4-phosphoerythronate dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	7.61239e-05
+1.1.1.290: 4-phosphoerythronate dehydrogenase|unclassified	2.80834e-05
+1.1.1.37: Malate dehydrogenase|unclassified	3.42651e-05
+1.1.1.44: Phosphogluconate dehydrogenase (NADP(+)-dependent, decarboxylating)|g__Bacteroides.s__Bacteroides_vulgatus	7.093e-05
+1.1.1.58: Tagaturonate reductase|g__Bacteroides.s__Bacteroides_vulgatus	1.9715e-05
+1.1.1.86: Ketol-acid reductoisomerase (NADP(+))|unclassified	6.00299e-05
+1.1.1.94: Glycerol-3-phosphate dehydrogenase (NAD(P)(+))|g__Bacteroides.s__Bacteroides_vulgatus	2.40495e-05
+1.1.1.95: Phosphoglycerate dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	3.22585e-05
+1.12.7.2: Ferredoxin hydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	5.0208e-05
+1.16.3.2: Bacterial non-heme ferritin|g__Bacteroides.s__Bacteroides_vulgatus	8.3935e-05
+1.16.3.2: Bacterial non-heme ferritin|unclassified	2.20671e-05
+1.17.7.3: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase (flavodoxin)|g__Bacteroides.s__Bacteroides_vulgatus	5.10146e-05
+1.17.7.3: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase (flavodoxin)|unclassified	2.55664e-05
+1.17.99.6: Epoxyqueuosine reductase|g__Akkermansia.s__Akkermansia_muciniphila	3.9738e-05
+1.2.1.10: Acetaldehyde dehydrogenase (acetylating)|g__Lactococcus.s__Lactococcus_lactis	4.98672e-05
+1.2.1.22: Lactaldehyde dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	4.58301e-05
+1.2.1.41: Glutamate-5-semialdehyde dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	6.90597e-05
+1.2.7.7: 3-methyl-2-oxobutanoate dehydrogenase (ferredoxin)|g__Bacteroides.s__Bacteroides_vulgatus	3.2093e-05
+1.2.7.8: Indolepyruvate ferredoxin oxidoreductase|g__Bacteroides.s__Bacteroides_vulgatus	6.65279e-05
+1.3.1.14: Dihydroorotate dehydrogenase (NAD(+))|g__Bacteroides.s__Bacteroides_vulgatus	5.34011e-05
+1.3.1.9: Enoyl-[acyl-carrier-protein] reductase (NADH)|unclassified	2.45723e-05
+1.3.1.98: UDP-N-acetylmuramate dehydrogenase|g__Akkermansia.s__Akkermansia_muciniphila	2.368e-05
+1.3.1.98: UDP-N-acetylmuramate dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	4.70968e-05
+1.3.5.1: Succinate dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_vulgatus	4.76418e-05
+1.4.1.1: Alanine dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	7.55949e-05
+1.4.1.13: Glutamate synthase (NADPH)|g__Bacteroides.s__Bacteroides_vulgatus	6.02457e-05
+1.4.1.13: Glutamate synthase (NADPH)|unclassified	2.63991e-05
+1.4.1.16: Diaminopimelate dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	4.06917e-05
+1.4.1.2: Glutamate dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	5.97305e-05
+1.4.1.3: Glutamate dehydrogenase (NAD(P)(+))|unclassified	4.34935e-05
+1.4.3.16: L-aspartate oxidase|g__Bacteroides.s__Bacteroides_vulgatus	3.54662e-05
+1.4.3.16: L-aspartate oxidase|unclassified	3.9738e-05
+1.4.4.2: Glycine dehydrogenase (aminomethyl-transferring)|unclassified	2.92804e-05
+1.5.1.20: Methylenetetrahydrofolate reductase (NAD(P)H)|g__Akkermansia.s__Akkermansia_muciniphila	4.27434e-05
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Akkermansia.s__Akkermansia_muciniphila	2.80246e-05
+1.5.1.5: Methylenetetrahydrofolate dehydrogenase (NADP(+))|g__Bacteroides.s__Bacteroides_vulgatus	5.55897e-05
+1.6.5.11: NADH dehydrogenase (quinone)|g__Bacteroides.s__Bacteroides_vulgatus	0.000124508
+1.6.5.11: NADH dehydrogenase (quinone)|unclassified	0.00016168
+1.6.99.1: NADPH dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	3.7888e-05
+1.8.1.4: Dihydrolipoyl dehydrogenase|g__Bacteroides.s__Bacteroides_vulgatus	6.83319e-05
+1.8.1.4: Dihydrolipoyl dehydrogenase|unclassified	3.50015e-05
+1.8.1.9: Thioredoxin-disulfide reductase|g__Bacteroides.s__Bacteroides_vulgatus	5.09921e-05
+1.8.1.9: Thioredoxin-disulfide reductase|unclassified	6.78446e-05
+1.8.4.11: Peptide-methionine (S)-S-oxide reductase|g__Bacteroides.s__Bacteroides_vulgatus	5.32402e-05
+2.1.1.13: Methionine synthase|g__Bacteroides.s__Bacteroides_vulgatus	4.10198e-05
+2.1.1.133: Precorrin-4 C(11)-methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.7544e-05
+2.1.1.163: Demethylmenaquinone methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.59513e-05
+2.1.1.172: 16S rRNA (guanine(1207)-N(2))-methyltransferase|g__Lactococcus.s__Lactococcus_lactis	2.27582e-05
+2.1.1.173: 23S rRNA (guanine(2445)-N(2))-methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.5226e-05
+2.1.1.177: 23S rRNA (pseudouridine(1915)-N(3))-methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.13979e-05
+2.1.1.228: tRNA (guanine(37)-N(1))-methyltransferase|unclassified	4.04201e-05
+2.1.1.33: tRNA (guanine(46)-N(7))-methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	7.51693e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|g__Akkermansia.s__Akkermansia_muciniphila	5.09921e-05
+2.1.1.63: Methylated-DNA--[protein]-cysteine S-methyltransferase|unclassified	8.43512e-05
+2.1.1.72: Site-specific DNA-methyltransferase (adenine-specific)|unclassified	2.22314e-05
+2.1.2.10: Aminomethyltransferase|g__Akkermansia.s__Akkermansia_muciniphila	3.17202e-05
+2.1.2.2: Phosphoribosylglycinamide formyltransferase|g__Lactococcus.s__Lactococcus_lactis	5.09921e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|g__Akkermansia.s__Akkermansia_muciniphila	6.54909e-05
+2.1.2.3: Phosphoribosylaminoimidazolecarboxamide formyltransferase|unclassified	4.13981e-05
+2.1.2.5: Glutamate formimidoyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.72845e-05
+2.1.3.2: Aspartate carbamoyltransferase|unclassified	2.1144e-05
+2.1.3.9: N-acetylornithine carbamoyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	6.66752e-05
+2.2.1.1: Transketolase|unclassified	2.70039e-05
+2.2.1.6: Acetolactate synthase|g__Bacteroides.s__Bacteroides_vulgatus	4.92874e-05
+2.2.1.7: 1-deoxy-D-xylulose-5-phosphate synthase|g__Bacteroides.s__Bacteroides_vulgatus	8.14299e-05
+2.2.1.9: synthase|g__Bacteroides.s__Bacteroides_vulgatus	5.99474e-05
+2.3.1.129: Acyl-[acyl-carrier-protein]--UDP-N-acetylglucosamine O-acyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.21842e-05
+2.3.1.16: Acetyl-CoA C-acyltransferase|g__Lactococcus.s__Lactococcus_lactis	4.03687e-05
+2.3.1.179: Beta-ketoacyl-[acyl-carrier-protein] synthase II|g__Bacteroides.s__Bacteroides_vulgatus	7.34896e-05
+2.3.1.180: Beta-ketoacyl-[acyl-carrier-protein] synthase III|g__Bacteroides.s__Bacteroides_vulgatus	2.37963e-05
+2.3.1.30: Serine O-acetyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.69107e-05
+2.3.1.30: Serine O-acetyltransferase|unclassified	2.42341e-05
+2.3.1.39: [Acyl-carrier-protein] S-malonyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.13533e-05
+2.3.1.41: Beta-ketoacyl-[acyl-carrier-protein] synthase I|unclassified	3.54853e-05
+2.3.1.54: Formate C-acetyltransferase|unclassified	3.6284e-05
+2.3.1.81: Aminoglycoside N(3')-acetyltransferase|unclassified	4.02268e-05
+2.3.1.86: Fatty-acyl-CoA synthase|g__Bacteroides.s__Bacteroides_vulgatus	6.07906e-05
+2.3.1.9: Acetyl-CoA C-acetyltransferase|g__Lactococcus.s__Lactococcus_lactis	4.03687e-05
+2.3.1.n3: Glycerol-3-phosphate acyltransferase (acyl-phosphate transferring)|unclassified	8.05718e-05
+2.3.2.6: Leucyltransferase|unclassified	6.78902e-05
+2.3.3.13: 2-isopropylmalate synthase|g__Bacteroides.s__Bacteroides_vulgatus	0.00011045
+2.3.3.13: 2-isopropylmalate synthase|unclassified	5.26185e-05
+2.4.1.21: Starch synthase|unclassified	4.25174e-05
+2.4.1.280: N,N'-diacetylchitobiose phosphorylase|unclassified	3.96787e-05
+2.4.1.281: 4-O-beta-D-mannosyl-D-glucose phosphorylase|g__Bacteroides.s__Bacteroides_vulgatus	0.000107897
+2.4.1.54: Undecaprenyl-phosphate mannosyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.8754e-05
+2.4.1.8: Maltose phosphorylase|g__Lactococcus.s__Lactococcus_lactis	3.38131e-05
+2.4.2.1: Purine-nucleoside phosphorylase|g__Bacteroides.s__Bacteroides_vulgatus	8.47743e-05
+2.4.2.1: Purine-nucleoside phosphorylase|unclassified	5.12497e-05
+2.4.2.10: Orotate phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	7.28123e-05
+2.4.2.10: Orotate phosphoribosyltransferase|unclassified	4.46761e-05
+2.4.2.14: Amidophosphoribosyltransferase|unclassified	8.34913e-05
+2.4.2.17: ATP phosphoribosyltransferase|unclassified	3.29487e-05
+2.4.2.19: Nicotinate-nucleotide diphosphorylase (carboxylating)|unclassified	6.3541e-05
+2.4.2.21: Nicotinate-nucleotide--dimethylbenzimidazole phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.4368e-05
+2.4.2.22: Xanthine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.43955e-05
+2.4.2.29: tRNA-guanine(34) transglycosylase|g__Bacteroides.s__Bacteroides_vulgatus	3.11098e-05
+2.4.2.29: tRNA-guanine(34) transglycosylase|unclassified	2.35572e-05
+2.4.2.7: Adenine phosphoribosyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.06917e-05
+2.4.2.8: Hypoxanthine phosphoribosyltransferase|unclassified	4.1279e-05
+2.4.2.9: Uracil phosphoribosyltransferase|g__Akkermansia.s__Akkermansia_muciniphila	3.9738e-05
+2.4.99.17: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_vulgatus	7.29845e-05
+2.5.1.17: Cob(I)yrinic acid a,c-diamide adenosyltransferase|unclassified	1.98496e-05
+2.5.1.3: Thiamine-phosphate diphosphorylase|g__Akkermansia.s__Akkermansia_muciniphila	3.28159e-05
+2.5.1.6: Methionine adenosyltransferase|g__Lactococcus.s__Lactococcus_lactis	2.42212e-05
+2.5.1.6: Methionine adenosyltransferase|unclassified	2.85926e-05
+2.5.1.7: UDP-N-acetylglucosamine 1-carboxyvinyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.96347e-05
+2.5.1.72: Quinolinate synthase|g__Bacteroides.s__Bacteroides_vulgatus	4.82701e-05
+2.5.1.74: 1,4-dihydroxy-2-naphthoate polyprenyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.74573e-05
+2.5.1.75: tRNA dimethylallyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.61354e-05
+2.5.1.75: tRNA dimethylallyltransferase|unclassified	3.03715e-05
+2.5.1.78: 6,7-dimethyl-8-ribityllumazine synthase|g__Bacteroides.s__Bacteroides_vulgatus	8.05396e-05
+2.5.1.9: Riboflavin synthase|g__Bacteroides.s__Bacteroides_vulgatus	2.24568e-05
+2.6.1.1: Aspartate transaminase|g__Bacteroides.s__Bacteroides_vulgatus	6.5211e-05
+2.6.1.1: Aspartate transaminase|unclassified	5.03818e-05
+2.6.1.13: Ornithine aminotransferase|unclassified	5.28928e-05
+2.6.1.83: LL-diaminopimelate aminotransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.35484e-05
+2.6.1.9: Histidinol-phosphate transaminase|unclassified	3.60899e-05
+2.7.1.11: 6-phosphofructokinase|g__Akkermansia.s__Akkermansia_muciniphila	3.1282e-05
+2.7.1.11: 6-phosphofructokinase|unclassified	2.96731e-05
+2.7.1.144: Tagatose-6-phosphate kinase|g__Lactococcus.s__Lactococcus_lactis	5.82851e-05
+2.7.1.180: FAD:protein FMN transferase|g__Bacteroides.s__Bacteroides_vulgatus	6.32272e-05
+2.7.1.180: FAD:protein FMN transferase|unclassified	4.77692e-05
+2.7.1.21: Thymidine kinase|unclassified	3.02765e-05
+2.7.1.23: NAD(+) kinase|g__Bacteroides.s__Bacteroides_vulgatus	5.62914e-05
+2.7.1.23: NAD(+) kinase|unclassified	1.83186e-05
+2.7.1.24: Dephospho-CoA kinase|g__Akkermansia.s__Akkermansia_muciniphila	3.34635e-05
+2.7.1.26: Riboflavin kinase|g__Akkermansia.s__Akkermansia_muciniphila	2.58853e-05
+2.7.1.26: Riboflavin kinase|g__Bacteroides.s__Bacteroides_vulgatus	3.95833e-05
+2.7.1.30: Glycerol kinase|g__Bacteroides.s__Bacteroides_vulgatus	3.39852e-05
+2.7.1.35: Pyridoxal kinase|g__Bacteroides.s__Bacteroides_vulgatus	7.73873e-05
+2.7.1.40: Pyruvate kinase|g__Bacteroides.s__Bacteroides_vulgatus	4.25807e-05
+2.7.1.49: Hydroxymethylpyrimidine kinase|g__Bacteroides.s__Bacteroides_vulgatus	6.6213e-05
+2.7.1.69: Protein-N(pi)-phosphohistidine--sugar phosphotransferase|unclassified	0.000111316
+2.7.1.90: Diphosphate--fructose-6-phosphate 1-phosphotransferase|g__Bacteroides.s__Bacteroides_vulgatus	5.10689e-05
+2.7.10.2: Non-specific protein-tyrosine kinase|g__Bacteroides.s__Bacteroides_vulgatus	4.83697e-05
+2.7.11.1: Non-specific serine/threonine protein kinase|g__Bacteroides.s__Bacteroides_vulgatus	5.42266e-05
+2.7.11.1: Non-specific serine/threonine protein kinase|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	5.13784e-05
+2.7.13.3: Histidine kinase|g__Akkermansia.s__Akkermansia_muciniphila	2.30365e-05
+2.7.13.3: Histidine kinase|g__Bacteroides.s__Bacteroides_vulgatus	0.000246523
+2.7.13.3: Histidine kinase|unclassified	5.01668e-05
+2.7.2.1: Acetate kinase|g__Bacteroides.s__Bacteroides_vulgatus	4.37231e-05
+2.7.2.11: Glutamate 5-kinase|unclassified	5.8045e-05
+2.7.2.4: Aspartate kinase|g__Bacteroides.s__Bacteroides_vulgatus	4.7431e-05
+2.7.2.7: Butyrate kinase|g__Bacteroides.s__Bacteroides_vulgatus	6.11487e-05
+2.7.2.8: Acetylglutamate kinase|g__Bacteroides.s__Bacteroides_vulgatus	6.2813e-05
+2.7.2.8: Acetylglutamate kinase|unclassified	5.34407e-05
+2.7.3.9: Phosphoenolpyruvate--protein phosphotransferase|unclassified	3.06831e-05
+2.7.4.16: Thiamine-phosphate kinase|g__Bacteroides.s__Bacteroides_vulgatus	5.13784e-05
+2.7.4.22: UMP kinase|g__Bacteroides.s__Bacteroides_vulgatus	3.62671e-05
+2.7.4.25: (d)CMP kinase|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	2.97454e-05
+2.7.4.6: Nucleoside-diphosphate kinase|g__Bacteroides.s__Bacteroides_vulgatus	0.000128772
+2.7.4.8: Guanylate kinase|g__Bacteroides.s__Bacteroides_vulgatus	0.000121106
+2.7.6.2: Thiamine diphosphokinase|g__Bacteroides.s__Bacteroides_vulgatus	4.18639e-05
+2.7.6.3: 2-amino-4-hydroxy-6-hydroxymethyldihydropteridine diphosphokinase|g__Bacteroides.s__Bacteroides_vulgatus	3.42522e-05
+2.7.7.18: Nicotinate-nucleotide adenylyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	0.000104162
+2.7.7.2: FAD synthetase|g__Akkermansia.s__Akkermansia_muciniphila	2.58853e-05
+2.7.7.2: FAD synthetase|g__Bacteroides.s__Bacteroides_vulgatus	3.95833e-05
+2.7.7.22: Mannose-1-phosphate guanylyltransferase (GDP)|g__Bacteroides.s__Bacteroides_vulgatus	6.67077e-05
+2.7.7.24: Glucose-1-phosphate thymidylyltransferase|unclassified	3.67622e-05
+2.7.7.3: Pantetheine-phosphate adenylyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	3.32448e-05
+2.7.7.41: Phosphatidate cytidylyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.46398e-05
+2.7.7.49: RNA-directed DNA polymerase|unclassified	2.93792e-05
+2.7.7.6: DNA-directed RNA polymerase|g__Bacteroides.s__Bacteroides_vulgatus	7.6787e-05
+2.7.7.6: DNA-directed RNA polymerase|unclassified	0.000142111
+2.7.7.7: DNA-directed DNA polymerase|g__Akkermansia.s__Akkermansia_muciniphila	2.23417e-05
+2.7.7.7: DNA-directed DNA polymerase|g__Bacteroides.s__Bacteroides_vulgatus	8.03036e-05
+2.7.7.72: CCA tRNA nucleotidyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	2.99698e-05
+2.7.7.8: Polyribonucleotide nucleotidyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.34283e-05
+2.7.8.13: Phospho-N-acetylmuramoyl-pentapeptide-transferase|unclassified	5.51725e-05
+2.7.8.26: Adenosylcobinamide-GDP ribazoletransferase|g__Bacteroides.s__Bacteroides_vulgatus	4.23872e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|g__Akkermansia.s__Akkermansia_muciniphila	3.85338e-05
+2.8.1.13: tRNA-uridine 2-sulfurtransferase|unclassified	2.02547e-05
+2.8.1.4: tRNA sulfurtransferase|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	2.95724e-05
+2.8.1.7: Cysteine desulfurase|g__Bacteroides.s__Bacteroides_vulgatus	3.82081e-05
+2.8.1.8: Lipoyl synthase|g__Bacteroides.s__Bacteroides_vulgatus	5.05038e-05
+2.8.1.8: Lipoyl synthase|unclassified	5.50735e-05
+2.8.4.4: [Ribosomal protein S12] (aspartate(89)-C(3))-methylthiotransferase|g__Akkermansia.s__Akkermansia_muciniphila	2.10358e-05
+3.1.1.11: Pectinesterase|g__Bacteroides.s__Bacteroides_vulgatus	5.15799e-05
+3.1.1.31: 6-phosphogluconolactonase|g__Bacteroides.s__Bacteroides_vulgatus	7.33183e-05
+3.1.1.96: D-aminoacyl-tRNA deacylase|g__Bacteroides.s__Bacteroides_vulgatus	3.3574e-05
+3.1.1.96: D-aminoacyl-tRNA deacylase|unclassified	2.53689e-05
+3.1.11.6: Exodeoxyribonuclease VII|g__Bacteroides.s__Bacteroides_vulgatus	0.000133726
+3.1.11.6: Exodeoxyribonuclease VII|g__Lactococcus.s__Lactococcus_lactis	7.95527e-05
+3.1.12.1: 5' to 3' exodeoxyribonuclease (nucleoside 3'-phosphate-forming)|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	2.97454e-05
+3.1.21.2: Deoxyribonuclease IV|unclassified	2.57135e-05
+3.1.26.11: Ribonuclease Z|unclassified	2.26884e-05
+3.1.26.5: Ribonuclease P|g__Bacteroides.s__Bacteroides_vulgatus	0.000144711
+3.1.26.5: Ribonuclease P|g__Lactococcus.s__Lactococcus_lactis	5.13784e-05
+3.1.3.11: Fructose-bisphosphatase|g__Bacteroides.s__Bacteroides_vulgatus	3.02275e-05
+3.1.3.15: Histidinol-phosphatase|unclassified	2.57054e-05
+3.1.3.2: Acid phosphatase|g__Bacteroides.s__Bacteroides_vulgatus	4.05619e-05
+3.1.3.25: Inositol-phosphate phosphatase|g__Akkermansia.s__Akkermansia_muciniphila	4.13533e-05
+3.1.3.48: Protein-tyrosine-phosphatase|g__Bacteroides.s__Bacteroides_vulgatus	2.66307e-05
+3.1.3.7: 3'(2'),5'-bisphosphate nucleotidase|g__Bacteroides.s__Bacteroides_vulgatus	6.1654e-05
+3.1.4.46: Glycerophosphodiester phosphodiesterase|unclassified	2.84204e-05
+3.1.6.6: Choline-sulfatase|g__Bacteroides.s__Bacteroides_vulgatus	7.07265e-05
+3.2.1.131: Xylan alpha-1,2-glucuronosidase|g__Bacteroides.s__Bacteroides_vulgatus	6.70012e-05
+3.2.1.15: Polygalacturonase|g__Bacteroides.s__Bacteroides_vulgatus	6.05336e-05
+3.2.1.17: Lysozyme|g__Lactococcus.s__Lactococcus_lactis	2.12823e-05
+3.2.1.172: Unsaturated rhamnogalacturonyl hydrolase|g__Bacteroides.s__Bacteroides_vulgatus	4.67076e-05
+3.2.1.185: Non-reducing end beta-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_vulgatus	5.62175e-05
+3.2.1.21: Beta-glucosidase|unclassified	2.45791e-05
+3.2.1.22: Alpha-galactosidase|g__Bacteroides.s__Bacteroides_vulgatus	0.00018053
+3.2.1.23: Beta-galactosidase|g__Bacteroides.s__Bacteroides_vulgatus	0.000278101
+3.2.1.23: Beta-galactosidase|unclassified	4.70684e-05
+3.2.1.37: Xylan 1,4-beta-xylosidase|unclassified	4.9364e-05
+3.2.1.40: Alpha-L-rhamnosidase|g__Bacteroides.s__Bacteroides_vulgatus	3.04706e-05
+3.2.1.50: Alpha-N-acetylglucosaminidase|g__Bacteroides.s__Bacteroides_vulgatus	6.78195e-05
+3.2.1.51: Alpha-L-fucosidase|unclassified	2.94905e-05
+3.2.1.52: Beta-N-acetylhexosaminidase|g__Bacteroides.s__Bacteroides_vulgatus	7.29018e-05
+3.2.1.55: Non-reducing end alpha-L-arabinofuranosidase|g__Bacteroides.s__Bacteroides_vulgatus	0.000188864
+3.2.1.82: Exo-poly-alpha-galacturonosidase|g__Bacteroides.s__Bacteroides_vulgatus	6.05336e-05
+3.2.1.99: Arabinan endo-1,5-alpha-L-arabinosidase|g__Bacteroides.s__Bacteroides_vulgatus	6.43921e-05
+3.2.1.n1: Blood group B branched chain alpha-1,3-galactosidase|g__Bacteroides.s__Bacteroides_vulgatus	3.96427e-05
+3.2.1.n2: Blood group B linear chain alpha-1,3-galactosidase|g__Bacteroides.s__Bacteroides_vulgatus	3.96427e-05
+3.2.2.15: DNA-deoxyinosine glycosylase|unclassified	3.44197e-05
+3.2.2.27: Uracil-DNA glycosylase|unclassified	2.4363e-05
+3.2.2.4: AMP nucleosidase|g__Bacteroides.s__Bacteroides_vulgatus	5.46713e-05
+3.2.2.9: Adenosylhomocysteine nucleosidase|g__Bacteroides.s__Bacteroides_vulgatus	4.54871e-05
+3.2.2.n1: Cytokinin riboside 5'-monophosphate phosphoribohydrolase|g__Bacteroides.s__Bacteroides_vulgatus	9.94356e-05
+3.4.11.18: Methionyl aminopeptidase|g__Bacteroides.s__Bacteroides_vulgatus	7.06453e-05
+3.4.11.4: Tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_vulgatus	6.37941e-05
+3.4.13.18: Cytosol nonspecific dipeptidase|g__Bacteroides.s__Bacteroides_vulgatus	4.26781e-05
+3.4.13.21: Dipeptidase E|unclassified	2.34399e-05
+3.4.13.22: D-Ala-D-Ala dipeptidase|g__Bacteroides.s__Bacteroides_vulgatus	6.7229e-05
+3.4.14.12: Xaa-Xaa-Pro tripeptidyl-peptidase|unclassified	3.24817e-05
+3.4.15.5: Peptidyl-dipeptidase Dcp|unclassified	2.16113e-05
+3.4.16.4: Serine-type D-Ala-D-Ala carboxypeptidase|g__Bacteroides.s__Bacteroides_vulgatus	3.63596e-05
+3.4.21.89: Signal peptidase I|g__Bacteroides.s__Bacteroides_vulgatus	6.4115e-05
+3.4.21.89: Signal peptidase I|unclassified	5.67098e-05
+3.4.21.92: Endopeptidase Clp|g__Bacteroides.s__Bacteroides_vulgatus	5.8465e-05
+3.4.21.96: Lactocepin|g__Lactococcus.s__Lactococcus_lactis	3.74903e-05
+3.5.1.1: Asparaginase|g__Bacteroides.s__Bacteroides_vulgatus	4.06917e-05
+3.5.1.10: Formyltetrahydrofolate deformylase|g__Bacteroides.s__Bacteroides_vulgatus	7.90269e-05
+3.5.1.100: (R)-amidase|g__Bacteroides.s__Bacteroides_vulgatus	4.98672e-05
+3.5.1.104: Peptidoglycan-N-acetylglucosamine deacetylase|unclassified	4.51408e-05
+3.5.1.108: UDP-3-O-acyl-N-acetylglucosamine deacetylase|g__Akkermansia.s__Akkermansia_muciniphila	2.61515e-05
+3.5.1.108: UDP-3-O-acyl-N-acetylglucosamine deacetylase|g__Bacteroides.s__Bacteroides_vulgatus	4.93831e-05
+3.5.1.18: Succinyl-diaminopimelate desuccinylase|g__Bacteroides.s__Bacteroides_vulgatus	3.38252e-05
+3.5.1.2: Glutaminase|g__Bacteroides.s__Bacteroides_vulgatus	0.000149185
+3.5.1.28: N-acetylmuramoyl-L-alanine amidase|g__Bacteroides.s__Bacteroides_vulgatus	5.68955e-05
+3.5.1.5: Urease|unclassified	1.97567e-05
+3.5.1.88: Peptide deformylase|g__Lactococcus.s__Lactococcus_lactis	6.27958e-05
+3.5.1.88: Peptide deformylase|unclassified	1.99665e-05
+3.5.2.3: Dihydroorotase|g__Bacteroides.s__Bacteroides_vulgatus	4.27075e-05
+3.5.2.6: Beta-lactamase|g__Bacteroides.s__Bacteroides_vulgatus	4.72575e-05
+3.5.3.18: Dimethylargininase|g__Bacteroides.s__Bacteroides_vulgatus	5.86786e-05
+3.5.4.10: IMP cyclohydrolase|g__Akkermansia.s__Akkermansia_muciniphila	6.54909e-05
+3.5.4.10: IMP cyclohydrolase|unclassified	4.13981e-05
+3.5.4.12: dCMP deaminase|g__Bacteroides.s__Bacteroides_vulgatus	3.56944e-05
+3.5.4.16: GTP cyclohydrolase I|g__Akkermansia.s__Akkermansia_muciniphila	3.94299e-05
+3.5.4.25: GTP cyclohydrolase II|unclassified	3.49698e-05
+3.5.4.26: Diaminohydroxyphosphoribosylaminopyrimidine deaminase|g__Bacteroides.s__Bacteroides_vulgatus	2.81642e-05
+3.5.4.26: Diaminohydroxyphosphoribosylaminopyrimidine deaminase|unclassified	1.92806e-05
+3.5.4.33: tRNA(adenine(34)) deaminase|g__Bacteroides.s__Bacteroides_vulgatus	7.13889e-05
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Akkermansia.s__Akkermansia_muciniphila	2.80246e-05
+3.5.4.9: Methenyltetrahydrofolate cyclohydrolase|g__Bacteroides.s__Bacteroides_vulgatus	5.55897e-05
+3.6.1.23: dUTP diphosphatase|g__Lactococcus.s__Lactococcus_lactis	0.000128795
+3.6.1.23: dUTP diphosphatase|unclassified	7.74243e-05
+3.6.1.31: Phosphoribosyl-ATP diphosphatase|unclassified	5.59642e-05
+3.6.1.66: XTP/dITP diphosphatase|g__Lactococcus.s__Lactococcus_lactis	4.46181e-05
+3.6.3.12: Potassium-transporting ATPase|unclassified	7.79273e-05
+3.6.3.14: H(+)-transporting two-sector ATPase|unclassified	2.96923e-05
+3.6.3.34: Iron-chelate-transporting ATPase|g__Bacteroides.s__Bacteroides_vulgatus	7.04618e-05
+3.6.3.4: Cu(2+)-exporting ATPase|unclassified	2.59028e-05
+3.6.3.8: Calcium-transporting ATPase|g__Bacteroides.s__Bacteroides_vulgatus	5.11193e-05
+3.6.4.12: DNA helicase|g__Akkermansia.s__Akkermansia_muciniphila	2.99048e-05
+3.6.4.12: DNA helicase|g__Bacteroides.s__Bacteroides_vulgatus	0.000113954
+3.6.4.12: DNA helicase|unclassified	0.000179416
+4.1.1.15: Glutamate decarboxylase|g__Bacteroides.s__Bacteroides_vulgatus	4.73862e-05
+4.1.1.23: Orotidine-5'-phosphate decarboxylase|g__Bacteroides.s__Bacteroides_vulgatus	6.8405e-05
+4.1.1.23: Orotidine-5'-phosphate decarboxylase|unclassified	8.99611e-05
+4.1.1.48: Indole-3-glycerol-phosphate synthase|g__Akkermansia.s__Akkermansia_muciniphila	3.99879e-05
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|g__Bacteroides.s__Bacteroides_vulgatus	3.48865e-05
+4.1.1.49: Phosphoenolpyruvate carboxykinase (ATP)|unclassified	2.23939e-05
+4.1.2.13: Fructose-bisphosphate aldolase|g__Bacteroides.s__Bacteroides_vulgatus	5.93815e-05
+4.1.2.13: Fructose-bisphosphate aldolase|unclassified	3.21137e-05
+4.1.2.25: Dihydroneopterin aldolase|g__Bacteroides.s__Bacteroides_vulgatus	4.64517e-05
+4.1.2.4: Deoxyribose-phosphate aldolase|g__Bacteroides.s__Bacteroides_vulgatus	3.82441e-05
+4.1.2.5: L-threonine aldolase|unclassified	2.01994e-05
+4.1.3.3: N-acetylneuraminate lyase|g__Bacteroides.s__Bacteroides_vulgatus	3.10354e-05
+4.1.99.12: 3,4-dihydroxy-2-butanone-4-phosphate synthase|unclassified	3.49698e-05
+4.1.99.17: Phosphomethylpyrimidine synthase|g__Bacteroides.s__Bacteroides_vulgatus	2.62358e-05
+4.2.1.1: Carbonate dehydratase|unclassified	4.13955e-05
+4.2.1.10: 3-dehydroquinate dehydratase|unclassified	2.03254e-05
+4.2.1.11: Phosphopyruvate hydratase|unclassified	5.8615e-05
+4.2.1.136: ADP-dependent NAD(P)H-hydrate dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	4.40386e-05
+4.2.1.2: Fumarate hydratase|unclassified	2.44187e-05
+4.2.1.20: Tryptophan synthase|g__Bacteroides.s__Bacteroides_vulgatus	4.60502e-05
+4.2.1.33: 3-isopropylmalate dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	5.8465e-05
+4.2.1.42: Galactarate dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	4.50393e-05
+4.2.1.46: dTDP-glucose 4,6-dehydratase|unclassified	3.04781e-05
+4.2.1.47: GDP-mannose 4,6-dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	0.000146454
+4.2.1.49: Urocanate hydratase|g__Bacteroides.s__Bacteroides_vulgatus	8.23364e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Akkermansia.s__Akkermansia_muciniphila	2.61515e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	4.93831e-05
+4.2.1.8: Mannonate dehydratase|g__Bacteroides.s__Bacteroides_vulgatus	4.94072e-05
+4.2.1.9: Dihydroxy-acid dehydratase|unclassified	3.76214e-05
+4.2.3.1: Threonine synthase|g__Bacteroides.s__Bacteroides_vulgatus	2.96011e-05
+4.2.3.3: Methylglyoxal synthase|unclassified	2.15072e-05
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|g__Bacteroides.s__Bacteroides_vulgatus	6.1654e-05
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|unclassified	5.10642e-05
+4.3.1.19: Threonine ammonia-lyase|unclassified	3.99731e-05
+4.3.1.3: Histidine ammonia-lyase|g__Bacteroides.s__Bacteroides_vulgatus	0.000101905
+4.3.2.1: Argininosuccinate lyase|g__Bacteroides.s__Bacteroides_vulgatus	5.97904e-05
+4.3.2.10: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	5.76696e-05
+4.3.2.2: Adenylosuccinate lyase|g__Bacteroides.s__Bacteroides_vulgatus	6.79894e-05
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|unclassified	5.91224e-05
+4.3.99.3: 7-carboxy-7-deazaguanine synthase|unclassified	2.0593e-05
+4.4.1.21: S-ribosylhomocysteine lyase|g__Bacteroides.s__Bacteroides_vulgatus	4.54148e-05
+4.4.1.8: Cystathionine beta-lyase|g__Bacteroides.s__Bacteroides_vulgatus	6.5211e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|g__Bacteroides.s__Bacteroides_vulgatus	7.6559e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|unclassified	2.37131e-05
+5.1.1.3: Glutamate racemase|g__Bacteroides.s__Bacteroides_vulgatus	3.65407e-05
+5.1.3.13: dTDP-4-dehydrorhamnose 3,5-epimerase|g__Bacteroides.s__Bacteroides_vulgatus	4.84425e-05
+5.1.3.2: UDP-glucose 4-epimerase|unclassified	4.714e-05
+5.1.3.3: Aldose 1-epimerase|g__Bacteroides.s__Bacteroides_vulgatus	9.49824e-05
+5.1.99.6: NAD(P)H-hydrate epimerase|g__Bacteroides.s__Bacteroides_vulgatus	4.40386e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Akkermansia.s__Akkermansia_muciniphila	9.96692e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Bacteroides.s__Bacteroides_vulgatus	0.000129371
+5.2.1.8: Peptidylprolyl isomerase|g__Lactococcus.s__Lactococcus_lactis	3.2632e-05
+5.2.1.8: Peptidylprolyl isomerase|unclassified	9.15415e-05
+5.3.1.1: Triose-phosphate isomerase|unclassified	5.81544e-05
+5.3.1.12: Glucuronate isomerase|g__Lactococcus.s__Lactococcus_lactis	4.5824e-05
+5.3.1.14: L-rhamnose isomerase|g__Bacteroides.s__Bacteroides_vulgatus	5.52876e-05
+5.3.1.16: isomerase|g__Bacteroides.s__Bacteroides_vulgatus	5.35417e-05
+5.3.1.17: 5-dehydro-4-deoxy-D-glucuronate isomerase|g__Bacteroides.s__Bacteroides_vulgatus	4.40386e-05
+5.3.1.24: Phosphoribosylanthranilate isomerase|g__Bacteroides.s__Bacteroides_vulgatus	4.3474e-05
+5.3.1.5: Xylose isomerase|g__Bacteroides.s__Bacteroides_vulgatus	2.3813e-05
+5.3.1.5: Xylose isomerase|unclassified	2.81305e-05
+5.3.1.9: Glucose-6-phosphate isomerase|unclassified	3.14951e-05
+5.4.2.11: Phosphoglycerate mutase (2,3-diphosphoglycerate-dependent)|g__Bacteroides.s__Bacteroides_vulgatus	6.78195e-05
+5.4.2.12: Phosphoglycerate mutase (2,3-diphosphoglycerate-independent)|g__Bacteroides.s__Bacteroides_vulgatus	4.77307e-05
+5.4.2.12: Phosphoglycerate mutase (2,3-diphosphoglycerate-independent)|unclassified	2.77925e-05
+5.4.2.6: Beta-phosphoglucomutase|unclassified	5.21101e-05
+5.4.2.7: Phosphopentomutase|unclassified	2.66036e-05
+5.4.3.2: Lysine 2,3-aminomutase|unclassified	4.26235e-05
+5.4.4.2: Isochorismate synthase|g__Bacteroides.s__Bacteroides_vulgatus	6.45422e-05
+5.4.4.2: Isochorismate synthase|unclassified	2.19244e-05
+5.4.99.18: 5-(carboxyamino)imidazole ribonucleotide mutase|g__Bacteroides.s__Bacteroides_vulgatus	5.65162e-05
+5.4.99.2: Methylmalonyl-CoA mutase|unclassified	5.27294e-05
+5.4.99.25: tRNA pseudouridine(55) synthase|g__Bacteroides.s__Bacteroides_vulgatus	4.46181e-05
+5.4.99.9: UDP-galactopyranose mutase|g__Bacteroides.s__Bacteroides_vulgatus	6.378e-05
+5.99.1.2: DNA topoisomerase|g__Bacteroides.s__Bacteroides_vulgatus	6.09937e-05
+5.99.1.3: DNA topoisomerase (ATP-hydrolyzing)|unclassified	6.4032e-05
+6.1.1.14: Glycine--tRNA ligase|g__Bacteroides.s__Bacteroides_vulgatus	3.28866e-05
+6.1.1.16: Cysteine--tRNA ligase|g__Bacteroides.s__Bacteroides_vulgatus	9.92852e-05
+6.1.1.18: Glutamine--tRNA ligase|unclassified	3.07748e-05
+6.1.1.19: Arginine--tRNA ligase|unclassified	5.25207e-05
+6.1.1.22: Asparagine--tRNA ligase|g__Bacteroides.s__Bacteroides_vulgatus	3.16913e-05
+6.1.1.4: Leucine--tRNA ligase|g__Bacteroides.s__Bacteroides_vulgatus	8.31913e-05
+6.1.1.6: Lysine--tRNA ligase|g__Akkermansia.s__Akkermansia_muciniphila	3.05493e-05
+6.1.1.6: Lysine--tRNA ligase|g__Bacteroides.s__Bacteroides_vulgatus	3.21724e-05
+6.1.1.6: Lysine--tRNA ligase|unclassified	3.17442e-05
+6.2.1.16: Acetoacetate--CoA ligase|g__Bacteroides.s__Bacteroides_vulgatus	6.07906e-05
+6.2.1.3: Long-chain-fatty-acid--CoA ligase|g__Bacteroides.s__Bacteroides_vulgatus	6.07906e-05
+6.2.1.5: Succinate--CoA ligase (ADP-forming)|g__Akkermansia.s__Akkermansia_muciniphila	1.9715e-05
+6.3.2.1: Pantoate--beta-alanine ligase (AMP-forming)|g__Bacteroides.s__Bacteroides_vulgatus	4.36606e-05
+6.3.2.10: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase|g__Bacteroides.s__Bacteroides_vulgatus	9.04259e-05
+6.3.2.5: Phosphopantothenate--cysteine ligase|g__Akkermansia.s__Akkermansia_muciniphila	2.85756e-05
+6.3.2.6: Phosphoribosylaminoimidazolesuccinocarboxamide synthase|g__Akkermansia.s__Akkermansia_muciniphila	3.62671e-05
+6.3.2.6: Phosphoribosylaminoimidazolesuccinocarboxamide synthase|unclassified	3.99723e-05
+6.3.2.8: UDP-N-acetylmuramate--L-alanine ligase|g__Akkermansia.s__Akkermansia_muciniphila	2.368e-05
+6.3.4.13: Phosphoribosylamine--glycine ligase|g__Bacteroides.s__Bacteroides_vulgatus	3.61501e-05
+6.3.4.20: 7-cyano-7-deazaguanine synthase|unclassified	2.50565e-05
+6.3.4.21: Nicotinate phosphoribosyltransferase|unclassified	3.27611e-05
+6.3.4.4: Adenylosuccinate synthase|g__Bacteroides.s__Bacteroides_vulgatus	2.72003e-05
+6.3.5.2: GMP synthase (glutamine-hydrolyzing)|unclassified	3.72398e-05
+6.3.5.3: Phosphoribosylformylglycinamidine synthase|g__Bacteroides.s__Bacteroides_vulgatus	3.83752e-05
+6.3.5.4: Asparagine synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_vulgatus	5.67939e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|g__Bacteroides.s__Bacteroides_vulgatus	3.852e-05
+6.3.5.5: Carbamoyl-phosphate synthase (glutamine-hydrolyzing)|unclassified	5.34522e-05
+6.4.1.2: Acetyl-CoA carboxylase|unclassified	2.85912e-05
+6.4.1.3: Propionyl-CoA carboxylase|unclassified	2.85912e-05
+7.1.2.2: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	0.000101478
+7.1.2.2: NO_NAME|unclassified	1.54227e-05
+7.2.1.1: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	3.8754e-05
+7.3.2.1: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	3.21419e-05

@@ -1,0 +1,8 @@
+lineage	total_genes	detected_genes	total_length	total_aligned_reads	RPKM	rel_abundance	sampleID
+k__Bacteria|p__Bacteroidetes|c__Bacteroidia|o__Bacteroidales|f__Bacteroidaceae|g__Bacteroides|s__Bacteroides_fragilis|t__SGB1855	200	151	167600	540	18.1490077090532	0.10614	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_1875_0|s__vSGB_6824	4	3	6459	18	15.6978566962755	0.09181	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_2221_3|s__vSGB_41704	8	6	13095	49	21.0777241680919	0.12327	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_647_0|s__vSGB_42442	10	8	11973	35	16.4663825739559	0.0963	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_817_0|s__vSGB_106591	5	4	12159	11	5.09598295004926	0.0298	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__VC_945_0|s__vSGB_36448	10	9	10752	153	80.1558667606559	0.46879	human
+k__Viruses|p__Uroviricota|c__Caudoviricetes|o__Unclassified_viruses|f__Unclassified_viruses|g__singleton_81207|s__vSGB_81207	4	4	5892	15	14.3404130461139	0.08387	human

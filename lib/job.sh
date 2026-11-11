@@ -8,8 +8,9 @@
 # Requires:    nextflow, sha256sum and stat, from the image; the settings and
 #              helpers from lib/env.sh, and record_write from lib/jobfile.sh
 # Runs:        pipelines/<name>/pipeline.sh's steps, Nextflow,
-#              steps/<name>_composition.sh, present/<name>.sh, and
-#              present/progress.sh in the background
+#              steps/<name>_composition.sh, present/prune_results.sh on a copy
+#              of the core tables, present/<name>.sh, and present/progress.sh
+#              in the background
 #
 # Compute makes the results: it takes each input's size and checksum, runs the
 # pipeline's pre-process steps, writes the params file, runs Nextflow and the
@@ -313,22 +314,27 @@ task_launch_failure() {
         "${name:-that failed}" "$node" "$id" "$node" "$(launch_failure_advice "$node" "$PWD" avoid)"
 }
 
-# The core tables' checksums, which the record keeps. An exact re-run compares
-# them with its record's, and with the record's tables where start_run found
-# them, in recorded-outputs/, and its notes say how they compare.
+# The core tables' checksums, which the record keeps, of the tables as Present
+# will publish them. An exact re-run compares them with its record's, and with
+# the record's tables where start_run found them, in recorded-outputs/, and its
+# notes say how they compare.
 record_outputs() {
     local pipeline=$1 outputs comparison
     set_run_stage "Taking the core tables' checksums."
-    outputs=$(outputs_measure "$pipeline" results) || fail "Couldn't take the core tables' checksums."
+    rm -rf published-outputs
+    outputs_published "$pipeline" results published-outputs || fail "Couldn't copy the core tables as Present will publish them."
+    outputs=$(outputs_measure "$pipeline" published-outputs) || fail "Couldn't take the core tables' checksums."
     [[ $outputs != "[]" ]] || warn "pipelines/$pipeline/stable-files names no table this run made, so the record holds no checksums."
     state_set_json outputs "$outputs" || fail "Couldn't record the core tables' checksums."
-    [[ $(state_get exact) == true ]] || return 0
-    comparison=$(outputs_compare "$pipeline" "$(state_get_json recorded_outputs)" "$outputs" \
-        "$([[ -d recorded-outputs ]] && echo "$PWD/recorded-outputs")" "$PWD/results") ||
-        fail "Couldn't compare the core tables with the record's."
-    state_set_json comparison "$comparison" || fail "Couldn't record how the core tables compare with the record's."
-    state_append notes "$(outputs_summary "$comparison" "the record's")" || :
-    log "$(outputs_summary "$comparison" "the record's")"
+    if [[ $(state_get exact) == true ]]; then
+        comparison=$(outputs_compare "$pipeline" "$(state_get_json recorded_outputs)" "$outputs" \
+            "$([[ -d recorded-outputs ]] && echo "$PWD/recorded-outputs")" "$PWD/published-outputs") ||
+            fail "Couldn't compare the core tables with the record's."
+        state_set_json comparison "$comparison" || fail "Couldn't record how the core tables compare with the record's."
+        state_append notes "$(outputs_summary "$comparison" "the record's")" || :
+        log "$(outputs_summary "$comparison" "the record's")"
+    fi
+    rm -rf published-outputs
 }
 
 # Fetches a pipeline from its repository into NXF_ASSETS, one run at a time,

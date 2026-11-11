@@ -1,0 +1,9 @@
+taxon	log1	log2	log3	std1	std2	std3
+Bacillaceae	11	12	13	48	61	72
+Enterobacteriaceae	0	0	0	18	9	9
+Enterococcaceae	0	0	0	89	99	72
+Lactobacillaceae	1	0	0	57	63	46
+Pseudomonadaceae	49	13	17	4	10	6
+Staphylococcaceae	0	0	1	151	118	127
+Unc. Bacteria	4	1	2	167	208	169
+Unc. N/A	2384	2427	2412	260	208	248

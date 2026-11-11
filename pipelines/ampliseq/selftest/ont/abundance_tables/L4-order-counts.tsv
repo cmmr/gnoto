@@ -1,0 +1,8 @@
+taxon	log1	log2	log3	std1	std2	std3
+Bacillales	11	12	13	48	61	72
+Enterobacterales	0	0	0	18	9	9
+Lactobacillales	1	0	0	146	162	118
+Pseudomonadales	49	13	17	4	10	6
+Staphylococcales	0	0	1	151	118	127
+Unc. Bacteria	4	1	2	167	208	169
+Unc. N/A	2384	2427	2412	260	208	248

@@ -4,7 +4,8 @@
 # the progress page retired.
 #
 # Sourced by:  present/ampliseq.sh, taxprofiler.sh and biobakery.sh, and
-#              present/progress.sh, and test/present/present-test.sh
+#              present/progress.sh, and test/present/present-test.sh; and
+#              outputs_published in lib/outputs.sh, for present_scrub
 # Defines:     present_run_id, present_title, present_sample_count,
 #              present_version, present_completed, present_expires,
 #              present_site_paths, present_redact, present_site_path_files,

@@ -1,0 +1,5 @@
+# Constructed from biom file
+#OTU ID	virus	taxonomy
+vSGB_75702	81	k__Viruses; p__Cossaviricota; c__Papovaviricetes; o__Sepolyvirales; f__Polyomaviridae; g__VC_5565_0; s__vSGB_75702
+vSGB_38475	90	k__Viruses; p__Preplasmiviricota; c__Tectiliviricetes; o__Rowavirales; f__Adenoviridae; g__VC_6302_0; s__vSGB_38475
+vSGB_38503	98	k__Viruses; p__Preplasmiviricota; c__Tectiliviricetes; o__Rowavirales; f__Adenoviridae; g__VC_6302_0; s__vSGB_38503

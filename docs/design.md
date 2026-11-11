@@ -1012,7 +1012,9 @@ inputs:
   model, lands in its `run` field. A re-run skips detection and keeps the original batches,
   whatever the files' paths.
 - **Output checksums are recorded.** At the end of compute, the job writes the
-  SHA-256 of every file in `stable-files` to `outputs`, read as that file says. A re-run
+  SHA-256 of every file in `stable-files` to `outputs`, read as that file says. They're
+  taken from a copy of the tables pruned and scrubbed as Present will publish them, since
+  a prune list can delete a core table or drop its empty rows. A re-run
   at any site compares its own core tables against them. A record published in
   `results/` has the run's tables beside it, so `run` copies each one whose checksum
   is the record's into the run directory, and where a table differs, the job compares

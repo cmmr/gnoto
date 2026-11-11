@@ -1,0 +1,1755 @@
+# Gene Family	mock_genefamilies
+UNGROUPED|g__Akkermansia.s__Akkermansia_muciniphila	1615.9396213526
+UNGROUPED|g__Bacteroides.s__Bacteroides_fragilis	55503.4771770062
+UNGROUPED|g__Bifidobacterium.s__Bifidobacterium_adolescentis	2019.4743889604
+UNGROUPED|g__Clostridioides.s__Clostridioides_difficile	1886.0405905345
+UNGROUPED|g__Escherichia.s__Escherichia_coli	88663.4555577937
+UNGROUPED|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	15333.0503815252
+UNGROUPED|g__Fusobacterium.s__Fusobacterium_nucleatum	8771.1819533707
+UNGROUPED|g__Lactobacillus.s__Lactobacillus_fermentum	896.4932133236999
+UNGROUPED|g__Prevotella.s__Prevotella_corporis	15938.5696951043
+UNGROUPED|g__Roseburia.s__Roseburia_hominis	2434.2180381003
+UNGROUPED|g__Veillonella.s__Veillonella_rogosae	22186.9152262922
+UNGROUPED|unclassified	56714.9212062057
+K00003: homoserine dehydrogenase [EC:1.1.1.3]|g__Veillonella.s__Veillonella_rogosae	18.1704792169
+K00005: glycerol dehydrogenase [EC:1.1.1.6]|unclassified	1.9487123482
+K00013: histidinol dehydrogenase [EC:1.1.1.23]|unclassified	16.1875003287
+K00024: malate dehydrogenase [EC:1.1.1.37]|g__Bacteroides.s__Bacteroides_fragilis	9.7522522523
+K00024: malate dehydrogenase [EC:1.1.1.37]|unclassified	5.5332739156
+K00031: isocitrate dehydrogenase [EC:1.1.1.42]|g__Roseburia.s__Roseburia_hominis	6.5211635006
+K00033: 6-phosphogluconate dehydrogenase [EC:1.1.1.44 1.1.1.343]|g__Bacteroides.s__Bacteroides_fragilis	4.496067414
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	6.5533988302
+K00046: gluconate 5-dehydrogenase|g__Roseburia.s__Roseburia_hominis	10.5740181269
+K00046: gluconate 5-dehydrogenase|unclassified	2.560034439
+K00048: lactaldehyde reductase [EC:1.1.1.77]|unclassified	2.6981220367
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Bacteroides.s__Bacteroides_fragilis	8.692114159
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Escherichia.s__Escherichia_coli	8.4210526316
+K00053: ketol-acid reductoisomerase [EC:1.1.1.86]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	29.5740509167
+K00053: ketol-acid reductoisomerase [EC:1.1.1.86]|unclassified	5.2945523837
+K00059: 3-oxoacyl-[acyl-carrier protein] reductase [EC:1.1.1.100]|unclassified	1.8214501438
+K00065: 2-deoxy-D-gluconate 3-dehydrogenase [EC:1.1.1.125]|unclassified	5.6081338566
+K00073: ureidoglycolate dehydrogenase (NAD+) [EC:1.1.1.350]|unclassified	2.6637534123
+K00074: 3-hydroxybutyryl-CoA dehydrogenase [EC:1.1.1.157]|unclassified	1.1622977739
+K00075: UDP-N-acetylmuramate dehydrogenase [EC:1.3.1.98]|g__Bacteroides.s__Bacteroides_fragilis	4.6647246181
+K00075: UDP-N-acetylmuramate dehydrogenase [EC:1.3.1.98]|unclassified	10.0344965299
+K00076: 7-alpha-hydroxysteroid dehydrogenase|unclassified	3.8241385792
+K00077: 2-dehydropantoate 2-reductase [EC:1.1.1.169]|unclassified	3.1006022311
+K00094: galactitol-1-phosphate 5-dehydrogenase [EC:1.1.1.251]|unclassified	1.8160029064
+K00098: L-idonate 5-dehydrogenase|g__Escherichia.s__Escherichia_coli	10.1060571283
+K00099: 1-deoxy-D-xylulose-5-phosphate reductoisomerase [EC:1.1.1.267]|g__Veillonella.s__Veillonella_rogosae	14.8574357859
+K00099: 1-deoxy-D-xylulose-5-phosphate reductoisomerase [EC:1.1.1.267]|unclassified	4.1225440695
+K00113: glycerol-3-phosphate dehydrogenase subunit C [EC:1.1.5.3]|unclassified	1.2315576959
+K00123: formate dehydrogenase major subunit [EC:1.2.1.2]|g__Escherichia.s__Escherichia_coli	6.4324139317
+K00123: formate dehydrogenase major subunit [EC:1.2.1.2]|unclassified	1.2443530265
+K00124: formate dehydrogenase iron-sulfur subunit|unclassified	2.1463038288
+K00127: formate dehydrogenase subunit gamma|unclassified	3.6852999508
+K00133: aspartate-semialdehyde dehydrogenase [EC:1.2.1.11]|unclassified	2.8436018957
+K00134: glyceraldehyde 3-phosphate dehydrogenase [EC:1.2.1.12]|g__Bacteroides.s__Bacteroides_fragilis	15.1028114655
+K00134: glyceraldehyde 3-phosphate dehydrogenase [EC:1.2.1.12]|unclassified	2.1284179666
+K00145: N-acetyl-gamma-glutamyl-phosphate reductase [EC:1.2.1.38]|g__Bacteroides.s__Bacteroides_fragilis	14.5059005143
+K00147: glutamate-5-semialdehyde dehydrogenase [EC:1.2.1.41]|g__Bacteroides.s__Bacteroides_fragilis	7.9773295162
+K00147: glutamate-5-semialdehyde dehydrogenase [EC:1.2.1.41]|g__Escherichia.s__Escherichia_coli	8.9911912481
+K00163: pyruvate dehydrogenase E1 component [EC:1.2.4.1]|unclassified	4.3287318949
+K00208: enoyl-[acyl-carrier protein] reductase I [EC:1.3.1.9 1.3.1.10]|g__Escherichia.s__Escherichia_coli	15.4488023586
+K00216: 2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase [EC:1.3.1.28]|unclassified	4.2979942693
+K00240: succinate dehydrogenase / fumarate reductase, iron-sulfur subunit [EC:1.3.5.1 1.3.5.4]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	16.06824548
+K00241: succinate dehydrogenase / fumarate reductase, cytochrome b subunit|g__Veillonella.s__Veillonella_rogosae	21.6789747323
+K00242: succinate dehydrogenase / fumarate reductase, membrane anchor subunit|g__Escherichia.s__Escherichia_coli	9.7087378641
+K00244: fumarate reductase flavoprotein subunit [EC:1.3.5.4]|unclassified	1.7327286924
+K00259: alanine dehydrogenase [EC:1.4.1.1]|g__Bacteroides.s__Bacteroides_fragilis	7.2282066372
+K00260: glutamate dehydrogenase [EC:1.4.1.2]|g__Fusobacterium.s__Fusobacterium_nucleatum	12.2934840879
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|g__Bacteroides.s__Bacteroides_fragilis	20.0546342583
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|unclassified	2.0385216122
+K00266: glutamate synthase (NADPH/NADH) small chain [EC:1.4.1.13 1.4.1.14]|unclassified	1.397250891
+K00275: pyridoxamine 5'-phosphate oxidase [EC:1.4.3.5]|g__Bacteroides.s__Bacteroides_fragilis	10.6007067138
+K00275: pyridoxamine 5'-phosphate oxidase [EC:1.4.3.5]|unclassified	2.059640271
+K00278: L-aspartate oxidase [EC:1.4.3.16]|unclassified	5.8231984026
+K00287: dihydrofolate reductase [EC:1.5.1.3]|g__Roseburia.s__Roseburia_hominis	5.698005698
+K00330: NADH-quinone oxidoreductase subunit A [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	14.3312827523
+K00333: NADH-quinone oxidoreductase subunit D [EC:1.6.5.3]|g__Akkermansia.s__Akkermansia_muciniphila	5.4397098821
+K00336: NADH-quinone oxidoreductase subunit G [EC:1.6.5.3]|unclassified	2.6079269914
+K00337: NADH-quinone oxidoreductase subunit H [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	7.9442295268
+K00340: NADH-quinone oxidoreductase subunit K [EC:1.6.5.3]|g__Escherichia.s__Escherichia_coli	20.0
+K00342: NADH-quinone oxidoreductase subunit M [EC:1.6.5.3]|unclassified	2.6496117528
+K00343: NADH-quinone oxidoreductase subunit N [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	9.1579762549
+K00343: NADH-quinone oxidoreductase subunit N [EC:1.6.5.3]|unclassified	5.203881833600001
+K00344: NADPH2:quinone reductase|unclassified	2.5309086338
+K00350: Na+-transporting NADH:ubiquinone oxidoreductase subunit E|g__Bacteroides.s__Bacteroides_fragilis	10.3050358491
+K00351: Na+-transporting NADH:ubiquinone oxidoreductase subunit F|g__Bacteroides.s__Bacteroides_fragilis	8.6988266522
+K00362: nitrite reductase (NADH) large subunit [EC:1.7.1.15]|unclassified	2.3016238912
+K00370: nitrate reductase / nitrite oxidoreductase, alpha subunit [EC:1.7.5.1 1.7.99.4]|unclassified	0.9318451181
+K00371: nitrate reductase / nitrite oxidoreductase, beta subunit [EC:1.7.5.1 1.7.99.4]|unclassified	4.4740478666
+K00373: nitrate reductase delta subunit|unclassified	4.5294436622
+K00380: sulfite reductase (NADPH) flavoprotein alpha-component [EC:1.8.1.2]|unclassified	2.5608575077
+K00383: glutathione reductase (NADPH) [EC:1.8.1.7]|unclassified	2.0449897751
+K00384: thioredoxin reductase (NADPH) [EC:1.8.1.9]|g__Bacteroides.s__Bacteroides_fragilis	12.2908848019
+K00425: cytochrome d ubiquinol oxidase subunit I [EC:1.10.3.14]|unclassified	1.0176947058
+K00426: cytochrome d ubiquinol oxidase subunit II [EC:1.10.3.14]|g__Bacteroides.s__Bacteroides_fragilis	8.9325160034
+K00428: cytochrome c peroxidase|unclassified	2.8900253263
+K00525: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]|g__Fusobacterium.s__Fusobacterium_nucleatum	6.5796306477
+K00525: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]|unclassified	2.401171976
+K00526: ribonucleoside-diphosphate reductase beta chain [EC:1.17.4.1]|unclassified	7.504226537
+K00528: ferredoxin--NADP+ reductase|unclassified	4.0146398484
+K00529: 3-phenylpropionate/trans-cinnamate dioxygenase ferredoxin reductase component [EC:1.18.1.3]|unclassified	1.1399178479
+K00537: arsenate reductase|g__Escherichia.s__Escherichia_coli	20.680839266600003
+K00549: 5-methyltetrahydropteroyltriglutamate--homocysteine methyltransferase [EC:2.1.1.14]|unclassified	1.9588825784
+K00554: tRNA (guanine-N1-)-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	5.5970149254
+K00554: tRNA (guanine-N1-)-methyltransferase|unclassified	3.4760856127
+K00556: tRNA (guanosine-2'-O-)-methyltransferase|unclassified	1.8738246908
+K00560: thymidylate synthase [EC:2.1.1.45]|g__Bacteroides.s__Bacteroides_fragilis	6.0748353291
+K00564: ribosomal RNA small subunit methyltransferase C|unclassified	2.7452808862
+K00566: tRNA-specific 2-thiouridylase [EC:2.8.1.-]|g__Bacteroides.s__Bacteroides_fragilis	7.5349838536
+K00566: tRNA-specific 2-thiouridylase [EC:2.8.1.-]|unclassified	1.6804622706
+K00568: 2-polyprenyl-6-hydroxyphenyl methylase / 3-demethylubiquinone-9 3-methyltransferase [EC:2.1.1.222 2.1.1.64]|unclassified	11.6206909184
+K00600: glycine hydroxymethyltransferase [EC:2.1.2.1]|g__Bacteroides.s__Bacteroides_fragilis	4.3875051985
+K00602: phosphoribosylaminoimidazolecarboxamide formyltransferase / IMP cyclohydrolase [EC:2.1.2.3 3.5.4.10]|unclassified	9.7048490174
+K00604: methionyl-tRNA formyltransferase [EC:2.1.2.9]|g__Bacteroides.s__Bacteroides_fragilis	9.5995232625
+K00604: methionyl-tRNA formyltransferase [EC:2.1.2.9]|g__Veillonella.s__Veillonella_rogosae	12.6542597516
+K00605: aminomethyltransferase [EC:2.1.2.10]|g__Bacteroides.s__Bacteroides_fragilis	6.3536926219
+K00606: 3-methyl-2-oxobutanoate hydroxymethyltransferase [EC:2.1.2.11]|g__Bacteroides.s__Bacteroides_fragilis	21.7868332312
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Bacteroides.s__Bacteroides_fragilis	7.6416913826
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Fusobacterium.s__Fusobacterium_nucleatum	9.3422340899
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Veillonella.s__Veillonella_rogosae	15.753711776
+K00610: aspartate carbamoyltransferase regulatory subunit|g__Bacteroides.s__Bacteroides_fragilis	6.25
+K00611: ornithine carbamoyltransferase [EC:2.1.3.3]|unclassified	7.5205975207
+K00615: transketolase [EC:2.2.1.1]|g__Veillonella.s__Veillonella_rogosae	7.5789500568
+K00615: transketolase [EC:2.2.1.1]|unclassified	1.8689798453
+K00616: transaldolase [EC:2.2.1.2]|g__Bacteroides.s__Bacteroides_fragilis	9.7087378641
+K00616: transaldolase [EC:2.2.1.2]|unclassified	6.9639575976999994
+K00625: phosphate acetyltransferase [EC:2.3.1.8]|unclassified	5.1472115209
+K00627: pyruvate dehydrogenase E2 component (dihydrolipoamide acetyltransferase) [EC:2.3.1.12]|unclassified	3.2031794053
+K00631: glycerol-3-phosphate O-acyltransferase [EC:2.3.1.15]|unclassified	1.4573438616
+K00640: serine O-acetyltransferase [EC:2.3.1.30]|unclassified	1.552393273
+K00647: 3-oxoacyl-[acyl-carrier-protein] synthase I [EC:2.3.1.41]|unclassified	2.3036087858
+K00648: 3-oxoacyl-[acyl-carrier-protein] synthase III [EC:2.3.1.180]|g__Bacteroides.s__Bacteroides_fragilis	12.7341761734
+K00648: 3-oxoacyl-[acyl-carrier-protein] synthase III [EC:2.3.1.180]|unclassified	0.7761115496
+K00651: homoserine O-succinyltransferase [EC:2.3.1.46]|g__Bacteroides.s__Bacteroides_fragilis	12.8684265158
+K00655: 1-acyl-sn-glycerol-3-phosphate acyltransferase [EC:2.3.1.51]|unclassified	1.6440546055
+K00656: formate C-acetyltransferase [EC:2.3.1.54]|unclassified	2.4922072494
+K00658: 2-oxoglutarate dehydrogenase E2 component (dihydrolipoamide succinyltransferase) [EC:2.3.1.61]|unclassified	2.0433643912
+K00661: maltose O-acetyltransferase|g__Bacteroides.s__Bacteroides_fragilis	10.6247459005
+K00673: arginine N-succinyltransferase [EC:2.3.1.109]|unclassified	2.0265168283
+K00681: gamma-glutamyltranspeptidase / glutathione hydrolase [EC:2.3.2.2 3.4.19.13]|unclassified	0.7977250076
+K00688: starch phosphorylase [EC:2.4.1.1]|unclassified	3.9772737217
+K00703: starch synthase [EC:2.4.1.21]|unclassified	2.2632062461
+K00705: 4-alpha-glucanotransferase [EC:2.4.1.25]|unclassified	1.7899586788
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|unclassified	2.6507620941
+K00760: hypoxanthine phosphoribosyltransferase [EC:2.4.2.8]|g__Bacteroides.s__Bacteroides_fragilis	12.6454417594
+K00761: uracil phosphoribosyltransferase [EC:2.4.2.9]|g__Fusobacterium.s__Fusobacterium_nucleatum	12.4395419362
+K00762: orotate phosphoribosyltransferase [EC:2.4.2.10]|g__Veillonella.s__Veillonella_rogosae	8.9635938644
+K00764: amidophosphoribosyltransferase [EC:2.4.2.14]|g__Veillonella.s__Veillonella_rogosae	11.6726488662
+K00764: amidophosphoribosyltransferase [EC:2.4.2.14]|unclassified	1.8260219904
+K00765: ATP phosphoribosyltransferase [EC:2.4.2.17]|g__Bacteroides.s__Bacteroides_fragilis	7.0264725609
+K00765: ATP phosphoribosyltransferase [EC:2.4.2.17]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	9.853217664
+K00766: anthranilate phosphoribosyltransferase [EC:2.4.2.18]|g__Veillonella.s__Veillonella_rogosae	9.1993734326
+K00767: nicotinate-nucleotide pyrophosphorylase (carboxylating) [EC:2.4.2.19]|g__Escherichia.s__Escherichia_coli	6.6454041988
+K00768: nicotinate-nucleotide--dimethylbenzimidazole phosphoribosyltransferase [EC:2.4.2.21]|g__Bacteroides.s__Bacteroides_fragilis	5.5766327666
+K00773: queuine tRNA-ribosyltransferase|g__Veillonella.s__Veillonella_rogosae	15.3951477378
+K00782: hypothetical protein|unclassified	1.6743946419
+K00783: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	12.0301023915
+K00783: hypothetical protein|g__Veillonella.s__Veillonella_rogosae	8.875739645
+K00788: thiamine-phosphate pyrophosphorylase [EC:2.5.1.3]|g__Escherichia.s__Escherichia_coli	14.1659510081
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Bacteroides.s__Bacteroides_fragilis	13.0268745698
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Roseburia.s__Roseburia_hominis	7.6923076923
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Veillonella.s__Veillonella_rogosae	16.1968383552
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_fragilis	21.4894836768
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Escherichia.s__Escherichia_coli	6.2021768325
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Bacteroides.s__Bacteroides_fragilis	14.1907302481
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Veillonella.s__Veillonella_rogosae	15.2236052377
+K00793: riboflavin synthase [EC:2.5.1.9]|g__Bacteroides.s__Bacteroides_fragilis	17.3301232952
+K00797: spermidine synthase [EC:2.5.1.16]|g__Veillonella.s__Veillonella_rogosae	10.0225103753
+K00799: glutathione S-transferase [EC:2.5.1.18]|unclassified	2.5139680505
+K00800: 3-phosphoshikimate 1-carboxyvinyltransferase [EC:2.5.1.19]|g__Bacteroides.s__Bacteroides_fragilis	6.4094262488
+K00800: 3-phosphoshikimate 1-carboxyvinyltransferase [EC:2.5.1.19]|unclassified	2.3880416126
+K00806: undecaprenyl diphosphate synthase [EC:2.5.1.31]|g__Bacteroides.s__Bacteroides_fragilis	18.6567164179
+K00806: undecaprenyl diphosphate synthase [EC:2.5.1.31]|unclassified	4.2056093124
+K00813: aspartate aminotransferase [EC:2.6.1.1]|unclassified	1.675585303
+K00817: histidinol-phosphate aminotransferase [EC:2.6.1.9]|unclassified	7.348698515
+K00820: glucosamine--fructose-6-phosphate aminotransferase (isomerizing) [EC:2.6.1.16]|g__Bacteroides.s__Bacteroides_fragilis	9.7297524482
+K00826: branched-chain amino acid aminotransferase [EC:2.6.1.42]|unclassified	3.0640557396
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|g__Bacteroides.s__Bacteroides_fragilis	10.7921488477
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|g__Prevotella.s__Prevotella_corporis	8.5268099156
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|g__Roseburia.s__Roseburia_hominis	6.3313440484
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|unclassified	2.1778095162
+K00832: aromatic-amino-acid transaminase [EC:2.6.1.57]|g__Escherichia.s__Escherichia_coli	6.6512859308
+K00833: adenosylmethionine---8-amino-7-oxononanoate aminotransferase [EC:2.6.1.62]|g__Bacteroides.s__Bacteroides_fragilis	10.9182745362
+K00845: glucokinase [EC:2.7.1.2]|g__Bacteroides.s__Bacteroides_fragilis	7.14427944
+K00845: glucokinase [EC:2.7.1.2]|unclassified	2.1835909975
+K00849: galactokinase [EC:2.7.1.6]|g__Fusobacterium.s__Fusobacterium_nucleatum	7.7127031994
+K00852: ribokinase [EC:2.7.1.15]|unclassified	2.2888080696
+K00855: phosphoribulokinase [EC:2.7.1.19]|g__Escherichia.s__Escherichia_coli	8.4688405174
+K00855: phosphoribulokinase [EC:2.7.1.19]|unclassified	6.0901339829
+K00858: NAD+ kinase [EC:2.7.1.23]|g__Bacteroides.s__Bacteroides_fragilis	12.1410160666
+K00860: adenylylsulfate kinase [EC:2.7.1.25]|g__Bacteroides.s__Bacteroides_fragilis	8.6068052088
+K00867: type I pantothenate kinase [EC:2.7.1.33]|unclassified	6.8277744543
+K00868: pyridoxine kinase [EC:2.7.1.35]|unclassified	2.6168350776
+K00872: homoserine kinase [EC:2.7.1.39]|g__Veillonella.s__Veillonella_rogosae	15.517251456
+K00873: pyruvate kinase [EC:2.7.1.40]|g__Bacteroides.s__Bacteroides_fragilis	9.875534569
+K00874: 2-dehydro-3-deoxygluconokinase [EC:2.7.1.45]|g__Bacteroides.s__Bacteroides_fragilis	7.9147173863
+K00891: shikimate kinase [EC:2.7.1.71]|g__Bacteroides.s__Bacteroides_fragilis	12.5628140704
+K00912: tetraacyldisaccharide 4'-kinase [EC:2.7.1.130]|g__Bacteroides.s__Bacteroides_fragilis	7.0758158104
+K00919: 4-diphosphocytidyl-2-C-methyl-D-erythritol kinase [EC:2.7.1.148]|g__Veillonella.s__Veillonella_rogosae	17.2080403729
+K00925: acetate kinase [EC:2.7.2.1]|g__Bacteroides.s__Bacteroides_fragilis	10.4229498779
+K00925: acetate kinase [EC:2.7.2.1]|g__Veillonella.s__Veillonella_rogosae	16.9111174734
+K00926: carbamate kinase [EC:2.7.2.2]|unclassified	2.1681749623
+K00927: phosphoglycerate kinase [EC:2.7.2.3]|g__Bacteroides.s__Bacteroides_fragilis	9.8334071575
+K00927: phosphoglycerate kinase [EC:2.7.2.3]|g__Escherichia.s__Escherichia_coli	13.6948061064
+K00927: phosphoglycerate kinase [EC:2.7.2.3]|unclassified	4.1845476317
+K00930: acetylglutamate kinase [EC:2.7.2.8]|g__Bacteroides.s__Bacteroides_fragilis	18.611888372
+K00930: acetylglutamate kinase [EC:2.7.2.8]|g__Escherichia.s__Escherichia_coli	4.7125445781
+K00931: glutamate 5-kinase [EC:2.7.2.11]|g__Veillonella.s__Veillonella_rogosae	22.4149413407
+K00931: glutamate 5-kinase [EC:2.7.2.11]|unclassified	1.6230346799
+K00937: polyphosphate kinase [EC:2.7.4.1]|g__Bacteroides.s__Bacteroides_fragilis	6.7212856299
+K00939: adenylate kinase [EC:2.7.4.3]|g__Bacteroides.s__Bacteroides_fragilis	14.0024286055
+K00939: adenylate kinase [EC:2.7.4.3]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.2347125993
+K00942: guanylate kinase [EC:2.7.4.8]|g__Bacteroides.s__Bacteroides_fragilis	14.790233807
+K00942: guanylate kinase [EC:2.7.4.8]|unclassified	7.8546939404
+K00943: dTMP kinase [EC:2.7.4.9]|g__Escherichia.s__Escherichia_coli	3.6697247706
+K00943: dTMP kinase [EC:2.7.4.9]|g__Veillonella.s__Veillonella_rogosae	9.1642302651
+K00945: cytidylate kinase [EC:2.7.4.14]|g__Bacteroides.s__Bacteroides_fragilis	16.5183124146
+K00945: cytidylate kinase [EC:2.7.4.14]|g__Veillonella.s__Veillonella_rogosae	7.3800738007
+K00946: thiamine-monophosphate kinase [EC:2.7.4.16]|g__Escherichia.s__Escherichia_coli	9.5679488719
+K00948: ribose-phosphate pyrophosphokinase [EC:2.7.6.1]|unclassified	8.8691796009
+K00950: 2-amino-4-hydroxy-6-hydroxymethyldihydropteridine diphosphokinase [EC:2.7.6.3]|g__Escherichia.s__Escherichia_coli	17.7165697928
+K00954: pantetheine-phosphate adenylyltransferase [EC:2.7.7.3]|g__Bacteroides.s__Bacteroides_fragilis	16.0257068779
+K00954: pantetheine-phosphate adenylyltransferase [EC:2.7.7.3]|g__Fusobacterium.s__Fusobacterium_nucleatum	20.0247015233
+K00954: pantetheine-phosphate adenylyltransferase [EC:2.7.7.3]|unclassified	9.8399531356
+K00956: sulfate adenylyltransferase subunit 1 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_fragilis	11.635126469
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_fragilis	7.7837986793
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|unclassified	1.2244520223
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Bacteroides.s__Bacteroides_fragilis	8.5632173341
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Veillonella.s__Veillonella_rogosae	8.8152771711
+K00965: UDPglucose--hexose-1-phosphate uridylyltransferase [EC:2.7.7.12]|unclassified	0.9459820209
+K00969: nicotinate-nucleotide adenylyltransferase [EC:2.7.7.18]|unclassified	3.3660665906
+K00970: poly(A) polymerase [EC:2.7.7.19]|g__Akkermansia.s__Akkermansia_muciniphila	4.7840566186
+K00974: tRNA nucleotidyltransferase (CCA-adding enzyme) [EC:2.7.7.72 3.1.3.- 3.1.4.-]|unclassified	1.5920981859
+K00975: glucose-1-phosphate adenylyltransferase [EC:2.7.7.27]|unclassified	1.8314253721
+K00978: glucose-1-phosphate cytidylyltransferase [EC:2.7.7.33]|g__Bacteroides.s__Bacteroides_fragilis	15.3520936753
+K00979: 3-deoxy-manno-octulosonate cytidylyltransferase (CMP-KDO synthetase) [EC:2.7.7.38]|unclassified	5.0122770556
+K00981: phosphatidate cytidylyltransferase [EC:2.7.7.41]|g__Bacteroides.s__Bacteroides_fragilis	8.585746435
+K00981: phosphatidate cytidylyltransferase [EC:2.7.7.41]|unclassified	1.9861085862
+K00990: [protein-PII] uridylyltransferase [EC:2.7.7.59]|unclassified	0.779004993
+K00991: 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase [EC:2.7.7.60]|g__Roseburia.s__Roseburia_hominis	5.3285968028
+K00991: 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase [EC:2.7.7.60]|unclassified	2.8952668681
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|g__Bacteroides.s__Bacteroides_fragilis	7.983443146
+K01008: selenide, water dikinase [EC:2.7.9.3]|g__Veillonella.s__Veillonella_rogosae	17.9474733564
+K01012: biotin synthase [EC:2.8.1.6]|g__Roseburia.s__Roseburia_hominis	5.2954891938
+K01048: lysophospholipase [EC:3.1.1.5]|unclassified	4.7018864743
+K01056: peptidyl-tRNA hydrolase, PTH1 family|g__Bacteroides.s__Bacteroides_fragilis	9.4730709332
+K01056: peptidyl-tRNA hydrolase, PTH1 family|g__Veillonella.s__Veillonella_rogosae	38.8702548509
+K01061: carboxymethylenebutenolidase [EC:3.1.1.45]|g__Escherichia.s__Escherichia_coli	7.4096249316
+K01066: esterase / lipase|unclassified	1.8553377575
+K01069: hydroxyacylglutathione hydrolase [EC:3.1.2.6]|unclassified	6.6750139121
+K01077: alkaline phosphatase [EC:3.1.3.1]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.1281813437
+K01085: glucose-1-phosphatase [EC:3.1.3.10]|unclassified	1.837650985
+K01087: trehalose 6-phosphate phosphatase [EC:3.1.3.12]|unclassified	2.769801409
+K01091: phosphoglycolate phosphatase [EC:3.1.3.18]|g__Veillonella.s__Veillonella_rogosae	12.9049481712
+K01092: myo-inositol-1(or 4)-monophosphatase [EC:3.1.3.25]|g__Bacteroides.s__Bacteroides_fragilis	14.5752037313
+K01095: phosphatidylglycerophosphatase A [EC:3.1.3.27]|g__Escherichia.s__Escherichia_coli	5.270320941
+K01104: protein-tyrosine phosphatase|g__Escherichia.s__Escherichia_coli	6.5573770492
+K01104: protein-tyrosine phosphatase|unclassified	1.8923892009
+K01119: 2',3'-cyclic-nucleotide 2'-phosphodiesterase / 3'-nucleotidase [EC:3.1.4.16 3.1.3.6]|unclassified	1.4460086114
+K01126: glycerophosphoryl diester phosphodiesterase [EC:3.1.4.46]|g__Bacteroides.s__Bacteroides_fragilis	14.5109344969
+K01126: glycerophosphoryl diester phosphodiesterase [EC:3.1.4.46]|unclassified	11.2430851565
+K01138: NO_NAME|unclassified	3.0714301956
+K01142: exodeoxyribonuclease III [EC:3.1.11.2]|g__Escherichia.s__Escherichia_coli	12.0188127538
+K01151: deoxyribonuclease IV [EC:3.1.21.2]|g__Bacteroides.s__Bacteroides_fragilis	14.5066634719
+K01151: deoxyribonuclease IV [EC:3.1.21.2]|unclassified	3.9142974866
+K01156: type III restriction enzyme|g__Bacteroides.s__Bacteroides_fragilis	8.9923517547
+K01159: crossover junction endodeoxyribonuclease RuvC [EC:3.1.22.4]|g__Akkermansia.s__Akkermansia_muciniphila	8.2872928177
+K01169: ribonuclease I (enterobacter ribonuclease)|unclassified	1.8001025212
+K01176: alpha-amylase [EC:3.2.1.1]|unclassified	2.3546666452
+K01190: beta-galactosidase [EC:3.2.1.23]|g__Bacteroides.s__Bacteroides_fragilis	6.3315189071
+K01194: alpha,alpha-trehalase [EC:3.2.1.28]|unclassified	5.6173234265000005
+K01195: beta-glucuronidase [EC:3.2.1.31]|g__Roseburia.s__Roseburia_hominis	7.2105539332
+K01195: beta-glucuronidase [EC:3.2.1.31]|unclassified	2.387496766
+K01206: alpha-L-fucosidase [EC:3.2.1.51]|g__Bacteroides.s__Bacteroides_fragilis	7.1588371666
+K01209: alpha-N-arabinofuranosidase [EC:3.2.1.55]|g__Bacteroides.s__Bacteroides_fragilis	9.9423869644
+K01218: mannan endo-1,4-beta-mannosidase [EC:3.2.1.78]|g__Bacteroides.s__Bacteroides_fragilis	8.1383519837
+K01223: 6-phospho-beta-glucosidase [EC:3.2.1.86]|unclassified	8.9107902232
+K01252: bifunctional isochorismate lyase / aryl carrier protein [EC:3.3.2.1 6.3.2.14]|g__Escherichia.s__Escherichia_coli	5.5826963683
+K01258: tripeptide aminopeptidase|unclassified	1.1028989481
+K01265: methionyl aminopeptidase|unclassified	4.2272442417
+K01270: dipeptidase D [EC:3.4.13.-]|g__Bacteroides.s__Bacteroides_fragilis	6.0320510262
+K01278: dipeptidyl-peptidase 4 [EC:3.4.14.5]|g__Bacteroides.s__Bacteroides_fragilis	13.0381713505
+K01338: ATP-dependent Lon protease [EC:3.4.21.53]|g__Bacteroides.s__Bacteroides_fragilis	10.3107566975
+K01356: repressor LexA|g__Bifidobacterium.s__Bifidobacterium_adolescentis	11.0534761726
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Bacteroides.s__Bacteroides_fragilis	9.5969289827
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Veillonella.s__Veillonella_rogosae	21.3541882296
+K01409: O-sialoglycoprotein endopeptidase|g__Bacteroides.s__Bacteroides_fragilis	9.1116173121
+K01409: O-sialoglycoprotein endopeptidase|g__Veillonella.s__Veillonella_rogosae	19.5524461491
+K01409: O-sialoglycoprotein endopeptidase|unclassified	1.7294780401
+K01420: CRP/FNR family transcriptional regulator, anaerobic regulatory|unclassified	1.1898667968
+K01423: NO_NAME|unclassified	5.88430465
+K01424: L-asparaginase [EC:3.5.1.1]|unclassified	2.3703400127
+K01425: glutaminase [EC:3.5.1.2]|g__Bacteroides.s__Bacteroides_fragilis	14.5513599739
+K01442: choloylglycine hydrolase [EC:3.5.1.24]|g__Bacteroides.s__Bacteroides_fragilis	7.4626865672
+K01443: N-acetylglucosamine-6-phosphate deacetylase [EC:3.5.1.25]|g__Bacteroides.s__Bacteroides_fragilis	6.694330677
+K01443: N-acetylglucosamine-6-phosphate deacetylase [EC:3.5.1.25]|unclassified	1.9655923262
+K01448: N-acetylmuramoyl-L-alanine amidase [EC:3.5.1.28]|unclassified	3.1675296636
+K01460: glutathionylspermidine amidase/synthetase [EC:3.5.1.78 6.3.1.8]|unclassified	1.7830404289
+K01464: dihydropyrimidinase [EC:3.5.2.2]|unclassified	3.6136610867
+K01466: allantoinase [EC:3.5.2.5]|unclassified	1.3630846111
+K01468: imidazolonepropionase [EC:3.5.2.7]|g__Bacteroides.s__Bacteroides_fragilis	17.9799571087
+K01468: imidazolonepropionase [EC:3.5.2.7]|unclassified	4.6197503513
+K01470: creatinine amidohydrolase [EC:3.5.2.10]|g__Bacteroides.s__Bacteroides_fragilis	14.5031426939
+K01478: arginine deiminase [EC:3.5.3.6]|g__Lactobacillus.s__Lactobacillus_fermentum	12.0130806635
+K01480: agmatinase [EC:3.5.3.11]|g__Escherichia.s__Escherichia_coli	8.9825878016
+K01485: cytosine deaminase [EC:3.5.4.1]|unclassified	3.1275356033
+K01487: guanine deaminase [EC:3.5.4.3]|unclassified	2.4452353385
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_fragilis	12.122575305
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Escherichia.s__Escherichia_coli	9.3186121353
+K01493: dCMP deaminase [EC:3.5.4.12]|g__Bacteroides.s__Bacteroides_fragilis	10.0673400673
+K01495: GTP cyclohydrolase I [EC:3.5.4.16]|g__Bacteroides.s__Bacteroides_fragilis	9.0242612816
+K01495: GTP cyclohydrolase I [EC:3.5.4.16]|g__Fusobacterium.s__Fusobacterium_nucleatum	4.8780487805
+K01496: phosphoribosyl-AMP cyclohydrolase [EC:3.5.4.19]|unclassified	11.1386479416
+K01515: ADP-ribose pyrophosphatase [EC:3.6.1.13]|unclassified	2.7251864601
+K01520: dUTP pyrophosphatase [EC:3.6.1.23]|g__Bacteroides.s__Bacteroides_fragilis	10.2272991108
+K01523: phosphoribosyl-ATP pyrophosphohydrolase [EC:3.6.1.31]|unclassified	10.7655810835
+K01524: exopolyphosphatase / guanosine-5'-triphosphate,3'-diphosphate pyrophosphatase [EC:3.6.1.11 3.6.1.40]|g__Bacteroides.s__Bacteroides_fragilis	10.3476170897
+K01531: Mg2+-importing ATPase|g__Bacteroides.s__Bacteroides_fragilis	10.7552268029
+K01531: Mg2+-importing ATPase|unclassified	1.3541745319
+K01533: Cu2+-exporting ATPase|g__Bacteroides.s__Bacteroides_fragilis	7.7306385285
+K01534: Zn2+-exporting ATPase|unclassified	4.1493954537
+K01546: K+-transporting ATPase ATPase A chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_fragilis	11.4641261542
+K01547: K+-transporting ATPase ATPase B chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_fragilis	8.9603107555
+K01548: K+-transporting ATPase ATPase C chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_fragilis	11.504846655
+K01551: arsenite-transporting ATPase|g__Fusobacterium.s__Fusobacterium_nucleatum	7.625402878
+K01572: oxaloacetate decarboxylase, beta subunit [EC:4.1.1.3]|g__Bacteroides.s__Bacteroides_fragilis	18.626322375
+K01577: oxalyl-CoA decarboxylase [EC:4.1.1.8]|unclassified	1.6098897734
+K01580: glutamate decarboxylase [EC:4.1.1.15]|unclassified	0.6452800245
+K01581: ornithine decarboxylase [EC:4.1.1.17]|unclassified	1.9720147108
+K01582: lysine decarboxylase [EC:4.1.1.18]|unclassified	3.0490987098
+K01584: arginine decarboxylase [EC:4.1.1.19]|unclassified	1.5138335433
+K01585: arginine decarboxylase [EC:4.1.1.19]|g__Bacteroides.s__Bacteroides_fragilis	13.1330705418
+K01585: arginine decarboxylase [EC:4.1.1.19]|unclassified	1.9435457404
+K01586: diaminopimelate decarboxylase [EC:4.1.1.20]|g__Bacteroides.s__Bacteroides_fragilis	11.7369006012
+K01588: 5-(carboxyamino)imidazole ribonucleotide mutase [EC:5.4.99.18]|unclassified	8.8397897986
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	9.6513726608
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.7351672718
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Veillonella.s__Veillonella_rogosae	18.9488124066
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|unclassified	3.9907658653
+K01607: 4-carboxymuconolactone decarboxylase [EC:4.1.1.44]|g__Bacteroides.s__Bacteroides_fragilis	17.5642417109
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Bacteroides.s__Bacteroides_fragilis	6.8203524376
+K01613: phosphatidylserine decarboxylase [EC:4.1.1.65]|g__Bacteroides.s__Bacteroides_fragilis	13.8157228927
+K01619: deoxyribose-phosphate aldolase [EC:4.1.2.4]|g__Bacteroides.s__Bacteroides_fragilis	9.2645198535
+K01619: deoxyribose-phosphate aldolase [EC:4.1.2.4]|g__Veillonella.s__Veillonella_rogosae	19.1791500283
+K01619: deoxyribose-phosphate aldolase [EC:4.1.2.4]|unclassified	8.1011051491
+K01624: fructose-bisphosphate aldolase, class II [EC:4.1.2.13]|unclassified	2.3161975713
+K01626: 3-deoxy-7-phosphoheptulonate synthase [EC:2.5.1.54]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	7.6692638021
+K01627: 2-dehydro-3-deoxyphosphooctonate aldolase (KDO 8-P synthase) [EC:2.5.1.55]|unclassified	9.0543259557
+K01628: L-fuculose-phosphate aldolase [EC:4.1.2.17]|unclassified	9.488742402
+K01638: malate synthase [EC:2.3.3.9]|g__Escherichia.s__Escherichia_coli	16.6666666667
+K01638: malate synthase [EC:2.3.3.9]|unclassified	2.1929824561
+K01644: citrate lyase subunit beta / citryl-CoA lyase [EC:4.1.3.34]|g__Veillonella.s__Veillonella_rogosae	25.4663278688
+K01647: citrate synthase [EC:2.3.3.1]|g__Bacteroides.s__Bacteroides_fragilis	9.9805948246
+K01647: citrate synthase [EC:2.3.3.1]|unclassified	2.6980726649
+K01649: 2-isopropylmalate synthase [EC:2.3.3.13]|unclassified	1.7825667937
+K01652: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]|unclassified	4.857085455
+K01661: naphthoate synthase [EC:4.1.3.36]|g__Veillonella.s__Veillonella_rogosae	12.832711196
+K01661: naphthoate synthase [EC:4.1.3.36]|unclassified	2.8826931588
+K01662: 1-deoxy-D-xylulose-5-phosphate synthase [EC:2.2.1.7]|unclassified	1.2067674402
+K01664: para-aminobenzoate synthetase component II [EC:2.6.1.85]|g__Fusobacterium.s__Fusobacterium_nucleatum	19.1263686917
+K01669: deoxyribodipyrimidine photo-lyase|unclassified	2.9191756244
+K01681: aconitate hydratase [EC:4.2.1.3]|unclassified	1.3479759157
+K01682: aconitate hydratase 2 / 2-methylisocitrate dehydratase [EC:4.2.1.3 4.2.1.99]|unclassified	1.890052727
+K01684: galactonate dehydratase [EC:4.2.1.6]|unclassified	0.8896103896
+K01685: altronate hydrolase [EC:4.2.1.7]|unclassified	1.0323665023
+K01695: tryptophan synthase alpha chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	6.1514829257
+K01696: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	6.7867051632
+K01703: 3-isopropylmalate/(R)-2-methylmalate dehydratase large subunit [EC:4.2.1.33 4.2.1.35]|g__Bacteroides.s__Bacteroides_fragilis	7.1783083835
+K01703: 3-isopropylmalate/(R)-2-methylmalate dehydratase large subunit [EC:4.2.1.33 4.2.1.35]|g__Veillonella.s__Veillonella_rogosae	10.7198938468
+K01706: glucarate dehydratase [EC:4.2.1.40]|unclassified	2.2011947047
+K01711: GDPmannose 4,6-dehydratase [EC:4.2.1.47]|unclassified	0.823767302
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|g__Veillonella.s__Veillonella_rogosae	8.0321476872
+K01733: threonine synthase [EC:4.2.3.1]|unclassified	4.1727460131
+K01734: methylglyoxal synthase [EC:4.2.3.3]|g__Bacteroides.s__Bacteroides_fragilis	13.2415477243
+K01734: methylglyoxal synthase [EC:4.2.3.3]|unclassified	15.3919740692
+K01735: 3-dehydroquinate synthase [EC:4.2.3.4]|g__Bacteroides.s__Bacteroides_fragilis	9.7778904891
+K01736: chorismate synthase [EC:4.2.3.5]|g__Escherichia.s__Escherichia_coli	11.0404076034
+K01736: chorismate synthase [EC:4.2.3.5]|unclassified	4.8145020792
+K01737: 6-pyruvoyltetrahydropterin/6-carboxytetrahydropterin synthase [EC:4.2.3.12 4.1.2.50]|g__Bacteroides.s__Bacteroides_fragilis	58.838612368
+K01737: 6-pyruvoyltetrahydropterin/6-carboxytetrahydropterin synthase [EC:4.2.3.12 4.1.2.50]|unclassified	17.6056338028
+K01738: cysteine synthase A [EC:2.5.1.47]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.8495575221
+K01739: cystathionine gamma-synthase [EC:2.5.1.48]|unclassified	1.5757205556
+K01744: aspartate ammonia-lyase [EC:4.3.1.1]|g__Bacteroides.s__Bacteroides_fragilis	12.3815074416
+K01744: aspartate ammonia-lyase [EC:4.3.1.1]|unclassified	1.7477597264
+K01745: histidine ammonia-lyase [EC:4.3.1.3]|g__Bacteroides.s__Bacteroides_fragilis	16.2166586897
+K01749: hydroxymethylbilane synthase [EC:2.5.1.61]|g__Fusobacterium.s__Fusobacterium_nucleatum	15.5983223618
+K01752: L-serine dehydratase [EC:4.3.1.17]|g__Bacteroides.s__Bacteroides_fragilis	9.28074031
+K01752: L-serine dehydratase [EC:4.3.1.17]|unclassified	5.5554857371
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_fragilis	15.8028389924
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	10.3174653141
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Veillonella.s__Veillonella_rogosae	23.3245241021
+K01755: argininosuccinate lyase [EC:4.3.2.1]|unclassified	3.2485431829
+K01756: adenylosuccinate lyase [EC:4.3.2.2]|g__Veillonella.s__Veillonella_rogosae	8.6610122969
+K01759: lactoylglutathione lyase [EC:4.4.1.5]|g__Bacteroides.s__Bacteroides_fragilis	12.5004322418
+K01760: cystathionine beta-lyase [EC:4.4.1.8]|unclassified	5.262040188
+K01761: methionine-gamma-lyase [EC:4.4.1.11]|g__Fusobacterium.s__Fusobacterium_nucleatum	7.1870750132
+K01766: cysteine sulfinate desulfinase|unclassified	3.1776096681
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|g__Bacteroides.s__Bacteroides_fragilis	8.8411363715
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|unclassified	2.70287368
+K01772: ferrochelatase [EC:4.99.1.1]|g__Escherichia.s__Escherichia_coli	6.0901339829
+K01776: glutamate racemase [EC:5.1.1.3]|g__Bacteroides.s__Bacteroides_fragilis	5.698023017
+K01778: diaminopimelate epimerase [EC:5.1.1.7]|g__Roseburia.s__Roseburia_hominis	8.5186976144
+K01778: diaminopimelate epimerase [EC:5.1.1.7]|g__Veillonella.s__Veillonella_rogosae	22.9718191987
+K01785: aldose 1-epimerase [EC:5.1.3.3]|unclassified	1.8499770088
+K01788: N-acylglucosamine-6-phosphate 2-epimerase [EC:5.1.3.9]|unclassified	5.1506598214
+K01790: dTDP-4-dehydrorhamnose 3,5-epimerase [EC:5.1.3.13]|g__Bacteroides.s__Bacteroides_fragilis	9.8159951461
+K01792: glucose-6-phosphate 1-epimerase [EC:5.1.3.15]|unclassified	7.130677717
+K01803: triosephosphate isomerase (TIM) [EC:5.3.1.1]|g__Veillonella.s__Veillonella_rogosae	11.1287758347
+K01803: triosephosphate isomerase (TIM) [EC:5.3.1.1]|unclassified	3.8237907588
+K01804: L-arabinose isomerase [EC:5.3.1.4]|unclassified	1.5696833412
+K01805: xylose isomerase [EC:5.3.1.5]|unclassified	1.4127497153
+K01810: glucose-6-phosphate isomerase [EC:5.3.1.9]|g__Bacteroides.s__Bacteroides_fragilis	20.827949294
+K01811: putative family 31 glucosidase|unclassified	1.5795506001
+K01812: glucuronate isomerase [EC:5.3.1.12]|unclassified	1.4418377322
+K01813: L-rhamnose isomerase [EC:5.3.1.14]|g__Escherichia.s__Escherichia_coli	5.3659269633
+K01814: phosphoribosylformimino-5-aminoimidazole carboxamide ribotide isomerase [EC:5.3.1.16]|unclassified	9.6417188702
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Bacteroides.s__Bacteroides_fragilis	8.5592011412
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	8.4785774636
+K01818: L-fucose/D-arabinose isomerase [EC:5.3.1.25 5.3.1.3]|g__Bacteroides.s__Bacteroides_fragilis	9.7726648907
+K01825: 3-hydroxyacyl-CoA dehydrogenase / enoyl-CoA hydratase / 3-hydroxybutyryl-CoA epimerase / enoyl-CoA isomerase [EC:1.1.1.35 4.2.1.17 5.1.2.3 5.3.3.8]|unclassified	4.1418744973
+K01835: phosphoglucomutase [EC:5.4.2.2]|unclassified	1.1980919038
+K01847: methylmalonyl-CoA mutase [EC:5.4.99.2]|unclassified	1.1452364678
+K01854: UDP-galactopyranose mutase [EC:5.4.99.9]|g__Escherichia.s__Escherichia_coli	6.2359267967
+K01866: tyrosyl-tRNA synthetase [EC:6.1.1.1]|g__Bacteroides.s__Bacteroides_fragilis	7.7947099978
+K01866: tyrosyl-tRNA synthetase [EC:6.1.1.1]|g__Prevotella.s__Prevotella_corporis	8.6393181818
+K01867: tryptophanyl-tRNA synthetase [EC:6.1.1.2]|unclassified	10.5741520727
+K01868: threonyl-tRNA synthetase [EC:6.1.1.3]|g__Bacteroides.s__Bacteroides_fragilis	12.2274720524
+K01868: threonyl-tRNA synthetase [EC:6.1.1.3]|g__Lactobacillus.s__Lactobacillus_fermentum	7.2086518252
+K01869: leucyl-tRNA synthetase [EC:6.1.1.4]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	9.9652273485
+K01869: leucyl-tRNA synthetase [EC:6.1.1.4]|g__Fusobacterium.s__Fusobacterium_nucleatum	9.8437983297
+K01870: isoleucyl-tRNA synthetase [EC:6.1.1.5]|g__Bacteroides.s__Bacteroides_fragilis	5.7849786367
+K01870: isoleucyl-tRNA synthetase [EC:6.1.1.5]|g__Fusobacterium.s__Fusobacterium_nucleatum	6.7554038047
+K01872: alanyl-tRNA synthetase [EC:6.1.1.7]|unclassified	7.0037397067
+K01873: valyl-tRNA synthetase [EC:6.1.1.9]|g__Bacteroides.s__Bacteroides_fragilis	11.6486858697
+K01873: valyl-tRNA synthetase [EC:6.1.1.9]|g__Veillonella.s__Veillonella_rogosae	12.7079111971
+K01873: valyl-tRNA synthetase [EC:6.1.1.9]|unclassified	1.4237675141
+K01874: methionyl-tRNA synthetase [EC:6.1.1.10]|g__Bacteroides.s__Bacteroides_fragilis	12.6415600025
+K01875: seryl-tRNA synthetase [EC:6.1.1.11]|g__Escherichia.s__Escherichia_coli	4.303390164
+K01875: seryl-tRNA synthetase [EC:6.1.1.11]|g__Fusobacterium.s__Fusobacterium_nucleatum	9.7856860419
+K01878: glycyl-tRNA synthetase alpha chain [EC:6.1.1.14]|g__Escherichia.s__Escherichia_coli	6.7805834096
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	10.6873188745
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Veillonella.s__Veillonella_rogosae	8.8760083359
+K01883: cysteinyl-tRNA synthetase [EC:6.1.1.16]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	9.3928222579
+K01885: glutamyl-tRNA synthetase [EC:6.1.1.17]|g__Bacteroides.s__Bacteroides_fragilis	6.5385873462
+K01885: glutamyl-tRNA synthetase [EC:6.1.1.17]|g__Fusobacterium.s__Fusobacterium_nucleatum	7.9074634142
+K01887: arginyl-tRNA synthetase [EC:6.1.1.19]|g__Bacteroides.s__Bacteroides_fragilis	9.6826675171
+K01887: arginyl-tRNA synthetase [EC:6.1.1.19]|g__Veillonella.s__Veillonella_rogosae	23.236869576
+K01889: phenylalanyl-tRNA synthetase alpha chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_fragilis	15.8807031137
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_fragilis	8.1803871826
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Veillonella.s__Veillonella_rogosae	12.1459452459
+K01892: histidyl-tRNA synthetase [EC:6.1.1.21]|g__Bacteroides.s__Bacteroides_fragilis	8.9461796962
+K01892: histidyl-tRNA synthetase [EC:6.1.1.21]|unclassified	1.3864569747
+K01893: asparaginyl-tRNA synthetase [EC:6.1.1.22]|g__Bacteroides.s__Bacteroides_fragilis	7.9176633132
+K01897: long-chain acyl-CoA synthetase [EC:6.2.1.3]|unclassified	2.820199552
+K01902: succinyl-CoA synthetase alpha subunit [EC:6.2.1.5]|unclassified	11.966171696
+K01903: succinyl-CoA synthetase beta subunit [EC:6.2.1.5]|g__Bacteroides.s__Bacteroides_fragilis	5.9523848579
+K01908: propionyl-CoA synthetase [EC:6.2.1.17]|unclassified	1.5572491324
+K01910: [citrate (pro-3S)-lyase] ligase [EC:6.2.1.22]|unclassified	1.8146918549
+K01912: phenylacetate-CoA ligase [EC:6.2.1.30]|unclassified	1.5093801041
+K01914: aspartate--ammonia ligase [EC:6.3.1.1]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.3135391924
+K01915: glutamine synthetase [EC:6.3.1.2]|g__Bacteroides.s__Bacteroides_fragilis	8.7878712214
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Akkermansia.s__Akkermansia_muciniphila	5.6777885235
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Roseburia.s__Roseburia_hominis	8.486562942
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|unclassified	5.7012014361
+K01920: glutathione synthase [EC:6.3.2.3]|unclassified	6.2453806356
+K01921: D-alanine-D-alanine ligase [EC:6.3.2.4]|g__Bacteroides.s__Bacteroides_fragilis	9.5980838379
+K01921: D-alanine-D-alanine ligase [EC:6.3.2.4]|g__Fusobacterium.s__Fusobacterium_nucleatum	12.4596269008
+K01923: phosphoribosylaminoimidazole-succinocarboxamide synthase [EC:6.3.2.6]|g__Bacteroides.s__Bacteroides_fragilis	11.2017782886
+K01923: phosphoribosylaminoimidazole-succinocarboxamide synthase [EC:6.3.2.6]|g__Escherichia.s__Escherichia_coli	6.9869155235
+K01923: phosphoribosylaminoimidazole-succinocarboxamide synthase [EC:6.3.2.6]|unclassified	2.0227716717
+K01924: UDP-N-acetylmuramate--alanine ligase [EC:6.3.2.8]|unclassified	5.1546391753
+K01925: UDP-N-acetylmuramoylalanine--D-glutamate ligase [EC:6.3.2.9]|g__Bacteroides.s__Bacteroides_fragilis	6.7050817092
+K01925: UDP-N-acetylmuramoylalanine--D-glutamate ligase [EC:6.3.2.9]|g__Veillonella.s__Veillonella_rogosae	10.4915914678
+K01926: AT-rich DNA-binding protein|g__Bacteroides.s__Bacteroides_fragilis	13.5659350606
+K01928: UDP-N-acetylmuramoyl-L-alanyl-D-glutamate--2,6-diaminopimelate ligase [EC:6.3.2.13]|g__Bacteroides.s__Bacteroides_fragilis	5.3174188814
+K01928: UDP-N-acetylmuramoyl-L-alanyl-D-glutamate--2,6-diaminopimelate ligase [EC:6.3.2.13]|unclassified	2.6155787088
+K01929: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase [EC:6.3.2.10]|g__Bacteroides.s__Bacteroides_fragilis	11.2284990102
+K01929: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase [EC:6.3.2.10]|unclassified	6.139612383199999
+K01933: phosphoribosylformylglycinamidine cyclo-ligase [EC:6.3.3.1]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.717672376
+K01933: phosphoribosylformylglycinamidine cyclo-ligase [EC:6.3.3.1]|unclassified	17.0633073531
+K01937: CTP synthase [EC:6.3.4.2]|g__Bacteroides.s__Bacteroides_fragilis	4.7940517379
+K01938: formate--tetrahydrofolate ligase [EC:6.3.4.3]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	5.8134257148
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_fragilis	18.5754665646
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	17.2287857512
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Fusobacterium.s__Fusobacterium_nucleatum	12.320073951
+K01945: phosphoribosylamine--glycine ligase [EC:6.3.4.13]|g__Bacteroides.s__Bacteroides_fragilis	16.7365386361
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Bacteroides.s__Bacteroides_fragilis	9.3788503141
+K01953: asparagine synthase (glutamine-hydrolysing) [EC:6.3.5.4]|unclassified	3.1007163967
+K01962: acetyl-CoA carboxylase carboxyl transferase subunit alpha [EC:6.4.1.2]|unclassified	9.5099416832
+K01963: acetyl-CoA carboxylase carboxyl transferase subunit beta [EC:6.4.1.2]|unclassified	1.8602111814
+K01975: 2'-5' RNA ligase|g__Escherichia.s__Escherichia_coli	7.6989329318
+K01990: ABC-2 type transport system ATP-binding protein|unclassified	3.0382322987999997
+K01991: polysaccharide export outer membrane protein|g__Bacteroides.s__Bacteroides_fragilis	6.1752467007
+K01992: ABC-2 type transport system permease protein|g__Bacteroides.s__Bacteroides_fragilis	5.2137643379
+K01992: ABC-2 type transport system permease protein|g__Escherichia.s__Escherichia_coli	8.0624857876
+K01992: ABC-2 type transport system permease protein|unclassified	4.5645548936
+K01993: HlyD family secretion protein|unclassified	5.2631578947
+K01998: branched-chain amino acid transport system permease protein|g__Bifidobacterium.s__Bifidobacterium_adolescentis	9.4969611415
+K02000: glycine betaine/proline transport system ATP-binding protein [EC:3.6.3.32]|unclassified	3.1975930973
+K02003: NO_NAME|g__Escherichia.s__Escherichia_coli	5.5012266021
+K02003: NO_NAME|unclassified	14.122578969
+K02004: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	16.921309583499998
+K02004: NO_NAME|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.625767669
+K02004: NO_NAME|unclassified	3.0986620168
+K02005: HlyD family secretion protein|g__Bacteroides.s__Bacteroides_fragilis	14.484456562199998
+K02010: iron(III) transport system ATP-binding protein [EC:3.6.3.30]|g__Fusobacterium.s__Fusobacterium_nucleatum	9.2687950566
+K02011: iron(III) transport system permease protein|g__Escherichia.s__Escherichia_coli	9.0497737557
+K02012: iron(III) transport system substrate-binding protein|g__Veillonella.s__Veillonella_rogosae	11.1594700589
+K02013: iron complex transport system ATP-binding protein [EC:3.6.3.34]|g__Veillonella.s__Veillonella_rogosae	26.6036864665
+K02013: iron complex transport system ATP-binding protein [EC:3.6.3.34]|unclassified	1.7593403683
+K02014: iron complex outermembrane recepter protein|g__Bacteroides.s__Bacteroides_fragilis	6.7979439502
+K02014: iron complex outermembrane recepter protein|unclassified	3.1129803204
+K02015: iron complex transport system permease protein|g__Escherichia.s__Escherichia_coli	15.1557133391
+K02015: iron complex transport system permease protein|unclassified	1.3760165786
+K02016: iron complex transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_fragilis	10.8893694
+K02016: iron complex transport system substrate-binding protein|g__Roseburia.s__Roseburia_hominis	5.6854085883
+K02016: iron complex transport system substrate-binding protein|g__Veillonella.s__Veillonella_rogosae	23.2242626807
+K02016: iron complex transport system substrate-binding protein|unclassified	5.3387827096
+K02017: molybdate transport system ATP-binding protein [EC:3.6.3.29]|g__Veillonella.s__Veillonella_rogosae	28.6717623789
+K02019: molybdate transport system regulatory protein|unclassified	3.3444083022
+K02025: multiple sugar transport system permease protein|unclassified	10.4287369641
+K02026: multiple sugar transport system permease protein|g__Roseburia.s__Roseburia_hominis	5.6061695365
+K02028: polar amino acid transport system ATP-binding protein|g__Roseburia.s__Roseburia_hominis	8.347245409
+K02033: peptide/nickel transport system permease protein|unclassified	2.0010003686
+K02034: peptide/nickel transport system permease protein|unclassified	9.1353468111
+K02035: peptide/nickel transport system substrate-binding protein|g__Fusobacterium.s__Fusobacterium_nucleatum	7.3453814987
+K02035: peptide/nickel transport system substrate-binding protein|unclassified	4.8242591316
+K02036: phosphate transport system ATP-binding protein [EC:3.6.3.27]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	15.659263838
+K02038: phosphate transport system permease protein|unclassified	2.2819263608
+K02041: phosphonate transport system ATP-binding protein [EC:3.6.3.28]|unclassified	2.2403268964
+K02044: phosphonate transport system substrate-binding protein|unclassified	3.2195192852
+K02047: sulfate transport system permease protein|unclassified	5.5143158196
+K02053: putative spermidine/putrescine transport system permease protein|g__Bifidobacterium.s__Bifidobacterium_adolescentis	5.1713014498
+K02053: putative spermidine/putrescine transport system permease protein|unclassified	1.4521894549
+K02055: putative spermidine/putrescine transport system substrate-binding protein|unclassified	1.9212295869
+K02056: simple sugar transport system ATP-binding protein|unclassified	5.0185046235
+K02057: simple sugar transport system permease protein|g__Escherichia.s__Escherichia_coli	28.0373831776
+K02057: simple sugar transport system permease protein|g__Roseburia.s__Roseburia_hominis	7.5827927941
+K02057: simple sugar transport system permease protein|unclassified	2.3694887634
+K02058: simple sugar transport system substrate-binding protein|g__Roseburia.s__Roseburia_hominis	5.6522739474
+K02058: simple sugar transport system substrate-binding protein|unclassified	1.6750079985
+K02064: thiamine transport system substrate-binding protein|unclassified	2.5376629997
+K02065: phospholipid/cholesterol/gamma-HCH transport system ATP-binding protein|unclassified	1.2479263022
+K02066: phospholipid/cholesterol/gamma-HCH transport system permease protein|unclassified	6.6032857248
+K02068: putative ABC transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	10.4297327679
+K02071: D-methionine transport system ATP-binding protein|unclassified	11.6348128258
+K02072: D-methionine transport system permease protein|g__Fusobacterium.s__Fusobacterium_nucleatum	7.1396740514
+K02073: D-methionine transport system substrate-binding protein|unclassified	3.9113428944
+K02078: acyl carrier protein|g__Akkermansia.s__Akkermansia_muciniphila	9.900990099
+K02078: acyl carrier protein|g__Bacteroides.s__Bacteroides_fragilis	10.5263157895
+K02106: short-chain fatty acids transporter|unclassified	2.0927345297
+K02108: F-type H+-transporting ATPase subunit a|g__Bacteroides.s__Bacteroides_fragilis	9.8990314462
+K02110: F-type H+-transporting ATPase subunit c|g__Bifidobacterium.s__Bifidobacterium_adolescentis	11.4942528736
+K02110: F-type H+-transporting ATPase subunit c|g__Escherichia.s__Escherichia_coli	40.0100034013
+K02110: F-type H+-transporting ATPase subunit c|g__Roseburia.s__Roseburia_hominis	12.0481927711
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|g__Veillonella.s__Veillonella_rogosae	17.8637763951
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|unclassified	4.1232444913
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_fragilis	10.1717797369
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	8.1872963745
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Roseburia.s__Roseburia_hominis	6.2782035891
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Veillonella.s__Veillonella_rogosae	22.5966028805
+K02113: F-type H+-transporting ATPase subunit delta|g__Veillonella.s__Veillonella_rogosae	9.7501631951
+K02113: F-type H+-transporting ATPase subunit delta|unclassified	1.7182130584
+K02114: F-type H+-transporting ATPase subunit epsilon|g__Bacteroides.s__Bacteroides_fragilis	9.6153846154
+K02114: F-type H+-transporting ATPase subunit epsilon|g__Escherichia.s__Escherichia_coli	14.3884892086
+K02114: F-type H+-transporting ATPase subunit epsilon|g__Veillonella.s__Veillonella_rogosae	18.7969924812
+K02115: F-type H+-transporting ATPase subunit gamma|g__Bacteroides.s__Bacteroides_fragilis	9.5684531417
+K02115: F-type H+-transporting ATPase subunit gamma|g__Roseburia.s__Roseburia_hominis	5.3156216491
+K02115: F-type H+-transporting ATPase subunit gamma|g__Veillonella.s__Veillonella_rogosae	23.8272410606
+K02115: F-type H+-transporting ATPase subunit gamma|unclassified	3.2709824211
+K02120: V/A-type H+/Na+-transporting ATPase subunit D|g__Fusobacterium.s__Fusobacterium_nucleatum	18.2186234818
+K02121: V/A-type H+/Na+-transporting ATPase subunit E|g__Bacteroides.s__Bacteroides_fragilis	8.6206896552
+K02128: F-type H+-transporting ATPase subunit c|unclassified	5.4644808743
+K02160: acetyl-CoA carboxylase biotin carboxyl carrier protein|g__Escherichia.s__Escherichia_coli	9.1093303859
+K02168: high-affinity choline transport protein|unclassified	1.8852953063
+K02169: malonyl-CoA O-methyltransferase [EC:2.1.1.197]|unclassified	3.300330033
+K02188: cobalt-precorrin-5B (C1)-methyltransferase [EC:2.1.1.195]|g__Fusobacterium.s__Fusobacterium_nucleatum	5.0658602898
+K02188: cobalt-precorrin-5B (C1)-methyltransferase [EC:2.1.1.195]|g__Veillonella.s__Veillonella_rogosae	27.5756872395
+K02193: heme exporter protein A [EC:3.6.3.41]|unclassified	3.3037439614
+K02196: heme exporter protein D|g__Escherichia.s__Escherichia_coli	14.7058823529
+K02199: cytochrome c biogenesis protein CcmG, thiol:disulfide interchange|g__Escherichia.s__Escherichia_coli	4.8076923077
+K02217: ferritin 1|g__Bacteroides.s__Bacteroides_fragilis	10.3927373218
+K02221: YggT family protein|unclassified	3.5373937108
+K02233: adenosylcobinamide-GDP ribazoletransferase [EC:2.7.8.26]|g__Veillonella.s__Veillonella_rogosae	15.9521535357
+K02237: competence protein ComEA|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.4490156356
+K02237: competence protein ComEA|g__Fusobacterium.s__Fusobacterium_nucleatum	7.7120822622
+K02238: competence protein ComEC|g__Bacteroides.s__Bacteroides_fragilis	7.1483298623
+K02238: competence protein ComEC|unclassified	1.8825839956
+K02298: cytochrome o ubiquinol oxidase subunit I [EC:1.10.3.10]|unclassified	1.5261146456
+K02299: cytochrome o ubiquinol oxidase subunit III|unclassified	2.6501766784
+K02300: cytochrome o ubiquinol oxidase subunit IV|unclassified	2.965599051
+K02304: precorrin-2 dehydrogenase / sirohydrochlorin ferrochelatase [EC:1.3.1.76 4.99.1.4]|unclassified	2.4390243902
+K02313: chromosomal replication initiator protein|g__Bacteroides.s__Bacteroides_fragilis	12.4073114482
+K02315: DNA replication protein DnaC|unclassified	2.9027576197
+K02316: DNA primase [EC:2.7.7.-]|unclassified	3.865685209
+K02317: DNA replication protein DnaT|unclassified	5.0895799182
+K02335: DNA polymerase I [EC:2.7.7.7]|unclassified	1.3598166521
+K02336: DNA polymerase II|unclassified	1.9964571528
+K02337: DNA polymerase III subunit alpha [EC:2.7.7.7]|unclassified	0.7939314862
+K02338: DNA polymerase III subunit beta [EC:2.7.7.7]|unclassified	2.6132409423
+K02342: DNA polymerase III subunit epsilon [EC:2.7.7.7]|g__Bacteroides.s__Bacteroides_fragilis	20.8530667337
+K02343: DNA polymerase III subunit gamma/tau [EC:2.7.7.7]|unclassified	1.5079501994
+K02346: DNA polymerase IV|unclassified	6.4728336435
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_fragilis	8.0711883637
+K02355: elongation factor EF-G|g__Prevotella.s__Prevotella_corporis	5.937409916
+K02356: elongation factor EF-P|g__Bacteroides.s__Bacteroides_fragilis	18.6000840894
+K02356: elongation factor EF-P|g__Escherichia.s__Escherichia_coli	15.837109537
+K02356: elongation factor EF-P|unclassified	2.5433175815
+K02357: elongation factor EF-Ts|g__Bacteroides.s__Bacteroides_fragilis	14.0996783679
+K02357: elongation factor EF-Ts|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	7.6710011008
+K02358: elongation factor EF-Tu|g__Bacteroides.s__Bacteroides_fragilis	13.4191470907
+K02361: isochorismate synthase [EC:5.4.4.2]|unclassified	2.0844608272
+K02372: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:4.2.1.59]|g__Clostridioides.s__Clostridioides_difficile	6.9445281699
+K02386: flagella basal body P-ring formation protein FlgA|unclassified	4.3959499174
+K02387: flagellar basal-body rod protein FlgB|g__Escherichia.s__Escherichia_coli	10.8959156785
+K02390: flagellar hook protein FlgE|unclassified	1.8068725156
+K02396: flagellar hook-associated protein 1 FlgK|unclassified	1.7667196134
+K02398: negative regulator of flagellin synthesis FlgM|unclassified	5.4255848681
+K02399: flagella synthesis protein FlgN|g__Escherichia.s__Escherichia_coli	10.882835576
+K02402: flagellar transcriptional activator FlhC|g__Escherichia.s__Escherichia_coli	9.1533180778
+K02405: RNA polymerase sigma factor for flagellar operon FliA|unclassified	3.9730590448
+K02409: flagellar M-ring protein FliF|unclassified	2.6394627502
+K02412: flagellum-specific ATP synthase [EC:3.6.3.14]|unclassified	1.4591194969
+K02414: flagellar hook-length control protein FliK|unclassified	3.5063330244
+K02415: flagellar FliL protein|unclassified	2.5621856214
+K02420: flagellar biosynthetic protein FliQ|g__Roseburia.s__Roseburia_hominis	7.8125
+K02420: flagellar biosynthetic protein FliQ|unclassified	4.3261375215
+K02424: cystine transport system substrate-binding protein|unclassified	0.8195939646
+K02426: cysteine desulfuration protein SufE|g__Escherichia.s__Escherichia_coli	10.8959156785
+K02427: cell division protein methyltransferase FtsJ|g__Escherichia.s__Escherichia_coli	10.2333470852
+K02428: XTP/dITP diphosphohydrolase [EC:3.6.1.66]|g__Bacteroides.s__Bacteroides_fragilis	6.7720090293
+K02429: MFS transporter, FHS family, L-fucose permease|g__Bacteroides.s__Bacteroides_fragilis	15.1948721873
+K02429: MFS transporter, FHS family, L-fucose permease|unclassified	2.3178370409
+K02433: aspartyl-tRNA(Asn)/glutamyl-tRNA(Gln) amidotransferase subunit A [EC:6.3.5.6 6.3.5.7]|g__Veillonella.s__Veillonella_rogosae	20.3716339702
+K02439: thiosulfate sulfurtransferase [EC:2.8.1.1]|unclassified	7.1942446043
+K02440: glycerol uptake facilitator protein|g__Lactobacillus.s__Lactobacillus_fermentum	6.881724246
+K02446: fructose-1,6-bisphosphatase II [EC:3.1.3.11]|g__Fusobacterium.s__Fusobacterium_nucleatum	5.4863428501
+K02466: glucitol operon activator protein|g__Escherichia.s__Escherichia_coli	13.7614678899
+K02467: GutQ protein|unclassified	1.5473590687
+K02470: DNA gyrase subunit B|g__Fusobacterium.s__Fusobacterium_nucleatum	7.360947944
+K02472: UDP-N-acetyl-D-mannosaminuronic acid dehydrogenase [EC:1.1.1.336]|g__Bacteroides.s__Bacteroides_fragilis	9.4224082387
+K02477: two-component system, LytT family, response regulator|g__Escherichia.s__Escherichia_coli	6.9174271354
+K02478: two-component system, LytT family, sensor kinase|unclassified	2.5508529246
+K02484: two-component system, OmpR family, sensor kinase|unclassified	4.1973096258
+K02485: two-component system, unclassified family, response regulator|unclassified	2.4156384672
+K02492: glutamyl-tRNA reductase [EC:1.2.1.70]|unclassified	1.7925163694
+K02493: HemK protein|g__Bacteroides.s__Bacteroides_fragilis	5.7388986633
+K02493: HemK protein|g__Escherichia.s__Escherichia_coli	7.2233482638
+K02494: outer membrane lipoprotein LolB|unclassified	2.3188405797
+K02495: oxygen-independent coproporphyrinogen III oxidase [EC:1.3.99.22]|unclassified	1.6569680767
+K02500: cyclase [EC:4.1.3.-]|g__Bacteroides.s__Bacteroides_fragilis	7.452276736
+K02500: cyclase [EC:4.1.3.-]|unclassified	26.8653509355
+K02504: protein transport protein HofB|unclassified	2.0751902846
+K02505: protein transport protein HofC|unclassified	2.310803004
+K02517: Kdo2-lipid IVA lauroyltransferase [EC:2.3.1.241]|g__Bacteroides.s__Bacteroides_fragilis	15.8940397351
+K02518: translation initiation factor IF-1|g__Bacteroides.s__Bacteroides_fragilis	12.987012987
+K02518: translation initiation factor IF-1|g__Prevotella.s__Prevotella_corporis	25.974025974
+K02518: translation initiation factor IF-1|g__Roseburia.s__Roseburia_hominis	12.987012987
+K02519: translation initiation factor IF-2|g__Bacteroides.s__Bacteroides_fragilis	11.6827338407
+K02520: translation initiation factor IF-3|g__Bacteroides.s__Bacteroides_fragilis	7.8048854776
+K02520: translation initiation factor IF-3|unclassified	6.461183485499999
+K02523: octaprenyl-diphosphate synthase [EC:2.5.1.90]|unclassified	1.606005442
+K02528: dimethyladenosine transferase|g__Veillonella.s__Veillonella_rogosae	19.3553271756
+K02529: LacI family transcriptional regulator|unclassified	2.7069798608999998
+K02532: MFS transporter, OHS family, lactose permease|unclassified	2.0894096992
+K02533: tRNA/rRNA methyltransferase|unclassified	3.4949779714
+K02535: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase [EC:3.5.1.108]|unclassified	3.2477641845
+K02536: UDP-3-O-[3-hydroxymyristoyl] glucosamine N-acyltransferase [EC:2.3.1.191]|g__Fusobacterium.s__Fusobacterium_nucleatum	4.7619047619
+K02548: 1,4-dihydroxy-2-naphthoate octaprenyltransferase [EC:2.5.1.74 2.5.1.-]|unclassified	12.9661487236
+K02551: 2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase [EC:2.2.1.9]|g__Bacteroides.s__Bacteroides_fragilis	8.5185747845
+K02551: 2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase [EC:2.2.1.9]|unclassified	1.069992275
+K02554: 2-keto-4-pentenoate hydratase [EC:4.2.1.80]|unclassified	4.5992115637
+K02556: chemotaxis protein MotA|unclassified	2.5683977269
+K02558: UDP-N-acetylmuramate: L-alanyl-gamma-D-glutamyl-meso-diaminopimelate|unclassified	3.6469924206
+K02563: UDP-N-acetylglucosamine--N-acetylmuramyl-(pentapeptide) pyrophosphoryl-undecaprenol N-acetylglucosamine transferase [EC:2.4.1.227]|g__Bacteroides.s__Bacteroides_fragilis	17.9710588574
+K02563: UDP-N-acetylglucosamine--N-acetylmuramyl-(pentapeptide) pyrophosphoryl-undecaprenol N-acetylglucosamine transferase [EC:2.4.1.227]|g__Veillonella.s__Veillonella_rogosae	9.2953884468
+K02563: UDP-N-acetylglucosamine--N-acetylmuramyl-(pentapeptide) pyrophosphoryl-undecaprenol N-acetylglucosamine transferase [EC:2.4.1.227]|unclassified	3.2662362406
+K02564: glucosamine-6-phosphate deaminase [EC:3.5.99.6]|g__Bacteroides.s__Bacteroides_fragilis	9.0747964907
+K02567: periplasmic nitrate reductase NapA [EC:1.7.99.4]|unclassified	1.4842688404
+K02572: ferredoxin-type protein NapF|unclassified	5.6003651649
+K02585: nitrogen fixation protein NifB|g__Veillonella.s__Veillonella_rogosae	18.7136775026
+K02598: nitrite transporter NirC|g__Escherichia.s__Escherichia_coli	7.5030322745
+K02601: transcriptional antiterminator NusG|g__Escherichia.s__Escherichia_coli	12.3701259015
+K02613: ring-1,2-phenylacetyl-CoA epoxidase subunit PaaE|unclassified	1.4184678679
+K02614: acyl-CoA thioesterase [EC:3.1.2.-]|g__Bacteroides.s__Bacteroides_fragilis	7.6045627376
+K02621: topoisomerase IV subunit A|g__Bacteroides.s__Bacteroides_fragilis	7.9440992262
+K02653: type IV pilus assembly protein PilC|g__Veillonella.s__Veillonella_rogosae	11.6026126202
+K02669: twitching motility protein PilT|g__Veillonella.s__Veillonella_rogosae	13.6557731764
+K02682: prepilin peptidase dependent protein D|g__Escherichia.s__Escherichia_coli	10.022296544
+K02686: primosomal replication protein N|g__Escherichia.s__Escherichia_coli	11.5606936416
+K02687: ribosomal protein L11 methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	7.1306355187
+K02742: SprT protein|g__Escherichia.s__Escherichia_coli	14.0370755044
+K02745: PTS system, N-acetylgalactosamine-specific IIB component [EC:2.7.1.-]|g__Escherichia.s__Escherichia_coli	9.0180541988
+K02760: PTS system, cellobiose-specific IIB component [EC:2.7.1.196 2.7.1.205]|unclassified	2.1312872975
+K02775: PTS system, galactitol-specific IIC component|g__Escherichia.s__Escherichia_coli	9.3443279941
+K02781: PTS system, glucitol/sorbitol-specific IIA component [EC:2.7.1.198]|unclassified	7.7256048618
+K02790: PTS system, maltose/glucose-specific IIB component [EC:2.7.1.199 2.7.1.208]|unclassified	1.3344996794
+K02791: PTS system, maltose/glucose-specific IIC component|unclassified	1.3344996794
+K02796: PTS system, mannose-specific IID component|unclassified	1.6441352161
+K02798: PTS system, mannitol-specific IIA component [EC:2.7.1.197]|unclassified	1.7107412694
+K02799: PTS system, mannitol-specific IIB component [EC:2.7.1.197]|unclassified	2.2653789219
+K02800: PTS system, mannitol-specific IIC component|unclassified	2.2653789219
+K02805: lipopolysaccharide biosynthesis protein|g__Escherichia.s__Escherichia_coli	8.0209933333
+K02805: lipopolysaccharide biosynthesis protein|g__Fusobacterium.s__Fusobacterium_nucleatum	5.0221004682
+K02806: PTS system, nitrogen regulatory IIA component [EC:2.7.1.-]|g__Escherichia.s__Escherichia_coli	8.5632885633
+K02821: PTS system, ascorbate-specific IIA component [EC:2.7.1.194]|unclassified	7.8357988602
+K02825: pyrimidine operon attenuation protein / uracil phosphoribosyltransferase [EC:2.4.2.9]|g__Akkermansia.s__Akkermansia_muciniphila	5.1020408163
+K02825: pyrimidine operon attenuation protein / uracil phosphoribosyltransferase [EC:2.4.2.9]|g__Veillonella.s__Veillonella_rogosae	18.4003677
+K02835: peptide chain release factor RF-1|g__Escherichia.s__Escherichia_coli	6.3716901836
+K02836: peptide chain release factor RF-2|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	11.2130563842
+K02836: peptide chain release factor RF-2|unclassified	12.2686588256
+K02837: peptide chain release factor RF-3|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	14.3521994255
+K02837: peptide chain release factor RF-3|g__Veillonella.s__Veillonella_rogosae	13.7542134619
+K02838: ribosome recycling factor|g__Bacteroides.s__Bacteroides_fragilis	11.9161538277
+K02838: ribosome recycling factor|unclassified	1.3823609602
+K02843: heptosyltransferase II [EC:2.4.-.-]|g__Veillonella.s__Veillonella_rogosae	6.6728463725
+K02843: heptosyltransferase II [EC:2.4.-.-]|unclassified	2.6213622164
+K02854: AraC family transcriptional regulator, L-rhamnose operon|unclassified	2.0313895011
+K02855: AraC family transcriptional regulator, L-rhamnose operon regulatory|unclassified	3.7860352417
+K02860: 16S rRNA processing protein RimM|g__Fusobacterium.s__Fusobacterium_nucleatum	5.2631578947
+K02863: large subunit ribosomal protein L1|g__Bacteroides.s__Bacteroides_fragilis	12.5576726318
+K02863: large subunit ribosomal protein L1|g__Fusobacterium.s__Fusobacterium_nucleatum	7.0515905573
+K02864: large subunit ribosomal protein L10|unclassified	3.3407572383
+K02867: large subunit ribosomal protein L11|g__Fusobacterium.s__Fusobacterium_nucleatum	7.0422535211
+K02867: large subunit ribosomal protein L11|g__Roseburia.s__Roseburia_hominis	10.551025451
+K02874: large subunit ribosomal protein L14|g__Akkermansia.s__Akkermansia_muciniphila	8.9285714286
+K02876: large subunit ribosomal protein L15|g__Bacteroides.s__Bacteroides_fragilis	6.5360175148
+K02876: large subunit ribosomal protein L15|unclassified	3.8860103627
+K02878: large subunit ribosomal protein L16|g__Bacteroides.s__Bacteroides_fragilis	24.2633105488
+K02878: large subunit ribosomal protein L16|g__Escherichia.s__Escherichia_coli	14.8698884758
+K02878: large subunit ribosomal protein L16|g__Veillonella.s__Veillonella_rogosae	6.7567567568
+K02881: large subunit ribosomal protein L18|g__Veillonella.s__Veillonella_rogosae	33.4553695955
+K02884: large subunit ribosomal protein L19|g__Bacteroides.s__Bacteroides_fragilis	18.8238405925
+K02886: large subunit ribosomal protein L2|g__Akkermansia.s__Akkermansia_muciniphila	5.7512610601
+K02886: large subunit ribosomal protein L2|g__Veillonella.s__Veillonella_rogosae	18.8637176332
+K02887: large subunit ribosomal protein L20|g__Veillonella.s__Veillonella_rogosae	21.8331000613
+K02888: large subunit ribosomal protein L21|g__Escherichia.s__Escherichia_coli	15.2930287349
+K02890: large subunit ribosomal protein L22|g__Bacteroides.s__Bacteroides_fragilis	25.9397959531
+K02892: large subunit ribosomal protein L23|g__Bacteroides.s__Bacteroides_fragilis	13.4681661527
+K02899: large subunit ribosomal protein L27|g__Akkermansia.s__Akkermansia_muciniphila	16.0707370595
+K02899: large subunit ribosomal protein L27|g__Bifidobacterium.s__Bifidobacterium_adolescentis	18.018018018
+K02899: large subunit ribosomal protein L27|g__Escherichia.s__Escherichia_coli	8.547008547
+K02902: large subunit ribosomal protein L28|g__Akkermansia.s__Akkermansia_muciniphila	8.1967213115
+K02902: large subunit ribosomal protein L28|g__Escherichia.s__Escherichia_coli	10.5263157895
+K02902: large subunit ribosomal protein L28|g__Fusobacterium.s__Fusobacterium_nucleatum	8.6206896552
+K02902: large subunit ribosomal protein L28|g__Prevotella.s__Prevotella_corporis	8.1967213115
+K02904: large subunit ribosomal protein L29|g__Bacteroides.s__Bacteroides_fragilis	35.7142857143
+K02906: large subunit ribosomal protein L3|g__Bacteroides.s__Bacteroides_fragilis	14.6970737981
+K02906: large subunit ribosomal protein L3|g__Veillonella.s__Veillonella_rogosae	29.9840478406
+K02907: large subunit ribosomal protein L30|g__Bacteroides.s__Bacteroides_fragilis	28.5714285714
+K02907: large subunit ribosomal protein L30|g__Escherichia.s__Escherichia_coli	26.3157894737
+K02907: large subunit ribosomal protein L30|g__Veillonella.s__Veillonella_rogosae	78.9473684211
+K02909: large subunit ribosomal protein L31|g__Bacteroides.s__Bacteroides_fragilis	9.0909090909
+K02909: large subunit ribosomal protein L31|g__Bifidobacterium.s__Bifidobacterium_adolescentis	14.0845070423
+K02909: large subunit ribosomal protein L31|g__Clostridioides.s__Clostridioides_difficile	16.9491525424
+K02909: large subunit ribosomal protein L31|g__Escherichia.s__Escherichia_coli	22.2812283538
+K02909: large subunit ribosomal protein L31|g__Fusobacterium.s__Fusobacterium_nucleatum	9.6153846154
+K02910: large subunit ribosomal protein L31e|unclassified	6.0975609756
+K02911: large subunit ribosomal protein L32|g__Bacteroides.s__Bacteroides_fragilis	44.4664031621
+K02911: large subunit ribosomal protein L32|g__Clostridioides.s__Clostridioides_difficile	28.5714285714
+K02913: large subunit ribosomal protein L33|g__Prevotella.s__Prevotella_corporis	44.4664031621
+K02914: large subunit ribosomal protein L34|g__Escherichia.s__Escherichia_coli	333.3333333333
+K02914: large subunit ribosomal protein L34|g__Lactobacillus.s__Lactobacillus_fermentum	111.1111111111
+K02916: large subunit ribosomal protein L35|g__Bacteroides.s__Bacteroides_fragilis	17.8571428571
+K02916: large subunit ribosomal protein L35|g__Clostridioides.s__Clostridioides_difficile	18.8679245283
+K02916: large subunit ribosomal protein L35|g__Fusobacterium.s__Fusobacterium_nucleatum	15.3846153846
+K02916: large subunit ribosomal protein L35|g__Veillonella.s__Veillonella_rogosae	35.7142857143
+K02916: large subunit ribosomal protein L35|unclassified	6.2893081761
+K02926: large subunit ribosomal protein L4|g__Escherichia.s__Escherichia_coli	6.4655172414
+K02926: large subunit ribosomal protein L4|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	10.3648708892
+K02926: large subunit ribosomal protein L4|g__Veillonella.s__Veillonella_rogosae	12.4266734201
+K02931: large subunit ribosomal protein L5|g__Bacteroides.s__Bacteroides_fragilis	16.8211584578
+K02931: large subunit ribosomal protein L5|g__Bifidobacterium.s__Bifidobacterium_adolescentis	9.2646548667
+K02931: large subunit ribosomal protein L5|g__Prevotella.s__Prevotella_corporis	12.1007173525
+K02931: large subunit ribosomal protein L5|unclassified	5.2191646738
+K02933: large subunit ribosomal protein L6|g__Akkermansia.s__Akkermansia_muciniphila	5.0125313283
+K02933: large subunit ribosomal protein L6|g__Fusobacterium.s__Fusobacterium_nucleatum	12.7421526986
+K02933: large subunit ribosomal protein L6|unclassified	2.5398441588
+K02935: large subunit ribosomal protein L7/L12|g__Bacteroides.s__Bacteroides_fragilis	12.8209791227
+K02935: large subunit ribosomal protein L7/L12|g__Fusobacterium.s__Fusobacterium_nucleatum	8.7342906726
+K02939: large subunit ribosomal protein L9|g__Bacteroides.s__Bacteroides_fragilis	16.5562913907
+K02945: small subunit ribosomal protein S1|g__Veillonella.s__Veillonella_rogosae	16.5028173142
+K02948: small subunit ribosomal protein S11|g__Bifidobacterium.s__Bifidobacterium_adolescentis	19.4250897355
+K02950: small subunit ribosomal protein S12|g__Fusobacterium.s__Fusobacterium_nucleatum	11.7582275201
+K02952: small subunit ribosomal protein S13|g__Bacteroides.s__Bacteroides_fragilis	12.48299849
+K02952: small subunit ribosomal protein S13|g__Prevotella.s__Prevotella_corporis	12.5523012552
+K02952: small subunit ribosomal protein S13|g__Veillonella.s__Veillonella_rogosae	35.184495201
+K02954: small subunit ribosomal protein S14|g__Bacteroides.s__Bacteroides_fragilis	20.7861104413
+K02954: small subunit ribosomal protein S14|g__Escherichia.s__Escherichia_coli	12.1581670362
+K02954: small subunit ribosomal protein S14|g__Veillonella.s__Veillonella_rogosae	38.941375969
+K02956: small subunit ribosomal protein S15|g__Bifidobacterium.s__Bifidobacterium_adolescentis	7.8125
+K02956: small subunit ribosomal protein S15|g__Escherichia.s__Escherichia_coli	7.8125
+K02956: small subunit ribosomal protein S15|g__Fusobacterium.s__Fusobacterium_nucleatum	8.547008547
+K02956: small subunit ribosomal protein S15|g__Lactobacillus.s__Lactobacillus_fermentum	7.8125
+K02956: small subunit ribosomal protein S15|g__Veillonella.s__Veillonella_rogosae	32.0
+K02959: small subunit ribosomal protein S16|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.4829992014
+K02961: small subunit ribosomal protein S17|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	17.2413793103
+K02965: small subunit ribosomal protein S19|g__Bacteroides.s__Bacteroides_fragilis	30.7692307692
+K02965: small subunit ribosomal protein S19|g__Veillonella.s__Veillonella_rogosae	35.4145558933
+K02967: small subunit ribosomal protein S2|g__Bacteroides.s__Bacteroides_fragilis	8.6248420491
+K02967: small subunit ribosomal protein S2|unclassified	4.9556688841
+K02968: small subunit ribosomal protein S20|g__Bacteroides.s__Bacteroides_fragilis	26.5486725664
+K02968: small subunit ribosomal protein S20|g__Fusobacterium.s__Fusobacterium_nucleatum	7.6335877863
+K02970: small subunit ribosomal protein S21|g__Akkermansia.s__Akkermansia_muciniphila	18.0999180999
+K02970: small subunit ribosomal protein S21|g__Escherichia.s__Escherichia_coli	13.5135135135
+K02982: small subunit ribosomal protein S3|g__Akkermansia.s__Akkermansia_muciniphila	14.5952162525
+K02982: small subunit ribosomal protein S3|g__Bacteroides.s__Bacteroides_fragilis	16.8549181163
+K02982: small subunit ribosomal protein S3|g__Fusobacterium.s__Fusobacterium_nucleatum	13.5060741997
+K02986: small subunit ribosomal protein S4|g__Bacteroides.s__Bacteroides_fragilis	6.4655172414
+K02986: small subunit ribosomal protein S4|g__Escherichia.s__Escherichia_coli	12.5217466945
+K02988: small subunit ribosomal protein S5|g__Bacteroides.s__Bacteroides_fragilis	10.6100795756
+K02988: small subunit ribosomal protein S5|g__Escherichia.s__Escherichia_coli	5.5096418733
+K02988: small subunit ribosomal protein S5|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	8.3333762006
+K02990: small subunit ribosomal protein S6|g__Prevotella.s__Prevotella_corporis	9.7804773064
+K02990: small subunit ribosomal protein S6|g__Roseburia.s__Roseburia_hominis	13.3780760626
+K02990: small subunit ribosomal protein S6|g__Veillonella.s__Veillonella_rogosae	27.8270101546
+K02992: small subunit ribosomal protein S7|g__Bacteroides.s__Bacteroides_fragilis	12.0967741935
+K02992: small subunit ribosomal protein S7|g__Fusobacterium.s__Fusobacterium_nucleatum	12.1396334162
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	4.7003525264
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|g__Fusobacterium.s__Fusobacterium_nucleatum	4.7647459818
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	5.4342151812
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	11.3460682682
+K03060: DNA-directed RNA polymerase subunit omega [EC:2.7.7.6]|g__Escherichia.s__Escherichia_coli	21.2765957447
+K03070: preprotein translocase subunit SecA|g__Bacteroides.s__Bacteroides_fragilis	9.3937622735
+K03072: preprotein translocase subunit SecD|unclassified	2.1636469114
+K03073: preprotein translocase subunit SecE|g__Escherichia.s__Escherichia_coli	11.5647928429
+K03074: preprotein translocase subunit SecF|unclassified	1.0677786332
+K03075: preprotein translocase subunit SecG|g__Bacteroides.s__Bacteroides_fragilis	8.3507670851
+K03075: preprotein translocase subunit SecG|g__Roseburia.s__Roseburia_hominis	10.2040816327
+K03076: preprotein translocase subunit SecY|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.6854718104
+K03079: L-ribulose-5-phosphate 3-epimerase [EC:5.1.3.22]|g__Escherichia.s__Escherichia_coli	7.0047654405
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Bacteroides.s__Bacteroides_fragilis	19.148687332999998
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|unclassified	4.434677011
+K03098: outer membrane lipoprotein Blc|g__Escherichia.s__Escherichia_coli	17.8376694189
+K03101: signal peptidase II [EC:3.4.23.36]|g__Escherichia.s__Escherichia_coli	12.9556938239
+K03101: signal peptidase II [EC:3.4.23.36]|g__Veillonella.s__Veillonella_rogosae	13.3667781494
+K03101: signal peptidase II [EC:3.4.23.36]|unclassified	8.9086859688
+K03106: signal recognition particle subunit SRP54 [EC:3.6.5.4]|g__Fusobacterium.s__Fusobacterium_nucleatum	14.8453734262
+K03106: signal recognition particle subunit SRP54 [EC:3.6.5.4]|g__Veillonella.s__Veillonella_rogosae	11.5572870252
+K03106: signal recognition particle subunit SRP54 [EC:3.6.5.4]|unclassified	9.9446873925
+K03110: fused signal recognition particle receptor|g__Veillonella.s__Veillonella_rogosae	15.0991081552
+K03110: fused signal recognition particle receptor|unclassified	9.4546343819
+K03116: sec-independent protein translocase protein TatA|g__Veillonella.s__Veillonella_rogosae	29.702970297
+K03119: taurine dioxygenase [EC:1.14.11.17]|unclassified	2.5748715297
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.6184633648
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|unclassified	1.2061989698
+K03148: sulfur carrier protein ThiS adenylyltransferase [EC:2.7.7.73]|unclassified	2.1216407355
+K03149: thiazole synthase [EC:2.8.1.10]|g__Escherichia.s__Escherichia_coli	9.5339036516
+K03149: thiazole synthase [EC:2.8.1.10]|unclassified	4.9600216832
+K03150: 2-iminoacetate synthase [EC:4.1.99.19]|g__Bacteroides.s__Bacteroides_fragilis	6.2628446219
+K03150: 2-iminoacetate synthase [EC:4.1.99.19]|unclassified	6.7378527575
+K03168: DNA topoisomerase I|unclassified	1.1932439607
+K03177: tRNA pseudouridine synthase B|g__Bacteroides.s__Bacteroides_fragilis	8.9285714286
+K03182: 4-hydroxy-3-polyprenylbenzoate decarboxylase [EC:4.1.1.98]|unclassified	1.0700829476
+K03183: demethylmenaquinone methyltransferase / 2-methoxy-6-polyprenyl-1,4-benzoquinol methylase [EC:2.1.1.163 2.1.1.201]|g__Veillonella.s__Veillonella_rogosae	9.9119092679
+K03183: demethylmenaquinone methyltransferase / 2-methoxy-6-polyprenyl-1,4-benzoquinol methylase [EC:2.1.1.163 2.1.1.201]|unclassified	3.2516841273
+K03214: RNA methyltransferase, TrmH family|unclassified	3.2321132832
+K03215: RNA methyltransferase, TrmA family|g__Bacteroides.s__Bacteroides_fragilis	5.4785395199
+K03217: YidC/Oxa1 family membrane protein insertase|g__Bacteroides.s__Bacteroides_fragilis	8.1612269244
+K03217: YidC/Oxa1 family membrane protein insertase|unclassified	8.7750347031
+K03271: D-sedoheptulose 7-phosphate isomerase [EC:5.3.1.28]|unclassified	11.4979719607
+K03272: D-beta-D-heptose 7-phosphate kinase / D-beta-D-heptose 1-phosphate adenosyltransferase [EC:2.7.1.167 2.7.7.70]|unclassified	1.3347192795
+K03281: chloride channel protein, CIC family|unclassified	1.3376118904
+K03284: metal ion transporter, MIT family|g__Bacteroides.s__Bacteroides_fragilis	9.7790706807
+K03289: MFS transporter, NHS family, nucleoside permease|unclassified	2.0000957802
+K03291: MFS transporter, SET family, sugar efflux transporter|unclassified	3.6421452448
+K03292: glycoside/pentoside/hexuronide:cation symporter, GPH family|unclassified	1.4138763951
+K03296: hydrophobic/amphiphilic exporter-1 (mainly G- bacteria), HAE1 family|unclassified	7.8246862403
+K03305: proton-dependent oligopeptide transporter, POT family|g__Bacteroides.s__Bacteroides_fragilis	9.8762670778
+K03307: solute:Na+ symporter, SSS family|unclassified	1.3524239311
+K03308: neurotransmitter:Na+ symporter, NSS family|g__Bacteroides.s__Bacteroides_fragilis	10.5996035916
+K03312: glutamate:Na+ symporter, ESS family|unclassified	2.5055187713
+K03315: Na+:H+ antiporter, NhaC family|g__Veillonella.s__Veillonella_rogosae	12.7363199205
+K03316: monovalent cation:H+ antiporter, CPA1 family|g__Escherichia.s__Escherichia_coli	6.6304214169
+K03319: divalent anion:Na+ symporter, DASS family|g__Veillonella.s__Veillonella_rogosae	9.5068351473
+K03319: divalent anion:Na+ symporter, DASS family|unclassified	1.6869125946
+K03320: ammonium transporter, Amt family|unclassified	2.2264195413
+K03321: sulfate permease, SulP family|unclassified	1.9618925897
+K03326: C4-dicarboxylate transporter, DcuC family|unclassified	1.9121659543
+K03340: diaminopimelate dehydrogenase [EC:1.4.1.16]|g__Bacteroides.s__Bacteroides_fragilis	12.7779414122
+K03385: nitrite reductase (cytochrome c-552) [EC:1.7.2.2]|g__Bacteroides.s__Bacteroides_fragilis	11.9391855042
+K03386: peroxiredoxin (alkyl hydroperoxide reductase subunit C) [EC:1.11.1.15]|g__Bacteroides.s__Bacteroides_fragilis	8.1259920262
+K03402: transcriptional regulator of arginine metabolism|g__Bacteroides.s__Bacteroides_fragilis	6.0240963855
+K03406: methyl-accepting chemotaxis protein|g__Roseburia.s__Roseburia_hominis	7.3152152911
+K03410: chemotaxis protein CheC|g__Roseburia.s__Roseburia_hominis	8.3420320111
+K03412: two-component system, chemotaxis family, response regulator CheB [EC:3.1.1.61]|unclassified	0.6973426075
+K03424: TatD DNase family protein|unclassified	9.503061126
+K03425: sec-independent protein translocase protein TatE|g__Escherichia.s__Escherichia_coli	7.8125
+K03426: NAD+ diphosphatase [EC:3.6.1.22]|g__Bacteroides.s__Bacteroides_fragilis	14.0332716112
+K03430: 2-aminoethylphosphonate-pyruvate transaminase [EC:2.6.1.37]|g__Bacteroides.s__Bacteroides_fragilis	12.6615788959
+K03437: RNA methyltransferase, TrmH family|g__Bacteroides.s__Bacteroides_fragilis	6.4490156356
+K03438: S-adenosyl-methyltransferase|unclassified	1.1627606073
+K03442: small conductance mechanosensitive ion channel, MscS family|g__Escherichia.s__Escherichia_coli	5.5574926092
+K03449: MFS transporter, CP family, cyanate transporter|unclassified	1.5993690756
+K03466: DNA segregation ATPase FtsK/SpoIIIE, S-DNA-T family|g__Veillonella.s__Veillonella_rogosae	14.2118602274
+K03468: putative efflux transporter, PET family|unclassified	2.3272890611
+K03469: ribonuclease HI [EC:3.1.26.4]|unclassified	1.6022653949
+K03470: ribonuclease HII [EC:3.1.26.4]|unclassified	3.6496350365
+K03472: D-erythrose 4-phosphate dehydrogenase [EC:1.2.1.72]|unclassified	2.2160865431000003
+K03473: erythronate-4-phosphate dehydrogenase [EC:1.1.1.290]|g__Bacteroides.s__Bacteroides_fragilis	13.1076145422
+K03474: pyridoxine 5-phosphate synthase [EC:2.6.99.2]|g__Bacteroides.s__Bacteroides_fragilis	10.4864594393
+K03475: PTS system, ascorbate-specific IIC component|unclassified	2.0274899683
+K03484: LacI family transcriptional regulator, sucrose operon repressor|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.3503344272
+K03487: LacI family transcriptional regulator, asc operon repressor|unclassified	5.1964257572
+K03488: beta-glucoside operon transcriptional antiterminator|g__Bifidobacterium.s__Bifidobacterium_adolescentis	5.657708628
+K03488: beta-glucoside operon transcriptional antiterminator|unclassified	1.4201111917
+K03495: glucose inhibited division protein A|g__Bacteroides.s__Bacteroides_fragilis	8.0618634911
+K03495: glucose inhibited division protein A|g__Veillonella.s__Veillonella_rogosae	16.1819657186
+K03495: glucose inhibited division protein A|unclassified	5.1243503099
+K03499: trk system potassium uptake protein TrkA|g__Roseburia.s__Roseburia_hominis	5.9210577605
+K03501: glucose inhibited division protein B|g__Bacteroides.s__Bacteroides_fragilis	13.1121539327
+K03502: DNA polymerase V|unclassified	4.1934969952
+K03516: flagellar protein FlhE|g__Escherichia.s__Escherichia_coli	15.9046354265
+K03521: electron transfer flavoprotein beta subunit|unclassified	1.6383272734
+K03522: electron transfer flavoprotein alpha subunit|g__Fusobacterium.s__Fusobacterium_nucleatum	9.6356545315
+K03522: electron transfer flavoprotein alpha subunit|unclassified	3.5828003537
+K03523: biotin transport system substrate-specific component|g__Roseburia.s__Roseburia_hominis	7.1885075672
+K03524: BirA family transcriptional regulator, biotin operon repressor / biotin-[acetyl-CoA-carboxylase] ligase [EC:6.3.4.15]|g__Bacteroides.s__Bacteroides_fragilis	13.0108638812
+K03524: BirA family transcriptional regulator, biotin operon repressor / biotin-[acetyl-CoA-carboxylase] ligase [EC:6.3.4.15]|g__Veillonella.s__Veillonella_rogosae	10.7942526513
+K03524: BirA family transcriptional regulator, biotin operon repressor / biotin-[acetyl-CoA-carboxylase] ligase [EC:6.3.4.15]|unclassified	19.4656930923
+K03526: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase [EC:1.17.7.1 1.17.7.3]|g__Bacteroides.s__Bacteroides_fragilis	6.323161778
+K03527: 4-hydroxy-3-methylbut-2-en-1-yl diphosphate reductase [EC:1.17.7.4]|g__Bacteroides.s__Bacteroides_fragilis	10.8198272272
+K03527: 4-hydroxy-3-methylbut-2-en-1-yl diphosphate reductase [EC:1.17.7.4]|g__Veillonella.s__Veillonella_rogosae	16.5028173142
+K03530: DNA-binding protein HU-beta|g__Bacteroides.s__Bacteroides_fragilis	7.5757575758
+K03530: DNA-binding protein HU-beta|g__Escherichia.s__Escherichia_coli	22.8429331483
+K03530: DNA-binding protein HU-beta|g__Veillonella.s__Veillonella_rogosae	12.6582278481
+K03532: trimethylamine-N-oxide reductase (cytochrome c), cytochrome c-type subunit TorC|g__Escherichia.s__Escherichia_coli	6.7895247333
+K03535: MFS transporter, ACS family, glucarate transporter|unclassified	1.9524295793
+K03543: multidrug resistance protein A|g__Escherichia.s__Escherichia_coli	5.8167730584
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_fragilis	13.5534187399
+K03545: trigger factor|g__Fusobacterium.s__Fusobacterium_nucleatum	10.3971129968
+K03545: trigger factor|g__Veillonella.s__Veillonella_rogosae	18.0493665997
+K03549: KUP system potassium uptake protein|unclassified	1.9551214392
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_fragilis	12.1510191953
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	13.1207405664
+K03553: recombination protein RecA|g__Veillonella.s__Veillonella_rogosae	13.3419904085
+K03554: recombination associated protein RdgC|unclassified	5.7937427578
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_fragilis	12.9319067548
+K03555: DNA mismatch repair protein MutS|g__Veillonella.s__Veillonella_rogosae	15.2468659954
+K03555: DNA mismatch repair protein MutS|unclassified	0.8705521573
+K03558: membrane protein required for colicin V production|g__Bacteroides.s__Bacteroides_fragilis	13.8121546961
+K03559: biopolymer transport protein ExbD|g__Bacteroides.s__Bacteroides_fragilis	20.9030683403
+K03559: biopolymer transport protein ExbD|g__Escherichia.s__Escherichia_coli	16.6049873071
+K03559: biopolymer transport protein ExbD|g__Veillonella.s__Veillonella_rogosae	7.6045627376
+K03563: carbon storage regulator|g__Escherichia.s__Escherichia_coli	22.7272727273
+K03565: regulatory protein|g__Bacteroides.s__Bacteroides_fragilis	12.3743454497
+K03565: regulatory protein|g__Fusobacterium.s__Fusobacterium_nucleatum	4.6728971963
+K03569: rod shape-determining protein MreB and related proteins|unclassified	2.5455254855
+K03570: rod shape-determining protein MreC|g__Bacteroides.s__Bacteroides_fragilis	7.0942191184
+K03571: rod shape-determining protein MreD|g__Escherichia.s__Escherichia_coli	5.7554075988
+K03571: rod shape-determining protein MreD|unclassified	4.5454545455
+K03572: DNA mismatch repair protein MutL|g__Bacteroides.s__Bacteroides_fragilis	9.2146004787
+K03573: DNA mismatch repair protein MutH|unclassified	2.5984840017
+K03579: ATP-dependent helicase HrpB|unclassified	2.06281865
+K03581: exodeoxyribonuclease V alpha subunit [EC:3.1.11.5]|unclassified	2.2554678816
+K03582: exodeoxyribonuclease V beta subunit [EC:3.1.11.5]|unclassified	2.6877967306
+K03583: exodeoxyribonuclease V gamma subunit [EC:3.1.11.5]|unclassified	1.5922780896
+K03584: DNA repair protein RecO (recombination protein O)|g__Bacteroides.s__Bacteroides_fragilis	11.8479124294
+K03585: membrane fusion protein, multidrug efflux system|g__Bacteroides.s__Bacteroides_fragilis	22.4964236785
+K03585: membrane fusion protein, multidrug efflux system|g__Veillonella.s__Veillonella_rogosae	13.1794505535
+K03585: membrane fusion protein, multidrug efflux system|unclassified	2.1795789775
+K03586: cell division protein FtsL|unclassified	4.7071540881
+K03587: cell division protein FtsI (penicillin-binding protein 3)|unclassified	1.4062789784
+K03588: cell division protein FtsW|unclassified	3.7037344274
+K03589: cell division protein FtsQ|g__Bacteroides.s__Bacteroides_fragilis	16.694490818
+K03590: cell division protein FtsA|g__Bacteroides.s__Bacteroides_fragilis	6.2051587373
+K03593: ATP-binding protein involved in chromosome partitioning|unclassified	2.2512705467
+K03596: GTP-binding protein LepA|g__Bacteroides.s__Bacteroides_fragilis	14.6103568205
+K03596: GTP-binding protein LepA|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	5.9865905532
+K03596: GTP-binding protein LepA|g__Roseburia.s__Roseburia_hominis	4.7889857628
+K03596: GTP-binding protein LepA|g__Veillonella.s__Veillonella_rogosae	16.869064053
+K03600: stringent starvation protein B|unclassified	5.5580521385
+K03601: exodeoxyribonuclease VII large subunit [EC:3.1.11.6]|g__Veillonella.s__Veillonella_rogosae	12.0105236618
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|g__Bacteroides.s__Bacteroides_fragilis	55.9467918623
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|g__Lactobacillus.s__Lactobacillus_fermentum	13.1578947368
+K03603: GntR family transcriptional regulator, negative regulator for fad|g__Escherichia.s__Escherichia_coli	8.4335209717
+K03605: hydrogenase 1 maturation protease|g__Escherichia.s__Escherichia_coli	11.3074825451
+K03606: putative colanic acid biosysnthesis UDP-glucose lipid carrier|unclassified	3.5536015867
+K03609: septum site-determining protein MinD|g__Escherichia.s__Escherichia_coli	4.4665100325
+K03609: septum site-determining protein MinD|g__Fusobacterium.s__Fusobacterium_nucleatum	4.5895046935
+K03612: electron transport complex protein RnfG|g__Fusobacterium.s__Fusobacterium_nucleatum	5.1020408163
+K03616: electron transport complex protein RnfB|unclassified	2.8511172402
+K03618: hydrogenase-1 operon protein HyaF|unclassified	1.8369852653
+K03619: hydrogenase-1 operon protein HyaE|unclassified	4.2857142857
+K03625: N utilization substance protein B|g__Lactobacillus.s__Lactobacillus_fermentum	10.778473995
+K03628: transcription termination factor Rho|unclassified	2.0714158993
+K03629: DNA replication and repair protein RecF|g__Bacteroides.s__Bacteroides_fragilis	5.1450968106
+K03629: DNA replication and repair protein RecF|g__Fusobacterium.s__Fusobacterium_nucleatum	6.0859868336
+K03629: DNA replication and repair protein RecF|g__Veillonella.s__Veillonella_rogosae	15.4882130436
+K03630: DNA repair protein RadC|g__Escherichia.s__Escherichia_coli	10.0502512563
+K03635: molybdopterin synthase catalytic subunit [EC:2.8.1.12]|unclassified	4.1233753005
+K03638: molybdenum cofactor biosynthesis protein B|g__Escherichia.s__Escherichia_coli	5.3908355795
+K03642: rare lipoprotein A|unclassified	1.4741280573
+K03643: LPS-assembly lipoprotein|g__Escherichia.s__Escherichia_coli	18.0405747298
+K03644: lipoyl synthase [EC:2.8.1.8]|g__Bacteroides.s__Bacteroides_fragilis	11.0325828821
+K03645: negative modulator of initiation of replication|unclassified	1.4084507042
+K03648: uracil-DNA glycosylase [EC:3.2.2.27]|g__Bacteroides.s__Bacteroides_fragilis	11.512637795
+K03650: tRNA modification GTPase|g__Bacteroides.s__Bacteroides_fragilis	16.6548884196
+K03650: tRNA modification GTPase|g__Veillonella.s__Veillonella_rogosae	16.0732974374
+K03650: tRNA modification GTPase|unclassified	2.4946264229
+K03651: Icc protein|g__Escherichia.s__Escherichia_coli	7.2697041085
+K03651: Icc protein|unclassified	5.3767535764
+K03654: ATP-dependent DNA helicase RecQ [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_fragilis	10.7745135684
+K03654: ATP-dependent DNA helicase RecQ [EC:3.6.4.12]|unclassified	2.6742418459
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_fragilis	10.2273029786
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Veillonella.s__Veillonella_rogosae	17.3556911909
+K03658: DNA helicase IV|unclassified	2.1686919528
+K03664: SsrA-binding protein|g__Veillonella.s__Veillonella_rogosae	42.4979832578
+K03664: SsrA-binding protein|unclassified	4.6082949309
+K03665: GTP-binding protein HflX|unclassified	6.711409396
+K03666: host factor-I protein|g__Clostridioides.s__Clostridioides_difficile	8.4033613445
+K03669: membrane glycosyltransferase|unclassified	1.698016818
+K03672: thioredoxin 2|g__Escherichia.s__Escherichia_coli	10.7913669065
+K03675: glutaredoxin 2|g__Escherichia.s__Escherichia_coli	11.8460135183
+K03676: glutaredoxin 3|g__Escherichia.s__Escherichia_coli	9.009009009
+K03683: ribonuclease T|unclassified	3.8939899833
+K03684: ribonuclease D|unclassified	4.3547440704
+K03685: ribonuclease III [EC:3.1.26.3]|g__Fusobacterium.s__Fusobacterium_nucleatum	14.1233981117
+K03685: ribonuclease III [EC:3.1.26.3]|g__Roseburia.s__Roseburia_hominis	7.1781111047
+K03686: molecular chaperone DnaJ|g__Bacteroides.s__Bacteroides_fragilis	6.7077359371
+K03687: molecular chaperone GrpE|g__Bacteroides.s__Bacteroides_fragilis	8.9586002562
+K03687: molecular chaperone GrpE|g__Bifidobacterium.s__Bifidobacterium_adolescentis	10.8150896461
+K03687: molecular chaperone GrpE|g__Escherichia.s__Escherichia_coli	6.6716378846
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Bacteroides.s__Bacteroides_fragilis	5.2928819229
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Fusobacterium.s__Fusobacterium_nucleatum	7.3905115333
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|unclassified	1.3567003298
+K03701: excinuclease ABC subunit A|g__Bacteroides.s__Bacteroides_fragilis	9.8477669365
+K03702: excinuclease ABC subunit B|g__Bacteroides.s__Bacteroides_fragilis	14.2551128254
+K03704: cold shock protein (beta-ribbon, CspA family)|g__Bacteroides.s__Bacteroides_fragilis	14.7058823529
+K03704: cold shock protein (beta-ribbon, CspA family)|g__Escherichia.s__Escherichia_coli	138.8786524248
+K03704: cold shock protein (beta-ribbon, CspA family)|unclassified	3.0864197531
+K03712: MarR family transcriptional regulator|unclassified	3.4497801043
+K03718: Lrp/AsnC family transcriptional regulator, regulator for asnA, asnC|unclassified	2.4390243902
+K03719: Lrp/AsnC family transcriptional regulator, leucine-responsive|unclassified	2.3926110618
+K03720: TrpR family transcriptional regulator, trp operon repressor|unclassified	4.7961630695
+K03722: ATP-dependent DNA helicase DinG|unclassified	2.6791932822
+K03723: transcription-repair coupling factor (superfamily II helicase) [EC:3.6.4.-]|unclassified	4.6763954558
+K03734: thiamine biosynthesis lipoprotein|g__Bacteroides.s__Bacteroides_fragilis	11.0747723717
+K03734: thiamine biosynthesis lipoprotein|unclassified	5.4617676266
+K03737: pyruvate-ferredoxin/flavodoxin oxidoreductase [EC:1.2.7.1 1.2.7.-]|unclassified	0.8468299674
+K03742: nicotinamide-nucleotide amidase [EC:3.5.1.42]|g__Fusobacterium.s__Fusobacterium_nucleatum	4.7366453865
+K03742: nicotinamide-nucleotide amidase [EC:3.5.1.42]|unclassified	4.6452702703
+K03743: nicotinamide-nucleotide amidase [EC:3.5.1.42]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	4.6948356808
+K03744: LemA protein|g__Bacteroides.s__Bacteroides_fragilis	6.8130282416
+K03744: LemA protein|g__Fusobacterium.s__Fusobacterium_nucleatum	7.3052332465
+K03745: SlyX protein|g__Escherichia.s__Escherichia_coli	12.987012987
+K03749: DedD protein|g__Escherichia.s__Escherichia_coli	7.6738662019
+K03750: molybdopterin biosynthesis protein MoeA|unclassified	3.3671410749
+K03756: putrescine:ornithine antiporter|unclassified	2.3774715553
+K03757: cadaverine:lysine antiporter|unclassified	1.5933968399
+K03759: arginine:agmatine antiporter|unclassified	2.5204122339
+K03763: DNA polymerase III subunit alpha, Gram-positive type [EC:2.7.7.7]|g__Veillonella.s__Veillonella_rogosae	12.3321332439
+K03763: DNA polymerase III subunit alpha, Gram-positive type [EC:2.7.7.7]|unclassified	4.4826990939
+K03770: peptidyl-prolyl cis-trans isomerase D|g__Bacteroides.s__Bacteroides_fragilis	11.219167779
+K03772: FKBP-type peptidyl-prolyl cis-trans isomerase FkpA|unclassified	2.5087260035
+K03777: D-lactate dehydrogenase [EC:1.1.1.28]|unclassified	1.6894465418
+K03778: D-lactate dehydrogenase [EC:1.1.1.28]|g__Fusobacterium.s__Fusobacterium_nucleatum	5.7524172321
+K03779: L(+)-tartrate dehydratase alpha subunit [EC:4.2.1.32]|unclassified	1.3593670578
+K03780: L(+)-tartrate dehydratase beta subunit [EC:4.2.1.32]|unclassified	2.4360572073
+K03786: 3-dehydroquinate dehydratase II [EC:4.2.1.10]|g__Bacteroides.s__Bacteroides_fragilis	7.1942446043
+K03787: 5'-nucleotidase [EC:3.1.3.5]|g__Veillonella.s__Veillonella_rogosae	19.0633345245
+K03788: acid phosphatase (class B) [EC:3.1.3.2]|unclassified	1.4245398461
+K03789: ribosomal-protein-alanine N-acetyltransferase|g__Roseburia.s__Roseburia_hominis	6.7567567568
+K03789: ribosomal-protein-alanine N-acetyltransferase|unclassified	2.5083647141
+K03790: ribosomal-protein-alanine N-acetyltransferase|g__Escherichia.s__Escherichia_coli	6.7568251526
+K03797: carboxyl-terminal processing protease|unclassified	1.4795536755
+K03798: cell division protease FtsH|g__Veillonella.s__Veillonella_rogosae	12.2853810066
+K03798: cell division protease FtsH|unclassified	1.5638665926
+K03799: heat shock protein HtpX|g__Veillonella.s__Veillonella_rogosae	6.8119891008
+K03800: lipoate---protein ligase [EC:6.3.1.20]|unclassified	2.1349862259
+K03801: lipoyl(octanoyl) transferase [EC:2.3.1.181]|g__Bacteroides.s__Bacteroides_fragilis	11.5774482701
+K03801: lipoyl(octanoyl) transferase [EC:2.3.1.181]|unclassified	4.2016806723
+K03803: sigma-E factor negative regulatory protein RseC|g__Bacteroides.s__Bacteroides_fragilis	24.1773545796
+K03803: sigma-E factor negative regulatory protein RseC|unclassified	2.7068832173
+K03804: chromosome partition protein MukE|unclassified	4.8165060271
+K03807: AmpE protein|unclassified	5.3748066699
+K03815: xanthosine phosphorylase [EC:2.4.2.-]|unclassified	4.2308287696
+K03819: putative colanic acid biosynthesis acetyltransferase WcaB|g__Escherichia.s__Escherichia_coli	8.6455331412
+K03820: apolipoprotein N-acyltransferase|unclassified	3.1075036125
+K03823: phosphinothricin acetyltransferase [EC:2.3.1.183]|g__Escherichia.s__Escherichia_coli	7.9365449668
+K03825: putative acetyltransferase|g__Escherichia.s__Escherichia_coli	14.376097254
+K03826: putative acetyltransferase|g__Escherichia.s__Escherichia_coli	6.6889632107
+K03827: putative acetyltransferase|unclassified	4.0444935182
+K03831: molybdopterin adenylyltransferase [EC:2.7.7.75]|unclassified	2.7829313544
+K03833: selenocysteine-specific elongation factor|unclassified	1.8944214657
+K03834: tyrosine-specific transport protein|unclassified	1.4127393678
+K03836: low affinity tryptophan permease|unclassified	1.2807134252
+K03839: flavodoxin I|g__Escherichia.s__Escherichia_coli	7.7120822622
+K03840: flavodoxin II|g__Escherichia.s__Escherichia_coli	10.5125017268
+K03855: ferredoxin like protein|unclassified	6.2761506276
+K03885: NADH dehydrogenase [EC:1.6.99.3]|g__Bacteroides.s__Bacteroides_fragilis	8.1045246688
+K03885: NADH dehydrogenase [EC:1.6.99.3]|unclassified	1.7114667417
+K03893: arsenical pump membrane protein|unclassified	4.4184058713
+K03925: MraZ protein|g__Bacteroides.s__Bacteroides_fragilis	22.2817460317
+K03926: periplasmic divalent cation tolerance protein|g__Escherichia.s__Escherichia_coli	10.101010101
+K03931: putative isomerase [CAZy:GH63]|unclassified	2.9584855641
+K03969: phage shock protein A|unclassified	3.2514214941
+K03970: phage shock protein B|g__Escherichia.s__Escherichia_coli	11.9047619048
+K03976: putative transcription regulator|g__Bacteroides.s__Bacteroides_fragilis	11.8255921523
+K03977: GTP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	8.5316958064
+K03978: GTP-binding protein|unclassified	3.337506956
+K03979: GTP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	13.5645174739
+K03981: thiol:disulfide interchange protein DsbC|unclassified	3.2687435987
+K04013: formate-dependent nitrite reductase, penta-haeme cytochrome c|unclassified	5.148005148
+K04014: formate-dependent nitrite reductase, Fe-S protein|unclassified	7.2231139647
+K04018: formate-dependent nitrite reductase complex NrfG subunit|unclassified	7.299270073
+K04020: phosphotransacetylase|unclassified	1.5096991385
+K04021: aldehyde dehydrogenase|unclassified	1.1779213378
+K04025: ethanolamine utilization protein EutK|g__Escherichia.s__Escherichia_coli	19.1986826737
+K04030: ethanolamine utilization protein EutQ|unclassified	4.848632439
+K04032: ethanolamine utilization cobalamin adenosyltransferase [EC:2.5.1.17]|unclassified	3.9735099338
+K04041: fructose-1,6-bisphosphatase III [EC:3.1.3.11]|g__Bacteroides.s__Bacteroides_fragilis	7.5094360277
+K04042: bifunctional UDP-N-acetylglucosamine pyrophosphorylase / Glucosamine-1-phosphate N-acetyltransferase [EC:2.7.7.23 2.3.1.157]|g__Veillonella.s__Veillonella_rogosae	16.2298174792
+K04043: molecular chaperone DnaK|g__Bacteroides.s__Bacteroides_fragilis	10.0598143224
+K04044: molecular chaperone HscA|unclassified	1.9684394311
+K04045: molecular chaperone HscC|unclassified	2.3684491393
+K04047: starvation-inducible DNA-binding protein|g__Bacteroides.s__Bacteroides_fragilis	18.0452077501
+K04062: osmotically inducible lipoprotein OsmB|g__Escherichia.s__Escherichia_coli	12.987012987
+K04066: primosomal protein N' (replication factor Y) (superfamily II helicase) [EC:3.6.4.-]|unclassified	1.1184630188
+K04068: anaerobic ribonucleoside-triphosphate reductase activating protein|g__Bifidobacterium.s__Bifidobacterium_adolescentis	8.9086859688
+K04075: cell cycle protein MesJ|unclassified	4.1333333333
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_fragilis	11.9900238682
+K04078: chaperonin GroES|g__Bacteroides.s__Bacteroides_fragilis	15.2671755725
+K04079: molecular chaperone HtpG|g__Bacteroides.s__Bacteroides_fragilis	18.877537646900002
+K04080: molecular chaperone IbpA|g__Escherichia.s__Escherichia_coli	11.0294117647
+K04082: molecular chaperone HscB|g__Escherichia.s__Escherichia_coli	5.3475935829
+K04082: molecular chaperone HscB|unclassified	2.8106776133
+K04087: membrane protease subunit HflC|g__Escherichia.s__Escherichia_coli	8.1072195294
+K04088: membrane protease subunit HflK|unclassified	2.1740344968
+K04485: DNA repair protein RadA/Sms|g__Veillonella.s__Veillonella_rogosae	17.8492517446
+K04485: DNA repair protein RadA/Sms|unclassified	11.497333982699999
+K04488: nitrogen fixation protein NifU and related proteins|g__Veillonella.s__Veillonella_rogosae	17.6056338028
+K04565: superoxide dismutase, Cu-Zn family [EC:1.15.1.1]|g__Escherichia.s__Escherichia_coli	10.5194087581
+K04567: lysyl-tRNA synthetase, class II [EC:6.1.1.6]|g__Bacteroides.s__Bacteroides_fragilis	7.8717721907
+K04568: lysyl-tRNA synthetase, class II|unclassified	2.2596463612
+K04651: hydrogenase nickel incorporation protein HypA|g__Escherichia.s__Escherichia_coli	29.5012412548
+K04651: hydrogenase nickel incorporation protein HypA|g__Veillonella.s__Veillonella_rogosae	10.0
+K04653: hydrogenase expression/formation protein HypC|g__Escherichia.s__Escherichia_coli	9.2592592593
+K04654: hydrogenase expression/formation protein HypD|unclassified	2.0967798853
+K04744: LPS-assembly protein|unclassified	1.5095718116
+K04753: suppressor of ftsI|unclassified	2.3423821139
+K04758: ferrous iron transport protein A|g__Escherichia.s__Escherichia_coli	46.2443197006
+K04758: ferrous iron transport protein A|unclassified	5.9880239521
+K04761: LysR family transcriptional regulator, hydrogen peroxide-inducible|g__Veillonella.s__Veillonella_rogosae	24.7006931435
+K04761: LysR family transcriptional regulator, hydrogen peroxide-inducible|unclassified	3.5097813579
+K04765: nucleoside triphosphate diphosphatase [EC:3.6.1.9]|unclassified	1.9315066581
+K04770: Lon-like ATP-dependent protease|g__Escherichia.s__Escherichia_coli	4.3221328892
+K04772: serine protease DegQ|unclassified	1.4696795358
+K04773: protease IV|unclassified	1.6456840848
+K04775: protease YdgD|unclassified	4.5269780144
+K04844: hypothetical glycosyl hydrolase|unclassified	1.8867156649
+K05306: phosphonoacetaldehyde hydrolase [EC:3.11.1.1]|g__Bacteroides.s__Bacteroides_fragilis	7.6923076923
+K05311: central glycolytic genes regulator|g__Veillonella.s__Veillonella_rogosae	10.1758826086
+K05366: penicillin-binding protein 1A [EC:2.4.1.- 3.4.-.-]|unclassified	2.2677773162
+K05367: penicillin-binding protein 1C [EC:2.4.1.-]|unclassified	2.4472265274
+K05368: aquacobalamin reductase / NAD(P)H-flavin reductase [EC:1.16.1.3 1.5.1.41]|unclassified	2.6520757252
+K05396: D-cysteine desulfhydrase [EC:4.4.1.15]|unclassified	1.7229201111
+K05499: LacI family transcriptional regulator, repressor for deo operon,|unclassified	1.908939625
+K05501: TetR/AcrR family transcriptional regulator|g__Escherichia.s__Escherichia_coli	14.8207267031
+K05541: tRNA-dihydrouridine synthase C|unclassified	3.4294277592
+K05594: ElaB protein|g__Escherichia.s__Escherichia_coli	18.2926829268
+K05594: ElaB protein|unclassified	2.2585553228
+K05595: multiple antibiotic resistance protein|g__Escherichia.s__Escherichia_coli	5.7142857143
+K05601: hydroxylamine reductase [EC:1.7.99.1]|g__Veillonella.s__Veillonella_rogosae	14.0429726
+K05685: macrolide transport system ATP-binding/permease protein [EC:3.6.3.-]|unclassified	2.5510002419
+K05779: putative thiamine transport system ATP-binding protein|unclassified	11.5675203884
+K05780: alpha-D-ribose 1-methylphosphonate 5-triphosphate synthase subunit PhnL [EC:2.7.8.37]|g__Escherichia.s__Escherichia_coli	7.3807447414
+K05780: alpha-D-ribose 1-methylphosphonate 5-triphosphate synthase subunit PhnL [EC:2.7.8.37]|unclassified	1.1410142461
+K05781: putative phosphonate transport system ATP-binding protein|unclassified	0.9431065618
+K05786: chloramphenicol-sensitive protein RarD|unclassified	1.1873158143
+K05787: DNA-binding protein HU-alpha|g__Escherichia.s__Escherichia_coli	22.7851029378
+K05790: lipopolysaccharide biosynthesis protein WzzE|unclassified	2.7186585223
+K05798: LysR family transcriptional regulator, transcriptional activator for|unclassified	0.9496783141
+K05799: GntR family transcriptional regulator, transcriptional repressor for|unclassified	3.9552215547
+K05804: right origin-binding protein|unclassified	2.4360535932
+K05808: putative sigma-54 modulation protein|g__Veillonella.s__Veillonella_rogosae	20.7186943541
+K05814: sn-glycerol 3-phosphate transport system permease protein|unclassified	1.8122334627
+K05816: sn-glycerol 3-phosphate transport system ATP-binding protein [EC:3.6.3.20]|unclassified	4.3255018983
+K05817: LysR family transcriptional regulator, hca operon transcriptional|unclassified	1.6624260713
+K05818: IclR family transcriptional regulator, mhp operon transcriptional|unclassified	2.419571806
+K05819: MFS transporter, AAHS family, 3-hydroxyphenylpropionic acid|unclassified	2.8244926012
+K05832: putative ABC transport system permease protein|g__Veillonella.s__Veillonella_rogosae	12.1968576336
+K05833: putative ABC transport system ATP-binding protein|g__Veillonella.s__Veillonella_rogosae	16.7566985919
+K05844: ribosomal protein S6 modification protein|unclassified	1.2487959425
+K05846: osmoprotectant transport system permease protein|unclassified	1.8055529123
+K05851: adenylate cyclase, class 1 [EC:4.6.1.1]|unclassified	1.8518771266
+K05875: methyl-accepting chemotaxis protein II, aspartate sensor receptor|unclassified	1.5675653548
+K05879: dihydroxyacetone kinase, C-terminal domain [EC:2.7.1.-]|g__Fusobacterium.s__Fusobacterium_nucleatum	23.3446992996
+K05880: transcriptional activator for dhaKLM operon|unclassified	1.8632552321
+K05881: PTS hybrid protein|unclassified	3.9533276189
+K05896: segregation and condensation protein A|g__Veillonella.s__Veillonella_rogosae	28.9241877556
+K05946: N-acetylglucosaminyldiphosphoundecaprenol|g__Veillonella.s__Veillonella_rogosae	15.4092814632
+K05964: holo-ACP synthase [EC:2.7.7.61]|unclassified	3.6447978794
+K06001: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	9.7839407437
+K06039: uncharacterized protein involved in oxidation of intracellular|g__Escherichia.s__Escherichia_coli	9.3896713615
+K06041: arabinose-5-phosphate isomerase [EC:5.3.1.13]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.4308352544
+K06048: carboxylate-amine ligase|unclassified	4.2734181051
+K06078: murein lipoprotein lipoprotein|g__Escherichia.s__Escherichia_coli	10.5263157895
+K06079: copper homeostasis protein (lipoprotein)|unclassified	2.4914977998
+K06080: RcsF protein|g__Escherichia.s__Escherichia_coli	7.5758662745
+K06131: cardiolipin synthase A/B [EC:2.7.8.-]|unclassified	1.153689174
+K06132: cardiolipin synthase C [EC:2.7.8.-]|unclassified	2.1606130243
+K06133: 4'-phosphopantetheinyl transferase [EC:2.7.8.-]|unclassified	2.009894867
+K06141: MFS transporter, TsgA protein|unclassified	3.0089473692000004
+K06142: outer membrane protein|g__Bacteroides.s__Bacteroides_fragilis	22.2414723607
+K06142: outer membrane protein|g__Escherichia.s__Escherichia_coli	5.7720177908
+K06143: inner membrane protein|unclassified	6.6460208887
+K06145: LacI family transcriptional regulator, gluconate utilization system|unclassified	2.0672075524
+K06147: ATP-binding cassette, subfamily B, bacterial|g__Bacteroides.s__Bacteroides_fragilis	13.9778131937
+K06148: ATP-binding cassette, subfamily C, bacterial|g__Fusobacterium.s__Fusobacterium_nucleatum	4.5408226135
+K06149: universal stress protein A|g__Escherichia.s__Escherichia_coli	6.8143298275
+K06153: undecaprenyl-diphosphatase [EC:3.6.1.27]|g__Bacteroides.s__Bacteroides_fragilis	16.6781833436
+K06153: undecaprenyl-diphosphatase [EC:3.6.1.27]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	8.0699431251
+K06153: undecaprenyl-diphosphatase [EC:3.6.1.27]|g__Clostridioides.s__Clostridioides_difficile	5.8543748341
+K06153: undecaprenyl-diphosphatase [EC:3.6.1.27]|unclassified	8.1931867184
+K06155: Gnt-I system high-affinity gluconate transporter|unclassified	1.4935784746
+K06156: Gnt-I system low-affinity gluconate transporter|unclassified	2.1963074068
+K06158: ATP-binding cassette, sub-family F, member 3|unclassified	0.9994990307
+K06159: putative ATP-binding cassette transporter|unclassified	2.8802940038
+K06162: alpha-D-ribose 1-methylphosphonate 5-triphosphate diphosphatase [EC:3.6.1.63]|unclassified	2.1746824304
+K06168: bifunctional enzyme involved in thiolation and methylation of tRNA|g__Bacteroides.s__Bacteroides_fragilis	12.9856963799
+K06173: tRNA pseudouridine synthase A|g__Bacteroides.s__Bacteroides_fragilis	4.8596140632
+K06173: tRNA pseudouridine synthase A|g__Fusobacterium.s__Fusobacterium_nucleatum	8.3836501986
+K06173: tRNA pseudouridine synthase A|unclassified	3.4895459056
+K06178: ribosomal large subunit pseudouridine synthase B|g__Escherichia.s__Escherichia_coli	8.2041966615
+K06186: small protein A|g__Escherichia.s__Escherichia_coli	9.9261083744
+K06187: recombination protein RecR|g__Veillonella.s__Veillonella_rogosae	10.989010989
+K06188: aquaporin Z|unclassified	1.5211548066
+K06190: intracellular septation protein|unclassified	6.0976112536
+K06191: glutaredoxin-like protein NrdH|g__Escherichia.s__Escherichia_coli	30.7250221043
+K06199: CrcB protein|g__Bacteroides.s__Bacteroides_fragilis	16.5289256198
+K06201: copper homeostasis protein|g__Bacteroides.s__Bacteroides_fragilis	16.2787002463
+K06207: GTP-binding protein|unclassified	6.0619258643
+K06214: curli production assembly/transport component CsgG|unclassified	3.1847133758
+K06215: pyridoxal 5'-phosphate synthase pdxS subunit [EC:4.3.3.6]|g__Fusobacterium.s__Fusobacterium_nucleatum	8.5551369432
+K06217: phosphate starvation-inducible protein PhoH and related proteins|unclassified	2.6868184821
+K06219: S-adenosylmethionine-dependent methyltransferase|unclassified	2.1483491633
+K06221: 2,5-diketo-D-gluconate reductase A|unclassified	2.2782331062
+K06223: DNA adenine methylase [EC:2.1.1.72]|unclassified	2.5684209864
+K06287: septum formation protein|g__Bacteroides.s__Bacteroides_fragilis	22.1488400218
+K06287: septum formation protein|unclassified	2.4364383134
+K06381: stage II sporulation protein D|g__Fusobacterium.s__Fusobacterium_nucleatum	7.786864025
+K06409: stage V sporulation protein B|g__Veillonella.s__Veillonella_rogosae	14.247876088
+K06412: stage V sporulation protein G|g__Fusobacterium.s__Fusobacterium_nucleatum	21.5313463515
+K06447: succinylglutamic semialdehyde dehydrogenase [EC:1.2.1.71]|unclassified	2.959273431
+K06518: holin-like protein|g__Roseburia.s__Roseburia_hominis	9.4339622642
+K06726: D-ribose pyranase [EC:5.4.99.62]|unclassified	13.469843202
+K06858: vitamin B12 transport system substrate-binding protein|unclassified	3.3371327254
+K06867: NO_NAME|unclassified	2.3184861584
+K06871: NO_NAME|unclassified	13.7164738758
+K06872: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	20.4792531082
+K06887: NO_NAME|unclassified	4.2757212272
+K06889: NO_NAME|g__Escherichia.s__Escherichia_coli	8.4092543048
+K06889: NO_NAME|unclassified	11.4082039902
+K06895: NO_NAME|unclassified	6.9474742337
+K06897: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.5120300718
+K06901: putative MFS transporter, AGZA family, xanthine/uracil permease|g__Veillonella.s__Veillonella_rogosae	32.9311322657
+K06901: putative MFS transporter, AGZA family, xanthine/uracil permease|unclassified	5.3803154117
+K06911: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.0640217872
+K06919: NO_NAME|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	18.4112403223
+K06919: NO_NAME|g__Roseburia.s__Roseburia_hominis	2.4882514516
+K06920: 7-cyano-7-deazaguanine synthase [EC:6.3.4.20]|g__Bacteroides.s__Bacteroides_fragilis	7.7182880651
+K06920: 7-cyano-7-deazaguanine synthase [EC:6.3.4.20]|unclassified	4.6343999847
+K06938: NO_NAME|unclassified	5.2356020942
+K06940: NO_NAME|g__Escherichia.s__Escherichia_coli	8.8495575221
+K06941: ribosomal RNA large subunit methyltransferase N|g__Bacteroides.s__Bacteroides_fragilis	8.9300617565
+K06941: ribosomal RNA large subunit methyltransferase N|unclassified	1.3670138872
+K06949: ribosome biogenesis GTPase|g__Veillonella.s__Veillonella_rogosae	15.2107110217
+K06959: NO_NAME|unclassified	7.5088391374
+K06968: NO_NAME|unclassified	7.601859694
+K06970: ribosomal RNA large subunit methyltransferase F|g__Bacteroides.s__Bacteroides_fragilis	6.4432989691
+K06973: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.3360889875
+K06975: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	20.580740941899997
+K06980: NO_NAME|unclassified	3.2273745316
+K06997: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	5.6890058076
+K07001: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.386968188
+K07001: NO_NAME|g__Escherichia.s__Escherichia_coli	7.8499811792
+K07014: NO_NAME|g__Escherichia.s__Escherichia_coli	6.7777962058
+K07025: putative hydrolase of the HAD superfamily|g__Bacteroides.s__Bacteroides_fragilis	16.3044426961
+K07027: NO_NAME|g__Veillonella.s__Veillonella_rogosae	15.2720113105
+K07034: NO_NAME|g__Escherichia.s__Escherichia_coli	9.4117647059
+K07039: NO_NAME|unclassified	1.8951237832
+K07040: NO_NAME|g__Bifidobacterium.s__Bifidobacterium_adolescentis	6.3335741876
+K07042: NO_NAME|g__Roseburia.s__Roseburia_hominis	13.904363974
+K07042: NO_NAME|g__Veillonella.s__Veillonella_rogosae	14.9253731343
+K07042: NO_NAME|unclassified	20.6988309124
+K07053: NO_NAME|unclassified	3.0197210779
+K07056: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	5.3285968028
+K07056: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	5.2972373349
+K07056: NO_NAME|g__Veillonella.s__Veillonella_rogosae	18.3596460138
+K07058: NO_NAME|unclassified	4.9547302589
+K07067: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	6.6067179405
+K07071: NO_NAME|unclassified	2.9976778995
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	16.1427172144
+K07085: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	6.9753133823
+K07085: NO_NAME|unclassified	1.8560472493
+K07089: NO_NAME|unclassified	4.0312428938
+K07090: NO_NAME|unclassified	2.067088994
+K07095: NO_NAME|g__Escherichia.s__Escherichia_coli	9.2992103754
+K07098: NO_NAME|g__Veillonella.s__Veillonella_rogosae	26.9156893514
+K07112: NO_NAME|g__Veillonella.s__Veillonella_rogosae	11.9144999056
+K07112: NO_NAME|unclassified	3.1349870892
+K07113: NO_NAME|unclassified	4.6728971963
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	13.0585076776
+K07119: NO_NAME|g__Escherichia.s__Escherichia_coli	6.6964285714
+K07124: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	6.2378196062
+K07137: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	5.5110657986
+K07139: NO_NAME|g__Escherichia.s__Escherichia_coli	15.8733893323
+K07139: NO_NAME|unclassified	3.2153989102
+K07148: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	8.5786917245
+K07150: NO_NAME|g__Veillonella.s__Veillonella_rogosae	17.3792270531
+K07154: NO_NAME|unclassified	2.0008990553
+K07160: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	15.8202851601
+K07175: PhoH-like ATPase|g__Bacteroides.s__Bacteroides_fragilis	10.133709659
+K07220: hypothetical protein|g__Veillonella.s__Veillonella_rogosae	10.2417110865
+K07238: zinc transporter, ZIP family|g__Akkermansia.s__Akkermansia_muciniphila	4.4665034419
+K07248: lactaldehyde dehydrogenase / glycolaldehyde dehydrogenase [EC:1.2.1.22 1.2.1.21]|unclassified	3.3070811157
+K07250: 4-aminobutyrate aminotransferase / (S)-3-amino-2-methylpropionate transaminase [EC:2.6.1.19 2.6.1.22]|unclassified	5.5435808217
+K07258: D-alanyl-D-alanine carboxypeptidase (penicillin-binding protein 5/6) [EC:3.4.16.4]|unclassified	2.6080273757
+K07259: D-alanyl-D-alanine carboxypeptidase / D-alanyl-D-alanine-endopeptidase (penicillin-binding protein 4) [EC:3.4.16.4 3.4.21.-]|unclassified	4.3183045859
+K07263: zinc protease|g__Bacteroides.s__Bacteroides_fragilis	12.3201209334
+K07264: 4-amino-4-deoxy-L-arabinose transferase [EC:2.4.2.43]|g__Escherichia.s__Escherichia_coli	10.3092783505
+K07277: outer membrane protein|g__Bacteroides.s__Bacteroides_fragilis	13.2187653046
+K07285: outer membrane lipoprotein|unclassified	2.6474686753
+K07287: lipoprotein-34|unclassified	1.8757197181
+K07301: NO_NAME|unclassified	2.3261605287
+K07306: anaerobic dimethyl sulfoxide reductase subunit A [EC:1.8.5.3]|unclassified	1.1963169263
+K07310: Tat-targeted selenate reductase subunit YnfF [EC:1.97.1.9]|unclassified	3.0824251952
+K07312: putative dimethyl sulfoxide reductase subunit YnfH (DMSO reductase|unclassified	2.7131645683
+K07319: putative adenine-specific DNA-methyltransferase|unclassified	1.6872273243
+K07343: DNA transformation protein and related proteins|g__Escherichia.s__Escherichia_coli	10.1688153436
+K07343: DNA transformation protein and related proteins|unclassified	1.6333435503
+K07347: outer membrane usher protein|unclassified	7.8331525818
+K07349: minor fimbrial subunit|g__Escherichia.s__Escherichia_coli	5.5248618785
+K07387: putative metalloprotease|g__Escherichia.s__Escherichia_coli	11.3399736694
+K07393: putative glutathione S-transferase|unclassified	4.9550853673
+K07400: Fe/S biogenesis protein NfuA|g__Escherichia.s__Escherichia_coli	6.9124423963
+K07402: xanthine dehydrogenase accessory factor|g__Veillonella.s__Veillonella_rogosae	10.4233264401
+K07402: xanthine dehydrogenase accessory factor|unclassified	3.639300303
+K07407: alpha-galactosidase [EC:3.2.1.22]|g__Bacteroides.s__Bacteroides_fragilis	7.3894692796
+K07443: methylated-DNA-protein-cysteine methyltransferase related protein|g__Bacteroides.s__Bacteroides_fragilis	14.730029943
+K07443: methylated-DNA-protein-cysteine methyltransferase related protein|unclassified	2.9325513196
+K07447: putative holliday junction resolvase|g__Bacteroides.s__Bacteroides_fragilis	10.8959156785
+K07460: putative endonuclease|g__Bacteroides.s__Bacteroides_fragilis	8.9087301587
+K07462: single-stranded-DNA-specific exonuclease [EC:3.1.-.-]|unclassified	1.0940765984
+K07471: hypothetical protein|unclassified	9.1928024488
+K07473: DNA-damage-inducible protein J|g__Escherichia.s__Escherichia_coli	16.8067226891
+K07478: putative ATPase|unclassified	2.0978120978
+K07480: insertion element IS1 protein InsB|unclassified	5.1495546156
+K07481: transposase, IS5 family|unclassified	0.7920721804
+K07483: transposase|g__Bifidobacterium.s__Bifidobacterium_adolescentis	10.2156903717
+K07483: transposase|g__Escherichia.s__Escherichia_coli	18.9475360242
+K07483: transposase|unclassified	7.2832240501
+K07490: ferrous iron transport protein C|g__Escherichia.s__Escherichia_coli	10.5263157895
+K07491: putative transposase|unclassified	6.3053699579
+K07496: putative transposase|g__Fusobacterium.s__Fusobacterium_nucleatum	18.691588785
+K07496: putative transposase|unclassified	2.105172035
+K07497: putative transposase|unclassified	9.5917674914
+K07503: hypothetical protein|g__Bifidobacterium.s__Bifidobacterium_adolescentis	12.4270939622
+K07552: MFS transporter, DHA1 family, bicyclomycin/chloramphenicol|g__Bacteroides.s__Bacteroides_fragilis	7.7575771246
+K07552: MFS transporter, DHA1 family, bicyclomycin/chloramphenicol|g__Veillonella.s__Veillonella_rogosae	12.4228231228
+K07560: D-tyrosyl-tRNA(Tyr) deacylase|g__Akkermansia.s__Akkermansia_muciniphila	6.4103222625
+K07560: D-tyrosyl-tRNA(Tyr) deacylase|unclassified	7.4257425743
+K07568: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_fragilis	8.722912405
+K07568: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Veillonella.s__Veillonella_rogosae	19.2231057017
+K07574: putative RNA-binding protein containing KH domain|g__Escherichia.s__Escherichia_coli	19.5229606994
+K07592: LysR family transcriptional regulator, tdc operon transcriptional|unclassified	1.3509898341
+K07639: two-component system, OmpR family, sensor histidine kinase RstB [EC:2.7.13.3]|unclassified	2.0055410427
+K07640: two-component system, OmpR family, sensor histidine kinase CpxA [EC:2.7.13.3]|unclassified	1.48500292
+K07646: two-component system, OmpR family, sensor histidine kinase KdpD [EC:2.7.13.3]|unclassified	1.132633358
+K07647: two-component system, OmpR family, sensor histidine kinase TorS [EC:2.7.13.3]|g__Escherichia.s__Escherichia_coli	6.0664901442
+K07659: two-component system, OmpR family, phosphate regulon response regulator OmpR|unclassified	1.3057980271
+K07661: two-component system, OmpR family, response regulator RstA|unclassified	2.2354694486
+K07665: two-component system, OmpR family, copper resistance phosphate regulon response regulator CusR|unclassified	2.3609666716
+K07666: two-component system, OmpR family, response regulator QseB|g__Escherichia.s__Escherichia_coli	11.5755722692
+K07667: two-component system, OmpR family, KDP operon response regulator KdpE|g__Roseburia.s__Roseburia_hominis	7.1428571429
+K07674: two-component system, NarL family, nitrate/nitrite sensor histidine kinase NarQ [EC:2.7.13.3]|unclassified	1.7792286406
+K07678: two-component system, NarL family, sensor histidine kinase BarA [EC:2.7.13.3]|unclassified	1.2058261867
+K07679: two-component system, NarL family, sensor histidine kinase EvgS [EC:2.7.13.3]|unclassified	2.600678664
+K07684: two-component system, NarL family, nitrate/nitrite response regulator NarL|unclassified	1.2601906035
+K07690: two-component system, NarL family, response regulator EvgA|unclassified	2.0886695209
+K07700: two-component system, CitB family, cit operon sensor histidine kinase CitA [EC:2.7.13.3]|unclassified	1.7025745987
+K07711: two-component system, NtrC family, sensor histidine kinase GlrK [EC:2.7.13.3]|unclassified	4.9479702752
+K07712: two-component system, NtrC family, nitrogen regulation response regulator GlnG|unclassified	1.0632621992
+K07729: putative transcriptional regulator|g__Escherichia.s__Escherichia_coli	6.993006993
+K07733: prophage regulatory protein|g__Escherichia.s__Escherichia_coli	15.8125
+K07735: putative transcriptional regulator|g__Escherichia.s__Escherichia_coli	4.7337344403
+K07735: putative transcriptional regulator|unclassified	7.0521036825
+K07740: regulator of sigma D|g__Escherichia.s__Escherichia_coli	11.4902736564
+K07742: hypothetical protein|g__Veillonella.s__Veillonella_rogosae	23.4375
+K07749: formyl-CoA transferase|unclassified	3.4941763727
+K07783: MFS transporter, OPA family, sugar phosphate sensor protein UhpC|unclassified	2.3072755073
+K07787: Cu(I)/Ag(I) efflux system membrane protein CusA/SilA|unclassified	1.009380662
+K07797: multidrug resistance protein K|unclassified	4.3332208239
+K07811: trimethylamine-N-oxide reductase (cytochrome c) [EC:1.7.2.3]|unclassified	5.049631821
+K07812: trimethylamine-N-oxide reductase (cytochrome c) 2|unclassified	0.6088073796
+K07821: trimethylamine-N-oxide reductase (cytochrome c) 2, cytochrome c-type|unclassified	5.7034220532
+K07862: serine/threonine transporter|g__Veillonella.s__Veillonella_rogosae	21.3023143393
+K08138: MFS transporter, SP family, xylose:H+ symportor|unclassified	2.548960159
+K08154: MFS transporter, DHA1 family, 2-module integral membrane pump EmrD|unclassified	1.1754327327
+K08156: MFS transporter, DHA1 family, arabinose polymer transporter|unclassified	3.3574334053
+K08160: MFS transporter, DHA1 family, multidrug/chloramphenicol efflux|unclassified	1.9015723527
+K08161: MFS transporter, DHA1 family, multidrug resistance protein|unclassified	1.4480740347
+K08163: MFS transporter, DHA1 family, multidrug resistance protein|g__Escherichia.s__Escherichia_coli	6.7670226782
+K08172: MFS transporter, MHS family, shikimate and dehydroshikimate|unclassified	1.4862175154
+K08173: MFS transporter, MHS family, metabolite:H+ symporter|unclassified	1.0763689257
+K08218: MFS transporter, PAT family, beta-lactamase induction signal transducer AmpG|g__Bacteroides.s__Bacteroides_fragilis	19.0117089531
+K08218: MFS transporter, PAT family, beta-lactamase induction signal transducer AmpG|unclassified	2.559236729
+K08219: MFS transporter, UMF2 family, putative MFS family transporter|unclassified	1.5904962431
+K08223: MFS transporter, FSR family, fosmidomycin resistance protein|g__Veillonella.s__Veillonella_rogosae	12.6563147698
+K08234: glyoxylase I family protein|g__Escherichia.s__Escherichia_coli	12.0643865786
+K08279: carnitine operon protein CaiE|unclassified	5.2882034346
+K08303: putative protease [EC:3.4.-.-]|unclassified	7.9806202908
+K08307: membrane-bound lytic murein transglycosylase D|unclassified	6.8696467355
+K08309: soluble lytic murein transglycosylase|unclassified	1.9810692742
+K08310: dihydroneopterin triphosphate diphosphatase [EC:3.6.1.67]|unclassified	4.0300325973
+K08311: putative (di)nucleoside polyphosphate hydrolase [EC:3.6.1.-]|g__Escherichia.s__Escherichia_coli	7.7054907389
+K08317: putative oxidoreductase|unclassified	2.1149227813
+K08322: L-gulonate 5-dehydrogenase [EC:1.1.1.380]|unclassified	1.3668453926
+K08348: formate dehydrogenase-N, alpha subunit [EC:1.1.5.6]|unclassified	3.0771836649
+K08349: formate dehydrogenase-N, beta subunit|g__Escherichia.s__Escherichia_coli	6.7258571036
+K08368: MFS transporter, putative metabolite transport protein|unclassified	1.1672306932
+K08483: phosphotransferase system, enzyme I, PtsI [EC:2.7.3.9]|unclassified	7.2715913088
+K08485: phosphocarrier protein NPr|g__Escherichia.s__Escherichia_coli	7.6335877863
+K08641: D-alanyl-D-alanine dipeptidase [EC:3.4.13.22]|unclassified	3.3073303776999996
+K08679: UDP-glucuronate 4-epimerase [EC:5.1.3.6]|g__Bacteroides.s__Bacteroides_fragilis	6.6945873848
+K08680: 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthase [EC:4.2.99.20]|g__Veillonella.s__Veillonella_rogosae	37.5232071127
+K08963: methylthioribose-1-phosphate isomerase [EC:5.3.1.23]|g__Veillonella.s__Veillonella_rogosae	18.4123413701
+K08989: putative membrane protein|g__Veillonella.s__Veillonella_rogosae	30.9635466125
+K08990: putative membrane protein|unclassified	4.4422507404
+K08994: putative membrane protein|unclassified	1.2021824081
+K08998: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.6206896552
+K08998: hypothetical protein|g__Lactobacillus.s__Lactobacillus_fermentum	19.7049116676
+K09002: hypothetical protein|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	27.1527795621
+K09014: Fe-S cluster assembly protein SufB|g__Bacteroides.s__Bacteroides_fragilis	9.1364791621
+K09015: Fe-S cluster assembly protein SufD|unclassified	2.7252042818
+K09016: putative pyrimidine permease RutG|unclassified	0.8022832984
+K09020: ureidoacrylate peracid hydrolase [EC:3.5.1.110]|unclassified	1.9024295052
+K09021: aminoacrylate peracid reductase|unclassified	2.9585798817
+K09022: UPF0076 protein YjgF|g__Escherichia.s__Escherichia_coli	12.2283059565
+K09022: UPF0076 protein YjgF|g__Veillonella.s__Veillonella_rogosae	17.3165019965
+K09125: hypothetical protein|g__Fusobacterium.s__Fusobacterium_nucleatum	19.4346289753
+K09125: hypothetical protein|unclassified	4.186925986
+K09158: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.1967213115
+K09160: hypothetical protein|unclassified	3.1435511001
+K09181: hypothetical protein|unclassified	3.0626406195
+K09458: 3-oxoacyl-[acyl-carrier-protein] synthase II [EC:2.3.1.179]|unclassified	4.8464357739
+K09471: gamma-glutamylputrescine oxidase [EC:1.4.3.-]|unclassified	1.8868461729
+K09475: outer membrane pore protein C|unclassified	1.8297138285
+K09476: outer membrane pore protein F|g__Escherichia.s__Escherichia_coli	4.221639407
+K09476: outer membrane pore protein F|unclassified	2.4032303751
+K09477: citrate:succinate antiporter|unclassified	3.1306079052
+K09702: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	17.6778766516
+K09704: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	8.8711031459
+K09712: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.6206896552
+K09748: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	12.2418537885
+K09760: DNA recombination protein RmuC|unclassified	1.6919160072
+K09761: ribosomal RNA small subunit methyltransferase E|g__Bacteroides.s__Bacteroides_fragilis	9.1240875912
+K09765: hypothetical protein|g__Roseburia.s__Roseburia_hominis	9.7049747874
+K09774: lipopolysaccharide export system protein LptA|g__Escherichia.s__Escherichia_coli	14.4115476849
+K09777: hypothetical protein|g__Veillonella.s__Veillonella_rogosae	15.625
+K09781: hypothetical protein|unclassified	2.3416209863
+K09790: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.4389688079
+K09793: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	8.9463397299
+K09801: hypothetical protein|g__Escherichia.s__Escherichia_coli	13.3780760626
+K09807: hypothetical protein|g__Veillonella.s__Veillonella_rogosae	8.4631241411
+K09807: hypothetical protein|unclassified	3.0768402272
+K09812: cell division transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	7.1813285458
+K09812: cell division transport system ATP-binding protein|unclassified	7.2554672485
+K09815: zinc transport system substrate-binding protein|unclassified	3.3936651584
+K09857: hypothetical protein|unclassified	1.8471666921
+K09861: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	14.0992243955
+K09861: hypothetical protein|unclassified	5.6924870196
+K09862: hypothetical protein|g__Escherichia.s__Escherichia_coli	17.8571428571
+K09889: hypothetical protein|unclassified	3.9761431412
+K09892: hypothetical protein|g__Escherichia.s__Escherichia_coli	10.101010101
+K09894: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.144809709
+K09899: hypothetical protein|g__Escherichia.s__Escherichia_coli	7.2727272727
+K09903: uridylate kinase [EC:2.7.4.22]|unclassified	1.5989260852
+K09904: hypothetical protein|g__Escherichia.s__Escherichia_coli	11.4942528736
+K09909: hypothetical protein|unclassified	1.3563376676
+K09910: hypothetical protein|unclassified	4.7169811321
+K09911: hypothetical protein|g__Escherichia.s__Escherichia_coli	6.4205622887
+K09916: hypothetical protein|g__Escherichia.s__Escherichia_coli	30.246939347
+K09920: hypothetical protein|unclassified	9.3440285205
+K09933: hypothetical protein|unclassified	1.8914107699
+K09951: CRISPR-associated protein Cas2|g__Clostridioides.s__Clostridioides_difficile	7.9365079365
+K09969: general L-amino acid transport system substrate-binding protein|unclassified	3.1256100224
+K09970: general L-amino acid transport system permease protein|unclassified	3.0602132086
+K09982: hypothetical protein|g__Escherichia.s__Escherichia_coli	8.6206896552
+K10000: arginine transport system ATP-binding protein [EC:3.6.3.-]|unclassified	1.5336134454
+K10002: glutamate/aspartate transport system permease protein|g__Escherichia.s__Escherichia_coli	11.2500087836
+K10010: cystine transport system ATP-binding protein [EC:3.6.3.-]|unclassified	1.3494318182
+K10011: UDP-4-amino-4-deoxy-L-arabinose formyltransferase / UDP-glucuronic acid dehydrogenase (UDP-4-keto-hexauronic acid decarboxylating) [EC:2.1.2.13 1.1.1.305]|unclassified	1.6923099424
+K10016: histidine transport system permease protein|unclassified	4.1756427191
+K10026: 7-carboxy-7-deazaguanine synthase [EC:4.3.99.3]|unclassified	6.8017794067
+K10036: glutamine transport system substrate-binding protein|unclassified	3.0090658209
+K10108: maltose/maltodextrin transport system substrate-binding protein|unclassified	1.0679988747
+K10109: maltose/maltodextrin transport system permease protein|unclassified	1.796056843
+K10213: ribosylpyrimidine nucleosidase [EC:3.2.2.8]|unclassified	4.4792833147
+K10439: ribose transport system substrate-binding protein|g__Veillonella.s__Veillonella_rogosae	26.2777644783
+K10440: ribose transport system permease protein|unclassified	1.8819656786
+K10543: D-xylose transport system substrate-binding protein|unclassified	1.3238722984
+K10544: D-xylose transport system permease protein|g__Escherichia.s__Escherichia_coli	7.687689352
+K10545: D-xylose transport system ATP-binding protein [EC:3.6.3.17]|unclassified	1.4312543091
+K10557: AI-2 transport system permease protein|unclassified	2.136299435
+K10678: nitroreductase [EC:1.-.-.-]|unclassified	2.20644118
+K10680: N-ethylmaleimide reductase [EC:1.-.-.-]|unclassified	2.176449226
+K10708: fructoselysine 6-phosphate deglycase|unclassified	3.2511978097
+K10709: protein FrlC|unclassified	4.4520806823
+K10710: fructoselysine 6-kinase|unclassified	3.3902917048
+K10778: AraC family transcriptional regulator, regulatory protein of|unclassified	4.4291338583
+K10805: acyl-CoA thioesterase II [EC:3.1.2.-]|g__Escherichia.s__Escherichia_coli	6.9541029207
+K10805: acyl-CoA thioesterase II [EC:3.1.2.-]|unclassified	2.5050317706
+K10914: CRP/FNR family transcriptional regulator, cyclic AMP receptor protein|g__Escherichia.s__Escherichia_coli	10.1750202838
+K10973: IclR family transcriptional regulator, negative regulator of|unclassified	1.7383746197
+K10984: PTS system, galactosamine-specific IIB component [EC:2.7.1.-]|unclassified	1.1743567934
+K11066: N-acetylmuramoyl-L-alanine amidase|unclassified	3.8363171355
+K11068: hemolysin III|g__Bacteroides.s__Bacteroides_fragilis	7.8508417119
+K11069: spermidine/putrescine transport system substrate-binding protein|unclassified	1.8206290143
+K11072: spermidine/putrescine transport system ATP-binding protein [EC:3.6.3.31]|g__Fusobacterium.s__Fusobacterium_nucleatum	5.055611729
+K11072: spermidine/putrescine transport system ATP-binding protein [EC:3.6.3.31]|unclassified	5.5249111099
+K11073: putrescine transport system substrate-binding protein|unclassified	2.7147759205
+K11102: proton glutamate symport protein|unclassified	3.9523610305
+K11104: melibiose permease|unclassified	2.7478106033
+K11107: ferredoxin|g__Escherichia.s__Escherichia_coli	17.4702471773
+K11175: phosphoribosylglycinamide formyltransferase 1 [EC:2.1.2.2]|unclassified	1.9491525424
+K11177: xanthine dehydrogenase YagR molybdenum-binding subunit [EC:1.17.1.4]|unclassified	1.8123366184
+K11184: catabolite repression HPr-like protein|g__Roseburia.s__Roseburia_hominis	9.3457943925
+K11189: phosphocarrier protein|unclassified	5.1775960826
+K11201: PTS system, fructose-specific IIA-like component|unclassified	5.1775960826
+K11202: PTS system, fructose-specific IIB-like component|unclassified	1.6552733469
+K11203: PTS system, fructose-specific IIC-like component|unclassified	1.6552733469
+K11208: GST-like protein|g__Escherichia.s__Escherichia_coli	6.3025395527
+K11258: acetolactate synthase II small subunit [EC:2.2.1.6]|g__Escherichia.s__Escherichia_coli	8.1967213115
+K11382: MFS transporter, OPA family, phosphoglycerate transporter protein|g__Veillonella.s__Veillonella_rogosae	28.4718247034
+K11472: glycolate oxidase FAD binding subunit|g__Escherichia.s__Escherichia_coli	6.5837644561
+K11645: fructose-bisphosphate aldolase, class I [EC:4.1.2.13]|unclassified	1.865158414
+K11708: manganese/zinc/iron transport system permease protein|g__Veillonella.s__Veillonella_rogosae	17.1119290924
+K11719: lipopolysaccharide export system protein LptC|g__Escherichia.s__Escherichia_coli	6.9071455056
+K11733: lysine-specific permease|g__Veillonella.s__Veillonella_rogosae	17.158617404
+K11735: GABA permease|unclassified	1.1265849622
+K11739: bacteriophage N4 adsorption protein A|unclassified	2.3833480493
+K11740: bacteriophage N4 adsorption protein B|unclassified	1.1171519425
+K11741: quaternary ammonium compound-resistance protein SugE|unclassified	2.7881040892
+K11742: spermidine export protein MdtI|g__Escherichia.s__Escherichia_coli	10.5547510304
+K11745: glutathione-regulated potassium-efflux system ancillary protein KefC|unclassified	0.954882323
+K11746: glutathione-regulated potassium-efflux system ancillary protein KefF|g__Escherichia.s__Escherichia_coli	7.7120822622
+K11747: glutathione-regulated potassium-efflux system protein KefB|unclassified	2.9167602289
+K11749: regulator of sigma E protease [EC:3.4.24.-]|g__Bacteroides.s__Bacteroides_fragilis	8.2318152828
+K11749: regulator of sigma E protease [EC:3.4.24.-]|g__Fusobacterium.s__Fusobacterium_nucleatum	4.8691472184
+K11752: diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase [EC:3.5.4.26 1.1.1.193]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	5.9835485979
+K11752: diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase [EC:3.5.4.26 1.1.1.193]|unclassified	8.0550776839
+K11754: dihydrofolate synthase / folylpolyglutamate synthase [EC:6.3.2.12 6.3.2.17]|unclassified	6.5923730381
+K11755: phosphoribosyl-ATP pyrophosphohydrolase / phosphoribosyl-AMP cyclohydrolase [EC:3.6.1.31 3.5.4.19]|g__Bacteroides.s__Bacteroides_fragilis	6.3829787234
+K11920: AraC family transcriptional regulator|unclassified	3.1537159043
+K11921: LysR family transcriptional regulator|unclassified	3.5248046577
+K11926: sigma factor-binding protein Crl|unclassified	3.7771482531
+K11927: ATP-dependent RNA helicase RhlE [EC:3.6.4.13]|g__Bacteroides.s__Bacteroides_fragilis	7.8786123714
+K11928: sodium/proline symporter|unclassified	6.5359477124
+K11929: outer membrane pore protein E|unclassified	1.6427408494
+K11936: biofilm PGA synthesis N-glycosyltransferase PgaC|unclassified	2.2836925845
+K12111: evolved beta-galactosidase subunit alpha [EC:3.2.1.23]|unclassified	1.3824922212
+K12139: hydrogenase-4 component D|unclassified	1.2833683095
+K12148: biofilm regulator BssS|g__Escherichia.s__Escherichia_coli	17.6991150442
+K12149: DNA-damage-inducible protein I|g__Escherichia.s__Escherichia_coli	9.6153846154
+K12290: pilus assembly protein HofO|g__Escherichia.s__Escherichia_coli	17.5438596491
+K12291: pilus assembly protein HofP|unclassified	5.1498127341
+K12299: MFS transporter, ACS family, probable galactarate transporter|unclassified	0.8753693616
+K12369: dipeptide transport system permease protein|unclassified	1.9563924454
+K12370: dipeptide transport system permease protein|g__Escherichia.s__Escherichia_coli	6.5685777451
+K12371: dipeptide transport system ATP-binding protein|unclassified	3.2187980591
+K12372: dipeptide transport system ATP-binding protein|unclassified	4.7942817294
+K12373: hexosaminidase [EC:3.2.1.52]|g__Bacteroides.s__Bacteroides_fragilis	13.6464843743
+K12410: NAD-dependent deacetylase|g__Bacteroides.s__Bacteroides_fragilis	12.2961181513
+K12507: acyl-CoA synthetase|unclassified	1.9158534253
+K12524: bifunctional aspartokinase / homoserine dehydrogenase 1 [EC:2.7.2.4 1.1.1.3]|unclassified	2.3411266936
+K12525: bifunctional aspartokinase / homoserine dehydrogenase 2 [EC:2.7.2.4 1.1.1.3]|unclassified	1.3268314884
+K12527: putative selenate reductase [EC:1.97.1.9]|unclassified	1.9626711933
+K12528: putative selenate reductase molybdopterin-binding subunit|unclassified	1.7008585696
+K12529: putative selenate reductase FAD-binding subunit|g__Escherichia.s__Escherichia_coli	7.8345377034
+K12573: ribonuclease R [EC:3.1.-.-]|g__Veillonella.s__Veillonella_rogosae	22.019098919
+K12940: NO_NAME|unclassified	5.0694959427
+K12941: NO_NAME|unclassified	2.0142673278
+K12944: NO_NAME|unclassified	2.2104332449
+K12945: NO_NAME|g__Escherichia.s__Escherichia_coli	6.801277387
+K12945: NO_NAME|unclassified	1.8975332068
+K12975: KDO II ethanolaminephosphotransferase [EC:2.7.8.42]|unclassified	1.7556407012
+K13014: undecaprenyl phosphate-alpha-L-ara4FN deformylase [EC:3.5.1.-]|unclassified	4.0961285864
+K13051: NO_NAME|unclassified	3.9973580611
+K13053: NO_NAME|unclassified	5.0505050505
+K13069: NO_NAME|unclassified	1.5521095629
+K13255: NO_NAME|unclassified	5.3839071383
+K13256: NO_NAME|g__Veillonella.s__Veillonella_rogosae	37.5507740677
+K13301: secretion monitor|g__Escherichia.s__Escherichia_coli	8.0790076225
+K13381: bifunctional chitinase/lysozyme [EC:3.2.1.14 3.2.1.17]|unclassified	1.2292569002
+K13483: xanthine dehydrogenase YagT iron-sulfur-binding subunit|g__Escherichia.s__Escherichia_coli	7.2893104795
+K13483: xanthine dehydrogenase YagT iron-sulfur-binding subunit|unclassified	4.9377676042
+K13566: omega-amidase [EC:3.5.1.3]|g__Bacteroides.s__Bacteroides_fragilis	15.8831259978
+K13638: NO_NAME|g__Escherichia.s__Escherichia_coli	7.0422535211
+K13643: NO_NAME|unclassified	3.3582238949
+K13652: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.1942446043
+K13654: NO_NAME|unclassified	1.5397082658
+K13694: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	21.3832442068
+K13771: Rrf2 family transcriptional regulator, nitric oxide-sensitive transcriptional repressor|unclassified	3.5296759435
+K13787: geranylgeranyl diphosphate synthase, type I [EC:2.5.1.1 2.5.1.10 2.5.1.29]|g__Bifidobacterium.s__Bifidobacterium_adolescentis	5.2798310454
+K13789: geranylgeranyl diphosphate synthase, type II [EC:2.5.1.1 2.5.1.10 2.5.1.29]|g__Bacteroides.s__Bacteroides_fragilis	6.0009615357
+K13821: RHH-type transcriptional regulator, proline utilization regulon repressor / proline dehydrogenase / delta 1-pyrroline-5-carboxylate dehydrogenase [EC:1.5.5.2 1.2.1.88]|unclassified	1.2204696972
+K13889: glutathione transport system substrate-binding protein|unclassified	4.2089591949
+K13891: glutathione transport system permease protein|unclassified	3.8624951719
+K13896: microcin C transport system ATP-binding protein|unclassified	2.3143039665
+K13954: alcohol dehydrogenase [EC:1.1.1.1]|unclassified	2.1104509857
+K14051: cyclic di-GMP phosphodiesterase Gmr [EC:3.1.4.52]|unclassified	2.1270912282
+K14054: NO_NAME|unclassified	1.9517608806
+K14056: NO_NAME|g__Escherichia.s__Escherichia_coli	9.6096199963
+K14057: NO_NAME|g__Escherichia.s__Escherichia_coli	6.5155095611
+K14060: NO_NAME|unclassified	3.6872053803
+K14061: NO_NAME|g__Escherichia.s__Escherichia_coli	13.6170509159
+K14064: NO_NAME|g__Escherichia.s__Escherichia_coli	6.9565427797
+K14065: NO_NAME|g__Escherichia.s__Escherichia_coli	26.8583042973
+K14155: cystathione beta-lyase [EC:4.4.1.8]|g__Bacteroides.s__Bacteroides_fragilis	8.6234552851
+K14170: chorismate mutase / prephenate dehydratase [EC:5.4.99.5 4.2.1.51]|unclassified	2.0081912906
+K14260: alanine-synthesizing transaminase [EC:2.6.1.66 2.6.1.2]|unclassified	4.6933683535
+K14287: NO_NAME|unclassified	4.0534461587
+K14348: NO_NAME|unclassified	3.663003663
+K14392: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	9.1364782806
+K14415: NO_NAME|unclassified	2.1301910591
+K14445: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	5.6300837468
+K14591: NO_NAME|unclassified	2.3847376789
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|g__Bacteroides.s__Bacteroides_fragilis	6.522029639
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	17.9987125489
+K15034: NO_NAME|g__Escherichia.s__Escherichia_coli	7.104818152
+K15268: NO_NAME|unclassified	2.6027775092
+K15396: NO_NAME|unclassified	4.928031849
+K15460: NO_NAME|unclassified	5.7711770961
+K15524: NO_NAME|unclassified	5.7583421037
+K15540: NO_NAME|unclassified	1.6848918583
+K15547: NO_NAME|unclassified	1.490211207
+K15553: sulfonate transport system substrate-binding protein|unclassified	1.993904905
+K15555: sulfonate transport system ATP-binding protein [EC:3.6.3.-]|unclassified	2.5487487282
+K15580: oligopeptide transport system substrate-binding protein|unclassified	1.9850148908
+K15582: oligopeptide transport system permease protein|unclassified	3.1395348837
+K15584: nickel transport system substrate-binding protein|unclassified	1.375989435
+K15633: 2,3-bisphosphoglycerate-independent phosphoglycerate mutase [EC:5.4.2.12]|g__Bacteroides.s__Bacteroides_fragilis	12.5674068754
+K15633: 2,3-bisphosphoglycerate-independent phosphoglycerate mutase [EC:5.4.2.12]|unclassified	1.2874966893
+K15634: probable phosphoglycerate mutase [EC:5.4.2.12]|unclassified	3.449638286
+K15722: NO_NAME|g__Escherichia.s__Escherichia_coli	9.900990099
+K15777: 4,5-DOPA dioxygenase extradiol [EC:1.13.11.-]|unclassified	5.2151238592
+K15827: NO_NAME|g__Escherichia.s__Escherichia_coli	14.8800650495
+K15828: NO_NAME|unclassified	2.3064205477
+K15830: NO_NAME|unclassified	1.9589715943
+K15833: NO_NAME|g__Escherichia.s__Escherichia_coli	15.5862400297
+K15922: alpha-glucosidase [EC:3.2.1.20]|unclassified	3.0149343165
+K15977: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	6.7567567568
+K15977: NO_NAME|unclassified	8.2279102593
+K15987: K(+)-stimulated pyrophosphate-energized sodium pump [EC:3.6.1.1]|g__Bacteroides.s__Bacteroides_fragilis	6.7845903708
+K16053: NO_NAME|unclassified	2.8935333981
+K16066: 3-hydroxy acid dehydrogenase / malonic semialdehyde reductase [EC:1.1.1.381 1.1.1.-]|unclassified	2.2907308021
+K16088: NO_NAME|unclassified	1.2398143077
+K16089: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	7.0003378649
+K16090: NO_NAME|unclassified	1.9940546539
+K16135: NO_NAME|unclassified	3.6604902861
+K16137: NO_NAME|g__Escherichia.s__Escherichia_coli	6.5407252706
+K16140: NO_NAME|unclassified	3.3610822868000003
+K16213: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	9.6394872612
+K16264: NO_NAME|g__Escherichia.s__Escherichia_coli	8.7468789014
+K16264: NO_NAME|unclassified	2.4262784621
+K16322: NO_NAME|g__Escherichia.s__Escherichia_coli	8.0968969596
+K16345: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	18.504433941
+K16363: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase / 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:3.5.1.108 4.2.1.59]|g__Bacteroides.s__Bacteroides_fragilis	9.6220453542
+K16692: NO_NAME|g__Roseburia.s__Roseburia_hominis	5.1450626947
+K16693: NO_NAME|unclassified	1.9828064337
+K16704: NO_NAME|unclassified	3.4573153249
+K16710: NO_NAME|unclassified	3.449181597
+K16711: NO_NAME|unclassified	2.3642547674
+K16786: energy-coupling factor transport system ATP-binding protein [EC:3.6.3.-]|g__Veillonella.s__Veillonella_rogosae	10.2706928549
+K16787: energy-coupling factor transport system ATP-binding protein [EC:3.6.3.-]|g__Veillonella.s__Veillonella_rogosae	10.2706928549
+K17247: NO_NAME|g__Escherichia.s__Escherichia_coli	30.487804878
+K17318: putative aldouronate transport system substrate-binding protein|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	11.6580263164
+K17319: putative aldouronate transport system permease protein|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	14.874515932
+K17686: Cu+-exporting ATPase [EC:3.6.3.54]|unclassified	1.5422142401
+K17828: dihydroorotate dehydrogenase (NAD+) catalytic subunit [EC:1.3.1.14]|g__Bacteroides.s__Bacteroides_fragilis	14.2806609733
+K17836: beta-lactamase class A [EC:3.5.2.6]|g__Veillonella.s__Veillonella_rogosae	11.8037865225
+K17938: NO_NAME|unclassified	1.4486204735
+K18014: 3-aminobutyryl-CoA ammonia-lyase [EC:4.3.1.14]|g__Fusobacterium.s__Fusobacterium_nucleatum	9.900990099
+K18138: multidrug efflux pump|unclassified	0.8734083204
+K18139: outer membrane protein, multidrug efflux system|g__Bacteroides.s__Bacteroides_fragilis	14.5334119466
+K18142: NO_NAME|unclassified	4.0082224801
+K18471: methylglyoxal reductase [EC:1.1.1.-]|unclassified	9.6250971251
+K18479: NO_NAME|unclassified	2.193116088
+K18657: NO_NAME|g__Escherichia.s__Escherichia_coli	7.4812967581
+K18682: ribonucrease Y [EC:3.1.-.-]|g__Bacteroides.s__Bacteroides_fragilis	9.9643454415
+K18702: NO_NAME|unclassified	3.646308113
+K18765: NO_NAME|unclassified	2.7333188692
+K18778: NO_NAME|unclassified	4.3062456946
+K18840: NO_NAME|g__Escherichia.s__Escherichia_coli	15.3846153846
+K18843: NO_NAME|unclassified	2.7173913043
+K18862: NO_NAME|g__Escherichia.s__Escherichia_coli	34.4827586207
+K18898: NO_NAME|unclassified	1.5649541078
+K18918: NO_NAME|g__Escherichia.s__Escherichia_coli	10.2040816327
+K18928: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	20.0000831951
+K18929: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	13.6623665078
+K18988: NO_NAME|unclassified	3.4745623141
+K19000: NO_NAME|g__Escherichia.s__Escherichia_coli	8.4033613445
+K19125: NO_NAME|g__Escherichia.s__Escherichia_coli	13.1296948233
+K19138: NO_NAME|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	12.8002949188
+K19140: NO_NAME|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	25.7152129443
+K19158: NO_NAME|g__Escherichia.s__Escherichia_coli	8.8495575221
+K19161: NO_NAME|g__Escherichia.s__Escherichia_coli	26.2303485988
+K19164: NO_NAME|g__Escherichia.s__Escherichia_coli	12.987012987
+K19166: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	13.0294542059
+K19221: cob(I)alamin adenosyltransferase [EC:2.5.1.17]|g__Veillonella.s__Veillonella_rogosae	13.6986777406
+K19226: cationic peptide transport system substrate-binding protein|unclassified	2.2079545034
+K19229: cationic peptide transport system ATP-binding protein|unclassified	2.4011299435
+K19234: NO_NAME|unclassified	3.6524071598
+K19235: NO_NAME|unclassified	2.675512574
+K19268: methylaspartate mutase epsilon subunit [EC:5.4.99.1]|g__Fusobacterium.s__Fusobacterium_nucleatum	13.6555200019
+K19270: NO_NAME|unclassified	3.3973419503
+K19336: NO_NAME|g__Escherichia.s__Escherichia_coli	6.9869048927
+K19337: NO_NAME|unclassified	1.4726404175
+K19354: NO_NAME|unclassified	1.9433677422
+K19577: NO_NAME|unclassified	2.5656038643
+K19591: NO_NAME|g__Escherichia.s__Escherichia_coli	18.7548571244
+K19611: ferric enterobactin receptor|unclassified	1.0946694434
+K19688: NO_NAME|g__Escherichia.s__Escherichia_coli	12.3290903955
+K19709: acetate CoA-transferase [EC:2.8.3.8]|unclassified	1.7452571066
+K19802: NO_NAME|unclassified	13.3034711615
+K20265: glutamate:GABA antiporter|unclassified	1.6699161551
+K20461: lantibiotic transport system permease protein|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	14.6678036089
+K21029: NO_NAME|unclassified	4.9486775553
+K21087: NO_NAME|unclassified	6.1497775362
+K21393: NO_NAME|unclassified	0.9194813557
+K21430: NO_NAME|unclassified	2.2646978297
+K21572: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	45.4642612709
+K21572: NO_NAME|unclassified	6.9206138111
+K21637: NO_NAME|g__Escherichia.s__Escherichia_coli	7.9613801836
+K21638: NO_NAME|g__Escherichia.s__Escherichia_coli	16.4534918633
+K21739: NO_NAME|unclassified	2.1988328066
+K21740: NO_NAME|g__Escherichia.s__Escherichia_coli	10.5263157895
+K21746: NO_NAME|unclassified	2.9761300777
+K21903: NO_NAME|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	9.2807924203
+K21905: NO_NAME|unclassified	2.6838786504
+K21907: NO_NAME|unclassified	2.0876826722
+K21972: NO_NAME|unclassified	1.3417613499
+K21973: NO_NAME|unclassified	2.0088253442
+K22010: NO_NAME|g__Veillonella.s__Veillonella_rogosae	16.4705882353
+K22024: NO_NAME|g__Fusobacterium.s__Fusobacterium_nucleatum	5.8343057176
+K22041: NO_NAME|unclassified	1.7057727552
+K22044: NO_NAME|unclassified	4.1020983308
+K22051: NO_NAME|unclassified	1.4504139437
+K22074: NO_NAME|unclassified	2.7672095723
+K22105: NO_NAME|unclassified	1.7587727361
+K22130: NO_NAME|g__Escherichia.s__Escherichia_coli	9.6367410912
+K22132: NO_NAME|unclassified	2.1764333712
+K22214: NO_NAME|unclassified	2.1742885579
+K22443: NO_NAME|unclassified	3.2076695607
+K22494: NO_NAME|unclassified	5.0568980949
+K22597: NO_NAME|unclassified	2.0976953013
+K22720: NO_NAME|g__Escherichia.s__Escherichia_coli	16.9491525424
+K22900: NO_NAME|unclassified	1.9923442736
+K22927: NO_NAME|g__Veillonella.s__Veillonella_rogosae	9.5428848327
+K23015: NO_NAME|unclassified	2.020452251
+K23016: NO_NAME|unclassified	3.2847180021

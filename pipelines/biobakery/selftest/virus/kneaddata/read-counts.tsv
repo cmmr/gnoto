@@ -1,0 +1,2 @@
+sample	raw pair1	raw pair2	decontaminated phix pair1	decontaminated phix pair2	trimmed pair1	trimmed pair2	trimmed orphan1	trimmed orphan2	final pair1	final pair2	final orphan1	final orphan2
+virus	100000	100000	100000	100000	88543	88543	4171	4049	80379	80765	3033	3302

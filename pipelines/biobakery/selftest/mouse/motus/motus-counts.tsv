@@ -1,0 +1,31 @@
+# motus version 3.1.0 | merge 3.1.0 | info merged profiles: # git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0 
+# call: python /usr/local/bin/motus merge -db db_mOTU -d profiles -o motus-counts.tsv
+#consensus_taxonomy	NCBI_tax_id	mouse
+Lactobacillus johnsonii [ref_mOTU_v31_01040]	33959	1
+Lactococcus lactis [ref_mOTU_v31_01301]	1358	1
+Bacteroides dorei/vulgatus [ref_mOTU_v31_02367]	NA	4
+Bacteroides acidifaciens [ref_mOTU_v31_03478]	85831	2
+Akkermansia muciniphila [ref_mOTU_v31_03591]	239935	2
+Ileibacterium valens [ref_mOTU_v31_05939]	1862668	1
+Bacteroidales bacterium M6 [ref_mOTU_v31_10012]	1807734	1
+Bacteroidales bacterium M14 [ref_mOTU_v31_10018]	1807742	3
+Lachnospiraceae bacterium 28-4 [ref_mOTU_v31_11106]	397287	1
+Olsenella species incertae sedis [ext_mOTU_v31_15383]	NA	2
+Muribaculaceae species incertae sedis [ext_mOTU_v31_17392]	NA	3
+Bacteroides species incertae sedis [ext_mOTU_v31_17393]	NA	1
+Muribaculaceae species incertae sedis [ext_mOTU_v31_18847]	NA	4
+Muribaculaceae species incertae sedis [ext_mOTU_v31_18859]	NA	1
+Muribaculaceae species incertae sedis [ext_mOTU_v31_18896]	NA	2
+Muribaculaceae species incertae sedis [ext_mOTU_v31_18902]	NA	1
+Alistipes species incertae sedis [ext_mOTU_v31_18907]	NA	5
+Bacteroidales species incertae sedis [ext_mOTU_v31_19064]	NA	1
+Clostridiales species incertae sedis [ext_mOTU_v31_19073]	NA	1
+Bacteroidales species incertae sedis [ext_mOTU_v31_19090]	NA	1
+Alistipes species incertae sedis [ext_mOTU_v31_19092]	NA	1
+Lachnospiraceae species incertae sedis [ext_mOTU_v31_19119]	NA	1
+Lachnospiraceae species incertae sedis [ext_mOTU_v31_23546]	NA	1
+Clostridiales species incertae sedis [ext_mOTU_v31_23597]	NA	1
+Oscillibacter species incertae sedis [ext_mOTU_v31_23614]	NA	1
+Bacteroides species incertae sedis [ext_mOTU_v31_28292]	NA	1
+Bacteroides species incertae sedis [ext_mOTU_v31_34256]	NA	1
+unassigned	NA	5

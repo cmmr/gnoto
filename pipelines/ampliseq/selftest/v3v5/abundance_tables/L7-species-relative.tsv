@@ -1,0 +1,148 @@
+taxon	control
+aerofaciens	0.00105381
+bacterium	0.00303744
+bicirculans	0.00526903
+bromii	0.00061989
+caccae	0.00843045
+callidus	0.00086784
+capnocytophagoides	0.00892636
+catus	0.00061989
+cellulosilyticus	0.0103521
+champanellensis	0.00018597
+coli	0.00297545
+coprocola	0.0097942
+coprophilus	0.00136375
+crossotus	0.00427721
+distasonis	0.01506323
+dorei	0.01376147
+eggerthii	0.01890652
+equolifaciens	0.00024795
+eutactus	0.00142574
+faecis	0.00359534
+faecium	0.00142574
+finegoldii	0.00421522
+formicigenerans	0.00080585
+fragilis	0.00836846
+gallolyticus	0.0005579
+goldsteinii	0.00043392
+guguanensis	0.00192165
+hadrus	0.00675676
+hansenii	0.00099182
+ilealis	0.00092983
+inops	0.00061989
+intestini	0.00266551
+inulinivorans	0.0032854
+invisus	0.00334738
+johnsonii	0.00235557
+massiliensis	0.00601289
+merdae	0.00539301
+mossii	0.00570295
+obesi	0.00061989
+obeum	0.00942227
+onderdonkii	0.02082817
+ovatus	0.06415819
+parainfluenzae	0.00061989
+parvula	0.00068187
+plebeius	0.01803868
+prausnitzii	0.06341433
+putredinis	0.01258368
+salivarius	0.00130176
+shahii	0.00260352
+siraeum	0.00068187
+splanchnicus	0.00235557
+stercoris	0.04785519
+thetaiotaomicron	0.01586908
+timonensis	0.00074386
+Unc. [Bacteroides] pectinophilus group	0.00037193
+Unc. [Clostridium] innocuum group	0.0005579
+Unc. [Eubacterium] coprostanoligenes group	0.00440119
+Unc. [Eubacterium] eligens group	0.00756261
+Unc. [Eubacterium] siraeum group	0.00018597
+Unc. [Eubacterium] ventriosum group	0.00136375
+Unc. [Eubacterium] xylanophilum group	0.00409125
+Unc. [Ruminococcus] gauvreauii group	0.00235557
+Unc. [Ruminococcus] gnavus group	0.00235557
+Unc. Acutalibacter	0.00130176
+Unc. Agathobacter	0.01580709
+Unc. Agathobaculum	0.00285148
+Unc. Alistipes	0.00365733
+Unc. Allisonella	0.00012398
+Unc. Anaerobutyricum	0.00353335
+Unc. Anaerovoracaceae XIII AD3011 group	0.00024795
+Unc. Asteroleplasma	0.00154971
+Unc. Bacteroides	0.00030994
+Unc. Barnesiella	0.01221175
+Unc. Barnesiellaceae	6.199e-05
+Unc. Blautia	0.01568311
+Unc. Butyribacter	0.00198364
+Unc. Butyricicoccus	0.00037193
+Unc. Butyricimonas	0.00086784
+Unc. CAG-352	0.00576494
+Unc. CAG-56	0.00173568
+Unc. Christensenellaceae R-7 group	0.00173568
+Unc. Clostridia UCG-014	0.00409125
+Unc. Clostridium	0.00291346
+Unc. Colidextribacter	0.00123977
+Unc. Coprobacter	0.00111579
+Unc. Coprococcus	0.00074386
+Unc. Dialister	0.00092983
+Unc. Dorea	0.00235557
+Unc. DTU089	0.00123977
+Unc. Eisenbergiella	0.00049591
+Unc. Enterobacteriaceae	0.00037193
+Unc. Enterocloster	0.00309943
+Unc. Erysipelotrichaceae UCG-003	0.00235557
+Unc. Faecalibacterium	0.00204562
+Unc. Faecalitalea	0.00012398
+Unc. Flavobacteriaceae	0.00012398
+Unc. Flavonifractor	0.00266551
+Unc. Fusicatenibacter	0.00700471
+Unc. Gemmiger	0.01041408
+Unc. Holdemanella	0.00043392
+Unc. Hungatella	0.00117778
+Unc. Intestinibacter	0.00192165
+Unc. Lachnoclostridium	0.00260352
+Unc. Lachnospira	0.00340937
+Unc. Lachnospiraceae	0.00136375
+Unc. Lachnospiraceae FCS020 group	0.00018597
+Unc. Lachnospiraceae ND3007 group	0.00340937
+Unc. Lachnospiraceae NK4A136 group	0.00458716
+Unc. Lachnospiraceae UCG-004	0.00167369
+Unc. Lachnospiraceae UCG-008	0.00012398
+Unc. Lachnospiraceae UCG-010	0.00030994
+Unc. Leyella	0.00421522
+Unc. Longibaculum	0.00018597
+Unc. Massiliprevotella	0.0016117
+Unc. Mediterraneibacter	0.0048971
+Unc. Megamonas	0.0027275
+Unc. Megasphaera	0.0005579
+Unc. Mitsuokella	0.00043392
+Unc. Monoglobus	0.00086784
+Unc. Negativibacillus	0.00049591
+Unc. NK4A214 group	0.00210761
+Unc. Oscillibacter	0.00136375
+Unc. Oscillospiraceae	0.00049591
+Unc. Paludicola	0.00012398
+Unc. Paraprevotella	0.00669477
+Unc. Parasutterella	0.0032854
+Unc. Peptococcaceae	0.00012398
+Unc. Phascolarctobacterium	0.00043392
+Unc. Roseburia	0.00694272
+Unc. Ruminiclostridium	0.00068187
+Unc. Ruminococcaceae	0.00074386
+Unc. Ruminococcus	0.00291346
+Unc. Segatella	0.20679395
+Unc. Sutterella	0.00619886
+Unc. Terrisporobacter	0.0005579
+Unc. Thomasclavelia	0.00018597
+Unc. Turicibacter	0.00043392
+Unc. UCG-002	0.01431937
+Unc. UCG-003	0.00229358
+Unc. UCG-005	0.00502108
+Unc. Veillonella	0.00099182
+Unc. Victivallis	0.00030994
+uniformis	0.04370196
+vulgatus	0.08610216
+wadsworthensis	0.0005579
+xylanisolvens	0.00427721
+xylosoxidans	0.00043392

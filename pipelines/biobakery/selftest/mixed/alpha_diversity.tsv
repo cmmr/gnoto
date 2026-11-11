@@ -1,0 +1,3 @@
+sample	reads	nonpareil_diversity	coverage_pct	redundancy_pct	model_fit	effort_gbp	effort_95_gbp	observed_motus
+mock	188407	16.9315	35.3179	32.0280	0.9998	0.0131	0.6079	11
+single	94899	17.4984	23.8164	20.8130	0.9956	0.0097	6.3415	22

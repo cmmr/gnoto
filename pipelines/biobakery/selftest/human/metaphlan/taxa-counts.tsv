@@ -1,0 +1,15 @@
+# Constructed from biom file
+#OTU ID	human	taxonomy
+1836	18016	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_uniformis; t__SGB1836
+1871	19804	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_ovatus; t__SGB1871
+1855	13382	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_fragilis; t__SGB1855
+4837	9702	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Lachnospiraceae; g__Blautia; s__Blautia_wexlerae; t__SGB4837
+1861	12586	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_thetaiotaomicron; t__SGB1861
+15315	3654	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Oscillospiraceae; g__Faecalibacterium; s__Faecalibacterium_sp_CLA_AA_H233; t__SGB15315
+1934	6523	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Tannerellaceae; g__Parabacteroides; s__Parabacteroides_distasonis; t__SGB1934
+15078	2575	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Oscillospiraceae; g__Dysosmobacter; s__Dysosmobacter_welbionis; t__SGB15078
+17248	1072	k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Bifidobacteriales; f__Bifidobacteriaceae; g__Bifidobacterium; s__Bifidobacterium_longum; t__SGB17248
+5825	805	k__Bacteria; p__Firmicutes; c__Negativicutes; o__Veillonellales; f__Veillonellaceae; g__Dialister; s__Dialister_invisus; t__SGB5825_group
+15132	1392	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Oscillospiraceae; g__Flavonifractor; s__Flavonifractor_plautii; t__SGB15132
+4608	432	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Lachnospiraceae; g__Mediterraneibacter; s__Ruminococcus_torques; t__SGB4608
+4746	42	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Clostridiaceae; g__GGB3550; s__GGB3550_SGB4746; t__SGB4746

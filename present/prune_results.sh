@@ -4,7 +4,8 @@
 # folder.
 #
 # Run by:    present/ampliseq.sh, taxprofiler.sh and biobakery.sh, before the
-#            pages, listings and zip are made
+#            pages, listings and zip are made, and outputs_published in
+#            lib/outputs.sh, on a copy of the core tables
 # Usage:     prune_results.sh <results_dir> <prune_conf>
 # Requires:  GNU find and awk
 #

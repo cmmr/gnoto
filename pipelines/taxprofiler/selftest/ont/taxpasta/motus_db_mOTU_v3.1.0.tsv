@@ -1,0 +1,4 @@
+taxonomy_id	name	rank	lineage	id_lineage	rank_lineage	count
+562	Escherichia coli	species	cellular organisms;Bacteria;Pseudomonadati;Pseudomonadota;Gammaproteobacteria;Enterobacterales;Enterobacteriaceae;Escherichia;Escherichia coli	131567;2;3379134;1224;1236;91347;543;561;562	cellular root;domain;kingdom;phylum;class;order;family;genus;species	1
+1639	Listeria monocytogenes	species	cellular organisms;Bacteria;Bacillati;Bacillota;Bacilli;Caryophanales;Listeriaceae;Listeria;Listeria monocytogenes	131567;2;1783272;1239;91061;1385;186820;1637;1639	cellular root;domain;kingdom;phylum;class;order;family;genus;species	1
+0						0

@@ -1,0 +1,20 @@
+name	taxonomy_id	taxonomy_lvl	mock_pluspf_20260626_bracken.bracken.tsv_num	mock_pluspf_20260626_bracken.bracken.tsv_frac
+Bacteroides fragilis	817	S	20248	0.20586
+Prevotella corporis	28128	S	8713	0.08858
+Escherichia coli	562	S	20375	0.20715
+Salmonella enterica	28901	S	580	0.00590
+Akkermansia muciniphila	239935	S	2262	0.02300
+Faecalibacterium prausnitzii	853	S	13771	0.14001
+Roseburia hominis	301301	S	3590	0.03650
+Clostridioides difficile	1496	S	1855	0.01886
+Veillonella rogosae	423477	S	16336	0.16609
+Limosilactobacillus fermentum	1613	S	1115	0.01134
+Bifidobacterium adolescentis	1680	S	2172	0.02208
+Fusobacterium animalis	76859	S	5355	0.05444
+Fusobacterium nucleatum	851	S	82	0.00083
+Fusobacterium polymorphum	76857	S	49	0.00050
+Fusobacterium vincentii	155615	S	113	0.00115
+Fusobacterium massiliense	1852365	S	23	0.00023
+Candida albicans	5476	S	847	0.00861
+Saccharomyces cerevisiae	4932	S	798	0.00811
+Methanobrevibacter smithii	2173	S	75	0.00076

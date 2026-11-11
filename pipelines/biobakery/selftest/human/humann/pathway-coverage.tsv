@@ -1,0 +1,59 @@
+# Pathway	human_pathcoverage
+UNMAPPED	1.0000000000
+UNINTEGRATED	1.0000000000
+ANAGLYCOLYSIS-PWY: glycolysis III (from glucose)	0.0107160779
+ARGININE-SYN4-PWY: L-ornithine biosynthesis II	0.4773547655
+ARO-PWY: chorismate biosynthesis I	0.0567601542
+BRANCHED-CHAIN-AA-SYN-PWY: superpathway of branched chain amino acid biosynthesis	0.0845588149
+DTDPRHAMSYN-PWY: dTDP-&beta;-L-rhamnose biosynthesis	0.5732496372
+GLYCOGENSYNTH-PWY: glycogen biosynthesis I (from ADP-D-Glucose)	0.2376974026
+HISDEG-PWY: L-histidine degradation I	0.2076714823
+ILEUSYN-PWY: L-isoleucine biosynthesis I (from threonine)	0.6978351630
+NAGLIPASYN-PWY: lipid IVA biosynthesis (E. coli)	0.1053231186
+NONMEVIPP-PWY: methylerythritol phosphate pathway I	0.0218291769
+PANTO-PWY: phosphopantothenate biosynthesis I	0.9242076558
+PEPTIDOGLYCANSYN-PWY: peptidoglycan biosynthesis I (meso-diaminopimelate containing)	0.3186604698
+PWY-1269: CMP-3-deoxy-D-manno-octulosonate biosynthesis	0.0076511389
+PWY-3841: folate transformations II (plants)	0.3426557055
+PWY-5030: L-histidine degradation III	0.2550637556
+PWY-5100: pyruvate fermentation to acetate and lactate II	0.0016666961
+PWY-5103: L-isoleucine biosynthesis III	0.6058948271
+PWY-5384: sucrose degradation IV (sucrose phosphorylase)	0.0014244731
+PWY-5659: GDP-mannose biosynthesis	0.0046986531
+PWY-5686: UMP biosynthesis I	0.4534667910
+PWY-5695: inosine 5'-phosphate degradation	0.9292770951
+PWY-5941: glycogen degradation II	0.0073821104
+PWY-5973: cis-vaccenate biosynthesis	0.7925225508
+PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I	0.6619930043
+PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II	0.6266618456
+PWY-6151: S-adenosyl-L-methionine salvage I	0.0091473730
+PWY-6163: chorismate biosynthesis from 3-dehydroquinate	0.0634509887
+PWY-621: sucrose degradation III (sucrose invertase)	0.0012478597
+PWY-6270: isoprene biosynthesis I	0.0156996796
+PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis	0.6266618456
+PWY-6317: D-galactose degradation I (Leloir pathway)	0.0074372454
+PWY-6385: peptidoglycan biosynthesis III (mycobacteria)	0.3185472628
+PWY-6386: UDP-N-acetylmuramoyl-pentapeptide biosynthesis II (lysine-containing)	0.3566863015
+PWY-6387: UDP-N-acetylmuramoyl-pentapeptide biosynthesis I (meso-diaminopimelate containing)	0.3046599650
+PWY-6527: stachyose degradation	0.0034855803
+PWY-6608: guanosine nucleotides degradation III	0.0749875252
+PWY-6609: adenine and adenosine salvage III	0.3061751272
+PWY-6700: queuosine biosynthesis I (de novo)	0.3743505381
+PWY-6703: preQ0 biosynthesis	0.4741189866
+PWY-6749: CMP-legionaminate biosynthesis I	0.0025454239
+PWY-7185: UTP and CTP dephosphorylation I	0.0092521473
+PWY-7199: pyrimidine deoxyribonucleosides salvage	0.4307383556
+PWY-7221: guanosine ribonucleotides de novo biosynthesis	0.0032589534
+PWY-7560: methylerythritol phosphate pathway II	0.0164133058
+PWY-7663: gondoate biosynthesis (anaerobic)	0.7870680825
+PWY-7790: UMP biosynthesis II	0.4534667910
+PWY-7791: UMP biosynthesis III	0.4534667910
+PWY-7977: L-methionine biosynthesis IV	0.4703068829
+PWY-8073: lipid IVA biosynthesis (P. putida)	0.1053231186
+PWY-I9: L-cysteine biosynthesis VI (from L-methionine)	0.0095767305
+PWY0-1586: peptidoglycan maturation (meso-diaminopimelate containing)	0.9423317663
+PWY66-429: fatty acid biosynthesis initiation (mitochondria)	0.0428783583
+RHAMCAT-PWY: L-rhamnose degradation I	0.0518018566
+RIBOSYN2-PWY: flavin biosynthesis I (bacteria and plants)	0.0019071008
+SER-GLYSYN-PWY: superpathway of L-serine and glycine biosynthesis I	0.0591722093
+VALSYN-PWY: L-valine biosynthesis	0.9131820098

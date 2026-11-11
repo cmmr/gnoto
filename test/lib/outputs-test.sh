@@ -3,7 +3,8 @@
 # outputs-test.sh - Tests lib/outputs.sh in the real image: a pipeline's core
 # tables from stable-files, with globs, sorted rows, stripped lines and gzip;
 # the numeric comparison of two tables; comparing two runs' outputs; the
-# sentence a run's notes get; and keeping a record's own tables for a re-run.
+# sentence a run's notes get; keeping a record's own tables for a re-run; and
+# the tables as Present will publish them.
 #
 # Run by:    a developer, as any user, through the launcher:
 #            gnoto exec --dev bash <install>/test/lib/outputs-test.sh
@@ -205,5 +206,29 @@ check "under their paths" "yes no yes" \
         [[ -f $KEEP/order.tsv ]] && printf yes || printf no)"
 check "a path leaving the directory is never followed" "0" \
     "$(outputs_keep_recorded t '[{"path": "../a/table.tsv", "sha256": "x"}]' "$B" "$WORK/keep2")"
+
+# 8. The tables as Present will publish them
+mkdir -p "$CODE_DIR/pipelines/p" "$CODE_DIR/present/templates/p"
+ln -s "$CODE/lib" "$CODE_DIR/lib"
+ln -s "$CODE/present/prune_results.sh" "$CODE/present/common.sh" "$CODE_DIR/present/"
+printf 'kept.tsv\ncopy/*.tsv\nmotus.txt\n' > "$CODE_DIR/pipelines/p/stable-files"
+printf 'remove | copy/second.tsv\nremove | scratch/\ndrop-zero-rows | motus.txt | 3\n' \
+    > "$CODE_DIR/present/templates/p/prune.conf"
+RUN=$WORK/run
+mkdir -p "$RUN/results/copy" "$RUN/results/scratch"
+printf 'path\t%s/work/ab\n' "$RUN" > "$RUN/results/kept.tsv"
+printf 'k\t1\n' > "$RUN/results/copy/first.tsv"
+printf 'k\t1\n' > "$RUN/results/copy/second.tsv"
+printf '#taxon\tid\tS1\nA\t1\t3\nB\t2\t0\n' > "$RUN/results/motus.txt"
+( cd "$RUN" && outputs_published p results published )
+check "a core table Present prunes is left out" "copy/first.tsv kept.tsv motus.txt" \
+    "$(outputs_measure p "$RUN/published" | jq -r 'map(.path) | join(" ")')"
+check "empty rows dropped as Present drops them" "$(printf '#taxon\tid\tS1\nA\t1\t3\n')" \
+    "$(cat "$RUN/published/motus.txt")"
+check "the run directory's path taken out" "$(printf 'path\t./work/ab')" "$(cat "$RUN/published/kept.tsv")"
+check "the results left as they were" "yes 3" \
+    "$([[ -f $RUN/results/copy/second.tsv ]] && printf yes || printf no) $(wc -l < "$RUN/results/motus.txt")"
+check "a directory there already is refused" "1" \
+    "$(cd "$RUN" && outputs_published p results published 2> /dev/null; echo $?)"
 
 exit $FAILED

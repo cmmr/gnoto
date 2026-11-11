@@ -1,0 +1,26 @@
+# Constructed from biom file
+#OTU ID	mock	single	taxonomy
+6956	24019	0	k__Bacteria; p__Firmicutes; c__Negativicutes; o__Veillonellales; f__Veillonellaceae; g__Veillonella; s__Veillonella_rogosae; t__SGB6956
+15323	18782	0	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Oscillospiraceae; g__Faecalibacterium; s__Faecalibacterium_prausnitzii; t__SGB15323
+1855	40286	0	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_fragilis; t__SGB1855
+10068	29199	0	k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Enterobacterales; f__Enterobacteriaceae; g__Escherichia; s__Escherichia_coli; t__SGB10068
+1504	13183	0	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Prevotellaceae; g__Prevotella; s__Prevotella_corporis; t__SGB1504
+6007	7233	0	k__Bacteria; p__Fusobacteria; c__Fusobacteriia; o__Fusobacteriales; f__Fusobacteriaceae; g__Fusobacterium; s__Fusobacterium_nucleatum; t__SGB6007
+4936	4014	0	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Lachnospiraceae; g__Roseburia; s__Roseburia_hominis; t__SGB4936
+17244	2656	0	k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Bifidobacteriales; f__Bifidobacteriaceae; g__Bifidobacterium; s__Bifidobacterium_adolescentis; t__SGB17244
+9226	2252	0	k__Bacteria; p__Verrucomicrobia; c__Verrucomicrobiae; o__Verrucomicrobiales; f__Akkermansiaceae; g__Akkermansia; s__Akkermansia_muciniphila; t__SGB9226
+7106	888	0	k__Bacteria; p__Firmicutes; c__Bacilli; o__Lactobacillales; f__Lactobacillaceae; g__Limosilactobacillus; s__Limosilactobacillus_fermentum; t__SGB7106
+6136	869	0	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Peptostreptococcaceae; g__Clostridioides; s__Clostridioides_difficile; t__SGB6136
+1815	0	10370	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Phocaeicola; s__Phocaeicola_dorei; t__SGB1815
+2318	0	3574	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Rikenellaceae; g__Alistipes; s__Alistipes_putredinis; t__SGB2318
+1836	0	4977	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Bacteroidaceae; g__Bacteroides; s__Bacteroides_uniformis; t__SGB1836
+4933	0	2344	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Lachnospiraceae; g__Lachnospiraceae_unclassified; s__Eubacterium_rectale; t__SGB4933
+2304	0	1550	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Rikenellaceae; g__Alistipes; s__Alistipes_sp_An31A; t__SGB2304
+6312	0	1105	k__Bacteria; p__Firmicutes; c__CFGB1765; o__OFGB1765; f__FGB1765; g__GGB4569; s__GGB4569_SGB6312; t__SGB6312
+6271	0	679	k__Bacteria; p__Firmicutes; c__CFGB1765; o__OFGB1765; f__FGB1765; g__GGB4549; s__GGB4549_SGB6271; t__SGB6271
+6472	0	356	k__Bacteria; p__Firmicutes; c__CFGB1776; o__OFGB1776; f__FGB1776; g__GGB4682; s__GGB4682_SGB6472; t__SGB6472
+4198	0	660	k__Bacteria; p__Firmicutes; c__Clostridia; o__Eubacteriales; f__Oscillospiraceae; g__Oscillospiraceae_unclassified; s__Eubacterium_siraeum; t__SGB4198
+1965	0	504	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Barnesiellaceae; g__Barnesiella; s__Barnesiella_intestinihominis; t__SGB1965
+6362	0	260	k__Bacteria; p__Firmicutes; c__CFGB1765; o__OFGB1765; f__FGB1765; g__GGB4599; s__GGB4599_SGB6362; t__SGB6362
+1790	0	108	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Odoribacteraceae; g__Odoribacter; s__Odoribacter_splanchnicus; t__SGB1790
+1626	0	80	k__Bacteria; p__Bacteroidota; c__Bacteroidia; o__Bacteroidales; f__Prevotellaceae; g__Segatella; s__Segatella_copri; t__SGB1626

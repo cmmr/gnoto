@@ -1,0 +1,61 @@
+# Gene Family	virus_genefamilies
+UNMAPPED	138116.0
+UNGROUPED	88110.3192080369
+K00244: fumarate reductase flavoprotein subunit [EC:1.3.5.4]	6.2028872956
+K00459: nitronate monooxygenase [EC:1.13.12.16]	6.4504579421
+K00560: thymidylate synthase [EC:2.1.1.45]	32.58941062
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]	4.0201045631
+K00769: xanthine phosphoribosyltransferase [EC:2.4.2.22]	22.1803719939
+K01159: crossover junction endodeoxyribonuclease RuvC [EC:3.1.22.4]	4.3290246108
+K01195: beta-glucuronidase [EC:3.2.1.31]	20.1085303819
+K01588: 5-(carboxyamino)imidazole ribonucleotide mutase [EC:5.4.99.18]	4.4994888095
+K01716: 3-hydroxyacyl-[acyl-carrier protein] dehydratase / trans-2-decenoyl-[acyl-carrier protein] isomerase [EC:4.2.1.59 5.3.3.14]	6.4170035023
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]	4.7058823529
+K02078: acyl carrier protein	5.3191489362
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]	5.4560959574
+K02315: DNA replication protein DnaC	4.4247787611
+K02435: aspartyl-tRNA(Asn)/glutamyl-tRNA(Gln) amidotransferase subunit C [EC:6.3.5.6 6.3.5.7]	8.0005120328
+K02518: translation initiation factor IF-1	5.9523809524
+K02867: large subunit ribosomal protein L11	14.4927536232
+K02881: large subunit ribosomal protein L18	6.4935064935
+K02895: large subunit ribosomal protein L24	22.9885057471
+K02899: large subunit ribosomal protein L27	1.1737429358
+K02902: large subunit ribosomal protein L28	25.641025641
+K02935: large subunit ribosomal protein L7/L12	45.8523592085
+K02946: small subunit ribosomal protein S10	12.1212121212
+K02948: small subunit ribosomal protein S11	22.6004710245
+K02950: small subunit ribosomal protein S12	9.5086598983
+K02952: small subunit ribosomal protein S13	27.2754946728
+K02961: small subunit ribosomal protein S17	1.8504433022
+K02968: small subunit ribosomal protein S20	9.2594577216
+K02988: small subunit ribosomal protein S5	17.1821305842
+K03076: preprotein translocase subunit SecY	6.282886194
+K03210: preprotein translocase subunit YajC	10.66941744
+K03218: RNA methyltransferase, TrmH family	11.5045894319
+K03496: chromosome partitioning protein	21.7360410411
+K03497: chromosome partitioning protein, ParB family	14.6785513896
+K03553: recombination protein RecA	16.665433469
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]	6.7571112157
+K03617: electron transport complex protein RnfA	3.8095238095
+K03648: uracil-DNA glycosylase [EC:3.2.2.27]	6.5412962785
+K03719: Lrp/AsnC family transcriptional regulator, leucine-responsive	4.5403009689
+K03817: ribosomal-protein-serine acetyltransferase	4.9751243781
+K04755: ferredoxin, 2Fe-2S	6.9565427797
+K07237: tRNA 2-thiouridine synthesizing protein B	8.421089955
+K07480: insertion element IS1 protein InsB	1.0407688432
+K07481: transposase, IS5 family	0.8214418966
+K07483: transposase	68.1737111378
+K08296: phosphohistidine phosphatase	3.9920159681
+K09022: UPF0076 protein YjgF	8.547008547
+K09903: uridylate kinase [EC:2.7.4.22]	12.987012987
+K09981: hypothetical protein	4.4052863436
+K18698: beta-lactamase class A TEM [EC:3.5.2.6]	20.5893797306
+K18851: diacylglycerol O-acyltransferase / trehalose O-mycolyltransferase [EC:2.3.1.20 2.3.1.122]	11.1997278067
+K19000: NO_NAME	4.9019607843
+K19252: NO_NAME	6.954535372
+K19271: NO_NAME	1.6772834983
+K19272: NO_NAME	10.0916803229
+K19300: NO_NAME	8.2855693577
+K21076: NO_NAME	6.495059899
+K21240: NO_NAME	13.2185272036
+K21699: NO_NAME	5.7510945333

@@ -1,0 +1,97 @@
+# Gene Family	virus_genefamilies-RELAB
+UNGROUPED|g__Arcobacter.s__Arcobacter_cryaerophilus	0.00685152
+UNGROUPED|unclassified	0.359158
+1.1.1.14: L-iditol 2-dehydrogenase|unclassified	2.2289e-05
+1.14.99.36: Beta-carotene 15,15'-monooxygenase|g__Arcobacter.s__Arcobacter_cryaerophilus	2.51033e-05
+1.17.4.1: Ribonucleoside-diphosphate reductase|unclassified	2.82401e-05
+1.2.1.11: Aspartate-semialdehyde dehydrogenase|g__Arcobacter.s__Arcobacter_cryaerophilus	3.46631e-05
+1.3.98.3: NO_NAME|unclassified	2.30626e-05
+1.4.4.2: Glycine dehydrogenase (aminomethyl-transferring)|unclassified	1.84308e-05
+1.6.1.1: NAD(P)(+) transhydrogenase (Si-specific)|unclassified	5.0055e-05
+1.6.1.2: NAD(P)(+) transhydrogenase (Re/Si-specific)|unclassified	6.10126e-05
+1.6.5.11: NADH dehydrogenase (quinone)|g__Arcobacter.s__Arcobacter_cryaerophilus	4.27666e-05
+1.6.5.11: NADH dehydrogenase (quinone)|unclassified	0.000133747
+1.6.5.2: NAD(P)H dehydrogenase (quinone)|unclassified	1.79246e-05
+1.6.5.5: NADPH:quinone reductase|unclassified	0.00307033
+1.8.4.11: Peptide-methionine (S)-S-oxide reductase|unclassified	1.95994e-05
+1.9.6.1: Nitrate reductase (cytochrome)|g__Arcobacter.s__Arcobacter_cryaerophilus	6.67418e-05
+2.1.1.170: 16S rRNA (guanine(527)-N(7))-methyltransferase|g__Arcobacter.s__Arcobacter_cryaerophilus	5.99088e-05
+2.1.1.177: 23S rRNA (pseudouridine(1915)-N(3))-methyltransferase|unclassified	2.09263e-05
+2.1.1.185: 23S rRNA (guanosine(2251)-2'-O)-methyltransferase|unclassified	5.06772e-05
+2.1.1.45: Thymidylate synthase|unclassified	0.000143555
+2.1.1.56:  ;  Q06996, L_SENDF    ;  O55528, L_SENDO|unclassified	0.000101894
+2.1.3.15: NO_NAME|unclassified	3.39483e-05
+2.1.3.2: Aspartate carbamoyltransferase|unclassified	2.20248e-05
+2.3.1.122: Trehalose O-mycolyltransferase|unclassified	0.000323369
+2.3.1.179: Beta-ketoacyl-[acyl-carrier-protein] synthase II|g__Arcobacter.s__Arcobacter_cryaerophilus	2.7779e-05
+2.3.1.20: Diacylglycerol O-acyltransferase|unclassified	0.000323369
+2.3.1.266: NO_NAME|unclassified	2.14615e-05
+2.3.1.28: Chloramphenicol O-acetyltransferase|unclassified	3.7032e-05
+2.3.1.31: Homoserine O-acetyltransferase|unclassified	2.53401e-05
+2.3.1.39: [Acyl-carrier-protein] S-malonyltransferase|g__Arcobacter.s__Arcobacter_cryaerophilus	4.45832e-05
+2.4.2.22: Xanthine phosphoribosyltransferase|unclassified	0.00170909
+2.4.2.29: tRNA-guanine(34) transglycosylase|unclassified	3.2724e-05
+2.4.2.52: Triphosphoribosyl-dephospho-CoA synthase|unclassified	2.19425e-05
+2.4.2.8: Hypoxanthine phosphoribosyltransferase|unclassified	1.77084e-05
+2.4.2.9: Uracil phosphoribosyltransferase|unclassified	3.03007e-05
+2.5.1.19: 3-phosphoshikimate 1-carboxyvinyltransferase|g__Arcobacter.s__Arcobacter_cryaerophilus	1.81523e-05
+2.5.1.6: Methionine adenosyltransferase|unclassified	0.000354329
+2.5.1.78: 6,7-dimethyl-8-ribityllumazine synthase|unclassified	2.05121e-05
+2.6.1.11: Acetylornithine transaminase|unclassified	3.70945e-05
+2.7.1.15: Ribokinase|unclassified	1.1781e-05
+2.7.1.31: Glycerate 3-kinase|unclassified	2.31231e-05
+2.7.1.95: Kanamycin kinase|unclassified	0.000110377
+2.7.4.22: UMP kinase|g__Arcobacter.s__Arcobacter_cryaerophilus	5.72072e-05
+2.7.4.3: Adenylate kinase|unclassified	1.69096e-05
+2.7.4.8: Guanylate kinase|g__Arcobacter.s__Arcobacter_cryaerophilus	5.61141e-05
+2.7.7.3: Pantetheine-phosphate adenylyltransferase|unclassified	4.15562e-05
+2.7.7.48:  ;  Q06996, L_SENDF|unclassified	0.000258648
+2.7.7.50: mRNA guanylyltransferase|unclassified	0.000101894
+2.7.7.6: DNA-directed RNA polymerase|unclassified	8.52627e-05
+2.7.8.5: CDP-diacylglycerol--glycerol-3-phosphate 3-phosphatidyltransferase|g__Arcobacter.s__Arcobacter_cryaerophilus	3.36256e-05
+3.1.1.96: D-aminoacyl-tRNA deacylase|unclassified	2.26476e-05
+3.1.11.6: Exodeoxyribonuclease VII|unclassified	2.97648e-05
+3.1.22.4: Crossover junction endodeoxyribonuclease|unclassified	3.16422e-05
+3.1.26.4: Ribonuclease H|g__Arcobacter.s__Arcobacter_cryaerophilus	2.05359e-05
+3.1.3.15: Histidinol-phosphatase|unclassified	2.42031e-05
+3.1.3.27: Phosphatidylglycerophosphatase|g__Arcobacter.s__Arcobacter_cryaerophilus	8.08249e-05
+3.1.3.48: Protein-tyrosine-phosphatase|unclassified	2.10261e-05
+3.1.3.5: 5'-nucleotidase|unclassified	4.18057e-05
+3.2.1.23: Beta-galactosidase|unclassified	0.00910042
+3.2.1.31: Beta-glucuronidase|unclassified	0.0011803
+3.2.2.27: Uracil-DNA glycosylase|g__Arcobacter.s__Arcobacter_cryaerophilus	5.796e-05
+3.2.2.27: Uracil-DNA glycosylase|unclassified	0.00431774
+3.4.11.18: Methionyl aminopeptidase|g__Arcobacter.s__Arcobacter_cryaerophilus	3.58127e-05
+3.4.15.5: Peptidyl-dipeptidase Dcp|unclassified	9.60243e-06
+3.4.19.5: Beta-aspartyl-peptidase|unclassified	4.44113e-05
+3.4.22.39: Adenain|unclassified	9.87209e-05
+3.5.1.88: Peptide deformylase|g__Arcobacter.s__Arcobacter_cryaerophilus	2.40708e-05
+3.5.2.6: Beta-lactamase|unclassified	0.00143562
+3.5.4.16: GTP cyclohydrolase I|g__Arcobacter.s__Arcobacter_cryaerophilus	4.51791e-05
+3.5.4.33: tRNA(adenine(34)) deaminase|unclassified	4.38851e-05
+3.6.3.17: Monosaccharide-transporting ATPase|unclassified	1.79794e-05
+3.6.4.12: DNA helicase|unclassified	0.000186158
+4.1.3.39: 4-hydroxy-2-oxovalerate aldolase|g__Arcobacter.s__Arcobacter_cryaerophilus	0.00013984
+4.2.1.10: 3-dehydroquinate dehydratase|unclassified	5.88147e-05
+4.2.1.109: Methylthioribulose 1-phosphate dehydratase|unclassified	2.24616e-05
+4.2.1.40: Glucarate dehydratase|unclassified	2.30626e-05
+4.2.1.59: 3-hydroxyacyl-[acyl-carrier-protein] dehydratase|unclassified	5.69199e-05
+4.2.99.18: DNA-(apurinic or apyrimidinic site) lyase|g__Arcobacter.s__Arcobacter_cryaerophilus	3.53635e-05
+4.3.1.19: Threonine ammonia-lyase|unclassified	2.28599e-05
+4.3.3.7: 4-hydroxy-tetrahydrodipicolinate synthase|g__Arcobacter.s__Arcobacter_cryaerophilus	1.79063e-05
+4.6.1.12: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase|unclassified	2.07292e-05
+5.1.3.1: Ribulose-phosphate 3-epimerase|g__Arcobacter.s__Arcobacter_cryaerophilus	2.68413e-05
+5.1.3.13: dTDP-4-dehydrorhamnose 3,5-epimerase|g__Arcobacter.s__Arcobacter_cryaerophilus	3.0379e-05
+5.1.3.13: dTDP-4-dehydrorhamnose 3,5-epimerase|unclassified	1.74974e-05
+5.1.3.2: UDP-glucose 4-epimerase|unclassified	2.84745e-05
+5.2.1.8: Peptidylprolyl isomerase|g__Arcobacter.s__Arcobacter_cryaerophilus	5.91753e-05
+5.3.1.13: Arabinose-5-phosphate isomerase|g__Arcobacter.s__Arcobacter_cryaerophilus	4.33452e-05
+5.3.1.9: Glucose-6-phosphate isomerase|unclassified	1.81274e-05
+5.3.3.14: Trans-2-decenoyl-[acyl-carrier-protein] isomerase|unclassified	5.69199e-05
+5.4.99.18: 5-(carboxyamino)imidazole ribonucleotide mutase|unclassified	1.98201e-05
+5.99.1.2: DNA topoisomerase|unclassified	1.85863e-05
+6.1.1.3: Threonine--tRNA ligase|unclassified	2.31301e-05
+6.1.1.9: Valine--tRNA ligase|g__Arcobacter.s__Arcobacter_cryaerophilus	2.26476e-05
+6.2.1.3: Long-chain-fatty-acid--CoA ligase|unclassified	1.89054e-05
+6.3.3.1: Phosphoribosylformylglycinamidine cyclo-ligase|unclassified	3.09852e-05
+7.1.2.2: NO_NAME|unclassified	2.40339e-05

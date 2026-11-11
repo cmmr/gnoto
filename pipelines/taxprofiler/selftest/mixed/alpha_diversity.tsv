@@ -1,0 +1,3 @@
+sample	reads	nonpareil_diversity	coverage_pct	redundancy_pct	model_fit	effort_gbp	effort_95_gbp	observed_motus	faith_pd	faith_pd_basis_pct	faith_pd_sgb	faith_pd_sgb_basis_pct
+mock	98733	16.9726	35.6766	32.3840	0.9998	0.0138	0.6504	11	21.9310	99.62	4.4190	100.0000
+single	99744	17.5776	23.1293	20.1570	0.9962	0.0098	6.8635	23	42.2667	54.79	3.5205	84.0375

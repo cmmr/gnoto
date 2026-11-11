@@ -1,0 +1,104 @@
+taxon	control
+[Bacteroides] pectinophilus group	0.00037193
+[Clostridium] innocuum group	0.0005579
+[Eubacterium] eligens group	0.00756261
+[Eubacterium] siraeum group	0.00086784
+[Eubacterium] ventriosum group	0.00136375
+[Eubacterium] xylanophilum group	0.00409125
+[Ruminococcus] gauvreauii group	0.00235557
+[Ruminococcus] gnavus group	0.00235557
+Achromobacter	0.00043392
+Acidaminococcus	0.00266551
+Acutalibacter	0.00130176
+Adlercreutzia	0.00024795
+Agathobacter	0.01580709
+Agathobaculum	0.00285148
+Alistipes	0.04333003
+Allisonella	0.00012398
+Anaerobutyricum	0.00353335
+Anaerostipes	0.00675676
+Anaerovoracaceae XIII AD3011 group	0.00024795
+Asteroleplasma	0.00154971
+Bacteroides	0.3603397
+Barnesiella	0.01221175
+Blautia	0.0288247
+Butyribacter	0.00198364
+Butyricicoccus	0.00037193
+Butyricimonas	0.00086784
+Butyrivibrio	0.00427721
+CAG-352	0.00576494
+CAG-56	0.00173568
+Christensenellaceae R-7 group	0.00173568
+Clostridium	0.00291346
+Colidextribacter	0.00142574
+Collinsella	0.00105381
+Coprobacter	0.00111579
+Coprococcus	0.00278949
+Dialister	0.00427721
+Dorea	0.00316142
+DTU089	0.00123977
+Dysgonomonas	0.01462931
+Eisenbergiella	0.00049591
+Enterocloster	0.00309943
+Erysipelotrichaceae UCG-003	0.00235557
+Escherichia-Shigella	0.00297545
+Faecalibacterium	0.06545996
+Faecalitalea	0.00012398
+Flavonifractor	0.00266551
+Fusicatenibacter	0.00700471
+Gabonibacter	0.00018597
+Gemmiger	0.01041408
+Haemophilus	0.00061989
+Holdemanella	0.00043392
+Hungatella	0.00117778
+Intestinibacter	0.00192165
+Lachnoclostridium	0.00260352
+Lachnospira	0.00340937
+Lachnospiraceae FCS020 group	0.00018597
+Lachnospiraceae ND3007 group	0.00340937
+Lachnospiraceae NK4A136 group	0.0076246
+Lachnospiraceae UCG-004	0.00167369
+Lachnospiraceae UCG-008	0.00012398
+Lachnospiraceae UCG-010	0.00030994
+Leyella	0.00421522
+Longibaculum	0.00018597
+Massiliprevotella	0.0016117
+Mediterraneibacter	0.0048971
+Megamonas	0.0027275
+Megasphaera	0.0005579
+Mitsuokella	0.00043392
+Monoglobus	0.00086784
+Negativibacillus	0.00049591
+NK4A214 group	0.00210761
+Odoribacter	0.00235557
+Oscillibacter	0.00136375
+Paludicola	0.00012398
+Parabacteroides	0.02324572
+Paraprevotella	0.00669477
+Parasutterella	0.0032854
+Phascolarctobacterium	0.00185966
+Pseudomonas	0.00192165
+Romboutsia	0.00092983
+Roseburia	0.01022812
+Ruminiclostridium	0.00068187
+Ruminococcus	0.00985619
+Segatella	0.20679395
+Streptococcus	0.00185966
+Sutterella	0.00675676
+Terrisporobacter	0.0005579
+Thomasclavelia	0.00018597
+Turicibacter	0.00043392
+UCG-002	0.01431937
+UCG-003	0.00229358
+UCG-005	0.00502108
+Unc. [Eubacterium] coprostanoligenes group	0.00440119
+Unc. Barnesiellaceae	6.199e-05
+Unc. Clostridia UCG-014	0.00409125
+Unc. Enterobacteriaceae	0.00037193
+Unc. Flavobacteriaceae	0.00012398
+Unc. Lachnospiraceae	0.00136375
+Unc. Oscillospiraceae	0.00049591
+Unc. Peptococcaceae	0.00012398
+Unc. Ruminococcaceae	0.00074386
+Veillonella	0.00167369
+Victivallis	0.00030994

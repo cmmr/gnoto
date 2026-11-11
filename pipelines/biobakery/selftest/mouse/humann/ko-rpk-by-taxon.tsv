@@ -1,0 +1,421 @@
+# Gene Family	mouse_genefamilies
+UNGROUPED|g__Akkermansia.s__Akkermansia_muciniphila	2067.7230977712
+UNGROUPED|g__Bacteroides.s__Bacteroides_vulgatus	23061.8512695218
+UNGROUPED|g__Lachnospiraceae_unclassified.s__Lachnospiraceae_bacterium_28_4	1317.1502144882
+UNGROUPED|g__Lactococcus.s__Lactococcus_lactis	3337.1655875057
+UNGROUPED|unclassified	17536.3119849443
+K00031: isocitrate dehydrogenase [EC:1.1.1.42]|g__Bacteroides.s__Bacteroides_vulgatus	10.0401606426
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Bacteroides.s__Bacteroides_vulgatus	3.8759689922
+K00053: ketol-acid reductoisomerase [EC:1.1.1.86]|unclassified	2.0801400614
+K00057: glycerol-3-phosphate dehydrogenase (NAD(P)+) [EC:1.1.1.94]|g__Bacteroides.s__Bacteroides_vulgatus	4.7281323877
+K00059: 3-oxoacyl-[acyl-carrier protein] reductase [EC:1.1.1.100]|g__Bacteroides.s__Bacteroides_vulgatus	13.6086303712
+K00067: dTDP-4-dehydrorhamnose reductase [EC:1.1.1.133]|g__Bacteroides.s__Bacteroides_vulgatus	12.7118644068
+K00067: dTDP-4-dehydrorhamnose reductase [EC:1.1.1.133]|unclassified	3.6659889961
+K00074: 3-hydroxybutyryl-CoA dehydrogenase [EC:1.1.1.157]|unclassified	18.2523409472
+K00088: IMP dehydrogenase [EC:1.1.1.205]|unclassified	8.2168340319
+K00099: 1-deoxy-D-xylulose-5-phosphate reductoisomerase [EC:1.1.1.267]|g__Bacteroides.s__Bacteroides_vulgatus	12.012012012
+K00147: glutamate-5-semialdehyde dehydrogenase [EC:1.2.1.41]|g__Bacteroides.s__Bacteroides_vulgatus	13.5869565217
+K00174: 2-oxoglutarate/2-oxoacid ferredoxin oxidoreductase subunit alpha [EC:1.2.7.3 1.2.7.11]|g__Bacteroides.s__Bacteroides_vulgatus	6.3094901364
+K00176: 2-oxoglutarate ferredoxin oxidoreductase subunit delta [EC:1.2.7.3]|g__Bacteroides.s__Bacteroides_vulgatus	37.037037037
+K00179: indolepyruvate ferredoxin oxidoreductase, alpha subunit|g__Bacteroides.s__Bacteroides_vulgatus	6.8166325835
+K00241: succinate dehydrogenase / fumarate reductase, cytochrome b subunit|g__Bacteroides.s__Bacteroides_vulgatus	12.8383238253
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|g__Bacteroides.s__Bacteroides_vulgatus	11.7430462258
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|unclassified	8.55084247
+K00331: NADH-quinone oxidoreductase subunit B [EC:1.6.5.3]|unclassified	9.1679351454
+K00339: NADH-quinone oxidoreductase subunit J [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_vulgatus	5.6497175141
+K00341: NADH-quinone oxidoreductase subunit L [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_vulgatus	13.1278538813
+K00342: NADH-quinone oxidoreductase subunit M [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_vulgatus	15.727322055
+K00384: thioredoxin reductase (NADPH) [EC:1.8.1.9]|g__Bacteroides.s__Bacteroides_vulgatus	10.0250626566
+K00384: thioredoxin reductase (NADPH) [EC:1.8.1.9]|unclassified	13.3382798415
+K00566: tRNA-specific 2-thiouridylase [EC:2.8.1.-]|g__Akkermansia.s__Akkermansia_muciniphila	7.5757575758
+K00567: methylated-DNA-[protein]-cysteine S-methyltransferase|g__Akkermansia.s__Akkermansia_muciniphila	10.0250626566
+K00615: transketolase [EC:2.2.1.1]|g__Bacteroides.s__Bacteroides_vulgatus	25.8700779115
+K00648: 3-oxoacyl-[acyl-carrier-protein] synthase III [EC:2.3.1.180]|g__Bacteroides.s__Bacteroides_vulgatus	4.6783625731
+K00652: 8-amino-7-oxononanoate synthase [EC:2.3.1.47]|unclassified	6.6086808602
+K00656: formate C-acetyltransferase [EC:2.3.1.54]|g__Bacteroides.s__Bacteroides_vulgatus	7.6085295747
+K00662: aminoglycoside N3'-acetyltransferase|unclassified	7.9086146541
+K00677: UDP-N-acetylglucosamine acyltransferase [EC:2.3.1.129]|g__Bacteroides.s__Bacteroides_vulgatus	6.3274360629
+K00690: sucrose phosphorylase [EC:2.4.1.7]|unclassified	5.7112288552
+K00705: 4-alpha-glucanotransferase [EC:2.4.1.25]|g__Bacteroides.s__Bacteroides_vulgatus	10.2482809446
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|g__Bacteroides.s__Bacteroides_vulgatus	8.0
+K00760: hypoxanthine phosphoribosyltransferase [EC:2.4.2.8]|unclassified	5.9840795546
+K00762: orotate phosphoribosyltransferase [EC:2.4.2.10]|g__Bacteroides.s__Bacteroides_vulgatus	14.3149284254
+K00762: orotate phosphoribosyltransferase [EC:2.4.2.10]|unclassified	5.3957393407
+K00763: nicotinate phosphoribosyltransferase [EC:6.3.4.21]|unclassified	6.4408411595
+K00764: amidophosphoribosyltransferase [EC:2.4.2.14]|unclassified	16.4144159273
+K00765: ATP phosphoribosyltransferase [EC:2.4.2.17]|unclassified	8.0984825835
+K00767: nicotinate-nucleotide pyrophosphorylase (carboxylating) [EC:2.4.2.19]|unclassified	12.4921972534
+K00768: nicotinate-nucleotide--dimethylbenzimidazole phosphoribosyltransferase [EC:2.4.2.21]|g__Bacteroides.s__Bacteroides_vulgatus	6.7567567568
+K00783: hypothetical protein|g__Bacteroides.s__Bacteroides_vulgatus	6.1728395062
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Lactococcus.s__Lactococcus_lactis	4.7619047619
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|unclassified	5.6213110647
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_vulgatus	8.658008658
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Bacteroides.s__Bacteroides_vulgatus	9.0702398991
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|unclassified	5.9710409677
+K00794: 6,7-dimethyl-8-ribityllumazine synthase [EC:2.5.1.78]|g__Bacteroides.s__Bacteroides_vulgatus	15.8341114223
+K00812: aspartate aminotransferase [EC:2.6.1.1]|g__Bacteroides.s__Bacteroides_vulgatus	4.7892720307
+K00819: ornithine--oxo-acid transaminase [EC:2.6.1.13]|g__Bacteroides.s__Bacteroides_vulgatus	9.2081031308
+K00821: acetylornithine/N-succinyldiaminopimelate aminotransferase [EC:2.6.1.11 2.6.1.17]|g__Bacteroides.s__Bacteroides_vulgatus	7.1794871795
+K00849: galactokinase [EC:2.7.1.6]|unclassified	9.0628982879
+K00854: xylulokinase [EC:2.7.1.17]|g__Bacteroides.s__Bacteroides_vulgatus	11.1607142857
+K00873: pyruvate kinase [EC:2.7.1.40]|g__Bacteroides.s__Bacteroides_vulgatus	8.3713850837
+K00874: 2-dehydro-3-deoxygluconokinase [EC:2.7.1.45]|g__Bacteroides.s__Bacteroides_vulgatus	7.650273224
+K00925: acetate kinase [EC:2.7.2.1]|g__Bacteroides.s__Bacteroides_vulgatus	8.5959885387
+K00929: butyrate kinase [EC:2.7.2.7]|g__Bacteroides.s__Bacteroides_vulgatus	12.0218579235
+K00930: acetylglutamate kinase [EC:2.7.2.8]|g__Bacteroides.s__Bacteroides_vulgatus	12.349063366
+K00930: acetylglutamate kinase [EC:2.7.2.8]|unclassified	10.506468719099999
+K00931: glutamate 5-kinase [EC:2.7.2.11]|unclassified	11.4116693366
+K00942: guanylate kinase [EC:2.7.4.8]|g__Bacteroides.s__Bacteroides_vulgatus	23.8095238095
+K00946: thiamine-monophosphate kinase [EC:2.7.4.16]|g__Bacteroides.s__Bacteroides_vulgatus	10.101010101
+K00951: GTP pyrophosphokinase [EC:2.7.6.5]|g__Bacteroides.s__Bacteroides_vulgatus	10.8159031823
+K00954: pantetheine-phosphate adenylyltransferase [EC:2.7.7.3]|g__Bacteroides.s__Bacteroides_vulgatus	6.5359477124
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Bacteroides.s__Bacteroides_vulgatus	8.5400369218
+K00969: nicotinate-nucleotide adenylyltransferase [EC:2.7.7.18]|g__Bacteroides.s__Bacteroides_vulgatus	9.4562647754
+K00980: glycerol-3-phosphate cytidylyltransferase [EC:2.7.7.39]|unclassified	4.7619047619
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|unclassified	4.9288068725
+K01051: pectinesterase [EC:3.1.1.11]|g__Bacteroides.s__Bacteroides_vulgatus	10.140624057
+K01091: phosphoglycolate phosphatase [EC:3.1.3.18]|g__Bacteroides.s__Bacteroides_vulgatus	11.9047619048
+K01092: myo-inositol-1(or 4)-monophosphatase [EC:3.1.3.25]|g__Akkermansia.s__Akkermansia_muciniphila	9.756097561
+K01126: glycerophosphoryl diester phosphodiesterase [EC:3.1.4.46]|g__Bacteroides.s__Bacteroides_vulgatus	7.5757575758
+K01183: chitinase [EC:3.2.1.14]|g__Bacteroides.s__Bacteroides_vulgatus	6.6763332102
+K01186: sialidase-1 [EC:3.2.1.18]|g__Bacteroides.s__Bacteroides_vulgatus	10.6934523263
+K01187: alpha-glucosidase [EC:3.2.1.20]|g__Bacteroides.s__Bacteroides_vulgatus	7.5026795284
+K01206: alpha-L-fucosidase [EC:3.2.1.51]|g__Bacteroides.s__Bacteroides_vulgatus	7.3814396556
+K01258: tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_vulgatus	8.4033613445
+K01265: methionyl aminopeptidase|g__Bacteroides.s__Bacteroides_vulgatus	13.8888888889
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Bacteroides.s__Bacteroides_vulgatus	11.4942528736
+K01361: lactocepin|g__Lactococcus.s__Lactococcus_lactis	7.1906316999
+K01372: bleomycin hydrolase|g__Bacteroides.s__Bacteroides_vulgatus	5.7636887608
+K01433: formyltetrahydrofolate deformylase [EC:3.5.1.10]|g__Bacteroides.s__Bacteroides_vulgatus	15.5367231638
+K01462: NO_NAME|g__Lactococcus.s__Lactococcus_lactis	12.3456790123
+K01462: NO_NAME|unclassified	3.925420856
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Akkermansia.s__Akkermansia_muciniphila	5.5096418733
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_vulgatus	10.9289617486
+K01515: ADP-ribose pyrophosphatase [EC:3.6.1.13]|unclassified	3.925420856
+K01520: dUTP pyrophosphatase [EC:3.6.1.23]|g__Lactococcus.s__Lactococcus_lactis	18.5185185185
+K01523: phosphoribosyl-ATP pyrophosphohydrolase [EC:3.6.1.31]|unclassified	11.002576213
+K01547: K+-transporting ATPase ATPase B chain [EC:3.6.3.12]|unclassified	5.5573419899
+K01548: K+-transporting ATPase ATPase C chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_vulgatus	9.5238095238
+K01573: oxaloacetate decarboxylase, gamma subunit [EC:4.1.1.3]|g__Bacteroides.s__Bacteroides_vulgatus	19.6078431373
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Bacteroides.s__Bacteroides_vulgatus	10.4633781764
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|unclassified	9.1393807774
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Bacteroides.s__Bacteroides_vulgatus	6.8587105624
+K01619: deoxyribose-phosphate aldolase [EC:4.1.2.4]|g__Bacteroides.s__Bacteroides_vulgatus	11.2781954887
+K01620: threonine aldolase [EC:4.1.2.48]|g__Bacteroides.s__Bacteroides_vulgatus	12.6874279123
+K01620: threonine aldolase [EC:4.1.2.48]|unclassified	3.9712094702
+K01624: fructose-bisphosphate aldolase, class II [EC:4.1.2.13]|unclassified	6.3135757375
+K01633: dihydroneopterin aldolase / 7,8-dihydroneopterin epimerase [EC:4.1.2.25 5.1.99.8]|g__Bacteroides.s__Bacteroides_vulgatus	9.1324200913
+K01649: 2-isopropylmalate synthase [EC:2.3.3.13]|unclassified	5.5570811253
+K01652: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]|g__Bacteroides.s__Bacteroides_vulgatus	9.6899224806
+K01657: anthranilate synthase component I [EC:4.1.3.27]|g__Bacteroides.s__Bacteroides_vulgatus	9.5923261391
+K01658: anthranilate synthase component II [EC:4.1.3.27]|g__Bacteroides.s__Bacteroides_vulgatus	15.873015873
+K01662: 1-deoxy-D-xylulose-5-phosphate synthase [EC:2.2.1.7]|g__Bacteroides.s__Bacteroides_vulgatus	14.2938822184
+K01676: fumarate hydratase, class I [EC:4.2.1.2]|unclassified	4.8007172916
+K01681: aconitate hydratase [EC:4.2.1.3]|g__Bacteroides.s__Bacteroides_vulgatus	7.5879648047
+K01687: dihydroxy-acid dehydratase [EC:4.2.1.9]|unclassified	8.0125173504
+K01703: 3-isopropylmalate/(R)-2-methylmalate dehydratase large subunit [EC:4.2.1.33 4.2.1.35]|g__Bacteroides.s__Bacteroides_vulgatus	4.0551500406
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|unclassified	11.623483887399999
+K01734: methylglyoxal synthase [EC:4.2.3.3]|unclassified	4.2283298097
+K01754: threonine dehydratase [EC:4.3.1.19]|g__Bacteroides.s__Bacteroides_vulgatus	7.6408787011
+K01754: threonine dehydratase [EC:4.3.1.19]|unclassified	7.858737816
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_vulgatus	11.7548278757
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|g__Bacteroides.s__Bacteroides_vulgatus	15.0515256898
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|unclassified	4.662004662
+K01784: UDP-glucose 4-epimerase [EC:5.1.3.2]|unclassified	9.2677355236
+K01790: dTDP-4-dehydrorhamnose 3,5-epimerase [EC:5.1.3.13]|g__Bacteroides.s__Bacteroides_vulgatus	9.5238095238
+K01803: triosephosphate isomerase (TIM) [EC:5.3.1.1]|unclassified	11.433184207
+K01805: xylose isomerase [EC:5.3.1.5]|g__Bacteroides.s__Bacteroides_vulgatus	4.6816479401
+K01805: xylose isomerase [EC:5.3.1.5]|unclassified	5.5304747454
+K01808: ribose 5-phosphate isomerase B [EC:5.3.1.6]|unclassified	5.1881459948
+K01809: mannose-6-phosphate isomerase [EC:5.3.1.8]|g__Bacteroides.s__Bacteroides_vulgatus	7.299270073
+K01809: mannose-6-phosphate isomerase [EC:5.3.1.8]|unclassified	7.7580766747
+K01810: glucose-6-phosphate isomerase [EC:5.3.1.9]|unclassified	6.1919504644
+K01812: glucuronate isomerase [EC:5.3.1.12]|g__Lactococcus.s__Lactococcus_lactis	9.009009009
+K01813: L-rhamnose isomerase [EC:5.3.1.14]|g__Bacteroides.s__Bacteroides_vulgatus	11.7753623188
+K01814: phosphoribosylformimino-5-aminoimidazole carboxamide ribotide isomerase [EC:5.3.1.16]|g__Bacteroides.s__Bacteroides_vulgatus	10.5263157895
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Bacteroides.s__Bacteroides_vulgatus	8.658008658
+K01817: phosphoribosylanthranilate isomerase [EC:5.3.1.24]|g__Bacteroides.s__Bacteroides_vulgatus	8.547008547
+K01834: 2,3-bisphosphoglycerate-dependent phosphoglycerate mutase [EC:5.4.2.11]|g__Bacteroides.s__Bacteroides_vulgatus	13.3333333333
+K01840: phosphomannomutase [EC:5.4.2.8]|g__Bacteroides.s__Bacteroides_vulgatus	8.8781275222
+K01869: leucyl-tRNA synthetase [EC:6.1.1.4]|g__Bacteroides.s__Bacteroides_vulgatus	15.6342273938
+K01883: cysteinyl-tRNA synthetase [EC:6.1.1.16]|g__Bacteroides.s__Bacteroides_vulgatus	19.5195195195
+K01887: arginyl-tRNA synthetase [EC:6.1.1.19]|unclassified	3.956079754
+K01903: succinyl-CoA synthetase beta subunit [EC:6.2.1.5]|g__Akkermansia.s__Akkermansia_muciniphila	3.8759689922
+K01915: glutamine synthetase [EC:6.3.1.2]|g__Bacteroides.s__Bacteroides_vulgatus	8.8235294118
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Bacteroides.s__Bacteroides_vulgatus	8.5836909871
+K01923: phosphoribosylaminoimidazole-succinocarboxamide synthase [EC:6.3.2.6]|g__Akkermansia.s__Akkermansia_muciniphila	7.1301247772
+K01926: AT-rich DNA-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	7.9840319361
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_vulgatus	5.3475935829
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|unclassified	7.3213543307
+K01989: putative ABC transport system substrate-binding protein|unclassified	5.006008012
+K01992: ABC-2 type transport system permease protein|g__Bacteroides.s__Bacteroides_vulgatus	23.3041732397
+K02001: glycine betaine/proline transport system permease protein|g__Bacteroides.s__Bacteroides_vulgatus	16.1149745016
+K02002: glycine betaine/proline transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	11.544011544
+K02004: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	14.529588059
+K02016: iron complex transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	9.9800399202
+K02040: phosphate transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	8.8050314465
+K02073: D-methionine transport system substrate-binding protein|unclassified	6.1065024122
+K02078: acyl carrier protein|g__Bacteroides.s__Bacteroides_vulgatus	9.2592592593
+K02078: acyl carrier protein|unclassified	5.1546391753
+K02086: DNA replication protein|unclassified	3.9447731755
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_vulgatus	12.474012474
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|unclassified	3.0321181265
+K02114: F-type H+-transporting ATPase subunit epsilon|g__Bacteroides.s__Bacteroides_vulgatus	9.5238095238
+K02114: F-type H+-transporting ATPase subunit epsilon|unclassified	5.8565279278
+K02115: F-type H+-transporting ATPase subunit gamma|unclassified	7.5725811828
+K02233: adenosylcobinamide-GDP ribazoletransferase [EC:2.7.8.26]|g__Bacteroides.s__Bacteroides_vulgatus	8.3333333333
+K02314: replicative DNA helicase [EC:3.6.4.12]|unclassified	10.0106636491
+K02337: DNA polymerase III subunit alpha [EC:2.7.7.7]|g__Bacteroides.s__Bacteroides_vulgatus	7.4013157895
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_vulgatus	13.7072680968
+K02355: elongation factor EF-G|unclassified	9.1784522507
+K02356: elongation factor EF-P|unclassified	5.8177165651
+K02358: elongation factor EF-Tu|g__Bacteroides.s__Bacteroides_vulgatus	11.5942028986
+K02426: cysteine desulfuration protein SufE|unclassified	8.007168051
+K02429: MFS transporter, FHS family, L-fucose permease|g__Bacteroides.s__Bacteroides_vulgatus	14.4144144144
+K02429: MFS transporter, FHS family, L-fucose permease|unclassified	7.3296776188
+K02518: translation initiation factor IF-1|g__Lactococcus.s__Lactococcus_lactis	14.4927536232
+K02518: translation initiation factor IF-1|unclassified	5.9523809524
+K02519: translation initiation factor IF-2|g__Bacteroides.s__Bacteroides_vulgatus	7.3375262055
+K02519: translation initiation factor IF-2|unclassified	7.7016785909
+K02520: translation initiation factor IF-3|g__Bacteroides.s__Bacteroides_vulgatus	4.4742729306
+K02548: 1,4-dihydroxy-2-naphthoate octaprenyltransferase [EC:2.5.1.74 2.5.1.-]|g__Bacteroides.s__Bacteroides_vulgatus	5.3981106613
+K02551: 2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase [EC:2.2.1.9]|g__Bacteroides.s__Bacteroides_vulgatus	11.785688951
+K02600: N utilization substance protein A|unclassified	5.9257488424
+K02687: ribosomal protein L11 methyltransferase|g__Bacteroides.s__Bacteroides_vulgatus	8.6206896552
+K02760: PTS system, cellobiose-specific IIB component [EC:2.7.1.196 2.7.1.205]|unclassified	10.8959156785
+K02761: PTS system, cellobiose-specific IIC component|unclassified	3.3112596228
+K02777: PTS system, sugar-specific IIA component [EC:2.7.1.-]|unclassified	3.8851724993
+K02825: pyrimidine operon attenuation protein / uracil phosphoribosyltransferase [EC:2.4.2.9]|g__Akkermansia.s__Akkermansia_muciniphila	7.8125
+K02835: peptide chain release factor RF-1|g__Bacteroides.s__Bacteroides_vulgatus	9.3167701863
+K02835: peptide chain release factor RF-1|unclassified	13.4525146678
+K02836: peptide chain release factor RF-2|unclassified	6.6693903491
+K02838: ribosome recycling factor|g__Bacteroides.s__Bacteroides_vulgatus	4.8661800487
+K02838: ribosome recycling factor|unclassified	4.0404205302
+K02851: undecaprenyl-phosphate alpha-N-acetylglucosaminyltransferase|unclassified	5.9210539125
+K02863: large subunit ribosomal protein L1|unclassified	12.4862881383
+K02864: large subunit ribosomal protein L10|unclassified	8.3901485122
+K02867: large subunit ribosomal protein L11|g__Bacteroides.s__Bacteroides_vulgatus	13.6054421769
+K02867: large subunit ribosomal protein L11|unclassified	5.4274184046
+K02876: large subunit ribosomal protein L15|g__Bacteroides.s__Bacteroides_vulgatus	6.734006734
+K02878: large subunit ribosomal protein L16|unclassified	3.8741971558
+K02881: large subunit ribosomal protein L18|g__Bacteroides.s__Bacteroides_vulgatus	10.4166666667
+K02881: large subunit ribosomal protein L18|unclassified	13.6170509159
+K02884: large subunit ribosomal protein L19|unclassified	5.4814053685
+K02886: large subunit ribosomal protein L2|g__Lactococcus.s__Lactococcus_lactis	5.8737151248
+K02887: large subunit ribosomal protein L20|g__Bacteroides.s__Bacteroides_vulgatus	9.9502487562
+K02892: large subunit ribosomal protein L23|unclassified	4.1841004184
+K02895: large subunit ribosomal protein L24|g__Akkermansia.s__Akkermansia_muciniphila	38.4615384615
+K02899: large subunit ribosomal protein L27|g__Bacteroides.s__Bacteroides_vulgatus	8.7719298246
+K02899: large subunit ribosomal protein L27|unclassified	13.6872779878
+K02904: large subunit ribosomal protein L29|unclassified	19.4279314207
+K02906: large subunit ribosomal protein L3|unclassified	4.6997414652
+K02909: large subunit ribosomal protein L31|g__Bacteroides.s__Bacteroides_vulgatus	38.0952380952
+K02913: large subunit ribosomal protein L33|unclassified	21.9554401904
+K02916: large subunit ribosomal protein L35|g__Bacteroides.s__Bacteroides_vulgatus	20.8333333333
+K02935: large subunit ribosomal protein L7/L12|g__Bacteroides.s__Bacteroides_vulgatus	43.0461922597
+K02935: large subunit ribosomal protein L7/L12|unclassified	9.4438823086
+K02948: small subunit ribosomal protein S11|g__Bacteroides.s__Bacteroides_vulgatus	12.5
+K02952: small subunit ribosomal protein S13|unclassified	6.0423512231
+K02954: small subunit ribosomal protein S14|g__Akkermansia.s__Akkermansia_muciniphila	8.3333333333
+K02954: small subunit ribosomal protein S14|g__Bacteroides.s__Bacteroides_vulgatus	6.6666666667
+K02954: small subunit ribosomal protein S14|unclassified	7.3529411765
+K02956: small subunit ribosomal protein S15|g__Bacteroides.s__Bacteroides_vulgatus	8.3333333333
+K02956: small subunit ribosomal protein S15|unclassified	2.2328224648
+K02961: small subunit ribosomal protein S17|unclassified	18.3067320179
+K02963: small subunit ribosomal protein S18|g__Bacteroides.s__Bacteroides_vulgatus	8.3333333333
+K02965: small subunit ribosomal protein S19|g__Lactococcus.s__Lactococcus_lactis	15.503875969
+K02965: small subunit ribosomal protein S19|unclassified	8.9714963893
+K02970: small subunit ribosomal protein S21|g__Akkermansia.s__Akkermansia_muciniphila	9.8039215686
+K02970: small subunit ribosomal protein S21|g__Bacteroides.s__Bacteroides_vulgatus	47.619047619
+K02970: small subunit ribosomal protein S21|unclassified	2.6041666667
+K02982: small subunit ribosomal protein S3|g__Bacteroides.s__Bacteroides_vulgatus	17.1821305842
+K02986: small subunit ribosomal protein S4|unclassified	7.2202166065
+K02988: small subunit ribosomal protein S5|g__Bacteroides.s__Bacteroides_vulgatus	5.4644808743
+K02988: small subunit ribosomal protein S5|unclassified	4.2780797599
+K02990: small subunit ribosomal protein S6|g__Lactococcus.s__Lactococcus_lactis	6.9444444444
+K02992: small subunit ribosomal protein S7|unclassified	5.8515746748
+K02994: small subunit ribosomal protein S8|g__Bacteroides.s__Bacteroides_vulgatus	8.1300813008
+K02994: small subunit ribosomal protein S8|unclassified	5.7636887608
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|unclassified	4.4444526658
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_vulgatus	7.371007371
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_vulgatus	7.2516316171
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|unclassified	7.3683599641
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Bacteroides.s__Bacteroides_vulgatus	35.2965747703
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|unclassified	16.8448239646
+K03092: RNA polymerase sigma-54 factor|g__Bacteroides.s__Bacteroides_vulgatus	4.5454545455
+K03106: signal recognition particle subunit SRP54 [EC:3.6.5.4]|unclassified	3.903201576
+K03150: 2-iminoacetate synthase [EC:4.1.99.19]|g__Bacteroides.s__Bacteroides_vulgatus	11.0736471593
+K03177: tRNA pseudouridine synthase B|g__Bacteroides.s__Bacteroides_vulgatus	8.7719298246
+K03183: demethylmenaquinone methyltransferase / 2-methoxy-6-polyprenyl-1,4-benzoquinol methylase [EC:2.1.1.163 2.1.1.201]|g__Bacteroides.s__Bacteroides_vulgatus	5.1020408163
+K03217: YidC/Oxa1 family membrane protein insertase|g__Lactococcus.s__Lactococcus_lactis	4.5454545455
+K03294: basic amino acid/polyamine antiporter, APA family|g__Bacteroides.s__Bacteroides_vulgatus	8.6149768058
+K03402: transcriptional regulator of arginine metabolism|g__Bacteroides.s__Bacteroides_vulgatus	12.050926052
+K03469: ribonuclease HI [EC:3.1.26.4]|g__Bacteroides.s__Bacteroides_vulgatus	6.2893081761
+K03495: glucose inhibited division protein A|g__Bacteroides.s__Bacteroides_vulgatus	7.5373463094
+K03496: chromosome partitioning protein|unclassified	9.5330775362
+K03497: chromosome partitioning protein, ParB family|g__Bacteroides.s__Bacteroides_vulgatus	6.6934404284
+K03498: trk system potassium uptake protein TrkH|g__Bacteroides.s__Bacteroides_vulgatus	14.4533552248
+K03522: electron transfer flavoprotein alpha subunit|unclassified	8.6385653786
+K03526: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase [EC:1.17.7.1 1.17.7.3]|g__Bacteroides.s__Bacteroides_vulgatus	10.0294985251
+K03526: (E)-4-hydroxy-3-methylbut-2-enyl-diphosphate synthase [EC:1.17.7.1 1.17.7.3]|unclassified	5.0263733316
+K03530: DNA-binding protein HU-beta|unclassified	2.3144467623
+K03534: L-rhamnose mutarotase|g__Bacteroides.s__Bacteroides_vulgatus	8.3333333333
+K03536: ribonuclease P protein component|g__Lactococcus.s__Lactococcus_lactis	10.101010101
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_vulgatus	10.8991825613
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_vulgatus	6.8259385666
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|unclassified	5.4153584803
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_vulgatus	7.7141697117
+K03559: biopolymer transport protein ExbD|g__Bacteroides.s__Bacteroides_vulgatus	11.1111111111
+K03565: regulatory protein|g__Bacteroides.s__Bacteroides_vulgatus	11.9047619048
+K03565: regulatory protein|g__Lactococcus.s__Lactococcus_lactis	4.5454545455
+K03569: rod shape-determining protein MreB and related proteins|unclassified	5.466872332
+K03572: DNA mismatch repair protein MutL|g__Bacteroides.s__Bacteroides_vulgatus	9.3077370564
+K03575: A/G-specific adenine glycosylase [EC:3.2.2.-]|unclassified	10.0392477702
+K03584: DNA repair protein RecO (recombination protein O)|g__Bacteroides.s__Bacteroides_vulgatus	8.7386122389
+K03585: membrane fusion protein, multidrug efflux system|g__Bacteroides.s__Bacteroides_vulgatus	29.2913431074
+K03588: cell division protein FtsW|g__Bacteroides.s__Bacteroides_vulgatus	9.6153846154
+K03590: cell division protein FtsA|g__Bacteroides.s__Bacteroides_vulgatus	5.1736881005
+K03601: exodeoxyribonuclease VII large subunit [EC:3.1.11.6]|g__Bacteroides.s__Bacteroides_vulgatus	7.7720207254
+K03601: exodeoxyribonuclease VII large subunit [EC:3.1.11.6]|g__Lactococcus.s__Lactococcus_lactis	4.5289855072
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|g__Bacteroides.s__Bacteroides_vulgatus	18.5185185185
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|g__Lactococcus.s__Lactococcus_lactis	11.1111111111
+K03606: putative colanic acid biosysnthesis UDP-glucose lipid carrier|g__Bacteroides.s__Bacteroides_vulgatus	9.5693779904
+K03612: electron transport complex protein RnfG|unclassified	6.5454614645
+K03625: N utilization substance protein B|g__Bacteroides.s__Bacteroides_vulgatus	5.148005148
+K03631: DNA repair protein RecN (Recombination protein N)|g__Bacteroides.s__Bacteroides_vulgatus	7.9365079365
+K03644: lipoyl synthase [EC:2.8.1.8]|g__Bacteroides.s__Bacteroides_vulgatus	9.9290780142
+K03648: uracil-DNA glycosylase [EC:3.2.2.27]|unclassified	4.7897845107
+K03650: tRNA modification GTPase|g__Bacteroides.s__Bacteroides_vulgatus	11.1690245719
+K03654: ATP-dependent DNA helicase RecQ [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_vulgatus	5.7273768614
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_vulgatus	7.1663372243
+K03664: SsrA-binding protein|unclassified	9.777052066700001
+K03671: thioredoxin 1|unclassified	4.0816326531
+K03699: putative hemolysin|g__Bacteroides.s__Bacteroides_vulgatus	13.9853454641
+K03702: excinuclease ABC subunit B|g__Bacteroides.s__Bacteroides_vulgatus	11.1464968153
+K03734: thiamine biosynthesis lipoprotein|unclassified	9.391437993
+K03797: carboxyl-terminal processing protease|g__Bacteroides.s__Bacteroides_vulgatus	8.8855152706
+K03811: nicotinamide mononucleotide transporter|g__Bacteroides.s__Bacteroides_vulgatus	7.0921985816
+K03816: xanthine phosphoribosyltransferase [EC:2.4.2.22]|g__Bacteroides.s__Bacteroides_vulgatus	4.7961630695
+K03925: MraZ protein|g__Bacteroides.s__Bacteroides_vulgatus	15.873015873
+K03979: GTP-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	9.6306092834
+K03979: GTP-binding protein|unclassified	4.8800333406
+K04041: fructose-1,6-bisphosphatase III [EC:3.1.3.11]|g__Bacteroides.s__Bacteroides_vulgatus	5.4024851432
+K04043: molecular chaperone DnaK|g__Bacteroides.s__Bacteroides_vulgatus	5.8513750731
+K04068: anaerobic ribonucleoside-triphosphate reductase activating protein|g__Bacteroides.s__Bacteroides_vulgatus	12.9449838188
+K04069: pyruvate formate lyase activating enzyme|g__Bacteroides.s__Bacteroides_vulgatus	13.1752305665
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_vulgatus	4.0322580645
+K04078: chaperonin GroES|g__Bacteroides.s__Bacteroides_vulgatus	8.1300813008
+K04084: thiol:disulfide interchange protein DsbD|g__Bacteroides.s__Bacteroides_vulgatus	5.3078556263
+K04567: lysyl-tRNA synthetase, class II [EC:6.1.1.6]|unclassified	13.385902887
+K04758: ferrous iron transport protein A|unclassified	5.6497175141
+K04762: ribosome-associated heat shock protein Hsp15|g__Bacteroides.s__Bacteroides_vulgatus	10.752688172
+K05340: glucose uptake protein|g__Bacteroides.s__Bacteroides_vulgatus	6.9204152249
+K05515: penicillin-binding protein 2|g__Bacteroides.s__Bacteroides_vulgatus	7.6322854101
+K05801: DnaJ like chaperone protein|g__Bacteroides.s__Bacteroides_vulgatus	9.4786729858
+K05837: rod shape determining protein RodA|g__Bacteroides.s__Bacteroides_vulgatus	5.3639846743
+K06147: ATP-binding cassette, subfamily B, bacterial|unclassified	6.5109792092
+K06167: phosphoribosyl 1,2-cyclic phosphate phosphodiesterase [EC:3.1.4.55]|g__Akkermansia.s__Akkermansia_muciniphila	10.498687664
+K06201: copper homeostasis protein|g__Bacteroides.s__Bacteroides_vulgatus	7.0028011204
+K06209: chorismate mutase [EC:5.4.99.5]|unclassified	5.2151327241
+K06213: magnesium transporter|g__Bacteroides.s__Bacteroides_vulgatus	8.3963056255
+K06213: magnesium transporter|unclassified	7.2976728585
+K06217: phosphate starvation-inducible protein PhoH and related proteins|g__Bacteroides.s__Bacteroides_vulgatus	11.5095776758
+K06287: septum formation protein|g__Bacteroides.s__Bacteroides_vulgatus	11.1549707602
+K06287: septum formation protein|unclassified	7.6702032787
+K06889: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	6.6225165563
+K06920: 7-cyano-7-deazaguanine synthase [EC:6.3.4.20]|unclassified	4.9261172292
+K06942: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	5.2410901468
+K06942: NO_NAME|unclassified	5.7152039548
+K06949: ribosome biogenesis GTPase|g__Bacteroides.s__Bacteroides_vulgatus	14.0485312899
+K06949: ribosome biogenesis GTPase|unclassified	6.8078688153
+K06958: NO_NAME|unclassified	11.0791994619
+K06960: NO_NAME|unclassified	2.7777777778
+K06973: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	13.1826741996
+K07037: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	6.2893081761
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	9.2044707429
+K07098: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	21.4745734712
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	5.8892815077
+K07126: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	14.6699865755
+K07133: NO_NAME|unclassified	4.6000517124
+K07138: NO_NAME|unclassified	8.2159817987
+K07139: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	20.592020592
+K07139: NO_NAME|g__Lactococcus.s__Lactococcus_lactis	5.0505050505
+K07173: S-ribosylhomocysteine lyase [EC:4.4.1.21]|g__Bacteroides.s__Bacteroides_vulgatus	8.9285714286
+K07443: methylated-DNA-protein-cysteine methyltransferase related protein|unclassified	7.104818152
+K07447: putative holliday junction resolvase|g__Bacteroides.s__Bacteroides_vulgatus	7.4074074074
+K07473: DNA-damage-inducible protein J|unclassified	6.8300858998
+K07484: transposase|unclassified	26.5858785841
+K07493: putative transposase|unclassified	3.9717181405
+K07497: putative transposase|g__Lactococcus.s__Lactococcus_lactis	32.221789715
+K07497: putative transposase|unclassified	1.5527950311
+K07507: putative Mg2+ transporter-C (MgtC) family protein|g__Bacteroides.s__Bacteroides_vulgatus	9.633911368
+K07560: D-tyrosyl-tRNA(Tyr) deacylase|g__Bacteroides.s__Bacteroides_vulgatus	6.600660066
+K07568: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_vulgatus	14.348785872
+K07574: putative RNA-binding protein containing KH domain|unclassified	4.132231405
+K07742: hypothetical protein|unclassified	9.8039215686
+K07862: serine/threonine transporter|unclassified	7.5620095071
+K08218: MFS transporter, PAT family, beta-lactamase induction signal transducer AmpG|g__Bacteroides.s__Bacteroides_vulgatus	6.9625761532
+K08234: glyoxylase I family protein|unclassified	5.908432389
+K08483: phosphotransferase system, enzyme I, PtsI [EC:2.7.3.9]|unclassified	6.6372736091
+K08591: glycerol-3-phosphate acyltransferase PlsY [EC:2.3.1.15]|unclassified	15.9167651197
+K08659: dipeptidase A|unclassified	5.0735147292
+K08998: hypothetical protein|g__Bacteroides.s__Bacteroides_vulgatus	13.8888888889
+K09007: GTP cyclohydrolase I [EC:3.5.4.16]|g__Akkermansia.s__Akkermansia_muciniphila	9.3023255814
+K09013: Fe-S cluster assembly ATP-binding protein|unclassified	9.4875049888
+K09117: hypothetical protein|unclassified	7.5251256281
+K09474: acid phosphatase (class A) [EC:3.1.3.2]|g__Bacteroides.s__Bacteroides_vulgatus	7.9744816587
+K09680: type II pantothenate kinase [EC:2.7.1.33]|g__Bacteroides.s__Bacteroides_vulgatus	5.9259259259
+K09760: DNA recombination protein RmuC|unclassified	8.5173184228
+K09808: lipoprotein-releasing system permease protein|g__Bacteroides.s__Bacteroides_vulgatus	12.825641219200001
+K09815: zinc transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	10.582010582
+K09825: Fur family transcriptional regulator, peroxide stress response|g__Bacteroides.s__Bacteroides_vulgatus	14.2417826175
+K09903: uridylate kinase [EC:2.7.4.22]|g__Bacteroides.s__Bacteroides_vulgatus	7.1301247772
+K09951: CRISPR-associated protein Cas2|g__Bacteroides.s__Bacteroides_vulgatus	14.1843971631
+K09962: hypothetical protein|g__Lactococcus.s__Lactococcus_lactis	4.662004662
+K10118: raffinose/stachyose/melibiose transport system permease protein|unclassified	8.7484394507
+K10119: raffinose/stachyose/melibiose transport system permease protein|unclassified	5.1513221616
+K10206: LL-diaminopimelate aminotransferase [EC:2.6.1.83]|g__Bacteroides.s__Bacteroides_vulgatus	4.6296296296
+K10439: ribose transport system substrate-binding protein|g__Bacteroides.s__Bacteroides_vulgatus	7.5757575758
+K10439: ribose transport system substrate-binding protein|unclassified	10.0049437647
+K10716: voltage-gated potassium channel|unclassified	5.0063284001
+K11175: phosphoribosylglycinamide formyltransferase 1 [EC:2.1.2.2]|g__Lactococcus.s__Lactococcus_lactis	10.0250626566
+K11749: regulator of sigma E protease [EC:3.4.24.-]|g__Bacteroides.s__Bacteroides_vulgatus	8.3759114095
+K11753: riboflavin kinase / FMN adenylyltransferase [EC:2.7.1.26 2.7.7.2]|g__Bacteroides.s__Bacteroides_vulgatus	7.7821011673
+K11991: tRNA-specific adenosine deaminase|g__Bacteroides.s__Bacteroides_vulgatus	14.0350877193
+K12267: peptide methionine sulfoxide reductase msrA/msrB [EC:1.8.4.11|g__Bacteroides.s__Bacteroides_vulgatus	5.9523809524
+K12373: hexosaminidase [EC:3.2.1.52]|g__Bacteroides.s__Bacteroides_vulgatus	11.9580814889
+K13051: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	8.2885304659
+K13292: NO_NAME|unclassified	4.1860483236
+K13378: NADH-quinone oxidoreductase subunit C/D [EC:1.6.5.3]|unclassified	3.8927339281
+K14441: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	4.1356492969
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|unclassified	6.8750683296
+K15633: 2,3-bisphosphoglycerate-independent phosphoglycerate mutase [EC:5.4.2.12]|g__Bacteroides.s__Bacteroides_vulgatus	7.9969153653
+K15633: 2,3-bisphosphoglycerate-independent phosphoglycerate mutase [EC:5.4.2.12]|unclassified	5.4640178034
+K15977: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	6.4102564103
+K15977: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	13.4735122997
+K15987: K(+)-stimulated pyrophosphate-energized sodium pump [EC:3.6.1.1]|unclassified	10.7935016776
+K16089: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	9.9562734625
+K16363: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase / 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:3.5.1.108 4.2.1.59]|g__Bacteroides.s__Bacteroides_vulgatus	10.5177993528
+K17076: putative lysine transport system ATP-binding protein [EC:3.6.3.-]|unclassified	11.4551692758
+K17758: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	9.3795093795
+K17759: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	9.3795093795
+K17810: NO_NAME|unclassified	4.6862802498
+K17828: dihydroorotate dehydrogenase (NAD+) catalytic subunit [EC:1.3.1.14]|g__Bacteroides.s__Bacteroides_vulgatus	10.498687664
+K18104: ATP-binding cassette, subfamily B, bacterial AbcA/BmrA [EC:3.6.3.44]|g__Lactococcus.s__Lactococcus_lactis	66.6666666667
+K18682: ribonucrease Y [EC:3.1.-.-]|g__Bacteroides.s__Bacteroides_vulgatus	9.3795093795
+K18682: ribonucrease Y [EC:3.1.-.-]|unclassified	5.3147322118
+K18785: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	8.2159624413
+K18929: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	4.9261083744
+K19271: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	9.8619329389
+K19302: undecaprenyl-diphosphatase [EC:3.6.1.27]|unclassified	8.2508340695
+K19504: NO_NAME|unclassified	9.8357564753
+K19507: PTS system, fructoselysine/glucoselysine-specific IIB component [EC:2.7.1.-]|unclassified	7.1485396068
+K19508: PTS system, fructoselysine/glucoselysine-specific IIC component|unclassified	12.2504587666
+K19509: PTS system, fructoselysine/glucoselysine-specific IID component|unclassified	7.7871544798
+K20107: PTS system, maltose-specific IIB component [EC:2.7.1.208]|unclassified	3.8851724993
+K20108: PTS system, maltose-specific IIC component|unclassified	3.8851724993
+K21071: NO_NAME|unclassified	6.8065024787
+K21571: NO_NAME|unclassified	9.8848203188
+K21572: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	37.2859086893
+K21636: NO_NAME|g__Bacteroides.s__Bacteroides_vulgatus	8.431422832
+K21977: NO_NAME|g__Akkermansia.s__Akkermansia_muciniphila	5.6179775281

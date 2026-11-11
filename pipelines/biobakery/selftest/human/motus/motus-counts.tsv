@@ -1,0 +1,24 @@
+# motus version 3.1.0 | merge 3.1.0 | info merged profiles: # git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0 
+# call: python /usr/local/bin/motus merge -db db_mOTU -d profiles -o motus-counts.tsv
+#consensus_taxonomy	NCBI_tax_id	human
+Bacteroides uniformis [ref_mOTU_v31_00855]	820	2
+[Ruminococcus] gnavus [ref_mOTU_v31_01594]	33038	1
+Bacteroides fragilis [ref_mOTU_v31_01597]	817	3
+Bacteroides thetaiotaomicron [ref_mOTU_v31_01657]	818	3
+Blautia producta [ref_mOTU_v31_02152]	33035	1
+Blautia obeum/wexlerae [ref_mOTU_v31_02154]	NA	3
+Oscillibacter sp. [ref_mOTU_v31_03341]	NA	2
+Bacteroides sp. [ref_mOTU_v31_03475]	NA	3
+Parabacteroides distasonis [ref_mOTU_v31_03640]	823	1
+Dialister invisus [ref_mOTU_v31_03691]	218538	2
+[Ruminococcus] torques [ref_mOTU_v31_03703]	33039	2
+Blautia obeum [ref_mOTU_v31_05140]	40520	1
+Flavonifractor plautii [ref_mOTU_v31_05238]	292800	1
+Firmicutes sp. [ref_mOTU_v31_06316]	NA	2
+[Clostridium] asparagiforme/lavalense [ref_mOTU_v31_06317]	NA	1
+Faecalibacterium species incertae sedis [meta_mOTU_v31_12331]	NA	4
+Clostridium species incertae sedis [meta_mOTU_v31_12641]	NA	1
+Clostridiales species incertae sedis [meta_mOTU_v31_12768]	NA	1
+Bacteroides species incertae sedis [ext_mOTU_v31_17594]	NA	3
+Bacteroides species incertae sedis [ext_mOTU_v31_17714]	NA	1
+unassigned	NA	1

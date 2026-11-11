@@ -1,0 +1,205 @@
+# Pathway	mock	single
+UNINTEGRATED|g__Bacteroides.s__Bacteroides_fragilis	13375.3903674356	0
+UNINTEGRATED|g__Escherichia.s__Escherichia_coli	21536.4800246297	0
+UNINTEGRATED|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	5466.7859989635	0
+UNINTEGRATED|g__Prevotella.s__Prevotella_corporis	7171.2105676952	0
+UNINTEGRATED|g__Veillonella.s__Veillonella_rogosae	6091.3237519204	0
+UNINTEGRATED|unclassified	17390.5456274869	0
+ANAGLYCOLYSIS-PWY: glycolysis III (from glucose)|unclassified	8.3176660838	0
+ARGININE-SYN4-PWY: L-ornithine biosynthesis II|g__Escherichia.s__Escherichia_coli	8.7179322798	0
+ARGININE-SYN4-PWY: L-ornithine biosynthesis II|unclassified	4.4434181277	0
+ARGSYN-PWY: L-arginine biosynthesis I (via L-ornithine)|unclassified	15.8561888381	0
+ARGSYNBSUB-PWY: L-arginine biosynthesis II (acetyl cycle)|unclassified	16.7712488984	0
+ASPASN-PWY: superpathway of L-aspartate and L-asparagine biosynthesis|unclassified	20.5574039554	0
+AST-PWY: L-arginine degradation II (AST pathway)|unclassified	5.6370648946	0
+BRANCHED-CHAIN-AA-SYN-PWY: superpathway of branched chain amino acid biosynthesis|unclassified	21.6542039603	0
+CITRULBIO-PWY: L-citrulline biosynthesis|unclassified	6.2827406107	0
+COA-PWY-1: superpathway of coenzyme A biosynthesis III (mammals)|g__Veillonella.s__Veillonella_rogosae	11.4358633250	0
+COA-PWY-1: superpathway of coenzyme A biosynthesis III (mammals)|unclassified	7.6994200174	0
+COA-PWY: coenzyme A biosynthesis I (prokaryotic)|g__Prevotella.s__Prevotella_corporis	5.9079384412	0
+COA-PWY: coenzyme A biosynthesis I (prokaryotic)|g__Veillonella.s__Veillonella_rogosae	15.2602428728	0
+COA-PWY: coenzyme A biosynthesis I (prokaryotic)|unclassified	9.4104316972	0
+COLANSYN-PWY: colanic acid building blocks biosynthesis|unclassified	8.8708363231	0
+DARABCATK12-PWY: D-arabinose degradation I|unclassified	2.6449215484	0
+DTDPRHAMSYN-PWY: dTDP-&beta;-L-rhamnose biosynthesis|g__Bacteroides.s__Bacteroides_fragilis	23.7707373954	0
+DTDPRHAMSYN-PWY: dTDP-&beta;-L-rhamnose biosynthesis|g__Escherichia.s__Escherichia_coli	21.1073882379	0
+FAO-PWY: fatty acid &beta;-oxidation I (generic)|unclassified	5.3884126261	0
+FERMENTATION-PWY: mixed acid fermentation|unclassified	14.2014227918	0
+FOLSYN-PWY: superpathway of tetrahydrofolate biosynthesis and salvage|unclassified	6.8086761835	0
+FUCCAT-PWY: fucose degradation|g__Escherichia.s__Escherichia_coli	9.0191835974	0
+FUCCAT-PWY: fucose degradation|unclassified	6.5448171524	0
+GALACT-GLUCUROCAT-PWY: superpathway of hexuronide and hexuronate degradation|unclassified	4.7392877638	0
+GALACTITOLCAT-PWY: galactitol degradation|unclassified	2.2752892532	0
+GALACTUROCAT-PWY: D-galacturonate degradation I|unclassified	7.6423034630	0
+GLCMANNANAUT-PWY: superpathway of N-acetylglucosamine, N-acetylmannosamine and N-acetylneuraminate degradation|unclassified	9.4029749552	0
+GLUCOSE1PMETAB-PWY: glucose and glucose-1-phosphate degradation|g__Escherichia.s__Escherichia_coli	10.5280127688	0
+GLUCOSE1PMETAB-PWY: glucose and glucose-1-phosphate degradation|unclassified	13.5347376628	0
+GLUCUROCAT-PWY: superpathway of &beta;-D-glucuronosides degradation|unclassified	9.8460533224	0
+GLUTORN-PWY: L-ornithine biosynthesis I|unclassified	16.9021573653	0
+GLYCOCAT-PWY: glycogen degradation I|unclassified	4.6258890067	0
+GLYCOGENSYNTH-PWY: glycogen biosynthesis I (from ADP-D-Glucose)|unclassified	16.4947744421	0
+GLYCOL-GLYOXDEG-PWY: superpathway of glycol metabolism and degradation|unclassified	2.9456197265	0
+GLYOXYLATE-BYPASS: glyoxylate cycle|g__Escherichia.s__Escherichia_coli	11.9642921563	0
+GLYOXYLATE-BYPASS: glyoxylate cycle|unclassified	12.4260238745	0
+HCAMHPDEG-PWY: 3-phenylpropanoate and 3-(3-hydroxyphenyl)propanoate degradation to 2-hydroxypentadienoate|g__Escherichia.s__Escherichia_coli	9.3619981821	0
+HEME-BIOSYNTHESIS-II: heme b biosynthesis I (aerobic)|g__Veillonella.s__Veillonella_rogosae	11.9380326239	0
+HEMESYN2-PWY: heme b biosynthesis II (oxygen-independent)|g__Veillonella.s__Veillonella_rogosae	9.5409814093	0
+HISDEG-PWY: L-histidine degradation I|g__Bacteroides.s__Bacteroides_fragilis	9.9606185020	0
+HISTSYN-PWY: L-histidine biosynthesis|unclassified	12.9446955801	0
+HOMOSER-METSYN-PWY: L-methionine biosynthesis I|unclassified	7.1750190404	0
+HSERMETANA-PWY: L-methionine biosynthesis III|unclassified	10.8390744605	0
+ILEUSYN-PWY: L-isoleucine biosynthesis I (from threonine)|g__Escherichia.s__Escherichia_coli	12.2595380917	0
+ILEUSYN-PWY: L-isoleucine biosynthesis I (from threonine)|unclassified	23.1131257273	0
+MET-SAM-PWY: superpathway of S-adenosyl-L-methionine biosynthesis|unclassified	8.5998587238	0
+METSYN-PWY: superpathway of L-homoserine and L-methionine biosynthesis|unclassified	8.4574623888	0
+NONOXIPENT-PWY: pentose phosphate pathway (non-oxidative branch) I|unclassified	12.3404774234	0
+ORNDEG-PWY: superpathway of ornithine degradation|g__Escherichia.s__Escherichia_coli	18.8622068563	0
+ORNDEG-PWY: superpathway of ornithine degradation|unclassified	16.6950771857	0
+P161-PWY: acetylene degradation (anaerobic)|unclassified	7.1297517819	0
+P461-PWY: hexitol fermentation to lactate, formate, ethanol and acetate|g__Escherichia.s__Escherichia_coli	19.2258527774	0
+P461-PWY: hexitol fermentation to lactate, formate, ethanol and acetate|unclassified	12.7017662697	0
+PANTO-PWY: phosphopantothenate biosynthesis I|unclassified	10.8711263419	0
+PANTOSYN-PWY: superpathway of coenzyme A biosynthesis I (bacteria)|unclassified	9.2281131181	0
+PENTOSE-P-PWY: pentose phosphate pathway|unclassified	11.4102818485	0
+PEPTIDOGLYCANSYN-PWY: peptidoglycan biosynthesis I (meso-diaminopimelate containing)|g__Bacteroides.s__Bacteroides_fragilis	7.2534036885	0
+PEPTIDOGLYCANSYN-PWY: peptidoglycan biosynthesis I (meso-diaminopimelate containing)|g__Veillonella.s__Veillonella_rogosae	11.2141870611	0
+PEPTIDOGLYCANSYN-PWY: peptidoglycan biosynthesis I (meso-diaminopimelate containing)|unclassified	11.0266435683	0
+PHOSLIPSYN-PWY: superpathway of phospholipid biosynthesis I (bacteria)|unclassified	11.9814091438	0
+PPGPPMET-PWY: ppGpp metabolism|unclassified	4.9987452472	0
+PWY-1042: glycolysis IV|g__Bacteroides.s__Bacteroides_fragilis	10.1442525807	0
+PWY-1042: glycolysis IV|unclassified	10.0334519880	0
+PWY-3841: folate transformations II (plants)|g__Veillonella.s__Veillonella_rogosae	13.3044471227	0
+PWY-3841: folate transformations II (plants)|unclassified	7.5083116465	0
+PWY-4041: &gamma;-glutamyl cycle|g__Escherichia.s__Escherichia_coli	18.0631826353	0
+PWY-4041: &gamma;-glutamyl cycle|unclassified	2.7432801065	0
+PWY-5097: L-lysine biosynthesis VI|g__Veillonella.s__Veillonella_rogosae	11.0926784928	0
+PWY-5100: pyruvate fermentation to acetate and lactate II|unclassified	5.6694240016	0
+PWY-5103: L-isoleucine biosynthesis III|unclassified	18.3172867099	0
+PWY-5130: 2-oxobutanoate degradation I|g__Veillonella.s__Veillonella_rogosae	11.9476098409	0
+PWY-5136: fatty acid &beta;-oxidation II (plant peroxisome)|unclassified	9.2289878171	0
+PWY-5138: fatty acid &beta;-oxidation IV (unsaturated, even number)|unclassified	2.2619224187	0
+PWY-5154: L-arginine biosynthesis III (via N-acetyl-L-citrulline)|unclassified	9.3524195929	0
+PWY-5188: tetrapyrrole biosynthesis I (from glutamate)|g__Escherichia.s__Escherichia_coli	9.2225674799	0
+PWY-5188: tetrapyrrole biosynthesis I (from glutamate)|g__Veillonella.s__Veillonella_rogosae	15.7107637054	0
+PWY-5188: tetrapyrrole biosynthesis I (from glutamate)|unclassified	11.5956543272	0
+PWY-5347: superpathway of L-methionine biosynthesis (transsulfuration)|unclassified	9.1313843783	0
+PWY-5384: sucrose degradation IV (sucrose phosphorylase)|unclassified	14.2370156174	0
+PWY-5656: mannosylglycerate biosynthesis I|unclassified	6.8437840135	0
+PWY-5659: GDP-mannose biosynthesis|unclassified	8.1288886377	0
+PWY-5667: CDP-diacylglycerol biosynthesis I|unclassified	12.8954203137	0
+PWY-5675: nitrate reduction V (assimilatory)|g__Escherichia.s__Escherichia_coli	12.4787533886	0
+PWY-5695: inosine 5'-phosphate degradation|g__Escherichia.s__Escherichia_coli	9.3132891258	0
+PWY-5695: inosine 5'-phosphate degradation|unclassified	8.4708846682	0
+PWY-5705: allantoin degradation to glyoxylate III|unclassified	3.3596019206	0
+PWY-5855: ubiquinol-7 biosynthesis (early decarboxylation)|unclassified	3.6742875784	0
+PWY-5913: partial TCA cycle (obligate autotrophs)|unclassified	12.7241671985	0
+PWY-5941: glycogen degradation II|unclassified	32.4407427157	0
+PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I|g__Escherichia.s__Escherichia_coli	14.5925400669	0
+PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I|g__Veillonella.s__Veillonella_rogosae	7.0378608855	0
+PWY-6121: 5-aminoimidazole ribonucleotide biosynthesis I|unclassified	26.2593662347	0
+PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II|g__Escherichia.s__Escherichia_coli	18.6417092834	0
+PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II|g__Veillonella.s__Veillonella_rogosae	11.4553116184	0
+PWY-6122: 5-aminoimidazole ribonucleotide biosynthesis II|unclassified	32.8087911428	0
+PWY-6123: inosine-5'-phosphate biosynthesis I|unclassified	10.0364073563	0
+PWY-6124: inosine-5'-phosphate biosynthesis II|unclassified	9.5366372300	0
+PWY-6125: superpathway of guanosine nucleotides de novo biosynthesis II|unclassified	7.4242694897	0
+PWY-6126: superpathway of adenosine nucleotides de novo biosynthesis II|unclassified	11.9250686701	0
+PWY-6147: 6-hydroxymethyl-dihydropterin diphosphate biosynthesis I|unclassified	6.0664833015	0
+PWY-6151: S-adenosyl-L-methionine salvage I|unclassified	14.5096593080	0
+PWY-6163: chorismate biosynthesis from 3-dehydroquinate|g__Bacteroides.s__Bacteroides_fragilis	7.5100325119	0
+PWY-621: sucrose degradation III (sucrose invertase)|unclassified	8.6244735159	0
+PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis|g__Escherichia.s__Escherichia_coli	18.6417092834	0
+PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis|g__Veillonella.s__Veillonella_rogosae	11.4553116184	0
+PWY-6277: superpathway of 5-aminoimidazole ribonucleotide biosynthesis|unclassified	32.8087911428	0
+PWY-6305: superpathway of putrescine biosynthesis|unclassified	11.1470901113	0
+PWY-6317: D-galactose degradation I (Leloir pathway)|unclassified	13.4082523764	0
+PWY-6385: peptidoglycan biosynthesis III (mycobacteria)|g__Bacteroides.s__Bacteroides_fragilis	7.5036324965	0
+PWY-6385: peptidoglycan biosynthesis III (mycobacteria)|g__Veillonella.s__Veillonella_rogosae	12.6629056277	0
+PWY-6385: peptidoglycan biosynthesis III (mycobacteria)|unclassified	11.2947882879	0
+PWY-6387: UDP-N-acetylmuramoyl-pentapeptide biosynthesis I (meso-diaminopimelate containing)|g__Bacteroides.s__Bacteroides_fragilis	6.7675491409	0
+PWY-6387: UDP-N-acetylmuramoyl-pentapeptide biosynthesis I (meso-diaminopimelate containing)|g__Veillonella.s__Veillonella_rogosae	12.1810533791	0
+PWY-6387: UDP-N-acetylmuramoyl-pentapeptide biosynthesis I (meso-diaminopimelate containing)|unclassified	9.8981320881	0
+PWY-6507: 4-deoxy-L-threo-hex-4-enopyranuronate degradation|unclassified	2.8774532273	0
+PWY-6527: stachyose degradation|unclassified	17.2687898038	0
+PWY-6531: mannitol cycle|unclassified	5.1798596697	0
+PWY-6545: pyrimidine deoxyribonucleotides de novo biosynthesis III|unclassified	7.9010553633	0
+PWY-6588: pyruvate fermentation to acetone|unclassified	5.6675971763	0
+PWY-6606: guanosine nucleotides degradation II|unclassified	8.9539536212	0
+PWY-6608: guanosine nucleotides degradation III|g__Escherichia.s__Escherichia_coli	9.3132891258	0
+PWY-6608: guanosine nucleotides degradation III|unclassified	8.9539536212	0
+PWY-6609: adenine and adenosine salvage III|g__Escherichia.s__Escherichia_coli	7.6334422554	0
+PWY-6612: superpathway of tetrahydrofolate biosynthesis|unclassified	5.3374600622	0
+PWY-6690: cinnamate and 3-hydroxycinnamate degradation to 2-hydroxypentadienoate|g__Escherichia.s__Escherichia_coli	9.3619981821	0
+PWY-6700: queuosine biosynthesis I (de novo)|g__Veillonella.s__Veillonella_rogosae	8.4468967142	0
+PWY-6703: preQ0 biosynthesis|g__Bacteroides.s__Bacteroides_fragilis	10.3360422934	0
+PWY-6703: preQ0 biosynthesis|unclassified	10.4081092787	0
+PWY-6731: starch degradation III|unclassified	17.5301849478	0
+PWY-6803: phosphatidylcholine acyl editing|unclassified	7.6205329159	0
+PWY-6892: thiazole component of thiamine diphosphate biosynthesis I|unclassified	10.4217920682	0
+PWY-6936: seleno-amino acid biosynthesis (plants)|unclassified	10.5915308222	0
+PWY-7013: (S)-propane-1,2-diol degradation|unclassified	6.4876705536	0
+PWY-7111: pyruvate fermentation to isobutanol (engineered)|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	11.8855020188	0
+PWY-7111: pyruvate fermentation to isobutanol (engineered)|unclassified	16.6256744714	0
+PWY-7115: C4 photosynthetic carbon assimilation cycle, NAD-ME type|unclassified	11.5812642388	0
+PWY-7118: chitin deacetylation|unclassified	13.7815429733	0
+PWY-7197: pyrimidine deoxyribonucleotide phosphorylation|unclassified	6.8673950892	0
+PWY-7208: superpathway of pyrimidine nucleobases salvage|unclassified	6.8121941588	0
+PWY-7220: adenosine deoxyribonucleotides de novo biosynthesis II|unclassified	10.3865407959	0
+PWY-7221: guanosine ribonucleotides de novo biosynthesis|g__Veillonella.s__Veillonella_rogosae	13.3658358483	0
+PWY-7221: guanosine ribonucleotides de novo biosynthesis|unclassified	6.8239594191	0
+PWY-7222: guanosine deoxyribonucleotides de novo biosynthesis II|unclassified	10.3865407959	0
+PWY-7228: superpathway of guanosine nucleotides de novo biosynthesis I|unclassified	8.1121495829	0
+PWY-7229: superpathway of adenosine nucleotides de novo biosynthesis I|unclassified	13.2853656355	0
+PWY-7238: sucrose biosynthesis II|unclassified	43.4558947452	0
+PWY-7242: D-fructuronate degradation|unclassified	9.1204294914	0
+PWY-7315: dTDP-N-acetylthomosamine biosynthesis|unclassified	6.5499505950	0
+PWY-7316: dTDP-N-acetylviosamine biosynthesis|g__Bacteroides.s__Bacteroides_fragilis	12.9990445936	0
+PWY-7323: superpathway of GDP-mannose-derived O-antigen building blocks biosynthesis|unclassified	6.9557667364	0
+PWY-7328: superpathway of UDP-glucose-derived O-antigen building blocks biosynthesis|unclassified	11.2847677376	0
+PWY-7400: L-arginine biosynthesis IV (archaebacteria)|unclassified	14.9399431962	0
+PWY-7560: methylerythritol phosphate pathway II|unclassified	13.8951124167	0
+PWY-7663: gondoate biosynthesis (anaerobic)|g__Escherichia.s__Escherichia_coli	20.3017923799	0
+PWY-7663: gondoate biosynthesis (anaerobic)|unclassified	5.6251426054	0
+PWY-7851: coenzyme A biosynthesis II (eukaryotic)|g__Veillonella.s__Veillonella_rogosae	11.1928425537	0
+PWY-7851: coenzyme A biosynthesis II (eukaryotic)|unclassified	7.5767964942	0
+PWY-7953: UDP-N-acetylmuramoyl-pentapeptide biosynthesis III (meso-diaminopimelate containing)|unclassified	10.9915754651	0
+PWY-7977: L-methionine biosynthesis IV|g__Bacteroides.s__Bacteroides_fragilis	10.0357349235	0
+PWY-7977: L-methionine biosynthesis IV|unclassified	7.8692605025	0
+PWY-8004: Entner-Doudoroff pathway I|unclassified	8.3447550150	0
+PWY-801: homocysteine and cysteine interconversion|unclassified	5.9609455782	0
+PWY-8178: pentose phosphate pathway (non-oxidative branch) II|unclassified	12.5246710776	0
+PWY-8187: L-arginine degradation XIII (reductive Stickland reaction)|unclassified	4.8399894492	0
+PWY-841: superpathway of purine nucleotides de novo biosynthesis I|unclassified	10.8206079679	0
+PWY0-1061: superpathway of L-alanine biosynthesis|unclassified	8.8125179768	0
+PWY0-1241: ADP-L-glycero-&beta;-D-manno-heptose biosynthesis|unclassified	9.4360995291	0
+PWY0-1296: purine ribonucleosides degradation|g__Escherichia.s__Escherichia_coli	7.0402683542	0
+PWY0-1319: CDP-diacylglycerol biosynthesis II|unclassified	12.8954203137	0
+PWY0-1338: polymyxin resistance|unclassified	3.2014774242	0
+PWY0-1477: ethanolamine utilization|g__Escherichia.s__Escherichia_coli	7.9195906121	0
+PWY0-1477: ethanolamine utilization|unclassified	11.6251114523	0
+PWY0-1586: peptidoglycan maturation (meso-diaminopimelate containing)|g__Escherichia.s__Escherichia_coli	15.1083300182	0
+PWY0-1586: peptidoglycan maturation (meso-diaminopimelate containing)|unclassified	63.4598323860	0
+PWY0-42: 2-methylcitrate cycle I|unclassified	6.7621424662	0
+PWY0-461: L-lysine degradation I|unclassified	2.2208924841	0
+PWY0-845: superpathway of pyridoxal 5'-phosphate biosynthesis and salvage|g__Bacteroides.s__Bacteroides_fragilis	7.4335812362	0
+PWY4FS-7: phosphatidylglycerol biosynthesis I (plastidic)|unclassified	9.9931016197	0
+PWY4FS-8: phosphatidylglycerol biosynthesis II (non-plastidic)|unclassified	9.9931016197	0
+PWY4LZ-257: superpathway of fermentation (Chlamydomonas reinhardtii)|unclassified	8.4329474952	0
+PWY66-429: fatty acid biosynthesis initiation (mitochondria)|g__Veillonella.s__Veillonella_rogosae	13.4177063277	0
+PWY66-429: fatty acid biosynthesis initiation (mitochondria)|unclassified	11.4383771319	0
+PYRIDNUCSYN-PWY: NAD de novo biosynthesis I (from aspartate)|unclassified	12.3137851803	0
+PYRIDOXSYN-PWY: pyridoxal 5'-phosphate biosynthesis I|g__Bacteroides.s__Bacteroides_fragilis	10.3934955918	0
+RHAMCAT-PWY: L-rhamnose degradation I|g__Escherichia.s__Escherichia_coli	15.0439106353	0
+RHAMCAT-PWY: L-rhamnose degradation I|unclassified	8.3196200029	0
+SALVADEHYPOX-PWY: adenosine nucleotides degradation II|g__Escherichia.s__Escherichia_coli	10.5045852637	0
+SALVADEHYPOX-PWY: adenosine nucleotides degradation II|unclassified	9.2245859557	0
+SER-GLYSYN-PWY: superpathway of L-serine and glycine biosynthesis I|unclassified	11.4593672163	0
+SO4ASSIM-PWY: assimilatory sulfate reduction I|g__Escherichia.s__Escherichia_coli	10.5234986088	0
+THRESYN-PWY: superpathway of L-threonine biosynthesis|unclassified	10.1679657868	0
+TRNA-CHARGING-PWY: tRNA charging|unclassified	19.3060583769	0
+UDPNAGSYN-PWY: UDP-N-acetyl-D-glucosamine biosynthesis I|g__Veillonella.s__Veillonella_rogosae	16.6948260203	0
+UDPNAGSYN-PWY: UDP-N-acetyl-D-glucosamine biosynthesis I|unclassified	9.2161649164	0
+VALSYN-PWY: L-valine biosynthesis|g__Escherichia.s__Escherichia_coli	12.2595380917	0
+VALSYN-PWY: L-valine biosynthesis|g__Faecalibacterium.s__Faecalibacterium_prausnitzii	14.0619811124	0
+VALSYN-PWY: L-valine biosynthesis|g__Veillonella.s__Veillonella_rogosae	17.0374199722	0
+VALSYN-PWY: L-valine biosynthesis|unclassified	36.4760306955	0

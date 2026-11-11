@@ -1,0 +1,36 @@
+ncbi_tax_id	name	mock	single
+562	Escherichia coli [ref_mOTU_v31_00095]	8	0
+1496	Clostridioides difficile [ref_mOTU_v31_00721]	2	0
+301301	Roseburia hominis [ref_mOTU_v31_00861]	2	0
+851	Fusobacterium nucleatum subsp. animalis [ref_mOTU_v31_01001]	7	0
+328814	Alistipes shahii [ref_mOTU_v31_01014]	0	1
+1613	Lactobacillus fermentum [ref_mOTU_v31_01407]	1	0
+817	Bacteroides fragilis [ref_mOTU_v31_01597]	9	0
+423477	Veillonella rogosae [ref_mOTU_v31_01939]	11	0
+NA	Bacteroides dorei/vulgatus [ref_mOTU_v31_02367]	0	3
+39492	[Eubacterium] siraeum [ref_mOTU_v31_02370]	0	2
+28128	Prevotella corporis [ref_mOTU_v31_02390]	5	0
+1680	Bifidobacterium adolescentis [ref_mOTU_v31_02703]	3	0
+239935	Akkermansia muciniphila [ref_mOTU_v31_03591]	1	0
+487174	Barnesiella intestinihominis [ref_mOTU_v31_03595]	0	1
+1262820	Clostridium sp. CAG:567 [ref_mOTU_v31_03617]	0	1
+39491	[Eubacterium] rectale [ref_mOTU_v31_03657]	0	2
+28117	Alistipes putredinis [ref_mOTU_v31_03683]	0	2
+28118	Odoribacter splanchnicus [ref_mOTU_v31_03697]	0	1
+165179	Prevotella copri [ref_mOTU_v31_03701]	0	1
+NA	Oscillibacter sp. [ref_mOTU_v31_04664]	0	1
+853	Faecalibacterium prausnitzii [ref_mOTU_v31_06109]	0	1
+1262796	Clostridium sp. CAG:343 [ref_mOTU_v31_07621]	0	1
+1262969	Staphylococcus sp. CAG:324 [ref_mOTU_v31_07714]	0	2
+NA	Clostridiales species incertae sedis [meta_mOTU_v31_12254]	0	1
+NA	Ruminococcaceae species incertae sedis [meta_mOTU_v31_12264]	0	1
+NA	Faecalibacterium species incertae sedis [meta_mOTU_v31_12303]	11	0
+NA	Faecalibacterium species incertae sedis [meta_mOTU_v31_12325]	0	1
+NA	Faecalibacterium species incertae sedis [meta_mOTU_v31_12376]	0	1
+NA	Firmicutes species incertae sedis [meta_mOTU_v31_12384]	0	1
+1965631	Alistipes sp. An31A [meta_mOTU_v31_12393]	0	2
+1262796	Clostridium sp. CAG:343 [meta_mOTU_v31_12430]	0	1
+NA	Clostridiales species incertae sedis [meta_mOTU_v31_12452]	0	1
+1262839	Clostridium sp. CAG:780 [meta_mOTU_v31_12821]	0	1
+NA	Alistipes species incertae sedis [meta_mOTU_v31_13041]	0	1
+NA	unassigned	3	1

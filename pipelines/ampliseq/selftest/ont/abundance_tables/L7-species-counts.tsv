@@ -1,0 +1,10 @@
+taxon	log1	log2	log3	std1	std2	std3
+aeruginosa	49	13	17	4	10	6
+aureus	0	0	1	151	118	127
+faecalis	0	0	0	89	99	72
+intestinalis	8	6	7	20	18	44
+subtilis	3	6	6	28	43	28
+Unc. Bacteria	4	1	2	167	208	169
+Unc. Escherichia-Shigella	0	0	0	18	9	9
+Unc. Limosilactobacillus	1	0	0	57	63	46
+Unc. N/A	2384	2427	2412	260	208	248

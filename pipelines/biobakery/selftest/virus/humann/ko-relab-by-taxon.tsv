@@ -1,0 +1,61 @@
+# Gene Family	virus_genefamilies-RELAB
+UNGROUPED|g__Arcobacter.s__Arcobacter_cryaerophilus	0.00690855
+UNGROUPED|unclassified	0.38142
+K00244: fumarate reductase flavoprotein subunit [EC:1.3.5.4]|unclassified	2.7338e-05
+K00459: nitronate monooxygenase [EC:1.13.12.16]|g__Arcobacter.s__Arcobacter_cryaerophilus	2.84291e-05
+K00560: thymidylate synthase [EC:2.1.1.45]|unclassified	0.000143631
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|unclassified	1.77178e-05
+K00769: xanthine phosphoribosyltransferase [EC:2.4.2.22]|unclassified	9.77556e-05
+K01159: crossover junction endodeoxyribonuclease RuvC [EC:3.1.22.4]|unclassified	1.90793e-05
+K01195: beta-glucuronidase [EC:3.2.1.31]|unclassified	8.86244e-05
+K01588: 5-(carboxyamino)imidazole ribonucleotide mutase [EC:5.4.99.18]|unclassified	1.98306e-05
+K01716: 3-hydroxyacyl-[acyl-carrier protein] dehydratase / trans-2-decenoyl-[acyl-carrier protein] isomerase [EC:4.2.1.59 5.3.3.14]|unclassified	2.82817e-05
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|unclassified	2.07403e-05
+K02078: acyl carrier protein|unclassified	2.34431e-05
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|unclassified	2.40467e-05
+K02315: DNA replication protein DnaC|unclassified	1.95013e-05
+K02435: aspartyl-tRNA(Asn)/glutamyl-tRNA(Gln) amidotransferase subunit C [EC:6.3.5.6 6.3.5.7]|unclassified	3.52607e-05
+K02518: translation initiation factor IF-1|unclassified	2.6234e-05
+K02867: large subunit ribosomal protein L11|g__Arcobacter.s__Arcobacter_cryaerophilus	6.3874e-05
+K02881: large subunit ribosomal protein L18|unclassified	2.86189e-05
+K02895: large subunit ribosomal protein L24|g__Arcobacter.s__Arcobacter_cryaerophilus	0.000101317
+K02899: large subunit ribosomal protein L27|unclassified	5.17304e-06
+K02902: large subunit ribosomal protein L28|g__Arcobacter.s__Arcobacter_cryaerophilus	0.000113008
+K02935: large subunit ribosomal protein L7/L12|g__Arcobacter.s__Arcobacter_cryaerophilus	0.000202085
+K02946: small subunit ribosomal protein S10|g__Arcobacter.s__Arcobacter_cryaerophilus	5.34219e-05
+K02948: small subunit ribosomal protein S11|g__Arcobacter.s__Arcobacter_cryaerophilus	9.96071e-05
+K02950: small subunit ribosomal protein S12|unclassified	4.19076e-05
+K02952: small subunit ribosomal protein S13|g__Arcobacter.s__Arcobacter_cryaerophilus	0.000120211
+K02961: small subunit ribosomal protein S17|unclassified	8.15547e-06
+K02968: small subunit ribosomal protein S20|unclassified	4.08092e-05
+K02988: small subunit ribosomal protein S5|g__Arcobacter.s__Arcobacter_cryaerophilus	7.57269e-05
+K03076: preprotein translocase subunit SecY|g__Arcobacter.s__Arcobacter_cryaerophilus	2.76906e-05
+K03210: preprotein translocase subunit YajC|unclassified	4.70234e-05
+K03218: RNA methyltransferase, TrmH family|unclassified	5.07042e-05
+K03496: chromosome partitioning protein|unclassified	9.57973e-05
+K03497: chromosome partitioning protein, ParB family|unclassified	6.46928e-05
+K03553: recombination protein RecA|g__Arcobacter.s__Arcobacter_cryaerophilus	7.34496e-05
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|unclassified	2.97806e-05
+K03617: electron transport complex protein RnfA|unclassified	1.67897e-05
+K03648: uracil-DNA glycosylase [EC:3.2.2.27]|unclassified	2.88295e-05
+K03719: Lrp/AsnC family transcriptional regulator, leucine-responsive|unclassified	2.00105e-05
+K03817: ribosomal-protein-serine acetyltransferase|unclassified	2.19269e-05
+K04755: ferredoxin, 2Fe-2S|unclassified	3.06596e-05
+K07237: tRNA 2-thiouridine synthesizing protein B|unclassified	3.71143e-05
+K07480: insertion element IS1 protein InsB|unclassified	4.58698e-06
+K07481: transposase, IS5 family|unclassified	3.62034e-06
+K07483: transposase|unclassified	0.000300462
+K08296: phosphohistidine phosphatase|unclassified	1.7594e-05
+K09022: UPF0076 protein YjgF|g__Arcobacter.s__Arcobacter_cryaerophilus	3.76693e-05
+K09903: uridylate kinase [EC:2.7.4.22]|g__Arcobacter.s__Arcobacter_cryaerophilus	5.72377e-05
+K09981: hypothetical protein|unclassified	1.94154e-05
+K18698: beta-lactamase class A TEM [EC:3.5.2.6]|unclassified	9.07437e-05
+K18851: diacylglycerol O-acyltransferase / trehalose O-mycolyltransferase [EC:2.3.1.20 2.3.1.122]|unclassified	4.93606e-05
+K19000: NO_NAME|unclassified	2.16044e-05
+K19252: NO_NAME|unclassified	3.06508e-05
+K19271: NO_NAME|unclassified	7.3923e-06
+K19272: NO_NAME|unclassified	4.44771e-05
+K19300: NO_NAME|unclassified	3.6517e-05
+K21076: NO_NAME|unclassified	2.86257e-05
+K21240: NO_NAME|unclassified	5.82581e-05
+K21699: NO_NAME|unclassified	2.53468e-05

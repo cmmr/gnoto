@@ -1,0 +1,5 @@
+# motus version 3.1.0 | merge 3.1.0 | info merged profiles: # git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0 
+# call: python /usr/local/bin/motus merge -db db_mOTU -i ont_db_mOTU_v3.1.0.out -o motus_db_mOTU_v3.1.0_combined_reports.txt
+#consensus_taxonomy	NCBI_tax_id	ont_db_mOTU_v3.1.0
+Escherichia coli [ref_mOTU_v31_00095]	562	1
+Listeria monocytogenes [ref_mOTU_v31_00712]	1639	1

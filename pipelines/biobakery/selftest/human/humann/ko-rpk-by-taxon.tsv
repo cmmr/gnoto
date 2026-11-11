@@ -1,0 +1,976 @@
+# Gene Family	human_genefamilies
+UNGROUPED|g__Bacteroides.s__Bacteroides_fragilis	45752.5842749894
+UNGROUPED|g__Bacteroides.s__Bacteroides_ovatus	20952.0357562621
+UNGROUPED|g__Bacteroides.s__Bacteroides_thetaiotaomicron	11504.112836544
+UNGROUPED|g__Bacteroides.s__Bacteroides_uniformis	24026.6326377154
+UNGROUPED|g__Bifidobacterium.s__Bifidobacterium_longum	1548.9293334201
+UNGROUPED|g__Blautia.s__Blautia_obeum	3460.4972147726
+UNGROUPED|g__Blautia.s__Blautia_wexlerae	2928.5323351204
+UNGROUPED|g__Blautia.s__Ruminococcus_torques	1980.7423120582
+UNGROUPED|g__Dialister.s__Dialister_invisus	1001.0016439742
+UNGROUPED|g__Flavonifractor.s__Flavonifractor_plautii	2748.5864941698
+UNGROUPED|g__Parabacteroides.s__Parabacteroides_distasonis	9116.1679772808
+UNGROUPED|unclassified	16998.30273779
+K00014: shikimate dehydrogenase [EC:1.1.1.25]|g__Bacteroides.s__Bacteroides_ovatus	6.6334991708
+K00014: shikimate dehydrogenase [EC:1.1.1.25]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.3500837521
+K00024: malate dehydrogenase [EC:1.1.1.37]|g__Bacteroides.s__Bacteroides_fragilis	2.5252525253
+K00024: malate dehydrogenase [EC:1.1.1.37]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.5252525253
+K00024: malate dehydrogenase [EC:1.1.1.37]|g__Bacteroides.s__Bacteroides_uniformis	6.2850729517
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Bacteroides.s__Bacteroides_fragilis	1.5362288061
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Bacteroides.s__Bacteroides_ovatus	1.5503875969
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.8759689922
+K00041: tagaturonate reductase [EC:1.1.1.58]|g__Bacteroides.s__Bacteroides_uniformis	3.8491147036
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Bacteroides.s__Bacteroides_fragilis	4.3859649123
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.1929824561
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Bacteroides.s__Bacteroides_uniformis	3.2894736842
+K00052: 3-isopropylmalate dehydrogenase [EC:1.1.1.85]|g__Parabacteroides.s__Parabacteroides_distasonis	3.2894736842
+K00058: D-3-phosphoglycerate dehydrogenase [EC:1.1.1.95]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.7804210937
+K00075: UDP-N-acetylmuramate dehydrogenase [EC:1.3.1.98]|g__Bacteroides.s__Bacteroides_fragilis	10.6007067138
+K00075: UDP-N-acetylmuramate dehydrogenase [EC:1.3.1.98]|g__Bacteroides.s__Bacteroides_ovatus	4.7449584816
+K00099: 1-deoxy-D-xylulose-5-phosphate reductoisomerase [EC:1.1.1.267]|g__Bacteroides.s__Bacteroides_ovatus	3.8696815774
+K00099: 1-deoxy-D-xylulose-5-phosphate reductoisomerase [EC:1.1.1.267]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.8875855327
+K00134: glyceraldehyde 3-phosphate dehydrogenase [EC:1.2.1.12]|g__Bacteroides.s__Bacteroides_fragilis	4.6948356808
+K00134: glyceraldehyde 3-phosphate dehydrogenase [EC:1.2.1.12]|g__Parabacteroides.s__Parabacteroides_distasonis	3.5197507829
+K00145: N-acetyl-gamma-glutamyl-phosphate reductase [EC:1.2.1.38]|g__Bacteroides.s__Bacteroides_fragilis	4.884004884
+K00145: N-acetyl-gamma-glutamyl-phosphate reductase [EC:1.2.1.38]|g__Bacteroides.s__Bacteroides_ovatus	4.884004884
+K00145: N-acetyl-gamma-glutamyl-phosphate reductase [EC:1.2.1.38]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.442002442
+K00145: N-acetyl-gamma-glutamyl-phosphate reductase [EC:1.2.1.38]|g__Bacteroides.s__Bacteroides_uniformis	1.221001221
+K00174: 2-oxoglutarate/2-oxoacid ferredoxin oxidoreductase subunit alpha [EC:1.2.7.3 1.2.7.11]|g__Bacteroides.s__Bacteroides_uniformis	11.753650657
+K00259: alanine dehydrogenase [EC:1.4.1.1]|g__Bacteroides.s__Bacteroides_fragilis	5.207249393
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|g__Bacteroides.s__Bacteroides_fragilis	4.2194092827
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|g__Bacteroides.s__Bacteroides_ovatus	10.943495097900001
+K00262: glutamate dehydrogenase (NADP+) [EC:1.4.1.4]|g__Bacteroides.s__Bacteroides_uniformis	10.9427609428
+K00286: pyrroline-5-carboxylate reductase [EC:1.5.1.2]|g__Bacteroides.s__Bacteroides_fragilis	9.6153846154
+K00337: NADH-quinone oxidoreductase subunit H [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	4.5819014891
+K00338: NADH-quinone oxidoreductase subunit I [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	2.9498525074
+K00338: NADH-quinone oxidoreductase subunit I [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_ovatus	5.8997050147
+K00338: NADH-quinone oxidoreductase subunit I [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9498525074
+K00350: Na+-transporting NADH:ubiquinone oxidoreductase subunit E|g__Bacteroides.s__Bacteroides_ovatus	4.1928721174
+K00350: Na+-transporting NADH:ubiquinone oxidoreductase subunit E|g__Bacteroides.s__Bacteroides_uniformis	2.0964360587
+K00351: Na+-transporting NADH:ubiquinone oxidoreductase subunit F|g__Bacteroides.s__Bacteroides_fragilis	16.0427807487
+K00384: thioredoxin reductase (NADPH) [EC:1.8.1.9]|unclassified	13.6231611929
+K00525: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]|g__Bacteroides.s__Bacteroides_fragilis	4.59067437
+K00525: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]|g__Bacteroides.s__Bacteroides_ovatus	5.0125313283
+K00525: ribonucleoside-diphosphate reductase alpha chain [EC:1.17.4.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.837520938
+K00526: ribonucleoside-diphosphate reductase beta chain [EC:1.17.4.1]|g__Bifidobacterium.s__Bifidobacterium_longum	5.8904338539
+K00554: tRNA (guanine-N1-)-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	1.8939393939
+K00554: tRNA (guanine-N1-)-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.7878787879
+K00554: tRNA (guanine-N1-)-methyltransferase|g__Bacteroides.s__Bacteroides_uniformis	7.5757575758
+K00560: thymidylate synthase [EC:2.1.1.45]|g__Bacteroides.s__Bacteroides_fragilis	1.5479876161
+K00560: thymidylate synthase [EC:2.1.1.45]|g__Bacteroides.s__Bacteroides_ovatus	1.5503875969
+K00560: thymidylate synthase [EC:2.1.1.45]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.6511627907
+K00560: thymidylate synthase [EC:2.1.1.45]|g__Bacteroides.s__Bacteroides_uniformis	3.1007751938
+K00566: tRNA-specific 2-thiouridylase [EC:2.8.1.-]|g__Bacteroides.s__Bacteroides_ovatus	2.1367521368
+K00566: tRNA-specific 2-thiouridylase [EC:2.8.1.-]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.2598509052
+K00600: glycine hydroxymethyltransferase [EC:2.1.2.1]|g__Bacteroides.s__Bacteroides_fragilis	6.1496343824
+K00600: glycine hydroxymethyltransferase [EC:2.1.2.1]|g__Bacteroides.s__Bacteroides_ovatus	6.1892130858
+K00600: glycine hydroxymethyltransferase [EC:2.1.2.1]|g__Bacteroides.s__Bacteroides_uniformis	4.4208664898
+K00602: phosphoribosylaminoimidazolecarboxamide formyltransferase / IMP cyclohydrolase [EC:2.1.2.3 3.5.4.10]|g__Bacteroides.s__Bacteroides_fragilis	5.2083333333
+K00602: phosphoribosylaminoimidazolecarboxamide formyltransferase / IMP cyclohydrolase [EC:2.1.2.3 3.5.4.10]|g__Bacteroides.s__Bacteroides_ovatus	2.9112081514
+K00602: phosphoribosylaminoimidazolecarboxamide formyltransferase / IMP cyclohydrolase [EC:2.1.2.3 3.5.4.10]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.7278020378
+K00602: phosphoribosylaminoimidazolecarboxamide formyltransferase / IMP cyclohydrolase [EC:2.1.2.3 3.5.4.10]|g__Bacteroides.s__Bacteroides_uniformis	4.3512609015
+K00605: aminomethyltransferase [EC:2.1.2.10]|g__Bacteroides.s__Bacteroides_fragilis	2.1367521368
+K00605: aminomethyltransferase [EC:2.1.2.10]|g__Bacteroides.s__Bacteroides_uniformis	7.4547390841
+K00606: 3-methyl-2-oxobutanoate hydroxymethyltransferase [EC:2.1.2.11]|g__Bacteroides.s__Bacteroides_fragilis	5.1020408163
+K00606: 3-methyl-2-oxobutanoate hydroxymethyltransferase [EC:2.1.2.11]|g__Bacteroides.s__Bacteroides_ovatus	11.9047619048
+K00606: 3-methyl-2-oxobutanoate hydroxymethyltransferase [EC:2.1.2.11]|g__Bacteroides.s__Bacteroides_uniformis	5.9523809524
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Bacteroides.s__Bacteroides_fragilis	7.722007722
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Bacteroides.s__Bacteroides_ovatus	2.5252525253
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.5252525253
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Bacteroides.s__Bacteroides_uniformis	6.2656641604
+K00609: aspartate carbamoyltransferase catalytic subunit [EC:2.1.3.2]|g__Parabacteroides.s__Parabacteroides_distasonis	7.7821011673
+K00651: homoserine O-succinyltransferase [EC:2.3.1.46]|g__Bacteroides.s__Bacteroides_fragilis	11.71875
+K00651: homoserine O-succinyltransferase [EC:2.3.1.46]|g__Bacteroides.s__Bacteroides_ovatus	6.5104166667
+K00661: maltose O-acetyltransferase|unclassified	7.0640217872
+K00700: 1,4-alpha-glucan branching enzyme [EC:2.4.1.18]|g__Bacteroides.s__Bacteroides_ovatus	4.8309178744
+K00700: 1,4-alpha-glucan branching enzyme [EC:2.4.1.18]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.6835552975
+K00757: uridine phosphorylase [EC:2.4.2.3]|unclassified	4.016064257
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|g__Bacteroides.s__Bacteroides_fragilis	23.748031496099998
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|g__Bacteroides.s__Bacteroides_ovatus	5.3333333333
+K00759: adenine phosphoribosyltransferase [EC:2.4.2.7]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.874015748
+K00760: hypoxanthine phosphoribosyltransferase [EC:2.4.2.8]|g__Flavonifractor.s__Flavonifractor_plautii	4.9019607843
+K00766: anthranilate phosphoribosyltransferase [EC:2.4.2.18]|g__Bacteroides.s__Bacteroides_ovatus	14.0916886849
+K00766: anthranilate phosphoribosyltransferase [EC:2.4.2.18]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3557126031
+K00767: nicotinate-nucleotide pyrophosphorylase (carboxylating) [EC:2.4.2.19]|g__Bacteroides.s__Bacteroides_fragilis	2.8985507246
+K00767: nicotinate-nucleotide pyrophosphorylase (carboxylating) [EC:2.4.2.19]|g__Bacteroides.s__Bacteroides_ovatus	11.3046287323
+K00767: nicotinate-nucleotide pyrophosphorylase (carboxylating) [EC:2.4.2.19]|g__Bacteroides.s__Bacteroides_uniformis	7.1530758226
+K00768: nicotinate-nucleotide--dimethylbenzimidazole phosphoribosyltransferase [EC:2.4.2.21]|g__Bacteroides.s__Bacteroides_fragilis	5.6131519546
+K00783: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	15.4320987654
+K00783: hypothetical protein|g__Bacteroides.s__Bacteroides_uniformis	9.2592592593
+K00784: ribonuclease Z [EC:3.1.26.11]|g__Parabacteroides.s__Parabacteroides_distasonis	7.8431372549
+K00788: thiamine-phosphate pyrophosphorylase [EC:2.5.1.3]|g__Bacteroides.s__Bacteroides_ovatus	8.547008547
+K00788: thiamine-phosphate pyrophosphorylase [EC:2.5.1.3]|unclassified	7.5803559112
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Bacteroides.s__Bacteroides_ovatus	4.3744531934
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.4837784452
+K00789: S-adenosylmethionine synthetase [EC:2.5.1.6]|g__Parabacteroides.s__Parabacteroides_distasonis	6.155779477
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_fragilis	2.5974025974
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_ovatus	2.5966536347
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.7316017316
+K00790: UDP-N-acetylglucosamine 1-carboxyvinyltransferase [EC:2.5.1.7]|g__Bacteroides.s__Bacteroides_uniformis	8.6201971461
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Bacteroides.s__Bacteroides_fragilis	4.9875311721
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Bacteroides.s__Bacteroides_ovatus	14.2671854734
+K00791: tRNA dimethylallyltransferase [EC:2.5.1.75]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.4850843061
+K00794: 6,7-dimethyl-8-ribityllumazine synthase [EC:2.5.1.78]|g__Parabacteroides.s__Parabacteroides_distasonis	6.006006006
+K00800: 3-phosphoshikimate 1-carboxyvinyltransferase [EC:2.5.1.19]|g__Bacteroides.s__Bacteroides_ovatus	2.7777777778
+K00800: 3-phosphoshikimate 1-carboxyvinyltransferase [EC:2.5.1.19]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.6168051708
+K00806: undecaprenyl diphosphate synthase [EC:2.5.1.31]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.8376068376
+K00820: glucosamine--fructose-6-phosphate aminotransferase (isomerizing) [EC:2.6.1.16]|g__Bacteroides.s__Bacteroides_ovatus	6.467538973
+K00820: glucosamine--fructose-6-phosphate aminotransferase (isomerizing) [EC:2.6.1.16]|g__Bacteroides.s__Bacteroides_uniformis	6.4896755162
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2679738562
+K00831: phosphoserine aminotransferase [EC:2.6.1.52]|g__Bacteroides.s__Bacteroides_uniformis	4.3572984749
+K00833: adenosylmethionine---8-amino-7-oxononanoate aminotransferase [EC:2.6.1.62]|g__Bacteroides.s__Bacteroides_fragilis	1.4679809046
+K00833: adenosylmethionine---8-amino-7-oxononanoate aminotransferase [EC:2.6.1.62]|g__Bacteroides.s__Bacteroides_ovatus	8.8298272379
+K00833: adenosylmethionine---8-amino-7-oxononanoate aminotransferase [EC:2.6.1.62]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.1972159626
+K00845: glucokinase [EC:2.7.1.2]|g__Bacteroides.s__Bacteroides_fragilis	2.442002442
+K00845: glucokinase [EC:2.7.1.2]|g__Bacteroides.s__Bacteroides_ovatus	2.442002442
+K00845: glucokinase [EC:2.7.1.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.016064257
+K00848: rhamnulokinase [EC:2.7.1.5]|g__Bacteroides.s__Bacteroides_ovatus	4.6832318258
+K00850: 6-phosphofructokinase 1 [EC:2.7.1.11]|g__Bacteroides.s__Bacteroides_fragilis	9.5579450418
+K00850: 6-phosphofructokinase 1 [EC:2.7.1.11]|g__Bacteroides.s__Bacteroides_ovatus	3.6101083032
+K00850: 6-phosphofructokinase 1 [EC:2.7.1.11]|g__Bacteroides.s__Bacteroides_uniformis	9.6269554753
+K00850: 6-phosphofructokinase 1 [EC:2.7.1.11]|g__Parabacteroides.s__Parabacteroides_distasonis	2.3894862605
+K00857: thymidine kinase [EC:2.7.1.21]|g__Bacteroides.s__Bacteroides_ovatus	4.4444444444
+K00857: thymidine kinase [EC:2.7.1.21]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	11.1111111111
+K00876: uridine kinase [EC:2.7.1.48]|g__Bacteroides.s__Bacteroides_fragilis	4.3010752688
+K00876: uridine kinase [EC:2.7.1.48]|g__Bacteroides.s__Bacteroides_ovatus	6.4935064935
+K00878: hydroxyethylthiazole kinase [EC:2.7.1.50]|unclassified	7.7637544564
+K00930: acetylglutamate kinase [EC:2.7.2.8]|g__Bacteroides.s__Bacteroides_ovatus	1.6025641026
+K00930: acetylglutamate kinase [EC:2.7.2.8]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.4102564103
+K00939: adenylate kinase [EC:2.7.4.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.7619047619
+K00943: dTMP kinase [EC:2.7.4.9]|unclassified	8.0515464933
+K00945: cytidylate kinase [EC:2.7.4.14]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.5555555556
+K00948: ribose-phosphate pyrophosphokinase [EC:2.7.6.1]|g__Bacteroides.s__Bacteroides_fragilis	1.3020833333
+K00948: ribose-phosphate pyrophosphokinase [EC:2.7.6.1]|g__Bacteroides.s__Bacteroides_uniformis	11.4068441065
+K00950: 2-amino-4-hydroxy-6-hydroxymethyldihydropteridine diphosphokinase [EC:2.7.6.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.376344086
+K00954: pantetheine-phosphate adenylyltransferase [EC:2.7.7.3]|g__Bacteroides.s__Bacteroides_fragilis	6.600660066
+K00956: sulfate adenylyltransferase subunit 1 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_fragilis	9.9160945843
+K00956: sulfate adenylyltransferase subunit 1 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.5677864523
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_fragilis	11.811023622
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_ovatus	5.178059366
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.2700922266
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Bacteroides.s__Bacteroides_uniformis	6.56167979
+K00957: sulfate adenylyltransferase subunit 2 [EC:2.7.7.4]|g__Parabacteroides.s__Parabacteroides_distasonis	1.2853470437
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Bacteroides.s__Bacteroides_fragilis	3.0343899229
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Bacteroides.s__Bacteroides_ovatus	3.0349013657
+K00962: polyribonucleotide nucleotidyltransferase [EC:2.7.7.8]|g__Bacteroides.s__Bacteroides_uniformis	10.5088555933
+K00971: mannose-1-phosphate guanylyltransferase [EC:2.7.7.13]|g__Bacteroides.s__Bacteroides_ovatus	9.6463022508
+K00971: mannose-1-phosphate guanylyltransferase [EC:2.7.7.13]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.4671375973
+K00971: mannose-1-phosphate guanylyltransferase [EC:2.7.7.13]|g__Bacteroides.s__Bacteroides_uniformis	4.2735042735
+K00981: phosphatidate cytidylyltransferase [EC:2.7.7.41]|g__Bacteroides.s__Bacteroides_fragilis	2.478314746
+K00981: phosphatidate cytidylyltransferase [EC:2.7.7.41]|g__Bacteroides.s__Bacteroides_ovatus	4.9535622707
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|g__Bacteroides.s__Bacteroides_fragilis	11.5651937936
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|g__Bacteroides.s__Bacteroides_ovatus	8.0046723864
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.6691443135
+K01000: phospho-N-acetylmuramoyl-pentapeptide-transferase [EC:2.7.8.13]|g__Bacteroides.s__Bacteroides_uniformis	10.7238605898
+K01060: cephalosporin-C deacetylase [EC:3.1.1.41]|g__Flavonifractor.s__Flavonifractor_plautii	4.4444444444
+K01089: imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase [EC:4.2.1.19 3.1.3.15]|g__Bacteroides.s__Bacteroides_fragilis	2.0512820513
+K01089: imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase [EC:4.2.1.19 3.1.3.15]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.1538461538
+K01092: myo-inositol-1(or 4)-monophosphatase [EC:3.1.3.25]|g__Bacteroides.s__Bacteroides_fragilis	4.5662100457
+K01126: glycerophosphoryl diester phosphodiesterase [EC:3.1.4.46]|g__Bacteroides.s__Bacteroides_fragilis	9.8039215686
+K01159: crossover junction endodeoxyribonuclease RuvC [EC:3.1.22.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.7961630695
+K01159: crossover junction endodeoxyribonuclease RuvC [EC:3.1.22.4]|g__Bacteroides.s__Bacteroides_uniformis	2.380952381
+K01163: hypothetical protein|unclassified	9.0961998017
+K01187: alpha-glucosidase [EC:3.2.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.1998050174
+K01190: beta-galactosidase [EC:3.2.1.23]|g__Bacteroides.s__Bacteroides_fragilis	2.5550259228
+K01190: beta-galactosidase [EC:3.2.1.23]|g__Bacteroides.s__Bacteroides_ovatus	0.676132522
+K01190: beta-galactosidase [EC:3.2.1.23]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.7280183689
+K01193: beta-fructofuranosidase [EC:3.2.1.26]|g__Bacteroides.s__Bacteroides_fragilis	2.1141649049
+K01193: beta-fructofuranosidase [EC:3.2.1.26]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.8129395218
+K01205: alpha-N-acetylglucosaminidase [EC:3.2.1.50]|g__Bacteroides.s__Bacteroides_ovatus	6.9604211347
+K01218: mannan endo-1,4-beta-mannosidase [EC:3.2.1.78]|g__Bacteroides.s__Bacteroides_fragilis	6.1570116992
+K01251: adenosylhomocysteinase [EC:3.3.1.1]|g__Bacteroides.s__Bacteroides_fragilis	3.9345608719
+K01251: adenosylhomocysteinase [EC:3.3.1.1]|g__Bacteroides.s__Bacteroides_ovatus	3.9401103231
+K01251: adenosylhomocysteinase [EC:3.3.1.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3419203747
+K01258: tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_fragilis	2.7932960894
+K01258: tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_ovatus	4.64098507
+K01258: tripeptide aminopeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8621973929
+K01262: X-Pro aminopeptidase|g__Bacteroides.s__Bacteroides_ovatus	13.0718954248
+K01262: X-Pro aminopeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9019607843
+K01278: dipeptidyl-peptidase 4 [EC:3.4.14.5]|g__Bacteroides.s__Bacteroides_ovatus	3.8816108685
+K01278: dipeptidyl-peptidase 4 [EC:3.4.14.5]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.4556040757
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Bacteroides.s__Bacteroides_ovatus	23.0120394782
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	15.5945419103
+K01358: ATP-dependent Clp protease, protease subunit [EC:3.4.21.92]|g__Bacteroides.s__Bacteroides_uniformis	3.8986354776
+K01372: bleomycin hydrolase|g__Bacteroides.s__Bacteroides_ovatus	5.8309037901
+K01409: O-sialoglycoprotein endopeptidase|g__Bacteroides.s__Bacteroides_fragilis	4.5963814878
+K01409: O-sialoglycoprotein endopeptidase|g__Bacteroides.s__Bacteroides_ovatus	11.3447117602
+K01409: O-sialoglycoprotein endopeptidase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.0459770115
+K01409: O-sialoglycoprotein endopeptidase|g__Bacteroides.s__Bacteroides_uniformis	1.1454753723
+K01425: glutaminase [EC:3.5.1.2]|g__Bacteroides.s__Bacteroides_fragilis	13.4803921569
+K01425: glutaminase [EC:3.5.1.2]|g__Bacteroides.s__Bacteroides_ovatus	12.2534019728
+K01425: glutaminase [EC:3.5.1.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.5784313725
+K01433: formyltetrahydrofolate deformylase [EC:3.5.1.10]|g__Bacteroides.s__Bacteroides_uniformis	4.2352959926
+K01462: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	2.4691358025
+K01462: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.4691358025
+K01462: NO_NAME|g__Parabacteroides.s__Parabacteroides_distasonis	7.3529411765
+K01468: imidazolonepropionase [EC:3.5.2.7]|g__Bacteroides.s__Bacteroides_fragilis	10.8695652174
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_fragilis	8.1967213115
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_ovatus	4.0983606557
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.3661202186
+K01491: methylenetetrahydrofolate dehydrogenase (NADP+) / methenyltetrahydrofolate cyclohydrolase [EC:1.5.1.5 3.5.4.9]|g__Bacteroides.s__Bacteroides_uniformis	1.3661202186
+K01495: GTP cyclohydrolase I [EC:3.5.4.16]|g__Bacteroides.s__Bacteroides_fragilis	4.5871800942
+K01495: GTP cyclohydrolase I [EC:3.5.4.16]|g__Bacteroides.s__Bacteroides_uniformis	9.1324200913
+K01512: acylphosphatase [EC:3.6.1.7]|g__Blautia.s__Blautia_obeum	7.9365079365
+K01520: dUTP pyrophosphatase [EC:3.6.1.23]|g__Bacteroides.s__Bacteroides_uniformis	7.0175438596
+K01520: dUTP pyrophosphatase [EC:3.6.1.23]|unclassified	15.1706942846
+K01524: exopolyphosphatase / guanosine-5'-triphosphate,3'-diphosphate pyrophosphatase [EC:3.6.1.11 3.6.1.40]|g__Bacteroides.s__Bacteroides_fragilis	7.8431372549
+K01533: Cu2+-exporting ATPase|g__Bacteroides.s__Bacteroides_fragilis	4.7477744807
+K01533: Cu2+-exporting ATPase|g__Bacteroides.s__Bacteroides_ovatus	3.8816108685
+K01533: Cu2+-exporting ATPase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.8195895686
+K01546: K+-transporting ATPase ATPase A chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_fragilis	7.0628082236
+K01546: K+-transporting ATPase ATPase A chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_ovatus	1.2845215157
+K01546: K+-transporting ATPase ATPase A chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2113037893
+K01548: K+-transporting ATPase ATPase C chain [EC:3.6.3.12]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.1428571429
+K01567: NO_NAME|unclassified	5.0188205772
+K01572: oxaloacetate decarboxylase, beta subunit [EC:4.1.1.3]|g__Bacteroides.s__Bacteroides_ovatus	6.5623079237
+K01572: oxaloacetate decarboxylase, beta subunit [EC:4.1.1.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.5715837534
+K01573: oxaloacetate decarboxylase, gamma subunit [EC:4.1.1.3]|g__Bacteroides.s__Bacteroides_fragilis	9.2592592593
+K01579: aspartate 1-decarboxylase [EC:4.1.1.11]|g__Bacteroides.s__Bacteroides_ovatus	9.8039215686
+K01585: arginine decarboxylase [EC:4.1.1.19]|g__Bacteroides.s__Bacteroides_fragilis	0.6609385327
+K01585: arginine decarboxylase [EC:4.1.1.19]|g__Bacteroides.s__Bacteroides_ovatus	0.5737234653
+K01585: arginine decarboxylase [EC:4.1.1.19]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.8686173264
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Bacteroides.s__Bacteroides_ovatus	1.4814814815
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Bacteroides.s__Bacteroides_uniformis	10.3703703704
+K01591: orotidine-5'-phosphate decarboxylase [EC:4.1.1.23]|g__Bifidobacterium.s__Bifidobacterium_longum	4.9751243781
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Bacteroides.s__Bacteroides_fragilis	1.3717421125
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Bacteroides.s__Bacteroides_ovatus	6.1728395062
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Bacteroides.s__Bacteroides_uniformis	7.5200862238
+K01610: phosphoenolpyruvate carboxykinase (ATP) [EC:4.1.1.49]|g__Parabacteroides.s__Parabacteroides_distasonis	1.3717421125
+K01613: phosphatidylserine decarboxylase [EC:4.1.1.65]|g__Bacteroides.s__Bacteroides_fragilis	8.1967213115
+K01613: phosphatidylserine decarboxylase [EC:4.1.1.65]|g__Bacteroides.s__Bacteroides_ovatus	3.7243947858
+K01613: phosphatidylserine decarboxylase [EC:4.1.1.65]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.4487895717
+K01619: deoxyribose-phosphate aldolase [EC:4.1.2.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.291005291
+K01620: threonine aldolase [EC:4.1.2.48]|unclassified	4.1152306932
+K01647: citrate synthase [EC:2.3.3.1]|g__Bacteroides.s__Bacteroides_fragilis	4.1876046901
+K01647: citrate synthase [EC:2.3.3.1]|g__Bacteroides.s__Bacteroides_ovatus	10.0094776298
+K01647: citrate synthase [EC:2.3.3.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.0251256281
+K01647: citrate synthase [EC:2.3.3.1]|g__Bacteroides.s__Bacteroides_uniformis	5.0251256281
+K01652: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]|g__Bacteroides.s__Bacteroides_fragilis	2.3724792408
+K01652: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]|g__Bacteroides.s__Bacteroides_ovatus	10.3514113859
+K01652: acetolactate synthase I/II/III large subunit [EC:2.2.1.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.5839793282
+K01658: anthranilate synthase component II [EC:4.1.3.27]|unclassified	11.5565231172
+K01686: mannonate dehydratase [EC:4.2.1.8]|g__Bacteroides.s__Bacteroides_fragilis	6.0790835181
+K01686: mannonate dehydratase [EC:4.2.1.8]|g__Bacteroides.s__Bacteroides_ovatus	4.9019607843
+K01686: mannonate dehydratase [EC:4.2.1.8]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.9607843137
+K01687: dihydroxy-acid dehydratase [EC:4.2.1.9]|g__Bacteroides.s__Bacteroides_fragilis	1.8148820327
+K01687: dihydroxy-acid dehydratase [EC:4.2.1.9]|g__Bacteroides.s__Bacteroides_ovatus	3.0303030303
+K01687: dihydroxy-acid dehydratase [EC:4.2.1.9]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.4194769541
+K01687: dihydroxy-acid dehydratase [EC:4.2.1.9]|g__Bacteroides.s__Bacteroides_uniformis	7.2566113355
+K01689: enolase [EC:4.2.1.11]|g__Bacteroides.s__Bacteroides_fragilis	8.7280701754
+K01689: enolase [EC:4.2.1.11]|g__Bacteroides.s__Bacteroides_ovatus	7.0733863837
+K01689: enolase [EC:4.2.1.11]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.6525198939
+K01695: tryptophan synthase alpha chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	3.2206119163
+K01695: tryptophan synthase alpha chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_ovatus	4.8309178744
+K01695: tryptophan synthase alpha chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6103059581
+K01696: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	1.9550342131
+K01696: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.9661835749
+K01696: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_uniformis	7.7745383868
+K01711: GDPmannose 4,6-dehydratase [EC:4.2.1.47]|g__Bacteroides.s__Bacteroides_uniformis	12.8876856269
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|g__Bacteroides.s__Bacteroides_fragilis	14.7618641781
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|g__Bacteroides.s__Bacteroides_ovatus	1.2836970475
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.0322580645
+K01714: 4-hydroxy-tetrahydrodipicolinate synthase [EC:4.3.3.7]|g__Bacteroides.s__Bacteroides_uniformis	16.1218156888
+K01733: threonine synthase [EC:4.2.3.1]|g__Bacteroides.s__Bacteroides_ovatus	1.7361111111
+K01733: threonine synthase [EC:4.2.3.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.2075804664
+K01736: chorismate synthase [EC:4.2.3.5]|g__Bacteroides.s__Bacteroides_fragilis	2.1574973031
+K01736: chorismate synthase [EC:4.2.3.5]|g__Bacteroides.s__Bacteroides_ovatus	2.1574973031
+K01736: chorismate synthase [EC:4.2.3.5]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2362459547
+K01738: cysteine synthase A [EC:2.5.1.47]|g__Bacteroides.s__Bacteroides_fragilis	3.367003367
+K01738: cysteine synthase A [EC:2.5.1.47]|g__Bacteroides.s__Bacteroides_ovatus	5.0125313283
+K01738: cysteine synthase A [EC:2.5.1.47]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.7593984962
+K01744: aspartate ammonia-lyase [EC:4.3.1.1]|g__Bacteroides.s__Bacteroides_fragilis	0.7788161994
+K01744: aspartate ammonia-lyase [EC:4.3.1.1]|g__Bacteroides.s__Bacteroides_ovatus	7.7881619938
+K01744: aspartate ammonia-lyase [EC:4.3.1.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.1152647975
+K01745: histidine ammonia-lyase [EC:4.3.1.3]|g__Bacteroides.s__Bacteroides_fragilis	2.2266207574
+K01745: histidine ammonia-lyase [EC:4.3.1.3]|g__Bacteroides.s__Bacteroides_ovatus	6.6666666667
+K01745: histidine ammonia-lyase [EC:4.3.1.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.4814814815
+K01745: histidine ammonia-lyase [EC:4.3.1.3]|g__Bacteroides.s__Bacteroides_uniformis	1.4847809948
+K01752: L-serine dehydratase [EC:4.3.1.17]|g__Bacteroides.s__Bacteroides_ovatus	3.7771482531
+K01752: L-serine dehydratase [EC:4.3.1.17]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.7771482531
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_fragilis	5.0251256281
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_ovatus	6.6652711444
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.0039545855
+K01755: argininosuccinate lyase [EC:4.3.2.1]|g__Bacteroides.s__Bacteroides_uniformis	8.3963056255
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|g__Bacteroides.s__Bacteroides_ovatus	9.0000179821
+K01770: 2-C-methyl-D-erythritol 2,4-cyclodiphosphate synthase [EC:4.6.1.12]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.0606060606
+K01783: ribulose-phosphate 3-epimerase [EC:5.1.3.1]|unclassified	6.6694490818
+K01803: triosephosphate isomerase (TIM) [EC:5.3.1.1]|g__Bacteroides.s__Bacteroides_ovatus	3.2840722496
+K01803: triosephosphate isomerase (TIM) [EC:5.3.1.1]|g__Bacteroides.s__Bacteroides_uniformis	3.300330033
+K01804: L-arabinose isomerase [EC:5.3.1.4]|unclassified	4.7356724408
+K01805: xylose isomerase [EC:5.3.1.5]|g__Bacteroides.s__Bacteroides_ovatus	2.5706940874
+K01805: xylose isomerase [EC:5.3.1.5]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.7137960583
+K01805: xylose isomerase [EC:5.3.1.5]|g__Bacteroides.s__Bacteroides_uniformis	3.4275921165
+K01809: mannose-6-phosphate isomerase [EC:5.3.1.8]|g__Bacteroides.s__Bacteroides_fragilis	4.8415301497
+K01810: glucose-6-phosphate isomerase [EC:5.3.1.9]|g__Bacteroides.s__Bacteroides_ovatus	10.9427609428
+K01810: glucose-6-phosphate isomerase [EC:5.3.1.9]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6835016835
+K01812: glucuronate isomerase [EC:5.3.1.12]|g__Bacteroides.s__Bacteroides_ovatus	2.3866348449
+K01812: glucuronate isomerase [EC:5.3.1.12]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3860024562
+K01812: glucuronate isomerase [EC:5.3.1.12]|g__Bacteroides.s__Bacteroides_uniformis	2.3866348449
+K01813: L-rhamnose isomerase [EC:5.3.1.14]|g__Bacteroides.s__Bacteroides_ovatus	4.5167118338
+K01813: L-rhamnose isomerase [EC:5.3.1.14]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.4200542005
+K01814: phosphoribosylformimino-5-aminoimidazole carboxamide ribotide isomerase [EC:5.3.1.16]|g__Bacteroides.s__Bacteroides_fragilis	5.2631578947
+K01814: phosphoribosylformimino-5-aminoimidazole carboxamide ribotide isomerase [EC:5.3.1.16]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.2631578947
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Bacteroides.s__Bacteroides_fragilis	2.7322404372
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Bacteroides.s__Bacteroides_ovatus	1.2953367876
+K01815: 4-deoxy-L-threo-5-hexosulose-uronate ketol-isomerase [EC:5.3.1.17]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.8910505837
+K01818: L-fucose/D-arabinose isomerase [EC:5.3.1.25 5.3.1.3]|g__Bacteroides.s__Bacteroides_fragilis	8.0098582871
+K01818: L-fucose/D-arabinose isomerase [EC:5.3.1.25 5.3.1.3]|g__Bacteroides.s__Bacteroides_ovatus	6.7646896506
+K01818: L-fucose/D-arabinose isomerase [EC:5.3.1.25 5.3.1.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2300123001
+K01834: 2,3-bisphosphoglycerate-dependent phosphoglycerate mutase [EC:5.4.2.11]|g__Bacteroides.s__Bacteroides_fragilis	9.8339098355
+K01834: 2,3-bisphosphoglycerate-dependent phosphoglycerate mutase [EC:5.4.2.11]|g__Bacteroides.s__Bacteroides_ovatus	3.169810187
+K01835: phosphoglucomutase [EC:5.4.2.2]|g__Bacteroides.s__Bacteroides_fragilis	5.0121389887
+K01835: phosphoglucomutase [EC:5.4.2.2]|g__Bacteroides.s__Bacteroides_ovatus	2.4939498624
+K01835: phosphoglucomutase [EC:5.4.2.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3855725726
+K01866: tyrosyl-tRNA synthetase [EC:6.1.1.1]|g__Bacteroides.s__Bacteroides_ovatus	3.4995625547
+K01866: tyrosyl-tRNA synthetase [EC:6.1.1.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.7497812773
+K01866: tyrosyl-tRNA synthetase [EC:6.1.1.1]|g__Bacteroides.s__Bacteroides_uniformis	6.1242344707
+K01868: threonyl-tRNA synthetase [EC:6.1.1.3]|g__Bacteroides.s__Bacteroides_ovatus	8.3752093802
+K01868: threonyl-tRNA synthetase [EC:6.1.1.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.5785290592
+K01869: leucyl-tRNA synthetase [EC:6.1.1.4]|unclassified	6.4041629462
+K01872: alanyl-tRNA synthetase [EC:6.1.1.7]|g__Bacteroides.s__Bacteroides_fragilis	2.0251113811
+K01872: alanyl-tRNA synthetase [EC:6.1.1.7]|g__Bacteroides.s__Bacteroides_ovatus	4.0502227623
+K01872: alanyl-tRNA synthetase [EC:6.1.1.7]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.0221799774
+K01872: alanyl-tRNA synthetase [EC:6.1.1.7]|g__Bacteroides.s__Bacteroides_uniformis	3.6346555274
+K01874: methionyl-tRNA synthetase [EC:6.1.1.10]|g__Bacteroides.s__Bacteroides_fragilis	3.1572733722
+K01874: methionyl-tRNA synthetase [EC:6.1.1.10]|g__Bacteroides.s__Bacteroides_ovatus	5.291005291
+K01874: methionyl-tRNA synthetase [EC:6.1.1.10]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.6366934796
+K01876: aspartyl-tRNA synthetase [EC:6.1.1.12]|g__Bacteroides.s__Bacteroides_ovatus	4.9566294919
+K01876: aspartyl-tRNA synthetase [EC:6.1.1.12]|g__Bacteroides.s__Bacteroides_uniformis	6.8407960199
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Bacteroides.s__Bacteroides_fragilis	2.9761904762
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Bacteroides.s__Bacteroides_ovatus	8.1845238095
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.6868748343
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|g__Bacteroides.s__Bacteroides_uniformis	1.4880952381
+K01881: prolyl-tRNA synthetase [EC:6.1.1.15]|unclassified	4.3206918086
+K01885: glutamyl-tRNA synthetase [EC:6.1.1.17]|g__Bacteroides.s__Bacteroides_fragilis	5.1169590643
+K01885: glutamyl-tRNA synthetase [EC:6.1.1.17]|g__Bacteroides.s__Bacteroides_ovatus	5.1169590643
+K01885: glutamyl-tRNA synthetase [EC:6.1.1.17]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.7326007326
+K01887: arginyl-tRNA synthetase [EC:6.1.1.19]|g__Bacteroides.s__Bacteroides_fragilis	4.855993667
+K01887: arginyl-tRNA synthetase [EC:6.1.1.19]|g__Bacteroides.s__Bacteroides_ovatus	3.5971223022
+K01889: phenylalanyl-tRNA synthetase alpha chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_fragilis	8.0459770115
+K01889: phenylalanyl-tRNA synthetase alpha chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_ovatus	5.7471264368
+K01889: phenylalanyl-tRNA synthetase alpha chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.4482758621
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_fragilis	1.296830025
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_ovatus	3.4548216907
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3233895374
+K01890: phenylalanyl-tRNA synthetase beta chain [EC:6.1.1.20]|g__Bacteroides.s__Bacteroides_uniformis	4.7557284911
+K01892: histidyl-tRNA synthetase [EC:6.1.1.21]|g__Bacteroides.s__Bacteroides_fragilis	3.29218107
+K01892: histidyl-tRNA synthetase [EC:6.1.1.21]|g__Bacteroides.s__Bacteroides_ovatus	4.9382716049
+K01892: histidyl-tRNA synthetase [EC:6.1.1.21]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.646090535
+K01893: asparaginyl-tRNA synthetase [EC:6.1.1.22]|g__Bacteroides.s__Bacteroides_fragilis	9.5693779904
+K01893: asparaginyl-tRNA synthetase [EC:6.1.1.22]|g__Bacteroides.s__Bacteroides_ovatus	3.1891572466
+K01893: asparaginyl-tRNA synthetase [EC:6.1.1.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5948963317
+K01893: asparaginyl-tRNA synthetase [EC:6.1.1.22]|g__Bacteroides.s__Bacteroides_uniformis	3.1897926635
+K01897: long-chain acyl-CoA synthetase [EC:6.2.1.3]|g__Bacteroides.s__Bacteroides_ovatus	5.9405940594
+K01897: long-chain acyl-CoA synthetase [EC:6.2.1.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.300330033
+K01912: phenylacetate-CoA ligase [EC:6.2.1.30]|g__Bacteroides.s__Bacteroides_fragilis	1.7120728609
+K01912: phenylacetate-CoA ligase [EC:6.2.1.30]|g__Bacteroides.s__Bacteroides_uniformis	2.5831040214
+K01914: aspartate--ammonia ligase [EC:6.3.1.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.3783783784
+K01914: aspartate--ammonia ligase [EC:6.3.1.1]|g__Bacteroides.s__Bacteroides_uniformis	11.2612612613
+K01915: glutamine synthetase [EC:6.3.1.2]|g__Bacteroides.s__Bacteroides_fragilis	2.9411764706
+K01915: glutamine synthetase [EC:6.3.1.2]|g__Bacteroides.s__Bacteroides_ovatus	3.9215686275
+K01915: glutamine synthetase [EC:6.3.1.2]|g__Bacteroides.s__Bacteroides_uniformis	3.9215686275
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Bacteroides.s__Bacteroides_fragilis	1.7513134851
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Bacteroides.s__Bacteroides_ovatus	8.6206896552
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.1530758226
+K01918: pantoate--beta-alanine ligase [EC:6.3.2.1]|g__Parabacteroides.s__Parabacteroides_distasonis	14.4927536232
+K01921: D-alanine-D-alanine ligase [EC:6.3.2.4]|g__Bacteroides.s__Bacteroides_fragilis	9.696969697
+K01921: D-alanine-D-alanine ligase [EC:6.3.2.4]|g__Bacteroides.s__Bacteroides_ovatus	2.4242424242
+K01924: UDP-N-acetylmuramate--alanine ligase [EC:6.3.2.8]|g__Parabacteroides.s__Parabacteroides_distasonis	7.2639225182
+K01925: UDP-N-acetylmuramoylalanine--D-glutamate ligase [EC:6.3.2.9]|g__Bacteroides.s__Bacteroides_fragilis	8.4070742313
+K01925: UDP-N-acetylmuramoylalanine--D-glutamate ligase [EC:6.3.2.9]|g__Bacteroides.s__Bacteroides_ovatus	2.5316455696
+K01925: UDP-N-acetylmuramoylalanine--D-glutamate ligase [EC:6.3.2.9]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.8438818565
+K01926: AT-rich DNA-binding protein|g__Bacteroides.s__Bacteroides_fragilis	13.7609388064
+K01926: AT-rich DNA-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.8479532164
+K01929: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase [EC:6.3.2.10]|g__Bacteroides.s__Bacteroides_fragilis	6.9625761532
+K01929: UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase [EC:6.3.2.10]|g__Parabacteroides.s__Parabacteroides_distasonis	9.6840308296
+K01937: CTP synthase [EC:6.3.4.2]|g__Bacteroides.s__Bacteroides_fragilis	9.1443850268
+K01937: CTP synthase [EC:6.3.4.2]|g__Bacteroides.s__Bacteroides_ovatus	5.4200542005
+K01937: CTP synthase [EC:6.3.4.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.7322404372
+K01937: CTP synthase [EC:6.3.4.2]|g__Bacteroides.s__Bacteroides_uniformis	6.0911061375
+K01938: formate--tetrahydrofolate ligase [EC:6.3.4.3]|g__Bacteroides.s__Bacteroides_ovatus	4.5822920919
+K01938: formate--tetrahydrofolate ligase [EC:6.3.4.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2938076416
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_fragilis	2.6737967914
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_ovatus	6.23885918
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.23885918
+K01939: adenylosuccinate synthase [EC:6.3.4.4]|g__Bacteroides.s__Bacteroides_uniformis	5.3281675673
+K01945: phosphoribosylamine--glycine ligase [EC:6.3.4.13]|g__Bacteroides.s__Bacteroides_fragilis	8.8561643836
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Bacteroides.s__Bacteroides_fragilis	9.0046067847
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Bacteroides.s__Bacteroides_ovatus	5.2303700855
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.8820204917999996
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Bacteroides.s__Bacteroides_uniformis	4.3177892919
+K01951: GMP synthase (glutamine-hydrolysing) [EC:6.3.5.2]|g__Parabacteroides.s__Parabacteroides_distasonis	3.4542314335
+K01972: DNA ligase (NAD+) [EC:6.5.1.2]|g__Bacteroides.s__Bacteroides_fragilis	4.3071675875
+K01972: DNA ligase (NAD+) [EC:6.5.1.2]|g__Bacteroides.s__Bacteroides_ovatus	4.3219881145
+K01972: DNA ligase (NAD+) [EC:6.5.1.2]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.0804970286
+K01990: ABC-2 type transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	11.8944856172
+K01990: ABC-2 type transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_ovatus	1.3550135501
+K01990: ABC-2 type transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.0650406504
+K01992: ABC-2 type transport system permease protein|g__Blautia.s__Blautia_obeum	14.9359886202
+K01992: ABC-2 type transport system permease protein|g__Blautia.s__Blautia_wexlerae	7.4873945936
+K02003: NO_NAME|g__Flavonifractor.s__Flavonifractor_plautii	15.4142581888
+K02003: NO_NAME|unclassified	4.5561266666
+K02004: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	8.9845322974
+K02004: NO_NAME|unclassified	4.5561266666
+K02005: HlyD family secretion protein|g__Bacteroides.s__Bacteroides_fragilis	9.1066394189
+K02005: HlyD family secretion protein|g__Bacteroides.s__Bacteroides_ovatus	0.9107468124
+K02005: HlyD family secretion protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	12.7373524526
+K02026: multiple sugar transport system permease protein|unclassified	8.9432400716
+K02036: phosphate transport system ATP-binding protein [EC:3.6.3.27]|g__Bacteroides.s__Bacteroides_ovatus	13.1362889984
+K02036: phosphate transport system ATP-binding protein [EC:3.6.3.27]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9261083744
+K02038: phosphate transport system permease protein|g__Bacteroides.s__Bacteroides_ovatus	6.8870523416
+K02039: phosphate transport system protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.4074074074
+K02051: sulfonate/nitrate/taurine transport system substrate-binding protein|g__Flavonifractor.s__Flavonifractor_plautii	6.4724919094
+K02065: phospholipid/cholesterol/gamma-HCH transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	28.9803377248
+K02065: phospholipid/cholesterol/gamma-HCH transport system ATP-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2206119163
+K02108: F-type H+-transporting ATPase subunit a|g__Blautia.s__Blautia_wexlerae	14.7783251232
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_fragilis	2.0920502092
+K02111: F-type H+-transporting ATPase subunit alpha [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_uniformis	4.1753653445
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_fragilis	2.1808955651
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3859649123
+K02112: F-type H+-transporting ATPase subunit beta [EC:3.6.3.14]|g__Bacteroides.s__Bacteroides_uniformis	15.8714553091
+K02113: F-type H+-transporting ATPase subunit delta|g__Bacteroides.s__Bacteroides_ovatus	12.1654501217
+K02113: F-type H+-transporting ATPase subunit delta|g__Blautia.s__Blautia_obeum	5.6497175141
+K02118: V/A-type H+/Na+-transporting ATPase subunit B|g__Blautia.s__Blautia_wexlerae	8.1103000811
+K02123: V/A-type H+/Na+-transporting ATPase subunit I|g__Bacteroides.s__Bacteroides_ovatus	8.3790787275
+K02123: V/A-type H+/Na+-transporting ATPase subunit I|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.1947431302
+K02217: ferritin 1|g__Bacteroides.s__Bacteroides_fragilis	6.0606060606
+K02217: ferritin 1|g__Bacteroides.s__Bacteroides_ovatus	9.0817540969
+K02226: alpha-ribazole phosphatase [EC:3.1.3.73]|unclassified	5.4086577552
+K02232: adenosylcobyric acid synthase [EC:6.3.5.10]|unclassified	4.8722287806
+K02313: chromosomal replication initiator protein|g__Bacteroides.s__Bacteroides_fragilis	10.582010582
+K02313: chromosomal replication initiator protein|g__Bacteroides.s__Bacteroides_ovatus	4.7505938242
+K02313: chromosomal replication initiator protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.334125099
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_fragilis	14.4906708423
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_ovatus	7.067448279
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.5731707317
+K02355: elongation factor EF-G|g__Bacteroides.s__Bacteroides_uniformis	6.4770812118
+K02356: elongation factor EF-P|g__Bacteroides.s__Bacteroides_fragilis	6.9193053201
+K02356: elongation factor EF-P|g__Bacteroides.s__Bacteroides_ovatus	4.7961630695
+K02356: elongation factor EF-P|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3980815348
+K02357: elongation factor EF-Ts|g__Bacteroides.s__Bacteroides_fragilis	2.3724792408
+K02357: elongation factor EF-Ts|g__Bacteroides.s__Bacteroides_ovatus	1.1862396204
+K02357: elongation factor EF-Ts|g__Bacteroides.s__Bacteroides_uniformis	5.931198102
+K02358: elongation factor EF-Tu|g__Bacteroides.s__Bacteroides_fragilis	3.8647342995
+K02358: elongation factor EF-Tu|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.8309178744
+K02358: elongation factor EF-Tu|g__Bacteroides.s__Bacteroides_uniformis	10.627086714
+K02377: GDP-L-fucose synthase [EC:1.1.1.271]|unclassified	4.8477808104
+K02420: flagellar biosynthetic protein FliQ|g__Flavonifractor.s__Flavonifractor_plautii	10.4166666667
+K02428: XTP/dITP diphosphohydrolase [EC:3.6.1.66]|unclassified	7.292622286
+K02429: MFS transporter, FHS family, L-fucose permease|g__Bacteroides.s__Bacteroides_fragilis	4.2517006803
+K02472: UDP-N-acetyl-D-mannosaminuronic acid dehydrogenase [EC:1.1.1.336]|g__Bacteroides.s__Bacteroides_fragilis	5.698005698
+K02500: cyclase [EC:4.1.3.-]|g__Bacteroides.s__Bacteroides_fragilis	5.5760639832
+K02500: cyclase [EC:4.1.3.-]|g__Bacteroides.s__Bacteroides_ovatus	8.2508250825
+K02500: cyclase [EC:4.1.3.-]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9504950495
+K02518: translation initiation factor IF-1|g__Bacteroides.s__Bacteroides_fragilis	14.4927536232
+K02519: translation initiation factor IF-2|g__Bacteroides.s__Bacteroides_fragilis	2.9873039582
+K02519: translation initiation factor IF-2|g__Bacteroides.s__Bacteroides_ovatus	3.3909799932
+K02519: translation initiation factor IF-2|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.3454423142
+K02529: LacI family transcriptional regulator|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3572984749
+K02529: LacI family transcriptional regulator|g__Blautia.s__Blautia_obeum	1.1494252874
+K02529: LacI family transcriptional regulator|g__Blautia.s__Blautia_wexlerae	4.6296296296
+K02536: UDP-3-O-[3-hydroxymyristoyl] glucosamine N-acyltransferase [EC:2.3.1.191]|g__Bacteroides.s__Bacteroides_fragilis	7.8563411897
+K02548: 1,4-dihydroxy-2-naphthoate octaprenyltransferase [EC:2.5.1.74 2.5.1.-]|g__Bacteroides.s__Bacteroides_ovatus	12.0967741935
+K02563: UDP-N-acetylglucosamine--N-acetylmuramyl-(pentapeptide) pyrophosphoryl-undecaprenol N-acetylglucosamine transferase [EC:2.4.1.227]|g__Bacteroides.s__Bacteroides_ovatus	12.3456790123
+K02564: glucosamine-6-phosphate deaminase [EC:3.5.99.6]|g__Bacteroides.s__Bacteroides_fragilis	6.0667001843
+K02564: glucosamine-6-phosphate deaminase [EC:3.5.99.6]|g__Bacteroides.s__Bacteroides_ovatus	9.5312492324
+K02564: glucosamine-6-phosphate deaminase [EC:3.5.99.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.1881439121
+K02564: glucosamine-6-phosphate deaminase [EC:3.5.99.6]|g__Bacteroides.s__Bacteroides_uniformis	12.2212822266
+K02835: peptide chain release factor RF-1|g__Bacteroides.s__Bacteroides_fragilis	3.1141875967
+K02835: peptide chain release factor RF-1|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.1536863967
+K02835: peptide chain release factor RF-1|g__Bacteroides.s__Bacteroides_uniformis	3.1152647975
+K02838: ribosome recycling factor|g__Bacteroides.s__Bacteroides_fragilis	4.8661800487
+K02838: ribosome recycling factor|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.299270073
+K02838: ribosome recycling factor|g__Parabacteroides.s__Parabacteroides_distasonis	7.2463768116
+K02860: 16S rRNA processing protein RimM|g__Blautia.s__Blautia_obeum	5.6022408964
+K02860: 16S rRNA processing protein RimM|g__Parabacteroides.s__Parabacteroides_distasonis	5.376344086
+K02863: large subunit ribosomal protein L1|g__Bacteroides.s__Bacteroides_fragilis	16.393442623
+K02863: large subunit ribosomal protein L1|g__Bacteroides.s__Bacteroides_ovatus	1.8214936248
+K02863: large subunit ribosomal protein L1|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.4644808743
+K02864: large subunit ribosomal protein L10|g__Bifidobacterium.s__Bifidobacterium_longum	5.376344086
+K02867: large subunit ribosomal protein L11|g__Bacteroides.s__Bacteroides_fragilis	5.291005291
+K02867: large subunit ribosomal protein L11|g__Bacteroides.s__Bacteroides_ovatus	10.2040816327
+K02874: large subunit ribosomal protein L14|g__Bacteroides.s__Bacteroides_fragilis	4.6296296296
+K02874: large subunit ribosomal protein L14|g__Bacteroides.s__Bacteroides_thetaiotaomicron	23.1481481481
+K02876: large subunit ribosomal protein L15|g__Bacteroides.s__Bacteroides_fragilis	16.835016835
+K02879: large subunit ribosomal protein L17|g__Bacteroides.s__Bacteroides_ovatus	2.8248587571
+K02879: large subunit ribosomal protein L17|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9239766082
+K02881: large subunit ribosomal protein L18|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.1282051282
+K02881: large subunit ribosomal protein L18|g__Bacteroides.s__Bacteroides_uniformis	5.1282051282
+K02881: large subunit ribosomal protein L18|g__Flavonifractor.s__Flavonifractor_plautii	9.5238095238
+K02886: large subunit ribosomal protein L2|g__Bacteroides.s__Bacteroides_fragilis	10.3033160459
+K02886: large subunit ribosomal protein L2|g__Bacteroides.s__Bacteroides_ovatus	2.962962963
+K02886: large subunit ribosomal protein L2|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.9259259259
+K02886: large subunit ribosomal protein L2|g__Bacteroides.s__Bacteroides_uniformis	4.4444444444
+K02887: large subunit ribosomal protein L20|g__Bacteroides.s__Bacteroides_ovatus	4.9504950495
+K02887: large subunit ribosomal protein L20|g__Bacteroides.s__Bacteroides_uniformis	9.9256194276
+K02887: large subunit ribosomal protein L20|unclassified	3.2467532468
+K02888: large subunit ribosomal protein L21|g__Bacteroides.s__Bacteroides_thetaiotaomicron	11.9047619048
+K02888: large subunit ribosomal protein L21|g__Bacteroides.s__Bacteroides_uniformis	11.8347338936
+K02897: large subunit ribosomal protein L25|g__Bacteroides.s__Bacteroides_fragilis	2.2675736961
+K02897: large subunit ribosomal protein L25|g__Bacteroides.s__Bacteroides_ovatus	2.2675736961
+K02897: large subunit ribosomal protein L25|g__Bacteroides.s__Bacteroides_thetaiotaomicron	13.605442176799999
+K02897: large subunit ribosomal protein L25|g__Bacteroides.s__Bacteroides_uniformis	11.2575703461
+K02899: large subunit ribosomal protein L27|g__Bacteroides.s__Bacteroides_fragilis	49.0465293669
+K02899: large subunit ribosomal protein L27|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.3333333333
+K02899: large subunit ribosomal protein L27|g__Bacteroides.s__Bacteroides_uniformis	8.3333333333
+K02899: large subunit ribosomal protein L27|g__Blautia.s__Blautia_wexlerae	7.2463768116
+K02902: large subunit ribosomal protein L28|g__Bacteroides.s__Bacteroides_uniformis	26.9465894466
+K02906: large subunit ribosomal protein L3|g__Bacteroides.s__Bacteroides_ovatus	6.4102564103
+K02906: large subunit ribosomal protein L3|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.547008547
+K02907: large subunit ribosomal protein L30|g__Bacteroides.s__Bacteroides_fragilis	37.037037037
+K02909: large subunit ribosomal protein L31|g__Bacteroides.s__Bacteroides_ovatus	9.5238095238
+K02911: large subunit ribosomal protein L32|g__Bacteroides.s__Bacteroides_thetaiotaomicron	27.7777777778
+K02911: large subunit ribosomal protein L32|g__Parabacteroides.s__Parabacteroides_distasonis	27.7777777778
+K02913: large subunit ribosomal protein L33|g__Bacteroides.s__Bacteroides_uniformis	25.641025641
+K02916: large subunit ribosomal protein L35|g__Bacteroides.s__Bacteroides_ovatus	20.8333333333
+K02916: large subunit ribosomal protein L35|g__Bacteroides.s__Bacteroides_thetaiotaomicron	41.6666666667
+K02916: large subunit ribosomal protein L35|g__Parabacteroides.s__Parabacteroides_distasonis	20.8333333333
+K02926: large subunit ribosomal protein L4|g__Bacteroides.s__Bacteroides_fragilis	4.1928721174
+K02926: large subunit ribosomal protein L4|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.2893081761
+K02926: large subunit ribosomal protein L4|g__Bacteroides.s__Bacteroides_uniformis	14.5746243362
+K02931: large subunit ribosomal protein L5|g__Bacteroides.s__Bacteroides_ovatus	12.2549019608
+K02931: large subunit ribosomal protein L5|g__Bacteroides.s__Bacteroides_uniformis	7.3529411765
+K02933: large subunit ribosomal protein L6|g__Bacteroides.s__Bacteroides_fragilis	2.8248587571
+K02933: large subunit ribosomal protein L6|g__Bacteroides.s__Bacteroides_uniformis	26.1904761905
+K02935: large subunit ribosomal protein L7/L12|g__Bacteroides.s__Bacteroides_fragilis	13.3333333333
+K02935: large subunit ribosomal protein L7/L12|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.4444444444
+K02939: large subunit ribosomal protein L9|g__Bacteroides.s__Bacteroides_uniformis	16.6666666667
+K02945: small subunit ribosomal protein S1|g__Bacteroides.s__Bacteroides_fragilis	4.2431068466
+K02945: small subunit ribosomal protein S1|g__Bacteroides.s__Bacteroides_ovatus	9.6793708409
+K02945: small subunit ribosomal protein S1|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8181818182
+K02945: small subunit ribosomal protein S1|g__Bacteroides.s__Bacteroides_uniformis	2.4062889464
+K02948: small subunit ribosomal protein S11|unclassified	8.8583362339
+K02950: small subunit ribosomal protein S12|g__Bacteroides.s__Bacteroides_uniformis	11.9047619048
+K02954: small subunit ribosomal protein S14|g__Parabacteroides.s__Parabacteroides_distasonis	8.3333333333
+K02959: small subunit ribosomal protein S16|g__Bacteroides.s__Bacteroides_fragilis	5.0505050505
+K02959: small subunit ribosomal protein S16|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9382716049
+K02959: small subunit ribosomal protein S16|g__Bacteroides.s__Bacteroides_uniformis	2.5062656642
+K02961: small subunit ribosomal protein S17|g__Bacteroides.s__Bacteroides_uniformis	9.2592592593
+K02963: small subunit ribosomal protein S18|g__Bacteroides.s__Bacteroides_uniformis	8.1300813008
+K02963: small subunit ribosomal protein S18|g__Flavonifractor.s__Flavonifractor_plautii	22.2222222222
+K02963: small subunit ribosomal protein S18|g__Parabacteroides.s__Parabacteroides_distasonis	8.2644628099
+K02963: small subunit ribosomal protein S18|unclassified	2.3255813953
+K02965: small subunit ribosomal protein S19|g__Blautia.s__Blautia_wexlerae	7.5757575758
+K02965: small subunit ribosomal protein S19|g__Parabacteroides.s__Parabacteroides_distasonis	8.2644628099
+K02967: small subunit ribosomal protein S2|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.8224163028
+K02967: small subunit ribosomal protein S2|g__Bacteroides.s__Bacteroides_uniformis	4.3859649123
+K02982: small subunit ribosomal protein S3|g__Bacteroides.s__Bacteroides_ovatus	1.7182130584
+K02982: small subunit ribosomal protein S3|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.4364261168
+K02982: small subunit ribosomal protein S3|g__Bacteroides.s__Bacteroides_uniformis	3.4364261168
+K02986: small subunit ribosomal protein S4|g__Bacteroides.s__Bacteroides_fragilis	2.1929824561
+K02986: small subunit ribosomal protein S4|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.5789473684
+K02986: small subunit ribosomal protein S4|g__Bacteroides.s__Bacteroides_uniformis	2.1929824561
+K02988: small subunit ribosomal protein S5|g__Bacteroides.s__Bacteroides_ovatus	2.7100271003
+K02988: small subunit ribosomal protein S5|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.4200542005
+K02988: small subunit ribosomal protein S5|g__Bacteroides.s__Bacteroides_uniformis	10.7342479675
+K02988: small subunit ribosomal protein S5|g__Parabacteroides.s__Parabacteroides_distasonis	8.1300813008
+K02990: small subunit ribosomal protein S6|g__Bifidobacterium.s__Bifidobacterium_longum	7.0422535211
+K02992: small subunit ribosomal protein S7|g__Bifidobacterium.s__Bifidobacterium_longum	12.46105919
+K02992: small subunit ribosomal protein S7|unclassified	3.5430270899
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	2.3724792408
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_ovatus	2.3724792408
+K03040: DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3724792408
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	4.095004095
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_ovatus	3.0013682708
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.003003003
+K03043: DNA-directed RNA polymerase subunit beta [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_uniformis	9.2783291372
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_fragilis	1.6932752782
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_ovatus	6.5311461447
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9027576197
+K03046: DNA-directed RNA polymerase subunit beta' [EC:2.7.7.6]|g__Bacteroides.s__Bacteroides_uniformis	7.2358900145
+K03070: preprotein translocase subunit SecA|g__Bacteroides.s__Bacteroides_fragilis	5.0263870727
+K03070: preprotein translocase subunit SecA|g__Bacteroides.s__Bacteroides_ovatus	4.1023441967
+K03070: preprotein translocase subunit SecA|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.2070087982
+K03070: preprotein translocase subunit SecA|g__Bacteroides.s__Bacteroides_uniformis	6.9028547739
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Bacteroides.s__Bacteroides_fragilis	7.5187969925
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Bacteroides.s__Bacteroides_thetaiotaomicron	14.7198983374
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Blautia.s__Blautia_obeum	3.2051282051
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|g__Blautia.s__Blautia_wexlerae	9.6153846154
+K03088: RNA polymerase sigma-70 factor, ECF subfamily|unclassified	11.0327081346
+K03111: single-strand DNA-binding protein|unclassified	5.4870613738
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|g__Bacteroides.s__Bacteroides_fragilis	2.5889967638
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|g__Bacteroides.s__Bacteroides_ovatus	7.740460919
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2919896641
+K03147: phosphomethylpyrimidine synthase [EC:4.1.99.17]|g__Bacteroides.s__Bacteroides_uniformis	9.1319948529
+K03149: thiazole synthase [EC:2.8.1.10]|g__Bacteroides.s__Bacteroides_fragilis	7.9744816587
+K03149: thiazole synthase [EC:2.8.1.10]|g__Bacteroides.s__Bacteroides_ovatus	4.8076923077
+K03149: thiazole synthase [EC:2.8.1.10]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.0102564103
+K03154: sulfur carrier protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	19.6078431373
+K03169: DNA topoisomerase III|g__Bacteroides.s__Bacteroides_fragilis	2.0512820513
+K03169: DNA topoisomerase III|g__Bacteroides.s__Bacteroides_ovatus	3.0769230769
+K03169: DNA topoisomerase III|g__Bacteroides.s__Bacteroides_uniformis	5.6407627909
+K03177: tRNA pseudouridine synthase B|g__Bacteroides.s__Bacteroides_ovatus	3.3633236754
+K03177: tRNA pseudouridine synthase B|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.4904013962
+K03215: RNA methyltransferase, TrmA family|g__Bacteroides.s__Bacteroides_fragilis	1.5760441292
+K03215: RNA methyltransferase, TrmA family|g__Bacteroides.s__Bacteroides_ovatus	1.5760441292
+K03215: RNA methyltransferase, TrmA family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.646090535
+K03217: YidC/Oxa1 family membrane protein insertase|g__Bacteroides.s__Bacteroides_fragilis	5.2724077329
+K03217: YidC/Oxa1 family membrane protein insertase|g__Bacteroides.s__Bacteroides_ovatus	5.8685446009
+K03217: YidC/Oxa1 family membrane protein insertase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.5149384886
+K03269: UDP-2,3-diacylglucosamine hydrolase [EC:3.6.1.54]|g__Bacteroides.s__Bacteroides_uniformis	11.3821138211
+K03281: chloride channel protein, CIC family|g__Bacteroides.s__Bacteroides_fragilis	2.4330900243
+K03281: chloride channel protein, CIC family|g__Bacteroides.s__Bacteroides_ovatus	1.8248175182
+K03281: chloride channel protein, CIC family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.6071645416
+K03282: large conductance mechanosensitive channel, MscL family|g__Bacteroides.s__Bacteroides_fragilis	10.3092783505
+K03296: hydrophobic/amphiphilic exporter-1 (mainly G- bacteria), HAE1 family|g__Bacteroides.s__Bacteroides_fragilis	1.3293452974
+K03296: hydrophobic/amphiphilic exporter-1 (mainly G- bacteria), HAE1 family|g__Bacteroides.s__Bacteroides_ovatus	5.9820538385
+K03296: hydrophobic/amphiphilic exporter-1 (mainly G- bacteria), HAE1 family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.305003917
+K03305: proton-dependent oligopeptide transporter, POT family|g__Bacteroides.s__Bacteroides_fragilis	1.4705882353
+K03305: proton-dependent oligopeptide transporter, POT family|g__Bacteroides.s__Bacteroides_ovatus	3.5842293907
+K03305: proton-dependent oligopeptide transporter, POT family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3010752688
+K03310: alanine or glycine:cation symporter, AGCS family|unclassified	10.3714685775
+K03327: multidrug resistance protein, MATE family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9627791563
+K03340: diaminopimelate dehydrogenase [EC:1.4.1.16]|g__Bacteroides.s__Bacteroides_fragilis	7.7519379845
+K03340: diaminopimelate dehydrogenase [EC:1.4.1.16]|g__Bacteroides.s__Bacteroides_ovatus	2.6666666667
+K03340: diaminopimelate dehydrogenase [EC:1.4.1.16]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.3333333333
+K03340: diaminopimelate dehydrogenase [EC:1.4.1.16]|g__Bacteroides.s__Bacteroides_uniformis	5.3333333333
+K03385: nitrite reductase (cytochrome c-552) [EC:1.7.2.2]|unclassified	4.8931501762
+K03394: precorrin-2/cobalt-factor-2 C20-methyltransferase [EC:2.1.1.130 2.1.1.151]|g__Bacteroides.s__Bacteroides_fragilis	8.9605734767
+K03402: transcriptional regulator of arginine metabolism|g__Bifidobacterium.s__Bifidobacterium_longum	5.5096418733
+K03426: NAD+ diphosphatase [EC:3.6.1.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.2145925197
+K03427: type I restriction enzyme M protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.8802206462
+K03430: 2-aminoethylphosphonate-pyruvate transaminase [EC:2.6.1.37]|g__Bacteroides.s__Bacteroides_fragilis	9.5846645367
+K03438: S-adenosyl-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	9.1503267974
+K03438: S-adenosyl-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	2.614379085
+K03438: S-adenosyl-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.3071895425
+K03439: tRNA (guanine-N7-)-methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	3.2840722496
+K03439: tRNA (guanine-N7-)-methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	3.2840722496
+K03439: tRNA (guanine-N7-)-methyltransferase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.9261083744
+K03439: tRNA (guanine-N7-)-methyltransferase|unclassified	3.7067557875
+K03455: monovalent cation:H+ antiporter-2, CPA2 family|unclassified	8.611265481
+K03470: ribonuclease HII [EC:3.1.26.4]|g__Bacteroides.s__Bacteroides_fragilis	6.6225165563
+K03470: ribonuclease HII [EC:3.1.26.4]|g__Bacteroides.s__Bacteroides_ovatus	2.2075055188
+K03470: ribonuclease HII [EC:3.1.26.4]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.2075055188
+K03470: ribonuclease HII [EC:3.1.26.4]|g__Bacteroides.s__Bacteroides_uniformis	13.0718954248
+K03495: glucose inhibited division protein A|g__Bacteroides.s__Bacteroides_ovatus	1.1514104778
+K03495: glucose inhibited division protein A|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.0598733448
+K03496: chromosome partitioning protein|g__Bifidobacterium.s__Bifidobacterium_longum	4.8661800487
+K03496: chromosome partitioning protein|g__Blautia.s__Blautia_obeum	1.572327044
+K03496: chromosome partitioning protein|g__Blautia.s__Ruminococcus_torques	4.7169811321
+K03497: chromosome partitioning protein, ParB family|g__Bacteroides.s__Bacteroides_fragilis	5.3981106613
+K03497: chromosome partitioning protein, ParB family|g__Bacteroides.s__Bacteroides_ovatus	5.3981106613
+K03497: chromosome partitioning protein, ParB family|g__Bacteroides.s__Bacteroides_thetaiotaomicron	10.7962213225
+K03527: 4-hydroxy-3-methylbut-2-en-1-yl diphosphate reductase [EC:1.17.7.4]|g__Bacteroides.s__Bacteroides_fragilis	5.5325034578
+K03530: DNA-binding protein HU-beta|g__Bacteroides.s__Bacteroides_fragilis	8.1300813008
+K03530: DNA-binding protein HU-beta|g__Flavonifractor.s__Flavonifractor_plautii	7.9365079365
+K03543: multidrug resistance protein A|g__Bacteroides.s__Bacteroides_thetaiotaomicron	10.6157112527
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_fragilis	10.9289617486
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_ovatus	3.6529680365
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.4794520548
+K03544: ATP-dependent Clp protease ATP-binding subunit ClpX|g__Bacteroides.s__Bacteroides_uniformis	3.6529680365
+K03547: exonuclease SbcD|g__Parabacteroides.s__Parabacteroides_distasonis	7.2661217075
+K03550: holliday junction DNA helicase RuvA [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_ovatus	6.6225165563
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_fragilis	6.8259385666
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_ovatus	3.3428425133
+K03551: holliday junction DNA helicase RuvB [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_uniformis	3.3783783784
+K03553: recombination protein RecA|g__Bacteroides.s__Bacteroides_fragilis	2.2371364653
+K03553: recombination protein RecA|g__Bacteroides.s__Bacteroides_ovatus	3.3898305085
+K03553: recombination protein RecA|g__Bacteroides.s__Bacteroides_uniformis	2.2522522523
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_fragilis	4.0551500406
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_ovatus	4.9200492005
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.6898688659
+K03555: DNA mismatch repair protein MutS|g__Bacteroides.s__Bacteroides_uniformis	2.0275750203
+K03558: membrane protein required for colicin V production|g__Bacteroides.s__Bacteroides_fragilis	8.4745762712
+K03565: regulatory protein|g__Bacteroides.s__Bacteroides_fragilis	6.3391601366
+K03565: regulatory protein|unclassified	4.3336995615
+K03570: rod shape-determining protein MreC|g__Bacteroides.s__Bacteroides_fragilis	7.183908046
+K03571: rod shape-determining protein MreD|unclassified	4.1365090772
+K03572: DNA mismatch repair protein MutL|g__Bacteroides.s__Bacteroides_fragilis	15.1939835764
+K03572: DNA mismatch repair protein MutL|g__Bacteroides.s__Bacteroides_ovatus	3.4246575342
+K03572: DNA mismatch repair protein MutL|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6917294428
+K03584: DNA repair protein RecO (recombination protein O)|g__Bacteroides.s__Bacteroides_thetaiotaomicron	10.3626943005
+K03588: cell division protein FtsW|g__Bacteroides.s__Bacteroides_uniformis	10.282042704
+K03589: cell division protein FtsQ|g__Bacteroides.s__Bacteroides_fragilis	1.7006802721
+K03589: cell division protein FtsQ|g__Bacteroides.s__Bacteroides_ovatus	10.2040816327
+K03589: cell division protein FtsQ|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.7001675042
+K03590: cell division protein FtsA|g__Bacteroides.s__Bacteroides_fragilis	5.4644808743
+K03596: GTP-binding protein LepA|g__Bacteroides.s__Bacteroides_fragilis	6.1274509804
+K03596: GTP-binding protein LepA|g__Bacteroides.s__Bacteroides_ovatus	6.7401960784
+K03596: GTP-binding protein LepA|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.6123698714
+K03596: GTP-binding protein LepA|g__Bacteroides.s__Bacteroides_uniformis	5.5147058824
+K03602: exodeoxyribonuclease VII small subunit [EC:3.1.11.6]|unclassified	5.8823529412
+K03615: electron transport complex protein RnfC|g__Bacteroides.s__Bacteroides_fragilis	5.0505050505
+K03615: electron transport complex protein RnfC|g__Bacteroides.s__Bacteroides_ovatus	6.734006734
+K03615: electron transport complex protein RnfC|g__Bacteroides.s__Bacteroides_uniformis	6.734006734
+K03617: electron transport complex protein RnfA|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.4506891476
+K03624: transcription elongation factor GreA|unclassified	1.9687787363
+K03629: DNA replication and repair protein RecF|g__Bacteroides.s__Bacteroides_fragilis	2.0757659975
+K03629: DNA replication and repair protein RecF|g__Bacteroides.s__Bacteroides_ovatus	6.1919504644
+K03629: DNA replication and repair protein RecF|g__Bacteroides.s__Bacteroides_uniformis	4.1526091958
+K03644: lipoyl synthase [EC:2.8.1.8]|g__Bacteroides.s__Bacteroides_ovatus	11.4449213162
+K03644: lipoyl synthase [EC:2.8.1.8]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.2918454936
+K03648: uracil-DNA glycosylase [EC:3.2.2.27]|g__Bacteroides.s__Bacteroides_ovatus	13.5898458267
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_fragilis	6.1512100001
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.5136106831
+K03655: ATP-dependent DNA helicase RecG [EC:3.6.4.12]|g__Bacteroides.s__Bacteroides_uniformis	4.6224961479
+K03686: molecular chaperone DnaJ|g__Bacteroides.s__Bacteroides_fragilis	1.9323671498
+K03686: molecular chaperone DnaJ|g__Bacteroides.s__Bacteroides_ovatus	3.8647342995
+K03686: molecular chaperone DnaJ|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.8874131618
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Bacteroides.s__Bacteroides_fragilis	0.8200082001
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Bacteroides.s__Bacteroides_ovatus	3.2798647659
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.4600246002
+K03695: ATP-dependent Clp protease ATP-binding subunit ClpB|g__Bacteroides.s__Bacteroides_uniformis	10.223615005
+K03701: excinuclease ABC subunit A|g__Bacteroides.s__Bacteroides_fragilis	5.3272450533
+K03701: excinuclease ABC subunit A|g__Bacteroides.s__Bacteroides_ovatus	1.5209266202
+K03701: excinuclease ABC subunit A|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.2883295195
+K03702: excinuclease ABC subunit B|g__Bacteroides.s__Bacteroides_fragilis	2.1231422505
+K03702: excinuclease ABC subunit B|g__Bacteroides.s__Bacteroides_ovatus	4.7844065127
+K03702: excinuclease ABC subunit B|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5923566879
+K03703: excinuclease ABC subunit C|g__Bacteroides.s__Bacteroides_ovatus	5.9059374627
+K03703: excinuclease ABC subunit C|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3788319982
+K03703: excinuclease ABC subunit C|g__Bacteroides.s__Bacteroides_uniformis	5.3699635461
+K03734: thiamine biosynthesis lipoprotein|g__Bacteroides.s__Bacteroides_fragilis	8.9786756453
+K03744: LemA protein|g__Bacteroides.s__Bacteroides_fragilis	9.8678374333
+K03744: LemA protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.2592592593
+K03770: peptidyl-prolyl cis-trans isomerase D|g__Bacteroides.s__Bacteroides_fragilis	5.1237492808
+K03781: catalase [EC:1.11.1.6]|g__Bacteroides.s__Bacteroides_fragilis	3.0511060259
+K03781: catalase [EC:1.11.1.6]|g__Bacteroides.s__Bacteroides_ovatus	6.0752707183
+K03781: catalase [EC:1.11.1.6]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5186028853
+K03787: 5'-nucleotidase [EC:3.1.3.5]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.3492063492
+K03797: carboxyl-terminal processing protease|g__Bacteroides.s__Bacteroides_fragilis	9.0968161144
+K03797: carboxyl-terminal processing protease|g__Bacteroides.s__Bacteroides_ovatus	5.1981806368
+K03797: carboxyl-terminal processing protease|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2919896641
+K03798: cell division protease FtsH|g__Bacteroides.s__Bacteroides_fragilis	1.0615711253
+K03798: cell division protease FtsH|g__Bacteroides.s__Bacteroides_ovatus	6.986776073
+K03798: cell division protease FtsH|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.5759917568
+K03816: xanthine phosphoribosyltransferase [EC:2.4.2.22]|g__Bacteroides.s__Bacteroides_ovatus	2.3640661939
+K03816: xanthine phosphoribosyltransferase [EC:2.4.2.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3640661939
+K03832: periplasmic protein TonB|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.4906367041
+K03975: membrane-associated protein|g__Bacteroides.s__Bacteroides_fragilis	8.2304526749
+K03975: membrane-associated protein|g__Bacteroides.s__Bacteroides_ovatus	2.0576131687
+K03976: putative transcription regulator|g__Bifidobacterium.s__Bifidobacterium_longum	13.8888888889
+K03977: GTP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	5.1546391753
+K03977: GTP-binding protein|g__Bacteroides.s__Bacteroides_ovatus	8.5910652921
+K03977: GTP-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.7182130584
+K03977: GTP-binding protein|g__Bacteroides.s__Bacteroides_uniformis	1.7182130584
+K03977: GTP-binding protein|g__Parabacteroides.s__Parabacteroides_distasonis	6.8728522337
+K03978: GTP-binding protein|g__Bacteroides.s__Bacteroides_fragilis	6.5789473684
+K03978: GTP-binding protein|g__Bacteroides.s__Bacteroides_ovatus	2.1929824561
+K03978: GTP-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.7145969499
+K03979: GTP-binding protein|g__Bacteroides.s__Bacteroides_ovatus	8.8585385991
+K03979: GTP-binding protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.8328416912
+K04041: fructose-1,6-bisphosphatase III [EC:3.1.3.11]|g__Bacteroides.s__Bacteroides_fragilis	3.2520325203
+K04041: fructose-1,6-bisphosphatase III [EC:3.1.3.11]|g__Bacteroides.s__Bacteroides_ovatus	2.1680216802
+K04043: molecular chaperone DnaK|g__Bacteroides.s__Bacteroides_fragilis	1.1299435028
+K04043: molecular chaperone DnaK|g__Bacteroides.s__Bacteroides_ovatus	11.9041195326
+K04043: molecular chaperone DnaK|g__Bacteroides.s__Bacteroides_uniformis	2.2598870056
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_fragilis	5.376344086
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_ovatus	3.3602150538
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.3440860215
+K04077: chaperonin GroEL|g__Bacteroides.s__Bacteroides_uniformis	1.3440860215
+K04078: chaperonin GroES|g__Bacteroides.s__Bacteroides_ovatus	8.1300813008
+K04078: chaperonin GroES|unclassified	4.5871559633
+K04079: molecular chaperone HtpG|g__Bacteroides.s__Bacteroides_fragilis	2.1094266096
+K04079: molecular chaperone HtpG|g__Bacteroides.s__Bacteroides_ovatus	2.1097046414
+K04079: molecular chaperone HtpG|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5708481927
+K04083: molecular chaperone Hsp33|unclassified	11.9976047973
+K04564: superoxide dismutase, Fe-Mn family [EC:1.15.1.1]|g__Bacteroides.s__Bacteroides_fragilis	4.2735042735
+K04564: superoxide dismutase, Fe-Mn family [EC:1.15.1.1]|g__Bacteroides.s__Bacteroides_ovatus	10.6837606838
+K04564: superoxide dismutase, Fe-Mn family [EC:1.15.1.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.2735042735
+K04567: lysyl-tRNA synthetase, class II [EC:6.1.1.6]|g__Bacteroides.s__Bacteroides_fragilis	9.2592592593
+K04758: ferrous iron transport protein A|unclassified	10.6382978723
+K04763: integrase/recombinase XerD|g__Bifidobacterium.s__Bifidobacterium_longum	8.891032178
+K04769: AbrB family transcriptional regulator, stage V sporulation protein T|g__Flavonifractor.s__Flavonifractor_plautii	5.0890585242
+K04769: AbrB family transcriptional regulator, stage V sporulation protein T|unclassified	6.1058400808
+K05306: phosphonoacetaldehyde hydrolase [EC:3.11.1.1]|g__Bacteroides.s__Bacteroides_fragilis	9.3457943925
+K05349: beta-glucosidase [EC:3.2.1.21]|g__Bacteroides.s__Bacteroides_ovatus	3.8149737721
+K05349: beta-glucosidase [EC:3.2.1.21]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.890422635
+K05601: hydroxylamine reductase [EC:1.7.99.1]|g__Bacteroides.s__Bacteroides_fragilis	4.8404625968
+K05601: hydroxylamine reductase [EC:1.7.99.1]|g__Bacteroides.s__Bacteroides_ovatus	0.6747638327
+K05601: hydroxylamine reductase [EC:1.7.99.1]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	0.6775067751
+K05988: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	11.0497237569
+K05989: alpha-L-rhamnosidase|g__Bacteroides.s__Bacteroides_fragilis	1.6083634901
+K05989: alpha-L-rhamnosidase|g__Bacteroides.s__Bacteroides_ovatus	4.0052312624
+K06001: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_fragilis	3.2840722496
+K06001: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_ovatus	1.638001638
+K06001: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.638001638
+K06001: tryptophan synthase beta chain [EC:4.2.1.20]|g__Bacteroides.s__Bacteroides_uniformis	5.7325599873
+K06143: inner membrane protein|g__Bacteroides.s__Bacteroides_fragilis	0.8312551953
+K06143: inner membrane protein|g__Bacteroides.s__Bacteroides_ovatus	0.8312551953
+K06143: inner membrane protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	7.4619995851
+K06147: ATP-binding cassette, subfamily B, bacterial|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.7803468208
+K06168: bifunctional enzyme involved in thiolation and methylation of tRNA|g__Bacteroides.s__Bacteroides_ovatus	8.1103000811
+K06168: bifunctional enzyme involved in thiolation and methylation of tRNA|g__Bacteroides.s__Bacteroides_thetaiotaomicron	9.8280114354
+K06168: bifunctional enzyme involved in thiolation and methylation of tRNA|g__Bacteroides.s__Bacteroides_uniformis	3.2679738562
+K06173: tRNA pseudouridine synthase A|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.5454545455
+K06187: recombination protein RecR|g__Bacteroides.s__Bacteroides_fragilis	6.1447681688
+K06187: recombination protein RecR|g__Bacteroides.s__Bacteroides_ovatus	4.2735042735
+K06187: recombination protein RecR|g__Bacteroides.s__Bacteroides_thetaiotaomicron	23.5042735043
+K06187: recombination protein RecR|g__Parabacteroides.s__Parabacteroides_distasonis	8.3857442348
+K06199: CrcB protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.8888888889
+K06199: CrcB protein|g__Bifidobacterium.s__Bifidobacterium_longum	18.5185185185
+K06283: putative DeoR family transcriptional regulator, stage III|unclassified	8.7719298246
+K06404: stage V sporulation protein AB|unclassified	5.4719664646
+K06871: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	1.8264840183
+K06871: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.7397260274
+K06872: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	3.9096452629
+K06872: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	2.5316455696
+K06911: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	18.018018018
+K06949: ribosome biogenesis GTPase|g__Bacteroides.s__Bacteroides_fragilis	2.1881838074
+K06949: ribosome biogenesis GTPase|g__Bacteroides.s__Bacteroides_ovatus	1.2771392082
+K06949: ribosome biogenesis GTPase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	11.4942528736
+K06950: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.1349693252
+K06960: NO_NAME|unclassified	11.1731843575
+K06969: putative SAM-dependent methyltransferase|g__Bacteroides.s__Bacteroides_fragilis	2.9145083831
+K06969: putative SAM-dependent methyltransferase|g__Bacteroides.s__Bacteroides_ovatus	1.9436345967
+K06970: ribosomal RNA large subunit methyltransferase F|unclassified	4.6109586675
+K06975: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	8.7719298246
+K07001: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	13.4282398235
+K07001: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	1.3885552381
+K07001: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	10.4269897236
+K07056: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	9.009009009
+K07078: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	17.6600441501
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	9.4213148023
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	20.5272984
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	8.0386357298
+K07085: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	5.5210489993
+K07090: NO_NAME|unclassified	12.5786163522
+K07106: N-acetylmuramic acid 6-phosphate etherase [EC:4.2.1.126]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	19.0058479532
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	8.096812871500001
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	6.8873229062
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.3980815348
+K07114: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	4.7961630695
+K07114: NO_NAME|g__Bifidobacterium.s__Bifidobacterium_longum	4.5351473923
+K07133: NO_NAME|unclassified	4.148689471
+K07141: NO_NAME|unclassified	11.4871913924
+K07240: chromate transporter|g__Bacteroides.s__Bacteroides_fragilis	7.3529411765
+K07240: chromate transporter|g__Bacteroides.s__Bacteroides_ovatus	2.4509803922
+K07258: D-alanyl-D-alanine carboxypeptidase (penicillin-binding protein 5/6) [EC:3.4.16.4]|unclassified	7.2652285025
+K07259: D-alanyl-D-alanine carboxypeptidase / D-alanyl-D-alanine-endopeptidase (penicillin-binding protein 4) [EC:3.4.16.4 3.4.21.-]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.568814638
+K07271: lipopolysaccharide cholinephosphotransferase|g__Bacteroides.s__Bacteroides_ovatus	9.8039215686
+K07273: lysozyme|g__Bacteroides.s__Bacteroides_fragilis	8.4745762712
+K07301: NO_NAME|unclassified	6.6445237049
+K07335: basic membrane protein A and related proteins|g__Blautia.s__Blautia_wexlerae	4.8360357968
+K07391: magnesium chelatase family protein|g__Bacteroides.s__Bacteroides_ovatus	1.4398848092
+K07391: magnesium chelatase family protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.7595392369
+K07407: alpha-galactosidase [EC:3.2.1.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.9727010554
+K07443: methylated-DNA-protein-cysteine methyltransferase related protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	10.9289617486
+K07473: DNA-damage-inducible protein J|g__Blautia.s__Blautia_wexlerae	13.698630137
+K07473: DNA-damage-inducible protein J|g__Blautia.s__Ruminococcus_torques	7.7519379845
+K07568: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_ovatus	5.500550055
+K07568: S-adenosylmethionine:tRNA ribosyltransferase-isomerase|g__Bacteroides.s__Bacteroides_uniformis	8.7627444063
+K07584: hypothetical protein|g__Blautia.s__Blautia_obeum	11.6959064327
+K07667: two-component system, OmpR family, KDP operon response regulator KdpE|unclassified	4.3795806839
+K07735: putative transcriptional regulator|g__Bacteroides.s__Bacteroides_fragilis	6.3687195947
+K07793: putative tricarboxylic transport membrane protein|unclassified	2.0585546527
+K08218: MFS transporter, PAT family, beta-lactamase induction signal transducer AmpG|g__Bacteroides.s__Bacteroides_fragilis	5.2219321149
+K08222: MFS transporter, YQGE family, putative transporter|g__Bacteroides.s__Bacteroides_fragilis	4.4923629829
+K08222: MFS transporter, YQGE family, putative transporter|g__Bacteroides.s__Bacteroides_ovatus	1.7969451932
+K08289: phosphoribosylglycinamide formyltransferase 2 [EC:2.1.2.2]|g__Bacteroides.s__Bacteroides_fragilis	8.8495575221
+K08289: phosphoribosylglycinamide formyltransferase 2 [EC:2.1.2.2]|g__Bacteroides.s__Bacteroides_ovatus	1.9665683382
+K08289: phosphoribosylglycinamide formyltransferase 2 [EC:2.1.2.2]|g__Bacteroides.s__Bacteroides_uniformis	11.7994100295
+K08296: phosphohistidine phosphatase|g__Bifidobacterium.s__Bifidobacterium_longum	4.9019607843
+K08483: phosphotransferase system, enzyme I, PtsI [EC:2.7.3.9]|unclassified	8.9772372165
+K08641: D-alanyl-D-alanine dipeptidase [EC:3.4.13.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.1152263374
+K08998: hypothetical protein|g__Parabacteroides.s__Parabacteroides_distasonis	13.8888888889
+K09014: Fe-S cluster assembly protein SufB|g__Bacteroides.s__Bacteroides_fragilis	10.7062555658
+K09014: Fe-S cluster assembly protein SufB|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.5325670498
+K09014: Fe-S cluster assembly protein SufB|g__Bacteroides.s__Bacteroides_uniformis	5.3524181306
+K09124: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	9.7141884189
+K09457: 7-cyano-7-deazaguanine reductase [EC:1.7.1.13]|g__Bacteroides.s__Bacteroides_fragilis	3.2679738562
+K09457: 7-cyano-7-deazaguanine reductase [EC:1.7.1.13]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.2679738562
+K09457: 7-cyano-7-deazaguanine reductase [EC:1.7.1.13]|g__Bacteroides.s__Bacteroides_uniformis	3.2679738562
+K09702: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	11.8284687556
+K09704: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	1.1248593926
+K09704: hypothetical protein|g__Bacteroides.s__Bacteroides_ovatus	6.1728395062
+K09704: hypothetical protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.6296296296
+K09748: hypothetical protein|g__Bacteroides.s__Bacteroides_uniformis	9.4339622642
+K09779: hypothetical protein|unclassified	6.0975609756
+K09790: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	4.7619047619
+K09790: hypothetical protein|g__Bacteroides.s__Bacteroides_ovatus	4.7619047619
+K09790: hypothetical protein|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.7619047619
+K09816: zinc transport system permease protein|g__Bacteroides.s__Bacteroides_uniformis	20.9224492473
+K09825: Fur family transcriptional regulator, peroxide stress response|g__Blautia.s__Blautia_obeum	8.1300813008
+K09861: hypothetical protein|g__Parabacteroides.s__Parabacteroides_distasonis	6.5040650407
+K09888: hypothetical protein|g__Bacteroides.s__Bacteroides_fragilis	7.0921985816
+K09888: hypothetical protein|g__Bacteroides.s__Bacteroides_ovatus	7.0921985816
+K09903: uridylate kinase [EC:2.7.4.22]|g__Bacteroides.s__Bacteroides_fragilis	5.3475935829
+K09903: uridylate kinase [EC:2.7.4.22]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.3444218192
+K09903: uridylate kinase [EC:2.7.4.22]|g__Bacteroides.s__Bacteroides_uniformis	14.2570777907
+K10206: LL-diaminopimelate aminotransferase [EC:2.6.1.83]|g__Bacteroides.s__Bacteroides_ovatus	4.6159533617
+K10206: LL-diaminopimelate aminotransferase [EC:2.6.1.83]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.6168051708
+K10206: LL-diaminopimelate aminotransferase [EC:2.6.1.83]|g__Bacteroides.s__Bacteroides_uniformis	7.3868882733
+K10773: endonuclease III [EC:4.2.99.18]|g__Bacteroides.s__Bacteroides_fragilis	7.5757575758
+K10773: endonuclease III [EC:4.2.99.18]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.8939393939
+K10947: PadR family transcriptional regulator, regulatory protein PadR|g__Bacteroides.s__Bacteroides_ovatus	11.2994350282
+K10947: PadR family transcriptional regulator, regulatory protein PadR|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.6497175141
+K11720: lipopolysaccharide export system permease protein|g__Bacteroides.s__Bacteroides_fragilis	1.0548523207
+K11720: lipopolysaccharide export system permease protein|g__Bacteroides.s__Bacteroides_ovatus	5.2742616034
+K11755: phosphoribosyl-ATP pyrophosphohydrolase / phosphoribosyl-AMP cyclohydrolase [EC:3.6.1.31 3.5.4.19]|g__Bacteroides.s__Bacteroides_fragilis	2.1645021645
+K11755: phosphoribosyl-ATP pyrophosphohydrolase / phosphoribosyl-AMP cyclohydrolase [EC:3.6.1.31 3.5.4.19]|g__Bacteroides.s__Bacteroides_ovatus	3.734856569
+K11755: phosphoribosyl-ATP pyrophosphohydrolase / phosphoribosyl-AMP cyclohydrolase [EC:3.6.1.31 3.5.4.19]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.329004329
+K12410: NAD-dependent deacetylase|g__Bacteroides.s__Bacteroides_fragilis	9.0621734334
+K12410: NAD-dependent deacetylase|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.6036036036
+K13043: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	1.239157373
+K13043: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	1.239157373
+K13043: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.717472119
+K13043: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	12.4378109453
+K13378: NADH-quinone oxidoreductase subunit C/D [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_fragilis	3.465003465
+K13378: NADH-quinone oxidoreductase subunit C/D [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_ovatus	7.6047707627
+K13378: NADH-quinone oxidoreductase subunit C/D [EC:1.6.5.3]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.079002079
+K14155: cystathione beta-lyase [EC:4.4.1.8]|g__Bacteroides.s__Bacteroides_fragilis	8.6117138596
+K14415: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	8.8141025641
+K14415: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6025641026
+K14441: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	2.5839793282
+K14441: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	2.5839793282
+K14441: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.3066322136
+K14623: NO_NAME|g__Parabacteroides.s__Parabacteroides_distasonis	5.3327660178
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|g__Bacteroides.s__Bacteroides_fragilis	7.5064767691
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.5727699531
+K14652: 3,4-dihydroxy 2-butanone 4-phosphate synthase / GTP cyclohydrolase II [EC:4.1.99.12 3.5.4.25]|g__Bacteroides.s__Bacteroides_uniformis	12.20657277
+K15580: oligopeptide transport system substrate-binding protein|unclassified	8.4116568492
+K15633: 2,3-bisphosphoglycerate-independent phosphoglycerate mutase [EC:5.4.2.12]|unclassified	12.981428080899999
+K15726: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	0.8831084176
+K15726: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	6.2222723386
+K15726: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.8735058893
+K15986: manganese-dependent inorganic pyrophosphatase [EC:3.6.1.1]|unclassified	5.6098072576
+K16363: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase / 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:3.5.1.108 4.2.1.59]|g__Bacteroides.s__Bacteroides_ovatus	4.854368932
+K16363: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase / 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:3.5.1.108 4.2.1.59]|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.6608205449
+K16363: UDP-3-O-[3-hydroxymyristoyl] N-acetylglucosamine deacetylase / 3-hydroxyacyl-[acyl-carrier-protein] dehydratase [EC:3.5.1.108 4.2.1.59]|g__Bacteroides.s__Bacteroides_uniformis	2.427184466
+K17331: N,N'-diacetylchitobiose transport system permease protein|g__Bifidobacterium.s__Bifidobacterium_longum	4.5045045045
+K17828: dihydroorotate dehydrogenase (NAD+) catalytic subunit [EC:1.3.1.14]|g__Bacteroides.s__Bacteroides_uniformis	9.1445604106
+K18220: NO_NAME|g__Bifidobacterium.s__Bifidobacterium_longum	3.3898305085
+K18220: NO_NAME|g__Blautia.s__Blautia_obeum	3.3898305085
+K18220: NO_NAME|g__Blautia.s__Blautia_wexlerae	2.8105477986
+K18220: NO_NAME|g__Blautia.s__Ruminococcus_torques	4.5197740113
+K18220: NO_NAME|g__Flavonifractor.s__Flavonifractor_plautii	3.9548022599
+K18330: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	6.1162079511
+K18330: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.0581039755
+K18682: ribonucrease Y [EC:3.1.-.-]|g__Bacteroides.s__Bacteroides_fragilis	3.6075036075
+K18682: ribonucrease Y [EC:3.1.-.-]|g__Bacteroides.s__Bacteroides_ovatus	2.886002886
+K18682: ribonucrease Y [EC:3.1.-.-]|g__Bacteroides.s__Bacteroides_uniformis	6.4794816415
+K18707: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	8.5462786573
+K18707: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.6920473773
+K18785: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	4.884004884
+K18785: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	2.442002442
+K18928: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	6.7681895093
+K18928: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.3812365665
+K18955: NO_NAME|g__Bifidobacterium.s__Bifidobacterium_longum	6.6666666667
+K19052: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	4.3219881145
+K19052: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.8622366288
+K19157: NO_NAME|unclassified	2.2977765348
+K19158: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	16.6666666667
+K19221: cob(I)alamin adenosyltransferase [EC:2.5.1.17]|unclassified	6.5028969584
+K19225: NO_NAME|unclassified	7.0410141242
+K19286: FMN reductase [NAD(P)H] [EC:1.5.1.39]|g__Bacteroides.s__Bacteroides_ovatus	13.0718954248
+K19802: NO_NAME|unclassified	12.3620719586
+K20866: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	6.3291139241
+K20885: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	13.7339358848
+K20885: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	2.200220022
+K21055: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	5.7971014493
+K21063: NO_NAME|unclassified	5.2662519737
+K21071: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	1.3020833333
+K21071: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	3.4843205575
+K21071: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	4.6457607433
+K21279: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	4.4893378227
+K21572: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	47.9782001573
+K21572: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	11.4921601572
+K21572: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	15.8481619045
+K21574: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	2.4057599818
+K21574: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	3.8650145555
+K21574: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	2.9025236773
+K21574: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	5.4586279024
+K22132: NO_NAME|g__Bacteroides.s__Bacteroides_uniformis	17.7879814467
+K23003: NO_NAME|g__Bacteroides.s__Bacteroides_fragilis	8.1632653061
+K23003: NO_NAME|g__Bacteroides.s__Bacteroides_ovatus	3.8314176245
+K23003: NO_NAME|g__Bacteroides.s__Bacteroides_thetaiotaomicron	1.2771392082

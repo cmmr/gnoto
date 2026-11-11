@@ -1,0 +1,2 @@
+sample	cutadapt_total_processed	cutadapt_reverse_complemented	cutadapt_passing_filters	cutadapt_passing_filters_percent	DADA2_input	filtered	denoisedF	denoisedR	denoisedPairs	merged	nonchim	ssufilter_input	ssufilter_output
+mock	18,999	NA	17,891	94.2%	17891	16161	16050	16037	15996	14461	14185	14185	14185

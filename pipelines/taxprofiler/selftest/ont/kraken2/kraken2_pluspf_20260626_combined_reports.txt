@@ -1,0 +1,96 @@
+#Number of Samples: 1
+#Total Number of Reads: 16515
+#S1	ont_pluspf_20260626.kraken2.kraken2.report.txt
+#perc	tot_all	tot_lvl	1_all	1_lvl	lvl_type	taxid	name
+13.1820	2177	2177	2177	2177	U	0	unclassified
+86.8180	14338	249	14338	249	R	1	root
+85.2922	14086	34	14086	34	R1	131567	  cellular organisms
+82.6400	13648	1270	13648	1270	R2	2	    Bacteria
+46.5637	7690	16	7690	16	K	1783272	      Bacillati
+46.4668	7674	19	7674	19	P	1239	        Bacillota
+46.3518	7655	114	7655	114	C	91061	          Bacilli
+31.8983	5268	79	5268	79	O	1385	            Caryophanales
+14.3809	2375	462	2375	462	F	90964	              Staphylococcaceae
+11.5834	1913	1891	1913	1891	G	1279	                Staphylococcus
+0.1332	22	22	22	22	S	1280	                  Staphylococcus aureus
+9.1311	1508	1	1508	1	F	186820	              Listeriaceae
+9.1250	1507	1501	1507	1501	G	1637	                Listeria
+0.0363	6	6	6	6	S	1639	                  Listeria monocytogenes
+7.9080	1306	7	1306	7	F	186817	              Bacillaceae
+7.8656	1299	815	1299	815	G	1386	                Bacillus
+2.9307	484	211	484	211	G1	653685	                  Bacillus subtilis group
+1.6530	273	273	273	273	S	96241	                    Bacillus spizizenii
+13.7632	2273	39	2273	39	O	186826	            Lactobacillales
+7.2540	1198	1	1198	1	F	81852	              Enterococcaceae
+7.2480	1197	1186	1197	1186	G	1350	                Enterococcus
+0.0666	11	11	11	11	S	1351	                  Enterococcus faecalis
+6.2731	1036	75	1036	75	F	33958	              Lactobacillaceae
+5.8190	961	8	961	8	G	2742598	                Limosilactobacillus
+5.7705	953	953	953	953	S	1613	                  Limosilactobacillus fermentum
+28.3863	4688	15	4688	15	K	3379134	      Pseudomonadati
+28.2955	4673	77	4673	77	P	1224	        Pseudomonadota
+27.8292	4596	67	4596	67	C	1236	          Gammaproteobacteria
+19.9092	3288	107	3288	107	O	91347	            Enterobacterales
+19.2613	3181	1934	3181	1934	F	543	              Enterobacteriaceae
+7.2237	1193	1179	1193	1179	G	590	                Salmonella
+0.0848	14	14	14	14	S	28901	                  Salmonella enterica
+0.3270	54	2	54	2	G	561	                Escherichia
+0.3149	52	52	52	52	S	562	                  Escherichia coli
+7.5144	1241	1	1241	1	O	72274	            Pseudomonadales
+7.5083	1240	73	1240	73	F	135621	              Pseudomonadaceae
+7.0663	1167	1098	1167	1098	G	286	                Pseudomonas
+0.4178	69	7	69	7	G1	136841	                  Pseudomonas aeruginosa group
+0.3754	62	62	62	62	S	287	                    Pseudomonas aeruginosa
+2.4463	404	0	404	0	R2	2759	    Eukaryota
+2.4463	404	1	404	1	R3	33154	      Opisthokonta
+2.4281	401	0	401	0	K	4751	        Fungi
+2.4281	401	1	401	1	K1	451864	          Dikarya
+1.2897	213	0	213	0	P	5204	            Basidiomycota
+1.2897	213	0	213	0	P1	5302	              Agaricomycotina
+1.2897	213	0	213	0	C	155616	                Tremellomycetes
+1.2897	213	0	213	0	O	5234	                  Tremellales
+1.2897	213	3	213	3	F	1884633	                    Cryptococcaceae
+1.2716	210	28	210	28	G	5206	                      Cryptococcus
+1.1020	182	14	182	14	G1	1897064	                        Cryptococcus neoformans species complex
+0.5510	91	91	91	91	S	40410	                          Cryptococcus deneoformans
+0.4662	77	0	77	0	S	5207	                          Cryptococcus neoformans
+0.4662	77	77	77	77	S1	235443	                            Cryptococcus neoformans H99
+1.1323	187	0	187	0	P	4890	            Ascomycota
+1.1323	187	0	187	0	P1	716545	              saccharomyceta
+1.1323	187	0	187	0	P2	147537	                Saccharomycotina
+1.1323	187	0	187	0	C	4891	                  Saccharomycetes
+1.1323	187	0	187	0	O	4892	                    Saccharomycetales
+1.1323	187	3	187	3	F	4893	                      Saccharomycetaceae
+1.1141	184	28	184	28	G	4930	                        Saccharomyces
+0.9446	156	0	156	0	S	4932	                          Saccharomyces cerevisiae
+0.9446	156	156	156	156	S1	559292	                            Saccharomyces cerevisiae S288C
+0.0121	2	0	2	0	K	33208	        Metazoa
+0.0121	2	0	2	0	K1	6072	          Eumetazoa
+0.0121	2	0	2	0	K2	33213	            Bilateria
+0.0121	2	0	2	0	K3	33511	              Deuterostomia
+0.0121	2	0	2	0	P	7711	                Chordata
+0.0121	2	0	2	0	P1	89593	                  Craniata
+0.0121	2	0	2	0	P2	7742	                    Vertebrata
+0.0121	2	0	2	0	P3	7776	                      Gnathostomata
+0.0121	2	0	2	0	P4	117570	                        Teleostomi
+0.0121	2	0	2	0	P5	117571	                          Euteleostomi
+0.0121	2	0	2	0	P6	8287	                            Sarcopterygii
+0.0121	2	0	2	0	P7	1338369	                              Dipnotetrapodomorpha
+0.0121	2	0	2	0	P8	32523	                                Tetrapoda
+0.0121	2	0	2	0	P9	32524	                                  Amniota
+0.0121	2	0	2	0	C	40674	                                    Mammalia
+0.0121	2	0	2	0	C1	32525	                                      Theria
+0.0121	2	0	2	0	C2	9347	                                        Eutheria
+0.0121	2	0	2	0	C3	1437010	                                          Boreoeutheria
+0.0121	2	0	2	0	C4	314146	                                            Euarchontoglires
+0.0121	2	0	2	0	O	9443	                                              Primates
+0.0121	2	0	2	0	O1	376913	                                                Haplorrhini
+0.0121	2	0	2	0	O2	314293	                                                  Simiiformes
+0.0121	2	0	2	0	O3	9526	                                                    Catarrhini
+0.0121	2	0	2	0	O4	314295	                                                      Hominoidea
+0.0121	2	0	2	0	F	9604	                                                        Hominidae
+0.0121	2	0	2	0	F1	207598	                                                          Homininae
+0.0121	2	0	2	0	G	9605	                                                            Homo
+0.0121	2	2	2	2	S	9606	                                                              Homo sapiens
+0.0182	3	0	3	0	R1	2787854	  other entries
+0.0182	3	3	3	3	R2	28384	    other sequences

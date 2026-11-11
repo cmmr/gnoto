@@ -3,9 +3,11 @@
 # another run's tables compare with them.
 #
 # Sourced by:  lib/env.sh
-# Defines:     outputs_measure, outputs_compare, outputs_summary,
-#              outputs_keep_recorded, compare_tables
-# Requires:    gawk, sha256sum, gzip, grep, sort and jq
+# Defines:     outputs_measure, outputs_published, outputs_compare,
+#              outputs_summary, outputs_keep_recorded, compare_tables
+# Requires:    gawk, sha256sum, gzip, grep, sort and jq; for outputs_published,
+#              present/prune_results.sh and present_scrub from
+#              present/common.sh
 # Env:         CODE_DIR, from lib/env.sh
 #
 # pipelines/<name>/stable-files lists a pipeline's core tables, one a line, as
@@ -134,6 +136,24 @@ outputs_measure() {
         lines+="$path"$'\t'"${sum%% *}"$'\n'
     done < <(outputs_list "$pipeline" "$dir")
     printf '%s' "$lines" | jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {path: .[0], sha256: .[1]})'
+}
+
+# Copies each core table into a new directory as Present will publish it:
+# pruned by present/templates/<pipeline>/prune.conf, which can delete a core
+# table or drop its empty rows, and with no site path. Present runs after the
+# record is written, so the record's checksums are taken from this copy:
+# outputs_published <pipeline> <results> <dir>. Runs from the run directory,
+# which the scrub reads as ".".
+outputs_published() {
+    local pipeline=$1 results=$2 dir=$3 path prune=$CODE_DIR/present/templates/$1/prune.conf
+    mkdir "$dir" || return 1
+    while IFS=$'\t' read -r path _; do
+        mkdir -p "$dir/$(dirname "$path")" && cp "$results/$path" "$dir/$path" || return 1
+    done < <(outputs_list "$pipeline" "$results")
+    if [[ -f $prune ]]; then
+        "$CODE_DIR/present/prune_results.sh" "$dir" "$prune" > /dev/null || return 1
+    fi
+    ( source "$CODE_DIR/present/common.sh" && present_scrub "$dir" ) > /dev/null
 }
 
 # Copies, from beside a record, each core table whose checksum is the one the

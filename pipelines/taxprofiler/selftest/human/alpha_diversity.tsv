@@ -1,0 +1,2 @@
+sample	reads	nonpareil_diversity	coverage_pct	redundancy_pct	model_fit	effort_gbp	effort_95_gbp	observed_motus	faith_pd	faith_pd_basis_pct	faith_pd_sgb	faith_pd_sgb_basis_pct
+human	93440	17.2340	34.1013	30.8230	0.9997	0.0149	1.6843	20	NA	NA	3.6278	100.0000

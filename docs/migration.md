@@ -886,14 +886,15 @@ What's built:
   `alpha_diversity.tsv`'s checksum and comparison.
 - **Core tables.** `pipelines/<name>/stable-files` lists them, with `sort` and `strip` for
   tables whose rows or timestamps vary. At the end of Compute the job writes their
-  checksums to the record's `outputs`. An exact re-run copies the tables beside its record
+  checksums to the record's `outputs`, of the tables as Present will publish them, as the
+  first selftest, below, showed they must be. An exact re-run copies the tables beside its record
   whose checksums are the record's into `recorded-outputs/`, compares its own with the
   record's at the end of Compute, and says how in its notes, its state and `status <uid>`,
   with the numeric comparison, `compare_tables` in `lib/outputs.sh`, for any that differ.
 - **`gnoto selftest [--dev] [--yes] [pipeline ...]`,** in `lib/selftest.sh`, as
   [design.md](design.md#what-same-output-means) describes: `pipelines/<name>/selftest.yaml`
-  lists the jobs, and `pipelines/<name>/selftest/<job>/` will hold the reference tables, once
-  the cluster's runs make them. The report job is `_selftest`, which the launcher now starts
+  lists the jobs, and `pipelines/<name>/selftest/<job>/` holds the reference tables, from
+  the cluster's first selftest. The report job is `_selftest`, which the launcher now starts
   on this machine too.
 - **Fetching a pipeline once.** Two runs of a pipeline new to a data directory, started
   together, both fetched it, and one failed with `LOCK_FAILURE` from Nextflow, as a
@@ -1059,6 +1060,34 @@ every core table identical. `outputs_compare`, under `stable-files`, then gave:
   order with `--reorder`. So HUMAnN's search itself doesn't repeat to the read. At Daniel's
   call (2026-11-11), its tables stay core tables, read at 12 digits: a re-run or selftest
   reports them identical most times, and otherwise how far apart, and fails nothing.
+  HUMAnN's own log of taxprofiler's two runs puts the read in its nucleotide search, bowtie2
+  against the sample's ChocoPhlAn genes, 6,397 gene families in one run and 6,398 in the
+  other, and the protein search only carried it on. Why is still open: HUMAnN 3.9 runs
+  bowtie2 with `--very-sensitive`, which seeds its choices from each read, and takes its
+  species from MetaPhlAn's profile, the same in both runs, and its files in the database
+  directory's order.
+
+Under `unordered`, `mixed`'s three runs then compared identical, all 32 core tables.
+
+**The third round,** on 2026-11-11 at `d8b054e`, ran the two `mouse` jobs and taxprofiler's
+`phix`, each three times, and all nine completed. So dropping a nearly empty sample works on
+the cluster too. biobakery's `mouse` repeated with no core table among the files that
+differed. In taxprofiler's `mouse` and `phix`, only `alpha_diversity.tsv` and HUMAnN's
+`pathway-abundance-rpk.tsv` differed in their bytes, and `stable-files` reads both past
+what varies: it drops Nonpareil's columns from the first and rounds the second.
+
+**The first selftest,** `nbw26b2m` at `d8b054e`, completed all 15 jobs in 22 minutes, and
+its 420 tables are the reference tables in `pipelines/<name>/selftest/`. Its report counted
+34 core tables in each of taxprofiler's short-read jobs, where 32 were kept. Present prunes
+after the record's checksums are taken, deleting Kraken2's two `-bracken` copies and dropping
+mOTUs' empty rows, as biobakery's prune list does to `motus/motus-counts.tsv` too. So a
+record's checksums weren't of the tables it was published with, and no selftest could have
+found taxprofiler or biobakery identical. `outputs_published` in `lib/outputs.sh` now copies
+the core tables, prunes and scrubs the copy as Present will, and the record's checksums are
+taken from it. `outputs-test.sh` passes 45 checks in the test bed, with its own for the
+copy. Then the cluster's tables from taxprofiler's `human` and `phix` and biobakery's
+`human` and `virus`, with the two copies and two empty mOTUs rows put back, came back from
+it identical to what was published, and `checks/selftest.sh --small` passed again, 14 checks.
 
 ### Phase 7: integrations
 
