@@ -37,12 +37,14 @@ out_dir_path() {
 }
 
 # Downloads a url to dest, checks its size and md5 against what
-# pipelines/databases.yaml records, and only then gives it its name
+# pipelines/databases.yaml records, and only then gives it its name. curl
+# retries only timeouts and some HTTP errors by itself, so a server that
+# refuses a connection for a moment, as EBI's did, is retried as well.
 fetch_checked() {
     local url="$1" md5="$2" bytes="$3" dest="$4" got
 
     rm -f "$dest.part"
-    if ! curl -sS --fail --location --retry 3 --connect-timeout 60 \
+    if ! curl -sS --fail --location --retry 5 --retry-delay 30 --retry-all-errors --connect-timeout 60 \
             --speed-limit 1024 --speed-time 300 -o "$dest.part" "$url"; then
         rm -f "$dest.part"
         fail "Couldn't download $url."

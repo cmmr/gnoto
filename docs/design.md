@@ -1550,13 +1550,16 @@ paths under `results/` in which `*` and `?` match any characters, such as a samp
 A line may say how its file is read for the checksum: `sort`, its lines in byte order, for
 rows whose order varies; `strip <regex>`, without the lines that match, such as a
 timestamp; `drop <column>,...`, without the columns its header names, such as Nonpareil's in
-`alpha_diversity.tsv`, whose k-mer mode takes no seed; or `round <digits>`, with every number
-rounded to that many significant digits, for sums whose last digit follows the CPU, such
-as HUMAnN's. A cluster's nodes needn't share one CPU type, so two runs of a job needn't land
-on the same hardware, and those modes keep such a value from making the whole table
-differ. A `.gz` file is read decompressed, and the comparison reads the same text. The
-published file is left as it is. That
-list comes from a test:
+`alpha_diversity.tsv`, whose k-mer mode takes no seed; `round <digits>`, with every number
+rounded to that many significant digits, for sums whose last digit varies from run to
+run, such as HUMAnN's; or `unordered`, as a table whose columns and rows come in any order, such as
+taxprofiler's merges, which take their samples in the order their tasks ended: without the
+lines above its header, the first line with the most fields, with every column after the
+first in its header's order, and its rows sorted. Some tools don't repeat a value to its
+last digit from run to run, even on one node, and those modes keep such a value from making
+the whole table differ. A `.gz` file is read decompressed, and the
+comparison reads the same text. The published file is left as it is. That list comes from
+a test:
 
 1. Run each pipeline on its fixtures, the public datasets listed in [fixtures.md](fixtures.md).
 2. Run it again unchanged, then once more with a different `slurm.max_cpus`.

@@ -170,7 +170,31 @@ printf 'bad.tsv round x\n' > "$CODE_DIR/pipelines/u/stable-files"
 cp "$WORK/r1/sums.tsv" "$WORK/r1/bad.tsv"
 check "round takes a number of digits" "1" "$(outputs_measure u "$WORK/r1" > /dev/null 2>&1; echo $?)"
 
-# 6. A record's own tables, kept for a re-run
+# 6. Columns and rows in any order, as taxprofiler's merges of samples are
+mkdir -p "$CODE_DIR/pipelines/w" "$WORK/u1" "$WORK/u2" "$WORK/u3"
+printf 'metaphlan.txt unordered\nmotus.txt unordered\ntaxpasta.tsv unordered\n' > "$CODE_DIR/pipelines/w/stable-files"
+printf '#mpa_vJun23\nclade_name\tsingle\tmock\nUNCLASSIFIED\t15.96246\t0.0\nk__Bacteria\t84.03754\t100.0\n' > "$WORK/u1/metaphlan.txt"
+printf '#mpa_vJun23\nclade_name\tmock\tsingle\nUNCLASSIFIED\t0.0\t15.96246\nk__Bacteria\t100.0\t84.03754\n' > "$WORK/u2/metaphlan.txt"
+printf '# motus version 3.1.0\n# call: motus merge -i mock.out,single.out\n#consensus_taxonomy\tNCBI_tax_id\tmock\tsingle\nE. coli\t562\t8\t0\nunassigned\tNA\t3\t5\n' > "$WORK/u1/motus.txt"
+printf '# motus version 3.1.0\n# call: motus merge -i single.out,mock.out\n#consensus_taxonomy\tNCBI_tax_id\tsingle\tmock\nunassigned\tNA\t5\t3\nE. coli\t562\t0\t8\n' > "$WORK/u2/motus.txt"
+printf 'taxonomy_id\tname\tmock\tsingle\n562\tE. coli\t1\t0\n328814\tA. shahii\t0\t1\n' > "$WORK/u1/taxpasta.tsv"
+printf 'taxonomy_id\tname\tsingle\tmock\n328814\tA. shahii\t1\t0\n562\tE. coli\t0\t1\n' > "$WORK/u2/taxpasta.tsv"
+UNORDERED=$(outputs_measure w "$WORK/u1")
+check "samples merged in another order, rows and provenance lines too, change nothing" "true" \
+    "$(jq -r .identical <<< "$(outputs_compare w "$UNORDERED" "$(outputs_measure w "$WORK/u2")" "$WORK/u1" "$WORK/u2")")"
+check "it reads the header and then the sorted rows, each with its columns in order" \
+    "$(printf '#consensus_taxonomy\tNCBI_tax_id\tmock\tsingle\nE. coli\t562\t8\t0\nunassigned\tNA\t3\t5\n' | sum)" \
+    "$(jq -r '.[] | select(.path == "motus.txt") | .sha256' <<< "$UNORDERED")"
+cp "$WORK/u2/"* "$WORK/u3/"
+printf '#mpa_vJun23\nclade_name\tmock\tsingle\nUNCLASSIFIED\t0.0\t15.96246\nk__Bacteria\t100.0\t80.03754\n' > "$WORK/u3/metaphlan.txt"
+RESULT=$(outputs_compare w "$UNORDERED" "$(outputs_measure w "$WORK/u3")" "$WORK/u1" "$WORK/u3")
+check "a value that differs is found under its own sample's name" "k__Bacteria single 84.03754 80.03754 1" \
+    "$(jq -r '.tables[] | select(.path == "metaphlan.txt") | .figures | "\(.row) \(.column) \(.recorded) \(.new) \(.numbers_differing)"' <<< "$RESULT")"
+: > "$WORK/u3/taxpasta.tsv"
+check "an empty table reads as empty" "$(sum < /dev/null)" \
+    "$(outputs_measure w "$WORK/u3" | jq -r '.[] | select(.path == "taxpasta.tsv") | .sha256')"
+
+# 7. A record's own tables, kept for a re-run
 KEEP=$WORK/keep
 printf 'id\tS1\tS2\nASV_1\t1\t1\n' > "$B/table.tsv"
 check "only the tables matching the record's checksums are kept" "5" \

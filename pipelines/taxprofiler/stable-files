@@ -8,14 +8,16 @@
 # subsamples at random with no seed; the BIOM files, which hold the time they
 # were written; and the reports, Krona's pages and logs. Within tables:
 # Nonpareil's columns of alpha_diversity.tsv. HUMAnN's tables are read with
-# their numbers at 12 significant digits, since a sum's last digit can differ
-# between CPUs.
+# their numbers at 12 significant digits, since a sum's last digit varies from
+# run to run. taxpasta's tables and the Bracken, MetaPhlAn and mOTUs merges
+# take their samples in the order their tasks ended, so they're read with
+# their columns and rows in order. The Kraken2 merge sorts its own by size.
 alpha_diversity.tsv drop nonpareil_diversity,coverage_pct,redundancy_pct,model_fit,effort_gbp,effort_95_gbp
 count_tables/*.tsv
 feature_table/feature-table.tsv
-taxpasta/*.tsv
+taxpasta/*.tsv unordered
 kraken2/*_combined_reports.txt
-bracken/*_combined_reports.txt
-metaphlan/*_combined_reports.txt
-motus/*_combined_reports.txt
+bracken/*_combined_reports.txt unordered
+metaphlan/*_combined_reports.txt unordered
+motus/*_combined_reports.txt unordered
 humann/*.tsv round 12

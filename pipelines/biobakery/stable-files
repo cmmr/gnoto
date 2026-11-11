@@ -8,7 +8,7 @@
 # subsamples at random with no seed; the BIOM files, which hold the time they
 # were written; and the reports, PDFs and logs. Within tables: Nonpareil's
 # columns of alpha_diversity.tsv. HUMAnN's tables are read with their numbers
-# at 12 significant digits, since a sum's last digit can differ between CPUs,
+# at 12 significant digits, since a sum's last digit varies from run to run,
 # and EsViritu's assemblies with their rows sorted, since their order varies.
 kneaddata/read-counts.tsv
 metaphlan/*.tsv

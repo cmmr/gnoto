@@ -19,11 +19,17 @@
 #   <path> drop <columns>   without the columns its header names, comma-separated,
 #                           for values that vary with a known cause
 #   <path> round <digits>   with every number rounded to that many significant
-#                           digits, for sums whose last digit varies with the CPU
+#                           digits, for sums whose last digit varies from run to run
+#   <path> unordered        as a table whose columns and rows come in any order,
+#                           such as samples merged in the order their tasks
+#                           ended: without the lines above its header, the first
+#                           line of the most fields, with every column after the
+#                           first in its header's order, and its rows sorted
 #
 # A file ending in .gz is read decompressed, and one ending in .csv, or .csv.gz,
-# is split on commas, any other on tabs. The published file is left as it is. A run's outputs are each matching file's path and the SHA-256 of what's
-# read, in path order.
+# is split on commas, any other on tabs. The published file is left as it is. A
+# run's outputs are each matching file's path and the SHA-256 of what's read, in
+# path order.
 #
 # Two runs' tables are identical when their checksums match. Otherwise
 # compare_tables reads both, matches rows by their first field and columns by
@@ -90,6 +96,29 @@ outputs_read() {
                 {
                     for (i = 1; i <= NF; i++) if ($i ~ number) $i = sprintf("%." digits "g", $i)
                     print
+                }'
+            ;;
+        unordered)
+            gawk -F "$sep" -v OFS="$sep" '
+                function reorder(line,    f, out, j) {
+                    split(line, f, FS)
+                    out = f[1]
+                    for (j = 1; j <= k; j++) out = out OFS f[order[j]]
+                    return out
+                }
+                { row[NR] = $0; width[NR] = NF; if (NF > widest) widest = NF }
+                END {
+                    for (top = 1; top <= NR && width[top] < widest; top++) ;
+                    if (top > NR) exit
+                    n = split(row[top], head, FS)
+                    for (i = 2; i <= n; i++) name[i] = head[i] SUBSEP sprintf("%09d", i)
+                    PROCINFO["sorted_in"] = "@val_str_asc"
+                    for (i in name) order[++k] = i
+                    print reorder(row[top])
+                    fflush()
+                    sorter = "LC_ALL=C sort"
+                    for (r = top + 1; r <= NR; r++) print reorder(row[r]) | sorter
+                    close(sorter)
                 }'
             ;;
         *) echo "stable-files: \"$how\" isn't a way to read a table" >&2; return 1 ;;

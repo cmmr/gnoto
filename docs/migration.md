@@ -975,7 +975,8 @@ The rest of the first round, at `2600665`, with each job twice at 32 CPUs and on
   and `v5v6`, with the same taxa; and one sum in HUMAnN's `pathway-abundance-rpk.tsv`, 3e-15
   apart. Each came from two runs at the same CPU count, and in the test bed DADA2's classifier
   gave the same output twice at 4 threads and twice at 1, so the likely cause is tasks
-  landing on nodes of different CPUs. At Daniel's call, `stable-files` leaves Faith's PD and
+  landing on nodes of different CPUs, though the second round, below, found every node one
+  CPU model, and two runs on one node differing. At Daniel's call, `stable-files` leaves Faith's PD and
   the confidences out and reads HUMAnN's tables at 12 significant digits, with a new `round`
   mode. EsViritu's assemblies repeat with their rows sorted, and Nonpareil's curves vary, as
   expected.
@@ -1033,6 +1034,31 @@ reads Kraken2 classified none of, so `wgs-phix` was missing from them; they now 
 sample with a report. `composition-test.sh` (89 checks, with both kinds of dropped sample)
 and `present-test.sh` (138) pass in the test bed. The long-read path's own steps are untested
 on an empty sample.
+
+**The second round,** on 2026-11-10 at `0552d35`, reran the jobs the first round lost, and
+the finish test passed on the cluster with the full placement reference, all 17 checks,
+every core table identical. `outputs_compare`, under `stable-files`, then gave:
+
+- **ampliseq is done.** `v3v5` and `single` completed three times each, with all their core
+  tables identical, at 32 CPUs and at 8.
+- **Both `mouse` jobs never ran,** cancelled when the fetch of `wgs-mouse` they waited on
+  failed in a second: `curl` couldn't connect to `ftp.sra.ebi.ac.uk` from `cmp01`, and
+  `--retry` doesn't retry a connection that fails. `steps/fetch_files.sh` now retries any
+  error, 5 times 30 seconds apart; in the test bed it reached a server that came up 20
+  seconds late, and failed after 2.5 minutes, naming the address, where none ever did.
+- **taxprofiler's merges vary in order.** In `mixed`, MetaPhlAn's and mOTUs' merged reports
+  and taxpasta's mOTUs table had their two samples' columns swapped between runs, and
+  taxpasta's rows in another order: taxprofiler 2.0.1 merges Bracken, MetaPhlAn, mOTUs and
+  every taxpasta table in the order the samples' tasks end, and only Kraken2's by size.
+  `stable-files` reads those with a new mode, `unordered`.
+- **HUMAnN varies by about a read.** In both `human` jobs, one run of three had one gene
+  family the others hadn't, its count of families one apart, so HUMAnN's other values were
+  about 5e-5 apart, and one rare KO 4.8%. It isn't the thread count, which `slurm.max_cpus`
+  caps at 8 in the third run of each, nor the CPU: every node is a Xeon Gold 6526Y, and
+  biobakery's two runs on `cmp08` differed, while gnoto's host depletion keeps the reads in
+  order with `--reorder`. So HUMAnN's search itself doesn't repeat to the read. At Daniel's
+  call (2026-11-11), its tables stay core tables, read at 12 digits: a re-run or selftest
+  reports them identical most times, and otherwise how far apart, and fails nothing.
 
 ### Phase 7: integrations
 
