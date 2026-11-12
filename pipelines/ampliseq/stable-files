@@ -8,12 +8,12 @@
 # placed on one edge come in an order EPA-NG's threads decide, and whose
 # placements themselves can differ from run to run; the BIOM files, which hold
 # the time they were written; and the reports, PDFs and logs. Within tables:
-# Faith's PD, measured on that tree, and DADA2's bootstrap confidences, which
-# can differ by a replicate from run to run, though the taxa don't.
+# Faith's PD, measured on that tree. DADA2's bootstrap confidences are compared:
+# DADA2_TAXONOMY runs in gnoto-dada2, whose ties break the same way every run.
 dada2/ASV_table.tsv
 dada2/ASV_seqs.fasta
-dada2/ASV_tax.user.tsv drop confidence,domain_confidence,phylum_confidence,class_confidence,order_confidence,family_confidence,genus_confidence,species_confidence
-dada2/ASV_tax_species.user.tsv drop confidence,domain_confidence,phylum_confidence,class_confidence,order_confidence,family_confidence,genus_confidence,species_confidence
+dada2/ASV_tax.user.tsv
+dada2/ASV_tax_species.user.tsv
 dada2/DADA2_table.tsv
 dada2/DADA2_stats.tsv
 asv_length_filter/ASV_table.len.tsv

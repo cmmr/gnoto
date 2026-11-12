@@ -11,9 +11,9 @@ machine itself. **Phase 4, the version cache, is done too:** it passes its finis
 test bed, and on the cluster ampliseq runs from the cache and a failed run resumes. **Phase 5,
 the lock files, is done:** it passes its finish test in the test bed and on the cluster, and
 all three pipelines run there with every image by digest and every database pinned.
-**Phase 6, determinism, is built** and passes its finish test in the test bed. The cluster's
-runs, which choose the shotgun pipelines' core tables and make every pipeline's reference
-tables, are next. The [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
+**Phase 6, determinism, is done:** it passes its finish test in the test bed, and on the
+cluster `gnoto selftest` found all 15 fixture jobs' core tables identical to the reference
+tables. The [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
 [phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache),
 [phase 5](#phase-5-lock-files) and [phase 6](#phase-6-determinism) notes record what's
 built and every test result.
@@ -1186,6 +1186,25 @@ number different". A table whose rows and values all match but whose bytes don't
 "the same rows and values, in another order or written differently", in the selftest
 report and in `gnoto status`. `outputs-test.sh`, 45 checks, and `runs-test.sh`, 75, pass
 in the test bed.
+
+**The sixth selftest,** `i43ophqg` at `60e2963`, found all 15 jobs' core tables identical to
+the reference, so phase 6 is done. HUMAnN repeated in both of its last two selftests. The
+bytes still differ only where `stable-files` reads past them: Nonpareil's columns, Faith's
+PD, HUMAnN's last digits, the merges read `unordered`, the rows of EsViritu's
+`virus-assemblies.tsv`, read `sort`, and DADA2's confidences in `v1v3` and `v5v6`, which the
+reference tables took from 1.38.0 as released. Between the fifth and sixth selftests, both
+with `gnoto-dada2`, every ampliseq table but `alpha_diversity.tsv`, for Faith's PD, was
+identical byte for byte, confidences included.
+At Daniel's call, `stable-files` compares the confidences again, and `v1v3`'s and `v5v6`'s
+taxonomy tables are now the sixth selftest's, which differ from the old reference only in
+7 rows' confidences.
+EsViritu writes its per-assembly table from an unordered `group_by`, so `ESVIRITU_SUMMARY`
+now sorts `virus-assemblies.tsv` as EsViritu sorts its contigs, by sample, family, genus,
+species and assembly, then by the whole row, and `stable-files` compares it byte for byte
+rather than read `sort`. Its script, rendered by Nextflow and run in EsViritu's image, gave
+the reference's rows and this run's the same order, left the other three tables as they
+were, and failed with a message on a table missing a column. The reference is re-sorted to
+match.
 
 ### Phase 7: integrations
 

@@ -8,15 +8,14 @@
 # subsamples at random with no seed; the BIOM files, which hold the time they
 # were written; and the reports, PDFs and logs. Within tables: Nonpareil's
 # columns of alpha_diversity.tsv. HUMAnN's tables are read with their numbers
-# at 12 significant digits, since a sum's last digit varies from run to run,
-# and EsViritu's assemblies with their rows sorted, since their order varies.
+# at 12 significant digits, since a sum's last digit varies from run to run.
 kneaddata/read-counts.tsv
 metaphlan/*.tsv
 humann/*.tsv round 12
 alpha_diversity.tsv drop nonpareil_diversity,coverage_pct,redundancy_pct,model_fit,effort_gbp,effort_95_gbp
 motus/motus-counts.tsv
 esviritu/virus-taxa.tsv
-esviritu/virus-assemblies.tsv sort
+esviritu/virus-assemblies.tsv
 esviritu/virus-contigs.tsv
 esviritu/virus-coverage.tsv
 esviritu/read-counts.tsv

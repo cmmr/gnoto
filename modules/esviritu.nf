@@ -173,22 +173,41 @@ process ESVIRITU_SUMMARY {
         exit 1
     fi
 
-    # A table with its rows sorted by its sample_ID column
+    # A table with its rows sorted by its sample_ID column, keeping EsViritu's
+    # order within a sample, or by sample_ID, then the columns named, then the
+    # whole row: sorted <table> [column ...]
     sorted() {
-        local column
+        local table=\$1 name column keys=""
+        shift
 
-        column=\$(head -n 1 "\$1" | tr '\\t' '\\n' | grep -nx sample_ID | cut -d: -f1)
+        for name in sample_ID "\$@"; do
+            column=\$(head -n 1 "\$table" | tr '\\t' '\\n' | grep -nx "\$name" | cut -d: -f1)
+            if [ -z "\$column" ]; then
+                echo "\$table has no \$name column" >&2
+                return 1
+            fi
+            keys="\$keys -k\$column,\$column"
+        done
 
-        head -n 1 "\$1"
-        tail -n +2 "\$1" | LC_ALL=C sort -s -t \$'\\t' -k\$column,\$column
+        head -n 1 "\$table"
+        if [ \$# -eq 0 ]; then
+            tail -n +2 "\$table" | LC_ALL=C sort -s -t \$'\\t' \$keys
+        else
+            tail -n +2 "\$table" | LC_ALL=C sort -t \$'\\t' \$keys -k1
+        fi
     }
 
-    for table in detected_virus.info:virus-contigs detected_virus.assembly_summary:virus-assemblies \\
-                 tax_profile:virus-taxa virus_coverage_windows:virus-coverage; do
+    for table in detected_virus.info:virus-contigs tax_profile:virus-taxa virus_coverage_windows:virus-coverage; do
         if [ -e summary/esviritu.\${table%%:*}.tsv ]; then
             sorted summary/esviritu.\${table%%:*}.tsv > \${table#*:}.tsv
         fi
     done
+
+    # EsViritu writes its assemblies in no fixed order, so they are sorted as it
+    # sorts its contigs, by taxon and assembly
+    if [ -e summary/esviritu.detected_virus.assembly_summary.tsv ]; then
+        sorted summary/esviritu.detected_virus.assembly_summary.tsv family genus species Assembly > virus-assemblies.tsv
+    fi
 
     # EsViritu lists a taxon's assemblies in no fixed order, so they are sorted
     if [ -e virus-taxa.tsv ]; then
