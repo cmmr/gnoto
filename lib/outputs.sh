@@ -277,6 +277,8 @@ outputs_summary() {
                 "largest relative difference \(.figures.largest_relative_difference), at \(.figures.row), \(.figures.column)"
                 + (if .figures.only_recorded + .figures.only_new > 0
                     then ", with \(.figures.only_recorded + .figures.only_new) rows only in one" else "" end)
+            elif .figures and .figures.only_recorded + .figures.only_new + .figures.text_differing == 0
+                then "the same rows and values, in another order or written differently"
             elif .figures then "\(.figures.only_recorded + .figures.only_new) rows only in one, \(.figures.text_differing) text cells differing, no number different"
             else "no copy to compare its numbers with" end;
         (.tables | length) as $n

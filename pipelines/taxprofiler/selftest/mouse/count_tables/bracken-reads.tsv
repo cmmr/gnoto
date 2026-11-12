@@ -1,65 +1,65 @@
 taxonomy_id	name	count
-821	Phocaeicola vulgatus	14145
-357276	Phocaeicola dorei	233
-1796613	Bacteroides caecimuris	1695
 818	Bacteroides thetaiotaomicron	1259
 820	Bacteroides uniformis	2078
-2715212	Bacteroides faecium	683
-371601	Bacteroides xylanisolvens	343
-28116	Bacteroides ovatus	362
-47678	Bacteroides caccae	78
-46506	Bacteroides stercoris	38
-338188	Bacteroides finegoldii	60
-28119	Bacteroides zoogleoformans	24
-246787	Bacteroides cellulosilyticus	44
-2650158	Bacteroides luhongzhouii	26
-2763025	Bacteroides parvus	369
-291644	Bacteroides salyersiae	19
-674529	Bacteroides faecis	22
-2650157	Bacteroides zhangwenhongii	36
-1796646	Muribaculum intestinale	566
-2530390	Muribaculum gordoncarteri	256
-2518971	Duncaniella dubosii	253
-2094151	Paramuribaculum intestinale	548
-2606626	Sodaliphilus pleomorphus	15
+821	Phocaeicola vulgatus	14145
 823	Parabacteroides distasonis	622
-328812	Parabacteroides goldsteinii	27
-3680488	Parabacteroides sp. KHUB-01	15
-2585118	Alistipes communis	100
-328813	Alistipes onderdonkii	213
-538949	uncultured Alistipes sp.	35
-239935	Akkermansia muciniphila	2739
-1359	Lactococcus cremoris	1475
-1358	Lactococcus lactis	207
-44273	Lactococcus sp.	371
 1308	Streptococcus thermophilus	18
-747656	Streptococcus danieliae	12
-33959	Lactobacillus johnsonii	650
+1351	Enterococcus faecalis	103
+1358	Lactococcus lactis	207
+1359	Lactococcus cremoris	1475
+1512	[Clostridium] symbiosum	46
+1522	[Clostridium] innocuum	101
 1598	Limosilactobacillus reuteri	557
 1622	Ligilactobacillus murinus	348
-1351	Enterococcus faecalis	103
-3465159	Dysosmobacter sp. Phy	50
-292800	Flavonifractor plautii	148
-2108523	Lawsonibacter asaccharolyticus	76
-97138	Clostridium sp. MD294	29
-3373596	Clostridium sp. 10cd*	214
-1522	[Clostridium] innocuum	101
-3380348	Pilosibacter sp. YYHA0881	110
-1796620	Acutalibacter muris	159
-208479	Enterocloster bolteae	139
-33035	Blautia producta	72
-418240	Blautia wexlerae	139
-1796616	Blautia pseudococcoides	16
-2681861	Sporofaciens musculi	50
+1705	Corynebacterium stationis	12
+2035	Curtobacterium flaccumfaciens	85
+9606	Homo sapiens	135
+28116	Bacteroides ovatus	362
+28119	Bacteroides zoogleoformans	24
 29347	[Clostridium] scindens	70
+33035	Blautia producta	72
 33038	Mediterraneibacter gnavus	50
-1512	[Clostridium] symbiosum	46
-2652274	Eisenbergiella porci	34
-3114296	Emergencia sp. JLR.KK010	139
-3242369	Ihubacter sp. rT4E-8	41
+33959	Lactobacillus johnsonii	650
+44273	Lactococcus sp.	371
+46506	Bacteroides stercoris	38
+47678	Bacteroides caccae	78
+97138	Clostridium sp. MD294	29
+208479	Enterocloster bolteae	139
+239935	Akkermansia muciniphila	2739
+246787	Bacteroides cellulosilyticus	44
+291644	Bacteroides salyersiae	19
+292800	Flavonifractor plautii	148
+328812	Parabacteroides goldsteinii	27
+328813	Alistipes onderdonkii	213
+338188	Bacteroides finegoldii	60
+357276	Phocaeicola dorei	233
+371601	Bacteroides xylanisolvens	343
+418240	Blautia wexlerae	139
+538949	uncultured Alistipes sp.	35
+674529	Bacteroides faecis	22
+747656	Streptococcus danieliae	12
 1115758	Romboutsia ilealis	25
 1702221	Faecalibaculum rodentium	496
+1796613	Bacteroides caecimuris	1695
+1796616	Blautia pseudococcoides	16
+1796620	Acutalibacter muris	159
+1796646	Muribaculum intestinale	566
+2094151	Paramuribaculum intestinale	548
+2108523	Lawsonibacter asaccharolyticus	76
+2518971	Duncaniella dubosii	253
+2530390	Muribaculum gordoncarteri	256
+2585118	Alistipes communis	100
+2606626	Sodaliphilus pleomorphus	15
+2650157	Bacteroides zhangwenhongii	36
+2650158	Bacteroides luhongzhouii	26
+2652274	Eisenbergiella porci	34
+2681861	Sporofaciens musculi	50
 2707299	Adlercreutzia hattorii	72
-2035	Curtobacterium flaccumfaciens	85
-1705	Corynebacterium stationis	12
-9606	Homo sapiens	135
+2715212	Bacteroides faecium	683
+2763025	Bacteroides parvus	369
+3114296	Emergencia sp. JLR.KK010	139
+3242369	Ihubacter sp. rT4E-8	41
+3373596	Clostridium sp. 10cd*	214
+3380348	Pilosibacter sp. YYHA0881	110
+3465159	Dysosmobacter sp. Phy	50
+3680488	Parabacteroides sp. KHUB-01	15

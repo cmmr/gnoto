@@ -190,6 +190,26 @@ process ESVIRITU_SUMMARY {
         fi
     done
 
+    # EsViritu lists a taxon's assemblies in no fixed order, so they are sorted
+    if [ -e virus-taxa.tsv ]; then
+        LC_ALL=C awk 'function sort_list(list,   n, items, i, j, item, joined) {
+                          n = split(list, items, ",")
+                          for (i = 2; i <= n; i++) {
+                              item = items[i]
+                              for (j = i - 1; j >= 1 && items[j] "" > item ""; j--) items[j + 1] = items[j]
+                              items[j + 1] = item
+                          }
+                          joined = items[1]
+                          for (i = 2; i <= n; i++) joined = joined "," items[i]
+                          return joined
+                      }
+                      BEGIN { FS = OFS = "\\t" }
+                      NR == 1 { for (i = 1; i <= NF; i++) if (\$i == "assembly_list") column = i }
+                      NR > 1 && column { \$column = sort_list(\$column) }
+                      { print }' virus-taxa.tsv > virus-taxa.sorted
+        mv virus-taxa.sorted virus-taxa.tsv
+    fi
+
     # One column per read count EsViritu kept, named without spaces; the reads
     # its abundances are divided by are filtered_reads, as the tables above call
     # them

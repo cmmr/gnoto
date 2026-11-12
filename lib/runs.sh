@@ -251,6 +251,8 @@ comparison_lines() {
                     "largest relative difference \(.figures.largest_relative_difference), at \(.figures.row), \(.figures.column): \(.figures.recorded) then \(.figures.new)"
                     + " (\(.figures.numbers_differing) of \(.figures.numbers) numbers differ"
                     + (if .figures.only_recorded + .figures.only_new > 0 then ", \(.figures.only_recorded + .figures.only_new) rows only in one" else "" end) + ")"
+                elif .figures.only_recorded + .figures.only_new + .figures.text_differing == 0 then
+                    "the same rows and values, in another order or written differently"
                 else "no number differs, but \(.figures.only_recorded + .figures.only_new) rows are only in one and \(.figures.text_differing) text cells differ"
                 end)' <<< "$1"
 }

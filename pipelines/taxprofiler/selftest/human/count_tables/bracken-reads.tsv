@@ -1,81 +1,81 @@
 taxonomy_id	name	count
+562	Escherichia coli	147
+817	Bacteroides fragilis	8338
 818	Bacteroides thetaiotaomicron	9860
 820	Bacteroides uniformis	13830
-817	Bacteroides fragilis	8338
-28116	Bacteroides ovatus	15542
-2763023	Bacteroides hominis	499
-47678	Bacteroides caccae	344
-2528203	Bacteroides sp. A1C1	83
-2755405	Bacteroides sp. CACC 737	65
-371601	Bacteroides xylanisolvens	89
-246787	Bacteroides cellulosilyticus	40
-338188	Bacteroides finegoldii	41
-674529	Bacteroides faecis	25
-2763025	Bacteroides parvus	141
-291644	Bacteroides salyersiae	19
 821	Phocaeicola vulgatus	618
-376805	Phocaeicola salanitronis	162
 823	Parabacteroides distasonis	6048
-2951805	Parabacteroides absconsus	177
-328812	Parabacteroides goldsteinii	24
-328814	Alistipes shahii	101
-28117	Alistipes putredinis	26
-1965590	Barnesiella sp. An22	13
-35833	Bilophila wadsworthia	421
-562	Escherichia coli	147
-67824	Citrobacter farmeri	21
-418240	Blautia wexlerae	5679
-2877527	Blautia parvula	1074
-40520	Blautia obeum	653
-1322	Blautia hansenii	388
-1796616	Blautia pseudococcoides	239
-33035	Blautia producta	111
-89014	Blautia luti	92
-871665	Blautia faecis	33
-1737424	Blautia massiliensis (ex Durand et al. 2017)	40
-208479	Enterocloster bolteae	1170
-333367	Enterocloster asparagiformis	500
-460384	Enterocloster lavalensis	422
-1531	Enterocloster clostridioformis	124
-33039	Mediterraneibacter torques	1253
-33038	Mediterraneibacter gnavus	774
-342942	Mediterraneibacter glycyrrhizinilyticus	207
-154046	Hungatella hathewayi	597
-2937758	Hungatella sp. SB206	268
-410072	Allocoprococcus comes	306
-649756	Anaerostipes hadrus	249
-29347	[Clostridium] scindens	246
-2652274	Eisenbergiella porci	205
-1512	[Clostridium] symbiosum	170
-166486	Roseburia intestinalis	124
-301302	Roseburia faecis	30
-39486	Dorea formicigenerans	25
-39491	Agathobacter rectalis	32
-2929493	Faecalibacterium sp. I3-3-89	3140
 853	Faecalibacterium prausnitzii	267
-292800	Flavonifractor plautii	1696
-2093857	Dysosmobacter welbionis	2031
-1550024	Ruthenibacterium lactatiformans	651
-2108523	Lawsonibacter asaccharolyticus	118
-2714358	Pusillibacter faecalis	121
-3136601	Owariibacterium komagatae	14
-3480012	Pilosibacter sp. NGB245	53
-3378803	Pilosibacter rotomagensis	62
-1522	[Clostridium] innocuum	66
-3373596	Clostridium sp. 10cd*	43
-341220	Lactonifactor longoviformis	11
 1261	Peptostreptococcus anaerobius	56
-1496	Clostridioides difficile	46
-261299	Intestinibacter bartlettii	18
-114527	Mogibacterium diversum	47
-1796635	Longicatena caecimuris	784
-2764325	Hoskinsella hominis	87
-102148	Solobacterium moorei	11
-1547	Thomasclavelia ramosa	67
 1304	Streptococcus salivarius	263
 1308	Streptococcus thermophilus	12
-29466	Veillonella parvula	21
-216816	Bifidobacterium longum	1383
+1322	Blautia hansenii	388
+1496	Clostridioides difficile	46
+1512	[Clostridium] symbiosum	170
+1522	[Clostridium] innocuum	66
+1531	Enterocloster clostridioformis	124
+1547	Thomasclavelia ramosa	67
 1689	Bifidobacterium dentium	23
-84112	Eggerthella lenta	132
 9606	Homo sapiens	96
+28116	Bacteroides ovatus	15542
+28117	Alistipes putredinis	26
+29347	[Clostridium] scindens	246
+29466	Veillonella parvula	21
+33035	Blautia producta	111
+33038	Mediterraneibacter gnavus	774
+33039	Mediterraneibacter torques	1253
+35833	Bilophila wadsworthia	421
+39486	Dorea formicigenerans	25
+39491	Agathobacter rectalis	32
+40520	Blautia obeum	653
+47678	Bacteroides caccae	344
+67824	Citrobacter farmeri	21
+84112	Eggerthella lenta	132
+89014	Blautia luti	92
+102148	Solobacterium moorei	11
+114527	Mogibacterium diversum	47
+154046	Hungatella hathewayi	597
+166486	Roseburia intestinalis	124
+208479	Enterocloster bolteae	1170
+216816	Bifidobacterium longum	1383
+246787	Bacteroides cellulosilyticus	40
+261299	Intestinibacter bartlettii	18
+291644	Bacteroides salyersiae	19
+292800	Flavonifractor plautii	1696
+301302	Roseburia faecis	30
+328812	Parabacteroides goldsteinii	24
+328814	Alistipes shahii	101
+333367	Enterocloster asparagiformis	500
+338188	Bacteroides finegoldii	41
+341220	Lactonifactor longoviformis	11
+342942	Mediterraneibacter glycyrrhizinilyticus	207
+371601	Bacteroides xylanisolvens	89
+376805	Phocaeicola salanitronis	162
+410072	Allocoprococcus comes	306
+418240	Blautia wexlerae	5679
+460384	Enterocloster lavalensis	422
+649756	Anaerostipes hadrus	249
+674529	Bacteroides faecis	25
+871665	Blautia faecis	33
+1550024	Ruthenibacterium lactatiformans	651
+1737424	Blautia massiliensis (ex Durand et al. 2017)	40
+1796616	Blautia pseudococcoides	239
+1796635	Longicatena caecimuris	784
+1965590	Barnesiella sp. An22	13
+2093857	Dysosmobacter welbionis	2031
+2108523	Lawsonibacter asaccharolyticus	118
+2528203	Bacteroides sp. A1C1	83
+2652274	Eisenbergiella porci	205
+2714358	Pusillibacter faecalis	121
+2755405	Bacteroides sp. CACC 737	65
+2763023	Bacteroides hominis	499
+2763025	Bacteroides parvus	141
+2764325	Hoskinsella hominis	87
+2877527	Blautia parvula	1074
+2929493	Faecalibacterium sp. I3-3-89	3140
+2937758	Hungatella sp. SB206	268
+2951805	Parabacteroides absconsus	177
+3136601	Owariibacterium komagatae	14
+3373596	Clostridium sp. 10cd*	43
+3378803	Pilosibacter rotomagensis	62
+3480012	Pilosibacter sp. NGB245	53

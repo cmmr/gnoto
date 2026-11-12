@@ -152,7 +152,8 @@ read_taxpasta <- function (path) {
     database <- sub("^[^_]+_", "", sub("\\.tsv$", "", basename(path)))
     colnames(counts) <- strip_database(colnames(counts), database)
 
-    counts[, sort(colnames(counts)), drop = FALSE]
+    #    By taxon id, since taxpasta's rows come in the order its samples' tasks ended
+    counts[order(as.numeric(rownames(counts))), sort(colnames(counts)), drop = FALSE]
 }
 
 # The merged MetaPhlAn profile, reduced to its t__SGB rows and keyed by the bare
@@ -394,9 +395,14 @@ read_at_species <- function (path) {
 
     counts <- rowsum(counts, group = placed$key, reorder = FALSE)
     labels <- placed$label[!duplicated(placed$key)]
+    labels <- labels[match(rownames(counts), placed$key[!duplicated(placed$key)])]
 
-    list(counts = counts[, sort(colnames(counts)), drop = FALSE],
-         labels = labels[match(rownames(counts), placed$key[!duplicated(placed$key)])])
+    #    By taxon id, species first and then the "u" rows above species, since
+    #    taxpasta's rows come in the order its samples' tasks ended
+    keys <- rownames(counts)
+    rows <- order(startsWith(keys, "u"), suppressWarnings(as.numeric(sub("^u", "", keys))), keys)
+
+    list(counts = counts[rows, sort(colnames(counts)), drop = FALSE], labels = labels[rows])
 }
 
 # Every per-sample MetaPhlAn profile that -t rel_ab_w_read_stats wrote, as one

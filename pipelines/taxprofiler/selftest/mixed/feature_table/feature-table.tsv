@@ -1,128 +1,128 @@
 #OTU ID	mock	single	Taxonomy
-817	20255	1256	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides fragilis
-28128	8710	0	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Prevotellaceae; Prevotella; Prevotella corporis
 562	20583	0	Bacteria; Pseudomonadota; Gammaproteobacteria; Enterobacterales; Enterobacteriaceae; Escherichia; Escherichia coli
-28901	363	0	Bacteria; Pseudomonadota; Gammaproteobacteria; Enterobacterales; Enterobacteriaceae; Salmonella; Salmonella enterica
-239935	2262	0	Bacteria; Verrucomicrobiota; Verrucomicrobiia; Verrucomicrobiales; Akkermansiaceae; Akkermansia; Akkermansia muciniphila
+729	0	33	Bacteria; Pseudomonadota; Gammaproteobacteria; Pasteurellales; Pasteurellaceae; Haemophilus; Haemophilus parainfluenzae
+817	20255	1256	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides fragilis
+818	0	603	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides thetaiotaomicron
+820	0	7305	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides uniformis
+821	0	1020	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Phocaeicola; Phocaeicola vulgatus
+823	0	1260	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Tannerellaceae; Parabacteroides; Parabacteroides distasonis
+851	91	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium nucleatum
 853	13766	1810	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium prausnitzii
-301301	3607	85	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia hominis
 1496	1860	99	Bacteria; Bacillota; Clostridia; Peptostreptococcales; Peptostreptococcaceae; Clostridioides; Clostridioides difficile
-423477	16320	0	Bacteria; Bacillota; Negativicutes; Veillonellales; Veillonellaceae; Veillonella; Veillonella rogosae
+1522	0	58	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; [Clostridium] innocuum
+1547	0	14	Bacteria; Bacillota; Erysipelotrichia; Erysipelotrichales; Coprobacillaceae; Thomasclavelia; Thomasclavelia ramosa
 1613	1116	0	Bacteria; Bacillota; Bacilli; Lactobacillales; Lactobacillaceae; Limosilactobacillus; Limosilactobacillus fermentum
 1680	2172	71	Bacteria; Actinomycetota; Actinomycetes; Bifidobacteriales; Bifidobacteriaceae; Bifidobacterium; Bifidobacterium adolescentis
-76859	5331	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium animalis
-851	91	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium nucleatum
-76857	49	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium polymorphum
-155615	122	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium vincentii
-1852365	24	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium massiliense
-5476	849	0	Eukaryota; Ascomycota; Pichiomycetes; Serinales; Debaryomycetaceae; Candida; Candida albicans
-4932	806	0	Eukaryota; Ascomycota; Saccharomycetes; Saccharomycetales; Saccharomycetaceae; Saccharomyces; Saccharomyces cerevisiae
+1681	0	39	Bacteria; Actinomycetota; Actinomycetes; Bifidobacteriales; Bifidobacteriaceae; Bifidobacterium; Bifidobacterium bifidum
 2173	75	0	Archaea; Methanobacteriota; Methanobacteria; Methanobacteriales; Methanobacteriaceae; Methanobrevibacter; Methanobrevibacter smithii
+4932	806	0	Eukaryota; Ascomycota; Saccharomycetes; Saccharomycetales; Saccharomycetaceae; Saccharomyces; Saccharomyces cerevisiae
+5476	849	0	Eukaryota; Ascomycota; Pichiomycetes; Serinales; Debaryomycetaceae; Candida; Candida albicans
+9606	0	197	Eukaryota; Chordata; Mammalia; Primates; Hominidae; Homo; Homo sapiens
+28111	0	13	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides eggerthii
+28116	0	148	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides ovatus
+28117	0	4796	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes putredinis
+28118	0	1088	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Odoribacter; Odoribacter splanchnicus
+28128	8710	0	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Prevotellaceae; Prevotella; Prevotella corporis
+28901	363	0	Bacteria; Pseudomonadota; Gammaproteobacteria; Enterobacterales; Enterobacteriaceae; Salmonella; Salmonella enterica
+29466	0	21	Bacteria; Bacillota; Negativicutes; Veillonellales; Veillonellaceae; Veillonella; Veillonella parvula
+33038	0	62	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter gnavus
+33039	0	155	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter torques
+39485	0	109	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Lachnospira; Lachnospira eligens
+39486	0	46	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Dorea; Dorea formicigenerans
+39488	0	43	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Anaerobutyricum; Anaerobutyricum hallii
+39490	0	44	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium ramulus
+39491	0	3642	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Agathobacter; Agathobacter rectalis
+39496	0	40	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium ventriosum
+40520	0	60	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia obeum
+46503	0	595	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Tannerellaceae; Parabacteroides; Parabacteroides merdae
+46506	0	49	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides stercoris
+47678	0	31	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides caccae
+53442	0	11	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium callanderi
+74426	0	110	Bacteria; Actinomycetota; Coriobacteriia; Coriobacteriales; Coriobacteriaceae; Collinsella; Collinsella aerofaciens
+76857	49	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium polymorphum
+76859	5331	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium animalis
+88431	0	203	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Dorea; Dorea longicatena
+89014	0	25	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia luti
+154288	0	54	Bacteria; Bacillota; Erysipelotrichia; Erysipelotrichales; Turicibacteraceae; Turicibacter; Turicibacter sanguinis
+155615	122	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium vincentii
+165179	0	1652	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Prevotellaceae; Segatella; Segatella copri
+166486	0	192	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia intestinalis
+214851	0	18	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Subdoligranulum; Subdoligranulum variabile
+214856	0	285	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes finegoldii
+216816	0	111	Bacteria; Actinomycetota; Actinomycetes; Bifidobacteriales; Bifidobacteriaceae; Bifidobacterium; Bifidobacterium longum
+239935	2262	0	Bacteria; Verrucomicrobiota; Verrucomicrobiia; Verrucomicrobiales; Akkermansiaceae; Akkermansia; Akkermansia muciniphila
+246787	0	754	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides cellulosilyticus
+261299	0	206	Bacteria; Bacillota; Clostridia; Peptostreptococcales; Peptostreptococcaceae; Intestinibacter; Intestinibacter bartlettii
+291644	0	12	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides salyersiae
+292800	0	31	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Flavonifractor; Flavonifractor plautii
+301301	3607	85	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia hominis
+301302	0	94	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia faecis
+328813	0	524	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes onderdonkii
+328814	0	1115	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes shahii
+330061	0	20	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Subdoligranulum; Subdoligranulum sp. DSM 23681
 357276	0	13563	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Phocaeicola; Phocaeicola dorei
-821	0	1020	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Phocaeicola; Phocaeicola vulgatus
+371601	0	915	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides xylanisolvens
 376805	0	25	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Phocaeicola; Phocaeicola salanitronis
 387090	0	22	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Phocaeicola; Phocaeicola coprophilus
-820	0	7305	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides uniformis
-818	0	603	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides thetaiotaomicron
-246787	0	754	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides cellulosilyticus
-371601	0	915	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides xylanisolvens
-2763023	0	362	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides hominis
-674529	0	101	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides faecis
-2528203	0	212	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides sp. A1C1
-46506	0	49	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides stercoris
-28116	0	148	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides ovatus
-47678	0	31	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides caccae
-2650158	0	22	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides luhongzhouii
-2763025	0	128	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides parvus
-291644	0	12	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides salyersiae
-28111	0	13	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides eggerthii
-28117	0	4796	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes putredinis
-538949	0	888	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; uncultured Alistipes sp.
-328814	0	1115	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes shahii
-2585118	0	665	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes communis
-328813	0	524	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes onderdonkii
-214856	0	285	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes finegoldii
-2585119	0	97	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes dispar
-1288121	0	29	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes senegalensis
-3132707	0	21	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes sp. i18-0019-D1
-823	0	1260	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Tannerellaceae; Parabacteroides; Parabacteroides distasonis
-46503	0	595	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Tannerellaceae; Parabacteroides; Parabacteroides merdae
-165179	0	1652	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Prevotellaceae; Segatella; Segatella copri
-487174	0	1563	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Barnesiella; Barnesiella intestinihominis
-1965590	0	17	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Barnesiella; Barnesiella sp. An22
-1501392	0	38	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Coprobacter; Coprobacter secundus
-28118	0	1088	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Odoribacter; Odoribacter splanchnicus
-1472417	0	209	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas paravirosa
-544645	0	86	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas virosa
-2093856	0	34	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas faecalis
-1472416	0	14	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas faecihominis
-2584944	0	327	Bacteria; Pseudomonadota; Betaproteobacteria; Burkholderiales; Sutterellaceae; Sutterella; Sutterella faecalis
-729	0	33	Bacteria; Pseudomonadota; Gammaproteobacteria; Pasteurellales; Pasteurellaceae; Haemophilus; Haemophilus parainfluenzae
-2929494	0	174	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I4-1-79
-2929495	0	161	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I4-3-84
-3567997	0	66	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. PGM34
-2929493	0	47	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I3-3-89
-2929492	0	57	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I3-3-33
-2929489	0	77	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. IP-3-29
-3402017	0	60	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. 7
-2929488	0	170	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. IP-1-18
-3030638	0	295	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium taiwanense
+410072	0	126	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Allocoprococcus; Allocoprococcus comes
 411483	0	170	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium duncaniae
-2929491	0	47	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium wellingii
+411486	0	70	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; Clostridium sp. M62/1
+418240	0	232	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia wexlerae
+423477	16320	0	Bacteria; Bacillota; Negativicutes; Veillonellales; Veillonellaceae; Veillonella; Veillonella rogosae
+487174	0	1563	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Barnesiella; Barnesiella intestinihominis
+538949	0	888	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; uncultured Alistipes sp.
+544645	0	86	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas virosa
+592978	0	123	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter faecis
+649756	0	29	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Anaerostipes; Anaerostipes hadrus
+674529	0	101	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides faecis
+871665	0	96	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia faecis
+1115758	0	27	Bacteria; Bacillota; Clostridia; Peptostreptococcales; Peptostreptococcaceae; Romboutsia; Romboutsia ilealis
 1160721	0	918	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Ruminococcus; Ruminococcus bicirculans (ex Wegman et al. 2014)
 1161942	0	13	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Ruminococcus; Ruminococcus champanellensis
-2714355	0	113	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Vescimonas; Vescimonas coprocola
-2714353	0	95	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Vescimonas; Vescimonas fastidiosa
-2108523	0	157	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Lawsonibacter; Lawsonibacter asaccharolyticus
-2093857	0	425	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Dysosmobacter; Dysosmobacter welbionis
-3465159	0	13	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Dysosmobacter; Dysosmobacter sp. Phy
-2885357	0	129	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Hominenteromicrobium; Hominenteromicrobium mulieris
-330061	0	20	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Subdoligranulum; Subdoligranulum sp. DSM 23681
-214851	0	18	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Subdoligranulum; Subdoligranulum variabile
-1550024	0	33	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Ruthenibacterium; Ruthenibacterium lactatiformans
-292800	0	31	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Flavonifractor; Flavonifractor plautii
-2714358	0	22	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Pusillibacter; Pusillibacter faecalis
-2763056	0	13	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Oscillibacter; Oscillibacter hominis
-411486	0	70	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; Clostridium sp. M62/1
-3438650	0	36	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; Clostridium sp. ETTB3
-1522	0	58	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; [Clostridium] innocuum
-3480012	0	48	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Pilosibacter; Pilosibacter sp. NGB245
-3378803	0	43	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Pilosibacter; Pilosibacter rotomagensis
-39490	0	44	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium ramulus
-39496	0	40	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium ventriosum
-53442	0	11	Bacteria; Bacillota; Clostridia; Eubacteriales; Eubacteriaceae; Eubacterium; Eubacterium callanderi
-2841509	0	23	Bacteria; Bacillota; Clostridia; Eubacteriales; Butyricicoccaceae; Butyricicoccus; Butyricicoccus intestinisimiae
+1288121	0	29	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes senegalensis
 1297617	0	21	Bacteria; Bacillota; Clostridia; Eubacteriales; ; Intestinimonas; Intestinimonas butyriciproducens
-39491	0	3642	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Agathobacter; Agathobacter rectalis
-166486	0	192	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia intestinalis
-301302	0	94	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Roseburia; Roseburia faecis
-418240	0	232	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia wexlerae
-871665	0	96	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia faecis
-40520	0	60	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia obeum
-89014	0	25	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Blautia; Blautia luti
-33039	0	155	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter torques
-592978	0	123	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter faecis
-33038	0	62	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Mediterraneibacter; Mediterraneibacter gnavus
-88431	0	203	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Dorea; Dorea longicatena
-39486	0	46	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Dorea; Dorea formicigenerans
+1472416	0	14	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas faecihominis
+1472417	0	209	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas paravirosa
+1501392	0	38	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Coprobacter; Coprobacter secundus
+1550024	0	33	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Ruthenibacterium; Ruthenibacterium lactatiformans
+1852365	24	0	Bacteria; Fusobacteriota; Fusobacteriia; Fusobacteriales; Fusobacteriaceae; Fusobacterium; Fusobacterium massiliense
+1965590	0	17	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Barnesiellaceae; Barnesiella; Barnesiella sp. An22
+2093856	0	34	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Odoribacteraceae; Butyricimonas; Butyricimonas faecalis
+2093857	0	425	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Dysosmobacter; Dysosmobacter welbionis
+2108523	0	157	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Lawsonibacter; Lawsonibacter asaccharolyticus
+2528203	0	212	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides sp. A1C1
+2584944	0	327	Bacteria; Pseudomonadota; Betaproteobacteria; Burkholderiales; Sutterellaceae; Sutterella; Sutterella faecalis
+2585118	0	665	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes communis
+2585119	0	97	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes dispar
+2650158	0	22	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides luhongzhouii
+2714353	0	95	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Vescimonas; Vescimonas fastidiosa
+2714355	0	113	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Vescimonas; Vescimonas coprocola
+2714358	0	22	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Pusillibacter; Pusillibacter faecalis
+2763023	0	362	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides hominis
+2763025	0	128	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Bacteroidaceae; Bacteroides; Bacteroides parvus
+2763056	0	13	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Oscillibacter; Oscillibacter hominis
 2763672	0	145	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Simiaoa; Simiaoa sunii
-39485	0	109	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Lachnospira; Lachnospira eligens
-410072	0	126	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Allocoprococcus; Allocoprococcus comes
-39488	0	43	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Anaerobutyricum; Anaerobutyricum hallii
-649756	0	29	Bacteria; Bacillota; Clostridia; Lachnospirales; Lachnospiraceae; Anaerostipes; Anaerostipes hadrus
-261299	0	206	Bacteria; Bacillota; Clostridia; Peptostreptococcales; Peptostreptococcaceae; Intestinibacter; Intestinibacter bartlettii
-1115758	0	27	Bacteria; Bacillota; Clostridia; Peptostreptococcales; Peptostreptococcaceae; Romboutsia; Romboutsia ilealis
-154288	0	54	Bacteria; Bacillota; Erysipelotrichia; Erysipelotrichales; Turicibacteraceae; Turicibacter; Turicibacter sanguinis
-1547	0	14	Bacteria; Bacillota; Erysipelotrichia; Erysipelotrichales; Coprobacillaceae; Thomasclavelia; Thomasclavelia ramosa
-29466	0	21	Bacteria; Bacillota; Negativicutes; Veillonellales; Veillonellaceae; Veillonella; Veillonella parvula
-216816	0	111	Bacteria; Actinomycetota; Actinomycetes; Bifidobacteriales; Bifidobacteriaceae; Bifidobacterium; Bifidobacterium longum
-1681	0	39	Bacteria; Actinomycetota; Actinomycetes; Bifidobacteriales; Bifidobacteriaceae; Bifidobacterium; Bifidobacterium bifidum
-74426	0	110	Bacteria; Actinomycetota; Coriobacteriia; Coriobacteriales; Coriobacteriaceae; Collinsella; Collinsella aerofaciens
-9606	0	197	Eukaryota; Chordata; Mammalia; Primates; Hominidae; Homo; Homo sapiens
-2956060	0	456	; Uroviricota; Caudoviricetes; Crassvirales; Crevaviridae; Kingevirus; Kingevirus communis
-2956034	0	17	; Uroviricota; Caudoviricetes; Crassvirales; Crevaviridae; Arseivirus; Arseivirus communis
-2955510	0	155	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Sulruvirus; Sulruvirus americanus
-2955511	0	106	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Blohavirus; Blohavirus faecalis
+2841509	0	23	Bacteria; Bacillota; Clostridia; Eubacteriales; Butyricicoccaceae; Butyricicoccus; Butyricicoccus intestinisimiae
+2885357	0	129	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Hominenteromicrobium; Hominenteromicrobium mulieris
+2929488	0	170	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. IP-1-18
+2929489	0	77	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. IP-3-29
+2929491	0	47	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium wellingii
+2929492	0	57	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I3-3-33
+2929493	0	47	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I3-3-89
+2929494	0	174	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I4-1-79
+2929495	0	161	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. I4-3-84
 2955498	0	24	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Birpovirus; Birpovirus hiberniae
 2955499	0	19	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Ibumevirus; Ibumevirus hominis
+2955510	0	155	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Sulruvirus; Sulruvirus americanus
+2955511	0	106	; Uroviricota; Caudoviricetes; Crassvirales; Suoliviridae; Blohavirus; Blohavirus faecalis
 2955735	0	51	; Uroviricota; Caudoviricetes; Crassvirales; Intestiviridae; Dabirmavirus; Dabirmavirus hominis
+2956034	0	17	; Uroviricota; Caudoviricetes; Crassvirales; Crevaviridae; Arseivirus; Arseivirus communis
+2956060	0	456	; Uroviricota; Caudoviricetes; Crassvirales; Crevaviridae; Kingevirus; Kingevirus communis
+3030638	0	295	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium taiwanense
+3132707	0	21	Bacteria; Bacteroidota; Bacteroidia; Bacteroidales; Rikenellaceae; Alistipes; Alistipes sp. i18-0019-D1
+3378803	0	43	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Pilosibacter; Pilosibacter rotomagensis
+3402017	0	60	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. 7
+3438650	0	36	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Clostridium; Clostridium sp. ETTB3
+3465159	0	13	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Dysosmobacter; Dysosmobacter sp. Phy
+3480012	0	48	Bacteria; Bacillota; Clostridia; Eubacteriales; Clostridiaceae; Pilosibacter; Pilosibacter sp. NGB245
+3567997	0	66	Bacteria; Bacillota; Clostridia; Eubacteriales; Oscillospiraceae; Faecalibacterium; Faecalibacterium sp. PGM34

@@ -1160,6 +1160,33 @@ changed only that process's line in `containers.config`. In the test bed, `check
 in it. ampliseq's reference tables come from the next selftest, since its ties now break
 one fixed way.
 
+**The fifth selftest,** `d7c3226k` at `63033df`, found 13 of the 15 jobs identical. All six
+of ampliseq's were, `v5v6` among them: with its ties broken one fixed way, it named no
+species for the *Gordonia* ASV, as the reference does, so ampliseq's reference tables stay.
+biobakery's `human` had no HUMAnN difference. Two tables differed only in their order:
+
+- **biobakery's `virus`:** one `assembly_list` cell in `esviritu/virus-taxa.tsv` named its
+  two assemblies the other way round. EsViritu 1.3.3 builds that list with Polars'
+  `unique()`, which keeps no order. `ESVIRITU_SUMMARY` now sorts each cell's list. Its
+  script, rendered by Nextflow and run in EsViritu's image, turned this run's table into
+  the reference's, which was in sorted order already, and sorted a list of three and left an
+  empty cell as it was.
+- **taxprofiler's `mixed`:** `count_tables/bracken-reads.tsv` and
+  `feature_table/feature-table.tsv` had the same rows in another order. They took their
+  rows in taxpasta's order, and taxpasta merges its samples in the order their tasks ended,
+  so a job of two samples could come out either way. `steps/R/taxprofiler_tables.R` now
+  sorts both by taxon id, the count table's species first and its `u` rows above species
+  after. In the `gnoto-rbiom` image, run on each reference job's taxpasta profile, it wrote
+  each job's count table as the reference's, sorted, byte for byte, and its feature table's
+  rows in the same order, and it gave this run's `mixed` the same tables. The reference
+  count and feature tables of all five taxprofiler jobs were sorted to match.
+
+The report had called both differences "0 rows only in one, 0 text cells differing, no
+number different". A table whose rows and values all match but whose bytes don't is now
+"the same rows and values, in another order or written differently", in the selftest
+report and in `gnoto status`. `outputs-test.sh`, 45 checks, and `runs-test.sh`, 75, pass
+in the test bed.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs
