@@ -10,7 +10,8 @@
 #              lib/versions.sh; lint_ok, lint_warn, lint_fail and nodes_prescan
 #              from lib/lint.sh; databases_check and databases_offer from
 #              lib/databases.sh; live_status and short_version from
-#              lib/runs.sh, for resume
+#              lib/runs.sh, for resume; the Wrike helpers in service/wrike/,
+#              which lib/env.sh loads
 #
 # Usage:  gnoto run [--debug] [--dev] [--yes] job.yaml
 #         gnoto run [--debug] [--yes] --inputs=<dir> record.yaml
@@ -38,6 +39,12 @@
 # duplicate submission, and it must stay. The job file, the samplesheet with
 # every path made absolute, the run's state and the first record.yaml go in
 # before anything is submitted.
+#
+# With Wrike, the uid comes from the run's task: gnoto wrike sets JOB_UID and
+# JOB_TASK for a form request, and a job from the command line gets its task
+# here, in Running, before its directory is made, and is refused when Wrike
+# can't be reached. With S3, the progress page goes to the results address as
+# soon as the job is submitted.
 #
 # With Slurm, the head job runs as the caller, with --no-requeue, because Slurm
 # would otherwise restart it from the top after a node failure, over a run
@@ -117,7 +124,7 @@ run_job() {
 # whether to keep the whole run directory, and a Slurm dependency on database
 # fetches, if any.
 start_run() {
-    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_file=$JOB_FILE kept
+    local debug=$1 fetch_after=$2 uid run_dir tries nextflow_config="" nextflow_sha="" job_file=$JOB_FILE kept task=""
 
     # gnoto start's job file is temporary, so the state names none
     [[ -z ${START_JOB_FILE:-} ]] || job_file=""
@@ -127,19 +134,47 @@ start_run() {
 
     mkdir -p "$DATA_DIR/runs" || fail "Can't create $DATA_DIR/runs."
     chmod g+s "$DATA_DIR/runs" 2> /dev/null || :
-    for (( tries = 0; tries < 5; tries++ )); do
-        uid=$(new_uid)
-        is_valid_uid "$uid" || continue
+    if [[ -n ${JOB_UID:-} ]]; then
+        # A request from Wrike, whose uid comes from its task. The mkdir is what
+        # stops two calls racing for one task from both submitting it.
+        uid=$JOB_UID
+        task=$JOB_TASK
         run_dir=$DATA_DIR/runs/$uid
-        [[ ! -e $DATA_DIR/history/$uid ]] || continue
-        mkdir "$run_dir" 2> /dev/null && break
-        run_dir=""
-    done
-    [[ -n $run_dir ]] || fail "Can't create a run directory in $DATA_DIR/runs."
+        if [[ -e $DATA_DIR/history/$uid ]] || ! mkdir "$run_dir" 2> /dev/null; then
+            echo "Task $task is already run $uid, so it wasn't submitted again."
+            exit 0
+        fi
+    elif wrike_on && [[ -z ${SELFTEST_ID:-} ]]; then
+        # Every job gets a Wrike task, and its uid comes from the task
+        [[ -n ${RUN_ID_SALT:-} ]] || fail "Not started: Wrike is on, but there's no RUN_ID_SALT yet. Run: $(gnoto_command config wrike)"
+        task=$(wrike_cli_task "$(jq -r '.title // ""' <<< "$JOB_TOP")" "$JOB_PIPELINE" "$(id -un)") || exit 1
+        uid=$(derive_uid "$task") || fail "Not started: there's no uid for Wrike task $task."
+        run_dir=$DATA_DIR/runs/$uid
+        if [[ -e $DATA_DIR/history/$uid ]] || ! mkdir "$run_dir" 2> /dev/null; then
+            wrike_submit_failed "$task" "its run directory, $run_dir, is already taken."
+            fail "Not started: Wrike task $task's run directory, $run_dir, is already taken."
+        fi
+    else
+        for (( tries = 0; tries < 5; tries++ )); do
+            uid=$(new_uid)
+            is_valid_uid "$uid" || continue
+            run_dir=$DATA_DIR/runs/$uid
+            [[ ! -e $DATA_DIR/history/$uid ]] || continue
+            mkdir "$run_dir" 2> /dev/null && break
+            run_dir=""
+        done
+        [[ -n $run_dir ]] || fail "Can't create a run directory in $DATA_DIR/runs."
+    fi
     chmod g+s "$run_dir" 2> /dev/null || :
     cd "$run_dir" || fail "Can't enter $run_dir."
 
     cp "$JOB_FILE" job.yaml || fail "Can't copy $JOB_FILE into $run_dir."
+    # A form request's samplesheet came with its task, and job.yaml names it
+    # beside itself
+    if [[ -n ${JOB_SAMPLESHEET_COPY:-} ]]; then
+        cp "$JOB_SAMPLESHEET" samplesheet.tsv || fail "Can't copy the samplesheet into $run_dir."
+        JOB_SAMPLESHEET=$run_dir/samplesheet.tsv
+    fi
     printf '%s' "$JOB_SAMPLES_TEXT" > original_samplesheet.tsv ||
         fail "Can't write the samplesheet into $run_dir."
 
@@ -174,6 +209,7 @@ start_run() {
         --argjson runs "$JOB_RECORDED_RUNS" \
         --argjson recorded_databases "$JOB_RECORDED_DATABASES" \
         --argjson recorded_outputs "$JOB_RECORDED_OUTPUTS" \
+        --arg task "$task" --argjson form "$([[ -n ${JOB_UID:-} ]] && echo true || echo false)" \
         --arg selftest "${SELFTEST_ID:-}" '
         {pipeline: $pipeline, version: $version, commit: $commit, repository: $repository,
          dev: $dev, title: $top.title, retention: ($top.retention // "3 Months"),
@@ -183,6 +219,8 @@ start_run() {
         + (if $exact then {exact: true, expected_inputs: $expected, recorded_runs: $runs,
             recorded_databases: $recorded_databases, recorded_outputs: $recorded_outputs} else {} end)
         + (if $selftest != "" then {selftest: $selftest} else {} end)
+        + (if $task != "" then {wrike: {task_id: $task}} else {} end)
+        + (if $form then {form: true} else {} end)
         + (if $nextflow_config != "" then {nextflow_config: $nextflow_config,
             nextflow_config_sha256: $nextflow_sha} else {} end)')" ||
         fail "Can't write the run's state in $run_dir."
@@ -199,7 +237,16 @@ start_run() {
     exec 8>&-
 
     submit_run "$run_dir" "$fetch_after"
+    if [[ -n $task ]]; then
+        wrike_set_status "$task" Running
+        wrike_submitted "$task"
+    fi
+    # With S3, the results address shows the run from now on
+    if s3_on && [[ -z ${SELFTEST_ID:-} ]]; then
+        bash "$CODE_DIR/present/progress.sh" > /dev/null 2>&1 || :
+    fi
     echo "Started $uid, $JOB_PIPELINE, in $run_dir"
+    [[ -z $task ]] || echo "Its Wrike task is $task."
     [[ -z $fetch_after ]] || echo "It waits for the database fetches to finish."
     [[ $debug == false ]] || echo "With --debug, the whole run directory stays for ${KEEP_RUN_DAYS:-14} days."
     echo "Follow it with: $(gnoto_command status "$uid")"
@@ -236,9 +283,13 @@ submit_run() {
     chmod -R g+rwX "$run_dir" 2> /dev/null || :
 }
 
-# A submission that failed leaves a failed run, so status shows why
+# A submission that failed leaves a failed run, so status shows why, and its
+# Wrike task says so too
 start_failed() {
+    local task
     set_run_status Failed
+    task=$(state_get wrike.task_id)
+    [[ -z $task ]] || ! wrike_on || wrike_submit_failed "$task" "$1"
     fail "$1"
 }
 
@@ -303,7 +354,7 @@ resume_inputs() {
 
 # gnoto resume [uid]
 resume_main() {
-    local usage="Usage: gnoto resume [uid]" uid dir why fetch_after
+    local usage="Usage: gnoto resume [uid]" uid dir why fetch_after task
 
     args_parse "$usage" "" "$@"
     [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_WORDS[@]} -le 1 ]] || fail "$usage"
@@ -349,6 +400,11 @@ resume_main() {
     exec 8>&-
 
     submit_run "$dir" "$fetch_after"
+    task=$(state_get wrike.task_id)
+    if [[ -n $task ]] && wrike_on; then
+        wrike_set_status "$task" Running
+        wrike_comment "$task" "Resumed by $(id -un), where it stopped. The tasks that finished come from its cache."
+    fi
     echo "Resumed $uid, $(state_get version), in $dir. The tasks that finished come from its cache."
     echo "Follow it with: $(gnoto_command status "$uid")"
 }

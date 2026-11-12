@@ -259,6 +259,11 @@ OUT=$(run_launcher STUB_HANDOVER="../../etc\nresolved\n" dash "$DIR/gnoto" exec 
 check "a hand-over that isn't a commit is refused" "gnoto: a bad hand-over: ../../etc" "$(tail -1 <<< "$OUT")"
 OUT=$(run_launcher STUB_HANDOVER="$OTHER\nanything\n" dash "$DIR/gnoto" exec --dev true)
 check "and one that says something else" "gnoto: a bad hand-over: anything" "$(tail -1 <<< "$OUT")"
+OUT=$(run_launcher STUB_HANDOVER="$OTHER\ntask\nMAAAAAEtask1\n" dash "$DIR/gnoto" exec --dev true)
+check "gnoto wrike's scan hands one task to its version" "version $OTHER: wrike MAAAAAEtask1, install $DIR, resolved " \
+    "$(tail -1 <<< "$OUT")"
+OUT=$(run_launcher STUB_HANDOVER="$OTHER\ntask\nbad;id\n" dash "$DIR/gnoto" exec --dev true)
+check "a task that isn't Wrike's ID is refused" "gnoto: a bad hand-over: task bad;id" "$(tail -1 <<< "$OUT")"
 
 # A cached version's own launcher, handed a command: its code is its own
 # directory, its settings the install's

@@ -1,0 +1,31 @@
+# iam.yaml - gnoto's IAM user, which its S3 and SQS stacks attach their
+# policies to.
+#
+# Deployed by:  gnoto config s3 --deploy or gnoto config sqs --deploy,
+#               whichever runs first, as the stack gnoto-iam. config then makes
+#               the user's access key, once, and prints it for config.yaml.
+#
+# The user holds no permissions itself. Each of the other stacks adds its own,
+# so the keys reach only what's set up, and removing a stack removes its
+# permissions.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: gnoto's IAM user, which the gnoto-s3 and gnoto-sqs stacks give permissions
+
+Resources:
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      Path: /gnoto/
+      Tags:
+        - Key: app
+          Value: gnoto
+
+Outputs:
+  UserName:
+    Description: gnoto's IAM user, whose keys go in config.yaml's aws section
+    Value: !Ref User
+    Export:
+      Name: !Sub "${AWS::StackName}-UserName"
+  UserArn:
+    Value: !GetAtt User.Arn

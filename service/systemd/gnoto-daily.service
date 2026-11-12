@@ -1,0 +1,18 @@
+# gnoto-daily.service - gnoto's daily check: replays Wrike changes that failed,
+# removes the results whose date has come, runs lint for gnoto status, and
+# rotates the logs. Started by gnoto-daily.timer.
+#
+# Installed by gnoto config systemd, which fills in __LAUNCHER__, __PATH__ and
+# __SLURM_CONF__, since a user unit doesn't read the login shell.
+
+[Unit]
+Description=gnoto's daily check: expiry, Wrike replays, lint and log rotation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=__LAUNCHER__ _daily
+Environment=PATH=__PATH__
+__SLURM_CONF__
+SyslogIdentifier=gnoto-daily

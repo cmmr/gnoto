@@ -14,6 +14,8 @@
 #                                 repository's main, and print the commit
 #            testbed.sh install [dir]   commit this working tree, clone it to
 #                                 /opt/gnoto, or dir, and make it current there
+#            testbed.sh services [up|down]   start or remove the integrations'
+#                                 stand-ins: a Wrike stub, s3mock and ElasticMQ
 #            testbed.sh down      remove the container, keeping its data volume
 #            testbed.sh purge     remove the container and its volumes
 # Requires:  docker, git and bash. Works from Git Bash on Windows.
@@ -35,6 +37,10 @@ TESTBED=gnoto-testbed
 NIX=gnoto-nix
 NIX_IMAGE=nixos/nix:2.35.4@sha256:f159a58f390677f41e8e900a74b6e2f9c7f27b364122ae6acf7a652ce6c551c0
 TEST_REPO=/tmp/gnoto.git
+SERVICES_NET=gnoto-services
+STUB_IMAGE=python:3.14-slim@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+S3_IMAGE=adobe/s3mock:5.2.3@sha256:ab01a6946750f451ca215a47e91030695b260e4003b8a5a6201d25029b8fca92
+QUEUE_IMAGE=softwaremill/elasticmq-native:1.7.1@sha256:e4580ab9ad1bd5cd37b4ba04911bc5ccc8cd2d9ab4de56ece65acee71c24e05c
 
 running() {
     [[ $(docker inspect --format '{{.State.Running}}' "$1" 2> /dev/null) == true ]]
@@ -217,8 +223,46 @@ install() {
     echo "Installed $REPO to $dest in $TESTBED, at the test bed's commit $head, now current there"
 }
 
+
+# The stand-ins for the integrations, on a network the test bed joins:
+# wrike-stub, test/wrike/stub.py, for Wrike's API; s3mock, for S3, which serves
+# its buckets to anyone at http://s3mock:9090/<bucket>/; and elasticmq, for SQS
+services() {
+    case ${1:-up} in
+        up)
+            docker network inspect "$SERVICES_NET" > /dev/null 2>&1 || docker network create "$SERVICES_NET" > /dev/null
+            docker network connect "$SERVICES_NET" "$TESTBED" 2> /dev/null || :
+            if ! running gnoto-wrike-stub; then
+                docker rm -f gnoto-wrike-stub > /dev/null 2>&1 || :
+                docker create --name gnoto-wrike-stub --network "$SERVICES_NET" --network-alias wrike-stub \
+                    "$STUB_IMAGE" python3 /stub.py > /dev/null
+                tar -c -C "$REPO/test/wrike" stub.py | docker cp - gnoto-wrike-stub:/
+                docker start gnoto-wrike-stub > /dev/null
+            fi
+            if ! running gnoto-s3mock; then
+                docker rm -f gnoto-s3mock > /dev/null 2>&1 || :
+                docker run -d --name gnoto-s3mock --network "$SERVICES_NET" --network-alias s3mock \
+                    -e COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=gnoto-results "$S3_IMAGE" > /dev/null
+            fi
+            if ! running gnoto-elasticmq; then
+                docker rm -f gnoto-elasticmq > /dev/null 2>&1 || :
+                docker run -d --name gnoto-elasticmq --network "$SERVICES_NET" --network-alias elasticmq \
+                    "$QUEUE_IMAGE" > /dev/null
+            fi
+            echo "Wrike at http://wrike-stub:8080/api/v4 (token stub-token), S3 at http://s3mock:9090, SQS at http://elasticmq:9324"
+            ;;
+        down)
+            docker rm -f gnoto-wrike-stub gnoto-s3mock gnoto-elasticmq > /dev/null 2>&1 || :
+            docker network disconnect "$SERVICES_NET" "$TESTBED" > /dev/null 2>&1 || :
+            docker network rm "$SERVICES_NET" > /dev/null 2>&1 || :
+            ;;
+        *) echo "Usage: testbed.sh services [up|down]" >&2; exit 1 ;;
+    esac
+}
+
 down() {
-    docker rm -f "$TESTBED" > /dev/null 2>&1 || :
+    services down
+    docker rm -f "$TESTBED" > /dev/null 2>    docker rm -f "$TESTBED" > /dev/null 2>&1 || :1 || :
 }
 
 purge() {
@@ -228,9 +272,9 @@ purge() {
 }
 
 case ${1:-} in
-    up | image | repo | commit | install | down | purge) "$@" ;;
+    up | image | repo | commit | install | services | down | purge) "$@" ;;
     *)
-        sed -n '5,18p' "$0" >&2
+        sed -n '5,20p' "$0" >&2
         exit 1
         ;;
 esac

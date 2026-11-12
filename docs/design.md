@@ -1,9 +1,10 @@
 # gnoto design
 
-Status on 2026-11-09: the design is agreed. Phase 1, the image and the helper, is built and
-tested in a local Slurm test bed and on CMMR's cluster. Phases 2 to 5, the restructure, the
-job core, the version cache and the lock files, are tested there too, and phase 6,
-determinism, is built and tested in the test bed. This file describes the target.
+Status on 2026-11-12: the design is agreed. Phases 1 to 6, the image and the helper, the
+restructure, the job core, the version cache, the lock files and determinism, are built and
+tested in a local Slurm test bed and on CMMR's cluster. Phase 7, the integrations, is built
+and tested in the test bed against stand-ins for Wrike, S3 and SQS. This file describes the
+target.
 [migration.md](migration.md) says how to get there from the old repo, and
 [decisions.md](decisions.md) records why things are the way they are.
 
@@ -96,11 +97,14 @@ pipelines/lock.sh     writes containers.config and lock files' databases, and ch
 workflows/, modules/  Nextflow code
 steps/                compute steps: samplesheets, region detection, tables, reference builds
 present/              dashboard templates and rendering
-service/wrike/        listener, handlers, API helpers
-service/aws/          CloudFormation stacks (IAM user, S3, SQS), Lambda, CloudFront function
-service/systemd/      unit templates
-service/publish.sh    publish step: S3 upload and the Globus copy
-service/expire.sh     daily expiry check, and the teardown remove shares
+service/wrike/        API helpers, tasks, gnoto wrike, the listener, config wrike
+service/aws/          CloudFormation stacks (IAM user, S3, SQS), Lambda, CloudFront function,
+                      IAM policies for a site's own setup, S3 and SQS helpers, config s3 and sqs
+service/systemd/      unit templates and config systemd
+service/globus.sh     config globus and its checks
+service/publish.sh    publish step: S3 upload, the Globus copy, the progress page on S3
+service/expire.sh     daily expiry check, extend, and the teardown remove shares
+service/daily.sh      what the units run: the daily timer, the poll scan, heartbeats
 images/               recipes for the images gnoto builds; publish.sh, which publishes them
                       and the copies mirrors.txt lists to GHCR
 test/                 helper tests with stub commands, and the Slurm and Apptainer test bed
@@ -238,7 +242,9 @@ rather than a rewrite:
   exited, the launcher starts it with `setsid nohup` as another run of itself, which only
   ever runs a gnoto job. The job and its followup run one after the other in that one
   process, and `status` checks it by host and process ID. Its tasks run under Nextflow's local executor,
-  capped at the machine's CPUs and memory.
+  capped at the machine's CPUs and memory. A job one of gnoto's systemd units starts, from
+  a request, goes in a scope of its own through `systemd-run --user --scope`, because
+  systemd stops every process in a unit's cgroup when the unit ends.
 
 Some parts already assume neither: images are OCI, `status` reads state files, and
 cancelling uses a cancel file.
@@ -336,7 +342,12 @@ slurm      Run jobs on a Slurm cluster, rather than on this machine
 wrike      Take job requests from a Wrike form, and report each job's progress there
 aws        Publish results through S3 and CloudFront, and take Wrike's webhook through SQS
 globus     Deliver results through a Globus guest collection
+s3         Check the S3 bucket and results address, or with --deploy, build them
+sqs        Check the SQS queue for Wrike's webhook, or with --deploy, build it
+systemd    Install the units that expire results, scan Wrike and listen to SQS
 ```
+
+The last three are steps with no section of their own, as "Configuring integrations" says.
 
 `gnoto config <section>` asks for each of the section's settings, suggesting what its
 declaration finds, or else the current value. Given settings as arguments, as in
@@ -436,7 +447,9 @@ that version's launcher once the image exits, as "Versions and the code cache" s
 | `gnoto lint` | Checks `config.yaml` and every configured integration | Only temporary test files. As the first command, it also pulls the image and records the current release |
 | `gnoto lint [--deep] [--dev] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--dev` checks it with the install's own files. `--yes` accepts a database download | Only if you accept a database download |
 | `gnoto lint [--yes] --inputs=<dir> record.yaml` | Checks a record for an exact re-run, finding its inputs under `<dir>` | Only if you accept a database download |
-| `gnoto config [<section> [--on\|--off] [--<key>=<value> ...]] [--deploy] [--profile=<name>] [--move] [--dry-run]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat. `--deploy` builds the AWS pieces as CloudFormation stacks, using the admin `--profile`. `--move` moves the systemd units to this host. `--dry-run` stops after the plan | Yes, after showing the plan |
+| `gnoto config [<section> [--on\|--off] [--<key>=<value> ...] [--dry-run] [--yes]]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat, after showing its plan and asking. `--dry-run` stops after the plan, and `--yes` answers for a script; either alone, for a section that's there, runs only its step | Yes, after showing the plan |
+| `gnoto config s3\|sqs [--deploy [--profile=<name>]] [--dry-run] [--yes]` | Checks the bucket and results address, or the queue. `--deploy` builds them as CloudFormation stacks, using the admin `--profile`. `config s3 --deploy` takes `--domain` and `--certificate` for a custom domain | Only with `--deploy`, after showing the plan |
+| `gnoto config systemd [--move] [--dry-run] [--yes]` | Installs gnoto's units as user units of this account, with linger. `--move` moves them to this host or account | Yes, after showing the plan |
 | `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
 | `gnoto status [--all] [uid]` | Reports integration health, and running and recent jobs, leaving out those whose results were removed unless given `--all`. Given a uid, shows that run in detail | No |
 | `gnoto new ampliseq[@ref] [--dev] [--<key>=<value> ...]` | Prints a job file, with any values given, for redirecting to a file | No |
@@ -508,8 +521,12 @@ whose settings are only partly filled in is a FAIL that says what to add.
 - **S3:** identity, bucket access under the run prefix, and that `results_base_url`
   serves a test file uploaded there, including a directory page.
 - **SQS:** identity, queue access, and how many messages are waiting.
-- **Globus:** the URL answers, the client credentials work, and the anonymous read
-  permission exists.
+- **Globus:** the collection serves a file written into the run folder to anyone, the
+  client credentials work, and the anonymous read permission exists.
+- **systemd:** where the units are and whether they're running, and a unit whose
+  template this version changed, as after an upgrade. Without the daily timer, a
+  job's `lint` warns that its results won't expire.
+- **Form requests:** with Wrike on, `core.input_roots` is set.
 
 **`status`.** A health block comes first, then the jobs. The health block runs no
 checks itself: the daily timer runs `lint` and writes the results to a health file in
@@ -663,7 +680,8 @@ code cache". Teardown reports anything it couldn't delete.
 
 **CLI jobs get a Wrike task when Wrike is configured.** `run` or `start` creates the task in
 "gnoto Jobs" before submitting. Its title comes from the job's `title`, its
-description names the caller, and `job.yaml` is attached.
+description names the caller, and `job.yaml` is attached. With S3, its Results field holds
+the run's address from submission, where the progress page follows the run.
 
 - **Same behavior as a form request:** the uid comes from the task ID, so status
   updates, the results comment, expiry and deleting the task all work the same way.
@@ -761,6 +779,8 @@ With Wrike, the task's Expiration date field mirrors the file, and Wrike's date 
   update, which covers polling mode and any webhook that didn't arrive.
 - **The daily check** copies every date in "gnoto Jobs" into its file before acting. That
   catches changes no webhook reported, such as Wrike's mass edits, which send none.
+- **While gnoto's own write of a date waits to be replayed,** after Wrike couldn't take it,
+  the expiry file is the newer, so no copy touches that run's file until the write lands.
 - **Deleting a task** runs `remove`.
 
 `Unlimited` writes no expiry file. `gnoto extend <uid> <YYYY-MM-DD|never>` writes the file
@@ -1029,9 +1049,13 @@ inputs:
 | The same run again | `gnoto run record.yaml --inputs=<dir>` | Commit, inputs, parameters | Inputs and databases match their checksums, and outputs are compared with the record's at the end |
 | The same recipe on new samples | `cp job.yaml new.yaml`, edit its samplesheet, then `gnoto run new.yaml` | Pinned version and answers | The new samples lint like any other job, and primers are measured again |
 
-Wrike's `prev_run_id`, a request-form question naming an earlier run's uid, does the
-second: it reads that run's `job.yaml` from
+Wrike's "Repeat an earlier run", the Pipeline answer with Previous Run naming an earlier
+run's uid or address, does the second: it reads that run's `job.yaml` from
 `history/<uid>/`, so it works after the results expire, and swaps in the new samplesheet.
+The job then runs at that run's version: when that isn't the version `gnoto wrike` runs, its
+scan hands that one task to it, as `gnoto wrike <task_id>`, one such task each scan, and the
+listener leaves the task to the scan. A version from before requests from the form can't
+take one, so such a request is turned down, saying to repeat the run from the command line.
 
 **`lock.yaml`** pins what a pipeline's commit runs with, and `pipelines/lock.sh` writes
 what it can: `containers.config`, and `databases` from the manifests in `core.db_dir`. Each
@@ -1119,7 +1143,10 @@ binary file that can't be rewritten should be pruned.
 SIGTERM once. `-ansi-log false` prints no task completions, so it reads each Nextflow run's
 processes from the `-log` file beside the step's console output. The page carries its own
 state, so it also reads from disk. Present replaces it with the dashboard, and the followup
-renders it once more for a run that didn't complete.
+renders it once more for a run that didn't complete. With S3, the page and `progress.json`
+are uploaded to the run's address whenever they change, from submission, which renders the
+page once on the login node, until Present replaces it there too. Pages are uploaded with
+`Cache-Control: no-cache`, so CloudFront never serves a stale one.
 
 ## Versions and the code cache
 
@@ -1287,20 +1314,27 @@ step, and systemd has no section. An integration whose section is off or missing
   [Wrike's Help Center](https://help.wrike.com/hc/en-us/articles/1500005219382-Default-vs-Custom-Workflows)
   says only admins on Business plans and above can create custom workflows. If the bot
   isn't an admin, an admin creates the workflow and `config` adopts it by name.
+- **Names:** the space and the workflow are "gnoto", the folder "gnoto Jobs", and the form
+  "gnoto Request". The space's tasks take the workflow by default.
 - **Custom fields:** [`POST /customfields`](https://developers.wrike.com/reference/postcustomfieldsempty.md)
   comes from `options.yaml`, with `allowOtherValues` turned off, since it defaults to
-  on for dropdowns. `config` also creates the Expiration date field that holds each run's
-  removal time. Lookups stay inside the space, because an account can hold many fields
+  on for dropdowns: one field per question but Title and Samplesheet, which are the task's
+  title and its attachment, and one field for a question several pipelines ask, which must
+  have one title and one set of answers. A dropdown's answers are an option's labels, and
+  `config` changes a field's answers to match. `config` also creates Pipeline, whose answers
+  are the pipelines and "Repeat an earlier run", Previous Run, the run that repeats, as its
+  uid or its address, Results, the run's address, and Expiration, the date that holds each
+  run's removal time. Lookups stay inside the space, because an account can hold many fields
   that share a title.
 - **Webhook:** it subscribes to `TaskCreated` for new requests, `TaskDeleted`, and
   `TaskCustomFieldChanged` for edits to the Expiration date. Webhooks can't be edited, so
   `config` compares the events and replaces the webhook if they differ, deleting the old one
   first to avoid double delivery.
 - **Request form:** `config` prints a checklist from `options.yaml`, giving each
-  question's title, type and answers. It then finds the form through the
-  [read endpoints](https://developers.wrike.com/llms.txt), compares its questions
-  with `options.yaml`, and records its ID. `lint` repeats the comparison and warns on
-  drift.
+  question's title, type and answers, and when the form shows it. It then finds the form
+  through the [read endpoints](https://developers.wrike.com/llms.txt), compares its
+  questions with the fields by title, and records its ID. `lint` repeats the comparison and
+  warns on drift. The form creates its task in "gnoto Jobs" with the status Submitted.
 - **Statuses:** `config` creates these in the workflow.
 
   | Status | Wrike group | Set by |
@@ -1336,6 +1370,17 @@ listener.
   uses to count waiting messages.
 - **Results URL:** `aws.results_base_url` sets the address, so the bucket name doesn't
   have to be a domain.
+- **The stacks** are `gnoto-iam`, `gnoto-s3` and `gnoto-sqs`, from `service/aws/stacks/`,
+  with the CloudFront function and the Lambda filled in from their files at deploy, the
+  Lambda without its comments, since CloudFormation takes inline code only up to 4,096
+  characters. The S3 stack's bucket is private, read by CloudFront through an origin access
+  control, and the IAM user may write only under the run prefix. CloudFront caches an object
+  for at most five minutes unless it says otherwise, so removed results soon leave its edge.
+  A custom domain takes `--domain` and `--certificate`, an ACM certificate in us-east-1,
+  both made by hand with the domain's DNS. The SQS stack's queue keeps a message 14 days
+  and hides one being handled for 10 minutes, and Wrike posts to an HTTP API's `POST /wrike`
+  route in front of the Lambda, which runs `python3.14`: Lambda's `python3.15` is a public
+  preview, which AWS says isn't for production.
 
 **systemd.** Unit templates are filled from `slurm.bin_dir` and `slurm.conf`,
 because a user unit doesn't read the login shell. The listener installs only when
@@ -1343,7 +1388,13 @@ Wrike and SQS are both configured. The polling timer for `gnoto wrike` installs 
 Wrike is configured, unless `wrike.poll_minutes` is 0. The daily timer,
 `gnoto-daily.timer`, installs either way, so a CLI-only install gets expiry with no daemon.
 It runs the expiry check, `lint` for the health file, Wrike replays, delayed deletions and
-log rotation. Every unit runs as the service account, which also owns form jobs.
+log rotation. Every unit runs as the service account, which also owns form jobs. The units
+are `gnoto-daily.timer`, `gnoto-wrike.timer` and `gnoto-listener.service`, from
+`service/systemd/`, and run the install directory's launcher, so they always reach the
+current version: `gnoto _daily`, `gnoto _poll`, the scan, and `gnoto _listen`. Each writes
+a heartbeat and a log in `<data_dir>/logs/`. `gnoto upgrade` restarts the listener, which
+runs for good, or says how. Without Slurm, the listener stops after starting a job, so the
+launcher can start it, and systemd starts the listener again.
 
 Units and linger belong to one host, so `generated.yaml` records which one. `config
 systemd` refuses to install on another host unless given `--move`, and `status` shows the

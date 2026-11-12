@@ -151,7 +151,7 @@ check "config_set: enabled first, a number bare, a new key last" \
     "$(cat "$DIR/config.yaml")"
 with_env "$DIR" 'source "$CODE/lib/config.sh"; config_set slurm enabled false'
 check "config_set: enabled in place" "  enabled: false" "$(grep enabled "$DIR/config.yaml")"
-check "config: lists the sections" "core apptainer slurm wrike aws globus" \
+check "config: lists the sections and steps" "core apptainer slurm wrike aws globus s3 sqs systemd" \
     "$(with_env "$DIR" 'source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main' |
         awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
 
@@ -195,7 +195,7 @@ check "config: and how to turn it on, with the install's launcher" \
 config_args "$DIR" slurm --on --job_time=48.h > /dev/null
 check "config: --on with a setting" "true 48.h" "$(yq '(.slurm.enabled | tostring) + " " + .slurm.job_time' "$DIR/config.yaml")"
 config_args "$DIR" wrike --poll_minutes=0 > /dev/null
-check "config: a new section with a setting is on" '{"enabled":true,"api_token":"","webhook_secret":"","poll_minutes":0}' \
+check "config: a new section with a setting is on" '{"enabled":true,"api_token":"","webhook_secret":"","poll_minutes":0,"api_url":"https://www.wrike.com/api/v4"}' \
     "$(yq -o=json -I=0 .wrike "$DIR/config.yaml")"
 config_args "$DIR" globus --off --run_prefix=lab > /dev/null
 check "config: unless --off says otherwise" "false lab" \
@@ -211,12 +211,12 @@ for case in "slurm --max_cpu=4|--max_cpu: slurm has no setting max_cpu. Its sett
     "slurm --enabled=true|--enabled: turn slurm on or off with --on or --off." \
     "slurm --on --off|Give --on or --off, not both." \
     "core --on|core is always on. Run $DIR/gnoto config core to change its settings." \
-    "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe" \
+    "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe" \
     "slurm|$DIR/gnoto config slurm asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>." \
     "core --probe|--probe is for $DIR/gnoto config slurm, which checks every compute node." \
     "nothing|gnoto config has no section nothing. Run $DIR/gnoto config to list them." \
     "slurm --probe --on|gnoto config slurm --probe takes nothing else." \
-    "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe"; do
+    "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe"; do
     read -r -a args <<< "${case%%|*}"
     check "config: refuses ${case%%|*}" "${case#*|}" "$(config_args "$DIR" "${args[@]}")"
 done

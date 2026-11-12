@@ -1,0 +1,14 @@
+# gnoto-wrike.timer - Starts gnoto-wrike.service every wrike.poll_minutes.
+#
+# Installed by gnoto config systemd, which fills in __POLL_MINUTES__.
+
+[Unit]
+Description=gnoto's scan of Wrike, every __POLL_MINUTES__ minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=__POLL_MINUTES__min
+Unit=gnoto-wrike.service
+
+[Install]
+WantedBy=timers.target

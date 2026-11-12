@@ -1,0 +1,15 @@
+# gnoto-daily.timer - Starts gnoto-daily.service each morning. A host that was
+# down then runs it when it's back, rather than skipping the day.
+#
+# Installed by gnoto config systemd.
+
+[Unit]
+Description=gnoto's daily check
+
+[Timer]
+OnCalendar=*-*-* 06:30:00
+Persistent=true
+Unit=gnoto-daily.service
+
+[Install]
+WantedBy=timers.target

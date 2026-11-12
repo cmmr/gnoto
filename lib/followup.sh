@@ -5,8 +5,9 @@
 # Sourced by:  lib/main.sh, for the _followup and _local commands that
 #              lib/start.sh submits, and for remove
 # Defines:     followup_main, record_history, utc_now
-# Requires:    the settings and helpers from lib/env.sh; sacct, squeue and
-#              scancel through their stand-ins, with Slurm; teardown_run from
+# Requires:    the settings and helpers from lib/env.sh, with wrike_report_end
+#              from service/wrike/tasks.sh; sacct, squeue and scancel through
+#              their stand-ins, with Slurm; teardown_run and run_dir_delete from
 #              service/expire.sh
 # Runs:        present/progress.sh once, for a run that didn't complete
 #
@@ -31,12 +32,18 @@
 #                    cleanup_utc, so gnoto resume has a cache to resume from,
 #                    and loses only the results Nextflow publishes again when
 #                    it resumes. --debug keeps everything until cleanup_utc.
+#                    A run Publish put on S3 or Globus, and checked there, loses
+#                    its whole run directory, but under --debug.
 #
 # A run gnoto remove marked while it was still going, with a file named remove
 # in its run directory, gets the teardown instead of its expiry and cleanup.
 #
+# Then, outside the lock, since a Wrike call can wait out its retries, the
+# run's Wrike task learns how it ended, from history's state.
+#
 # A run whose Compute finished keeps its results even when Present or Publish
-# failed, as "Publish failed". Exits 1 for a run that didn't complete, so
+# failed or was cancelled, as "Publish failed", and keeps its staged reads, from
+# which gnoto publish builds the zip again. Exits 1 for a run that didn't complete, so
 # Slurm's accounting agrees with what's reported.
 
 # Times, in UTC, in the form every gnoto file uses
@@ -157,16 +164,21 @@ write_expiry() {
     } > "$tmp" && mv -f "$tmp" "$file"
 }
 
-# What a run leaves behind. A failed or cancelled run keeps Nextflow's work
-# directory and history, and the staged inputs, which a resumed Nextflow needs
-# unchanged to find its cache.
+# What a run leaves behind: clean_run <status> [force]. A failed or cancelled
+# run keeps Nextflow's work directory and history, and the staged inputs, which
+# a resumed Nextflow needs unchanged to find its cache. A --debug run keeps
+# everything until the daily check gives force, at cleanup_utc.
 clean_run() {
     local status=$1
-    [[ $(state_get debug) != true ]] || return 0
+    [[ $(state_get debug) != true || -n ${2:-} ]] || return 0
     rm -f .inputs.list .inputs.sha256
     case $status in
-        Completed | "Publish failed")
+        Completed)
             rm -rf work .nextflow raw-sequences recorded-outputs
+            ;;
+        "Publish failed")
+            # gnoto publish builds the zip again, from the staged reads
+            rm -rf work .nextflow recorded-outputs
             ;;
         *)
             if [[ -d results ]]; then
@@ -179,7 +191,7 @@ clean_run() {
 
 # followup_main <run directory>
 followup_main() {
-    local run_dir=${1%/} uid status message ended tasks
+    local run_dir=${1%/} uid status message ended tasks removing="" selftest rc
 
     uid=${run_dir##*/}
     [[ $run_dir == "$DATA_DIR"/runs/* ]] && is_valid_uid "$uid" ||
@@ -194,6 +206,8 @@ followup_main() {
             status=Cancelled
             [[ -n $(state_get message) && $(state_get message) != *stopped* ]] ||
                 state_set message "The job was cancelled."
+            # Results that were made are kept, as when publishing fails
+            [[ -z $(state_get stages.compute) ]] || status="Publish failed"
         else
             if [[ $(state_get scheduler.kind) == slurm && -z $(state_get message) ]]; then
                 message=$(slurm_end_message "$(state_get scheduler.job_id)")
@@ -222,12 +236,17 @@ followup_main() {
     fi
     ended=$(utc_now)
     state_set ended_utc "$ended"
+    selftest=$(state_get selftest)
 
+    # Exits 3 when the run was removed, as gnoto remove asked, which is decided
+    # under the lock, where remove writes its marker
+    rc=0
     (
         flock -w 60 9 || fail "Can't lock run $uid, so it wasn't cleaned up."
         record_history "$uid" "$status" || fail "Can't create $DATA_DIR/history/$uid."
         if [[ -e remove ]]; then
             teardown_run "$uid" "$(head -n 1 remove)" || :
+            exit 3
         elif [[ -n $(state_get selftest) ]]; then
             # The selftest's report job removes it once the report is written
             clean_run "$status"
@@ -236,13 +255,26 @@ followup_main() {
             write_expiry "$uid" "$status" "$ended" || warn "Couldn't write $DATA_DIR/expiry/$uid."
             clean_run "$status"
             chmod -R g+rwX "$run_dir" 2> /dev/null || :
+            # Published and checked, so the run directory holds nothing that
+            # isn't on S3 or Globus too, and a --debug run keeps it until
+            # cleanup_utc
+            if [[ $status == Completed && -n $(state_get published.verified_utc) &&
+                $(state_get debug) != true ]]; then
+                run_dir_delete "$uid" || :
+            fi
         fi
-    ) 9>> .lock || exit 1
+    ) 9>> .lock || rc=$?
+    (( rc == 0 || rc == 3 )) || exit 1
+    (( rc != 3 )) || removing=1
 
-    if [[ -d $run_dir ]]; then
-        log "Run $uid: $status."
-    else
+    # Outside the lock, since a Wrike call can wait out a minute of retries. The
+    # run directory may have gone, so this reads history.
+    [[ -n $selftest || -n $removing ]] || wrike_report_end "$uid" "$status"
+
+    if [[ -n $removing ]]; then
         log "Run $uid: $status. Its results were removed, as asked."
+    else
+        log "Run $uid: $status."
     fi
     [[ $status == Completed ]]
 }

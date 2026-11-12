@@ -226,7 +226,7 @@ log "Packaging $BUNDLE_NAME..."
 if ! ZIP_OUTPUT=$(bundle_build "$BUNDLE_NAME" "$RUN_ID" "${BUNDLE_PARTS[@]}"); then
     fail "This run couldn't be packaged for download:"$'\n'"$ZIP_OUTPUT"
 fi
-dashboard_bundle "$(bundle_href "$BUNDLE_NAME")" "$(stat -c %s "$BUNDLE_NAME.tmp")" "${BUNDLE_FOLDERS[@]}"
+dashboard_bundle "$(bundle_href "$BUNDLE_NAME" "$RUN_ID")" "$(stat -c %s "$BUNDLE_NAME.tmp")" "${BUNDLE_FOLDERS[@]}"
 
 # 6. The pages, a listing in every folder, and those into the zip
 if ! RENDER_OUTPUT=$(render_dashboard "$RUN_ID" "$TITLE" "$SUBTITLE" "$(present_version)" \

@@ -215,10 +215,14 @@ bundle_name() {
     printf '%s%s.zip' "${slug:+${slug}_}" "$uid"
 }
 
-# Where the pages link the zip, relative to results/. It stays in the run
-# directory in phase 3, and phase 7 puts the Globus or S3 address here.
+# Where the pages link the zip: bundle_href <zip> <uid>. Its address on the
+# Globus collection or S3, wherever Publish puts it, or else beside results/.
 bundle_href() {
-    printf '../%s' "$1"
+    case $(publish_destination) in
+        globus) globus_run_url "$2" "$1" ;;
+        s3) printf "%s%s" "$(s3_run_url "$2")" "$(escape_url "$1")" ;;
+        *) printf "../%s" "$1" ;;
+    esac
 }
 
 # Zips paths, relative to the run directory, at a compression level, each

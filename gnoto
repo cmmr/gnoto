@@ -443,9 +443,16 @@ fi
 
 # Jobs that run on this machine, queued by lib/scheduler.sh as
 # "<directory><tab><log><tab><gnoto arguments>", start here, once the image has
-# exited, each detached from this session so it outlives it
+# exited, each detached from this session so it outlives it. Started by one of
+# gnoto's systemd units, a job goes in a scope of its own, since systemd stops
+# every process in a unit's cgroup when the unit ends.
 if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/detach" ]; then
     TAB=$(printf '\t')
+    SCOPE=
+    if [ -n "${INVOCATION_ID:-}" ] && command -v systemd-run > /dev/null 2>&1 &&
+        systemd-run --user --scope --quiet --collect true > /dev/null 2>&1; then
+        SCOPE="systemd-run --user --scope --quiet --collect"
+    fi
     while IFS=$TAB read -r DIR LOG ARGS; do
         case $DIR in
             "$DATA_DIR"/*) ;;
@@ -455,7 +462,10 @@ if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/detach" ]; then
             _local\ * | _fetch\ * | _selftest\ *) ;;
             *) die "won't start \"$ARGS\" as a job" ;;
         esac
-        if command -v setsid > /dev/null 2>&1; then
+        if [ -n "$SCOPE" ]; then
+            # shellcheck disable=SC2086
+            (cd "$DIR" && exec setsid nohup $SCOPE "$SELF" $ARGS > "$LOG" 2>&1 < /dev/null &)
+        elif command -v setsid > /dev/null 2>&1; then
             # shellcheck disable=SC2086
             (cd "$DIR" && exec setsid nohup "$SELF" $ARGS > "$LOG" 2>&1 < /dev/null &)
         else
@@ -467,9 +477,12 @@ fi
 
 # A hand-over, left by lib/versions.sh as "<commit>\n<how>": resolved, when the
 # command's version resolved to that commit; current, when the command runs
-# there as it is; or lint, when that version runs gnoto lint instead
+# there as it is; lint, when that version runs gnoto lint instead; or, from
+# gnoto wrike's scan, "task" and a third line, a Wrike task's ID, when that
+# version starts that one request, as gnoto wrike <task_id>
 if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/handover" ]; then
-    { IFS= read -r TARGET_COMMIT || :; IFS= read -r HOW || HOW=; } < "$PRIVATE/handover"
+    { IFS= read -r TARGET_COMMIT || :; IFS= read -r HOW || HOW=; IFS= read -r TASK_ID || TASK_ID=; } \
+        < "$PRIVATE/handover"
     is_commit "$TARGET_COMMIT" || die "a bad hand-over: $TARGET_COMMIT"
     cleanup
     trap - EXIT HUP INT TERM
@@ -481,6 +494,12 @@ if [ "$STATUS" -eq 0 ] && [ -s "$PRIVATE/handover" ]; then
             ;;
         current) hand_over "$TARGET_COMMIT" "$@" ;;
         lint) hand_over "$TARGET_COMMIT" lint ;;
+        task)
+            case $TASK_ID in
+                '' | *[!A-Za-z0-9_:.=-]*) die "a bad hand-over: task $TASK_ID" ;;
+            esac
+            hand_over "$TARGET_COMMIT" wrike "$TASK_ID"
+            ;;
         *) die "a bad hand-over: $HOW" ;;
     esac
 fi

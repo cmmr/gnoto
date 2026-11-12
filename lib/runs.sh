@@ -3,11 +3,13 @@
 # what ran, stopping a run, and deleting its results.
 #
 # Sourced by:  lib/main.sh, for status, cancel, resume and remove
-# Defines:     status_main, cancel_main, remove_main, live_status, run_lock
+# Defines:     status_main, status_health, cancel_main, remove_main, remove_one,
+#              live_status, run_lock, published_elsewhere
 # Requires:    jq, flock; squeue, sacct and scancel through their stand-ins,
 #              with Slurm; the settings and helpers from lib/env.sh; and for
 #              remove, record_history and utc_now from lib/followup.sh and
-#              teardown_run from service/expire.sh
+#              teardown_run from service/expire.sh, which also removes a run
+#              whose results were published and whose run directory has gone
 #
 # They read state files rather than asking Slurm for the user's jobs, so they
 # see every user's runs. A run the state shows as running is checked against
@@ -142,21 +144,37 @@ status_main() {
     fi
 }
 
+# The integrations' health, as the daily timer's lint last found it, from
+# <data_dir>/logs/health.yaml, with where gnoto's systemd units are
+status_health() {
+    local file=$DATA_DIR/logs/health.yaml checked age rows
+    if [[ ! -r $file ]]; then
+        echo "Integrations"
+        echo "  Not checked: the daily timer, which runs lint and records the result, isn't installed. $(gnoto_command config systemd) installs it."
+        return 0
+    fi
+    checked=$(yq -r '.checked_utc // ""' "$file" 2> /dev/null)
+    age=$(( $(date -u +%s) - $(date -u -d "${checked:-now}" +%s) ))
+    echo "Integrations, checked by the daily lint $(human_duration "$age") ago${SYSTEMD_HOST:+, on $SYSTEMD_HOST}"
+    (( age < 2 * 86400 )) || echo "  The daily timer hasn't run for $(( age / 86400 )) days, so this is out of date."
+    rows=$(yq -r '.integrations[]? | [.name, .status, .message] | @tsv' "$file" 2> /dev/null)
+    if [[ -n $rows ]]; then
+        printf '%s\n' "$rows" | align_rows
+    else
+        echo "  None is set up."
+    fi
+}
+
 # Every run that's going and that finished in the last 7 days, but those whose
 # results were removed only with "all": status_all [all]
 status_all() {
-    local all=${1:-} dir file now started elapsed state uid version status ended remove removed message
+    local all=${1:-} dir file now started elapsed state uid version status ended remove removed message url
     local hidden=0 running=() finished=() expiring=()
 
     now=$(date -u +%s)
     echo "Current version: $(current_commit)"
     echo
-    echo "Integrations"
-    if [[ -r $DATA_DIR/logs/health.yaml ]]; then
-        sed 's/^/  /' "$DATA_DIR/logs/health.yaml"
-    else
-        echo "  Not checked: the daily timer, which runs lint and records the result, isn't installed."
-    fi
+    status_health
 
     for dir in "$DATA_DIR"/runs/*/; do
         dir=${dir%/}
@@ -179,17 +197,20 @@ status_all() {
         [[ -r $file ]] || continue
         uid=${file%/state.json}
         uid=${uid##*/}
-        IFS=$'\x1f' read -r ended status version removed message < <(jq -r '
+        IFS=$'\x1f' read -r ended status version removed message url < <(jq -r '
             [.ended_utc // "", .status // "", .version // "",
              ((.removed_utc // "") != "" or any(.notes[]?; tostring | startswith("Results removed")) | tostring),
-             ((.message // "") | tostring | split("\n")[0])] | join("\u001f")' "$file" 2> /dev/null) || continue
+             ((.message // "") | tostring | split("\n")[0]),
+             .published.url // .published.zip_url // ""] | join("\u001f")' "$file" 2> /dev/null) || continue
         [[ -n $ended ]] || continue
         (( now - $(date -u -d "$ended" +%s) <= 7 * 86400 )) || continue
         if [[ $removed == true ]]; then
             [[ -n $all ]] || { hidden=$((hidden + 1)); continue; }
             state="results removed"
         elif [[ $status == Completed || $status == "Publish failed" ]]; then
-            if [[ -f $DATA_DIR/runs/$uid/results/index.html ]]; then
+            if [[ -n $url ]]; then
+                state=$url
+            elif [[ -f $DATA_DIR/runs/$uid/results/index.html ]]; then
                 state=$DATA_DIR/runs/$uid/results/index.html
             else
                 state="results removed"
@@ -305,6 +326,9 @@ status_one() {
     else
         printf '  %-10s %s\n' History "$DATA_DIR/history/$uid"
     fi
+    [[ -z $(state_get published.url) ]] || printf '  %-10s %s\n' Published "$(state_get published.url)"
+    [[ -z $(state_get published.zip_url) ]] || printf '  %-10s %s\n' Download "$(state_get published.zip_url)"
+    [[ -z $(state_get wrike.task_id) ]] || printf '  %-10s %s\n' Wrike "task $(state_get wrike.task_id)"
     if [[ -r $DATA_DIR/expiry/$uid ]]; then
         file=$(yq -r '.remove_utc // ""' "$DATA_DIR/expiry/$uid" 2> /dev/null) || file=""
         [[ -z $file ]] || printf '  %-10s %s\n' Expires "$file"
@@ -373,6 +397,14 @@ followup_done() {
     [[ -n $ended && -r $history && $(jq -r '.ended_utc // ""' "$history" 2> /dev/null) == "$ended" ]]
 }
 
+# Whether a run whose run directory has gone still has results on S3 or Globus
+published_elsewhere() {
+    local file=$DATA_DIR/history/$1/state.json
+    [[ ! -d $DATA_DIR/runs/$1 && -r $file ]] &&
+        jq -e '(.removed_utc // "") == "" and ((.published.s3_prefix // .published.globus_dir // "") != "")' \
+            "$file" > /dev/null 2>&1
+}
+
 # Tab-separated rows as a table: each column but the last padded to its widest
 # entry, two spaces apart, and indented by two
 align_rows() {
@@ -419,7 +451,10 @@ remove_one() (
     now=$(utc_now)
     run_lock "$uid" || { warn "Can't lock run $uid, so it wasn't removed."; return 1; }
     if [[ ! -d $dir ]]; then
-        if [[ -e $DATA_DIR/expiry/$uid ]]; then
+        if published_elsewhere "$uid"; then
+            teardown_run "$uid" "Results removed by $user at $now." || return 1
+            echo "Removed run $uid's results. Its record stays in $DATA_DIR/history/$uid."
+        elif [[ -e $DATA_DIR/expiry/$uid ]]; then
             teardown_run "$uid" "" || return 1
             echo "Removed run $uid's leftover expiry file. Its results had already gone."
         else
@@ -489,6 +524,11 @@ remove_main() {
             todo+=("$uid")
             lines+=("${line#*$'\n'}")
             [[ ${line%%$'\n'*} != going ]] || stopping=$((stopping + 1))
+        elif published_elsewhere "$uid"; then
+            todo+=("$uid")
+            lines+=("$(cd "$DATA_DIR/history/$uid" && RUN_STATE_FILE=state.json &&
+                printf '%s\t%s\t%s\t%s\t%s' "$uid" "$(short_version "$(state_get version)")" \
+                    "$(get_run_status), published" "$(state_get owner)" "$(state_get title | tr '\t' ' ')")")
         elif [[ -e $DATA_DIR/expiry/$uid ]]; then
             todo+=("$uid")
             lines+=("$(printf '%s\tresults already gone, and its leftover expiry file goes' "$uid")")

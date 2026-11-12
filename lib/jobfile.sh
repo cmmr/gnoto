@@ -486,6 +486,10 @@ job_check() {
         fi
     done < <(jq -c '.[]' <<< "$options")
     lint_ok "answers: $(jq -r 'to_entries | map("\(.key) \(.value)") | join("; ")' <<< "$JOB_ANSWERS")"
+    # Results expire only through the daily timer
+    if [[ -z ${SYSTEMD_HOST:-} && -z ${SELFTEST_ID:-} && $(jq -r '.retention // "3 Months"' <<< "$JOB_TOP") != Unlimited ]]; then
+        lint_warn "retention: gnoto's daily timer isn't installed, so these results are kept until removed by hand. $(gnoto_command config systemd) installs it"
+    fi
 
     # pipeline.sh with these answers alone, for the keys gnoto sets itself
     errfile=$(mktemp "${TMPDIR:-/tmp}/gnoto-eval.XXXXXX")
@@ -673,6 +677,21 @@ job_check_inputs() {
     fi
 }
 
+# Whether a file, its links followed, is under one of core.input_roots. A
+# request from the Wrike form runs as the service account, so it may read only
+# there.
+under_input_roots() {
+    local real root roots=()
+    real=$(realpath -e -- "$1" 2> /dev/null) || return 1
+    IFS=, read -ra roots <<< "${INPUT_ROOTS:-}"
+    for root in "${roots[@]}"; do
+        [[ -n $root ]] || continue
+        root=$(realpath -m -- "$root")
+        [[ $real != "$root"/* ]] || return 0
+    done
+    return 1
+}
+
 # Reports one samplesheet problem, up to ten, so a sheet with a bad path doesn't
 # print a line per sample. Reads errors and number from job_check_samplesheet,
 # its caller.
@@ -742,6 +761,8 @@ job_check_samplesheet() {
                 sheet_problem "can't read $fq"
             elif [[ ! -s $fq ]]; then
                 sheet_problem "$fq is empty"
+            elif [[ ${JOB_FORM:-} == true ]] && ! under_input_roots "$fq"; then
+                sheet_problem "$fq isn't under core.input_roots, the paths a request from the Wrike form may read"
             else
                 size=$(stat -L -c %s "$fq")
                 bytes=$((bytes + size))

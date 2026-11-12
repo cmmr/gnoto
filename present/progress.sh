@@ -14,7 +14,9 @@
 #            output and, beside it, Nextflow's log for a step that ran Nextflow
 #            (nextflow.out and nextflow.log, humann.out and humann.log); and
 #            ./cancel
-# Writes:    results/index.html, results/progress.json and results/assets/;
+# Writes:    results/index.html, results/progress.json and results/assets/, and
+#            with S3, their copies at the run's results address, through
+#            progress_publish in service/publish.sh;
 #            clocks.elapsed_seconds and clocks.cpu_seconds in ./run_state.json
 #
 # Runs from the run directory. With --watch, it renders the page every interval
@@ -559,7 +561,7 @@ state_present || { warn "There's no run_state.json in $PWD, so there's no progre
 LAST_CPU=0
 
 if [[ -z $WATCH_PID ]]; then
-    render_once || warn "Couldn't write the progress page."
+    render_once && progress_publish || warn "Couldn't write the progress page."
     exit 0
 fi
 
@@ -580,7 +582,7 @@ while kill -0 "$WATCH_PID" 2> /dev/null; do
         LAST_RENDER=0
     fi
     if (( $(date +%s) - LAST_RENDER >= INTERVAL )); then
-        render_once || warn "Couldn't write the progress page, so it'll be tried again."
+        render_once && progress_publish || warn "Couldn't write the progress page, so it'll be tried again."
         LAST_RENDER=$(date +%s)
     fi
     sleep "$TICK" &

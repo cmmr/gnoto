@@ -9,14 +9,17 @@
 #          and GNOTO_RESOLVED, when a launcher handed it the command
 #
 # People's commands are config, lint, new, run, start, status, cancel, resume,
-# remove, upgrade, prune, selftest, and exec, a development aid that runs any
-# command in the image with the stand-ins on PATH and the settings loaded. gnoto init never
-# reaches the image. The commands starting with an underscore are gnoto's own:
-# _current, which the launcher runs from the install's files when the current
-# version has no copy; and the jobs lib/start.sh and lib/databases.sh submit,
-# _job, the head job; _followup; _local, which runs both one after the other on
-# this machine; _fetch, which fetches a database; and _selftest, which writes a
-# selftest's report.
+# remove, extend, publish, wrike, upgrade, prune, selftest, and exec, a
+# development aid that runs any command in the image with the stand-ins on PATH
+# and the settings loaded. gnoto init never reaches the image. The commands
+# starting with an underscore are gnoto's own: _current, which the launcher runs
+# from the install's files when the current version has no copy; the jobs
+# lib/start.sh, lib/databases.sh and gnoto publish submit, _job, the head job;
+# _publish, which runs Present and Publish again; _followup; _local, which runs
+# a job and its followup one after the other on this machine; _fetch, which
+# fetches a database; and _selftest, which writes a selftest's report; and what
+# the systemd units run, _daily, _poll, the scan gnoto wrike makes, and
+# _listen, the SQS listener.
 #
 # The launcher acts on --dev, running the install's own files, so here it's a
 # flag that's accepted and otherwise ignored.
@@ -29,6 +32,8 @@ source "$CODE_DIR/lib/args.sh"
 usage() {
     echo "Usage: gnoto init --apptainer=/path/to/apptainer" >&2
     echo "       gnoto config [<section> [--on|--off] [--<key>=<value> ...]]" >&2
+    echo "       gnoto config s3|sqs [--deploy] [--profile=<name>] [--dry-run]" >&2
+    echo "       gnoto config systemd [--move] [--dry-run]" >&2
     echo "       gnoto config slurm --probe" >&2
     echo "       gnoto lint [--dev] [--deep] [--yes] [job.yaml]" >&2
     echo "       gnoto lint [--deep] [--yes] --inputs=<dir> record.yaml" >&2
@@ -40,6 +45,9 @@ usage() {
     echo "       gnoto cancel <uid>" >&2
     echo "       gnoto resume [uid]" >&2
     echo "       gnoto remove [--yes] <uid>..." >&2
+    echo "       gnoto extend <uid> <YYYY-MM-DD|never>" >&2
+    echo "       gnoto publish <uid>" >&2
+    echo "       gnoto wrike [task_id]" >&2
     echo "       gnoto upgrade [--yes] [<version>]" >&2
     echo "       gnoto prune [--yes]" >&2
     echo "       gnoto selftest [--dev] [--yes] [<pipeline> ...]" >&2
@@ -94,6 +102,54 @@ case $COMMAND in
         source "$CODE_DIR/service/expire.sh"
         remove_main "$@"
         ;;
+    extend)
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
+        extend_main "$@"
+        ;;
+    publish)
+        source "$CODE_DIR/lib/runs.sh"
+        publish_main "$@"
+        ;;
+    _publish)
+        [[ $# -eq 1 ]] || usage
+        source "$CODE_DIR/lib/jobfile.sh"
+        source "$CODE_DIR/lib/databases.sh"
+        source "$CODE_DIR/lib/job.sh"
+        job_publish_main "$1"
+        ;;
+    wrike | _poll | _listen)
+        source "$CODE_DIR/lib/lint.sh"
+        source "$CODE_DIR/lib/jobfile.sh"
+        source "$CODE_DIR/lib/databases.sh"
+        source "$CODE_DIR/lib/start.sh"
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
+        source "$CODE_DIR/service/daily.sh"
+        source "$CODE_DIR/service/wrike/task_handler.sh"
+        case $COMMAND in
+            wrike) wrike_main "$@" ;;
+            _poll) [[ $# -eq 0 ]] || usage; poll_main ;;
+            _listen)
+                [[ $# -eq 0 ]] || usage
+                source "$CODE_DIR/service/wrike/listener.sh"
+                listen_main
+                ;;
+        esac
+        ;;
+    _daily)
+        [[ $# -eq 0 ]] || usage
+        # lint's Wrike check reads every pipeline's options, through jobfile.sh
+        source "$CODE_DIR/lib/lint.sh"
+        source "$CODE_DIR/lib/jobfile.sh"
+        source "$CODE_DIR/lib/runs.sh"
+        source "$CODE_DIR/lib/followup.sh"
+        source "$CODE_DIR/service/expire.sh"
+        source "$CODE_DIR/service/daily.sh"
+        daily_main
+        ;;
     selftest)
         source "$CODE_DIR/lib/lint.sh"
         source "$CODE_DIR/lib/jobfile.sh"
@@ -138,11 +194,15 @@ case $COMMAND in
         source "$CODE_DIR/lib/job.sh"
         source "$CODE_DIR/lib/followup.sh"
         source "$CODE_DIR/service/expire.sh"
-        [[ $# -eq 1 ]] || usage
+        [[ $# -eq 1 || ( $# -eq 2 && $2 == publish ) ]] || usage
         # In one write, so status never sees the host without the process
         (cd "$1" && state_update '.scheduler.host = $host | .scheduler.pid = $pid' \
             --arg host "$(uname -n)" --arg pid "$$") || fail "Can't record this run's process in $1."
-        (job_main "$1") || :
+        if [[ ${2:-} == publish ]]; then
+            (job_publish_main "$1") || :
+        else
+            (job_main "$1") || :
+        fi
         followup_main "$1"
         ;;
     exec)

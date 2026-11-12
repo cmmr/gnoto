@@ -2,14 +2,18 @@
 # lint.sh - gnoto lint: checks a job file, or with none, this install's
 # settings and what they point at.
 #
-# Sourced by:  lib/main.sh, for lint, run and start; lib/config.sh, for gnoto
+# Sourced by:  lib/main.sh, for lint, run, start, wrike and the units'
+#              commands; lib/config.sh, for the integrations' steps and gnoto
 #              config slurm --probe
-# Defines:     lint_main, lint_ok, lint_warn, lint_fail, lint_list, LINT_FAILS,
-#              LINT_WARNS
+# Defines:     lint_main, lint_config, lint_ok, lint_warn, lint_fail,
+#              lint_list, LINT_FAILS, LINT_WARNS
 # Requires:    the settings and helpers from lib/env.sh, args_parse from
 #              lib/args.sh, job_check from lib/jobfile.sh, and databases_offer
 #              from lib/databases.sh; sinfo through its stand-in, with Slurm;
-#              lib/nodes.sh, which it sources
+#              lib/nodes.sh, and the integrations' checks in
+#              service/wrike/config.sh, service/aws/config.sh,
+#              service/globus.sh and service/systemd/systemd.sh, which it
+#              sources
 #
 # Each check prints OK, WARN or FAIL, and any FAIL gives a non-zero exit code.
 
@@ -17,6 +21,10 @@ LINT_FAILS=0
 LINT_WARNS=0
 
 source "$CODE_DIR/lib/nodes.sh"
+source "$CODE_DIR/service/wrike/config.sh"
+source "$CODE_DIR/service/aws/config.sh"
+source "$CODE_DIR/service/globus.sh"
+source "$CODE_DIR/service/systemd/systemd.sh"
 
 # One check's result. A message over several lines is indented under the first.
 lint_line() {
@@ -278,16 +286,19 @@ lint_list() {
 }
 
 # What the integrations' own checks will cover, for now only whether each is on
+# The integrations' own checks, each in service/, for the sections that are
+# on. Those that aren't say so.
 lint_integrations() {
     local section name
     for section in wrike aws globus; do
         name=${section^^}_ENABLED
-        if [[ ${!name:-false} == true ]]; then
-            lint_warn "$section: is on, and gnoto doesn't use or check it yet"
-        else
-            lint_ok "$section: off"
-        fi
+        [[ ${!name:-false} == true ]] || lint_ok "$section: off"
     done
+    lint_wrike
+    lint_s3
+    lint_sqs
+    lint_globus
+    lint_systemd
 }
 
 # Which version this is, and which is current

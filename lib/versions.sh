@@ -400,6 +400,16 @@ upgrade_main() {
     fi
     current_write "$commit" "$repository"
     echo "gnoto $label is the current version. Jobs already running or waiting keep their own versions."
+    # The listener runs for good, so it's restarted to run the new version.
+    # The timers' units start the current version each time.
+    if [[ -n ${SYSTEMD_HOST:-} && -f ${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/gnoto-listener.service ]]; then
+        if [[ $(uname -n) == "$SYSTEMD_HOST" && $(id -un) == "${SYSTEMD_USER:-}" ]]; then
+            systemctl --user restart gnoto-listener.service && echo "Restarted gnoto-listener.service." ||
+                warn "Couldn't restart gnoto-listener.service, so it runs the old version until it's restarted."
+        else
+            echo "On $SYSTEMD_HOST, as ${SYSTEMD_USER:-the account that owns the units}, restart the listener so it runs the new version: systemctl --user restart gnoto-listener.service"
+        fi
+    fi
     echo "Running its gnoto lint."
     printf '%s\nlint\n' "$commit" > "$GNOTO_HELPER_DIR/handover" || fail "Can't run the new version's lint."
 }

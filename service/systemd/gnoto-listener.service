@@ -1,0 +1,26 @@
+# gnoto-listener.service - gnoto's SQS listener, which takes Wrike's webhook
+# events as they arrive.
+#
+# Installed by gnoto config systemd, which fills in __LAUNCHER__, __PATH__ and
+# __SLURM_CONF__, when Wrike and SQS are both set up. Without Slurm, it stops
+# after each request it starts, so the launcher can start the job, and systemd
+# starts it again.
+
+[Unit]
+Description=gnoto's SQS listener for Wrike's webhook
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=__LAUNCHER__ _listen
+Environment=PATH=__PATH__
+__SLURM_CONF__
+Restart=always
+RestartSec=10s
+# A stop lets it finish the message in hand
+TimeoutStopSec=300
+SyslogIdentifier=gnoto-listener
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,18 @@
+# gnoto-wrike.service - gnoto's scan of Wrike: starts the requests waiting in
+# "gnoto Jobs", copies Expiration dates, removes the runs whose task was
+# deleted, and reactivates a suspended webhook. Started by gnoto-wrike.timer.
+#
+# Installed by gnoto config systemd, which fills in __LAUNCHER__, __PATH__ and
+# __SLURM_CONF__.
+
+[Unit]
+Description=gnoto's scan of Wrike
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=__LAUNCHER__ _poll
+Environment=PATH=__PATH__
+__SLURM_CONF__
+SyslogIdentifier=gnoto-wrike

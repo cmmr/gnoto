@@ -13,10 +13,12 @@ the lock files, is done:** it passes its finish test in the test bed and on the 
 all three pipelines run there with every image by digest and every database pinned.
 **Phase 6, determinism, is done:** it passes its finish test in the test bed, and on the
 cluster `gnoto selftest` found all 15 fixture jobs' core tables identical to the reference
-tables. The [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
+tables. **Phase 7, the integrations, is built** (2026-11-12), and passes its tests in the
+test bed against stand-ins for Wrike, S3 and SQS; its run on the cluster, with the real
+services, is next. The [phase 1](#phase-1-image-and-helper), [phase 2](#phase-2-restructure),
 [phase 3](#phase-3-job-core), [phase 4](#phase-4-version-cache),
-[phase 5](#phase-5-lock-files) and [phase 6](#phase-6-determinism) notes record what's
-built and every test result.
+[phase 5](#phase-5-lock-files), [phase 6](#phase-6-determinism) and
+[phase 7](#phase-7-integrations) notes record what's built and every test result.
 
 ## Where the old code is
 
@@ -1226,14 +1228,140 @@ differed only in what `stable-files` reads past: Nonpareil's columns and Faith's
   expiry check and `publish` take the run's lock through `run_lock`, which finds it in
   `history/<uid>/`. `test/lib/runs-test.sh` and `test/testbed/checks/job.sh --remove`
   test it.
-- Build the three CloudFormation stacks (IAM user, S3, SQS) from the settings saved during
-  [teardown](#teardown).
-- `docs/wrike/responses.md` in the old repo has the live definitions of the workflow, custom
-  fields and request form. Use it for `config wrike` and the form checklist, and don't copy its
-  IDs.
-- The webhook's events must stay in step with the listener's `case` statement, because an
-  unsubscribed event simply never arrives. See `docs/wrike/webhook_bridge.md`, which also
-  explains why the Lambda's challenge check must not be loosened.
+
+Settled with Daniel before building (2026-11-12), as [decisions.md](decisions.md) records:
+the stacks and IAM policies are written new, independent of `cmmr/nextflow`'s, rather than
+from saved settings; everything is built and tested against stand-ins locally, and the real
+services only on the cluster, in new objects beside the old ones; and with S3, a running
+job's progress page is published at its results address from submission, with a Results
+link field on its Wrike task. Whether Globus's one anonymous read permission lets anyone
+list every run is Daniel's to test, and the permission is built as designed meanwhile.
+
+What's built:
+
+- **Wrike's calls,** `service/wrike/api.sh`. The token goes to `curl` in a config on stdin,
+  never on its command line. A call Wrike answers with 429 or a 5xx, or that doesn't reach
+  it, is retried with doubling waits. Every change after submission goes through
+  `wrike_update`, which never fails its caller: one that still fails waits in
+  `<data_dir>/logs/wrike-replay/` for the daily timer, and a keyed change, such as a task's
+  status, replaces an earlier one of the same key, so a replay never sets an older status
+  over a newer. A change to a task that's gone (404) is dropped. `wrike.api_url` is a new
+  setting, since EU accounts live at `app-eu.wrike.com`.
+- **Tasks,** `service/wrike/tasks.sh`. `run` and `start` create a command-line job's task
+  in "gnoto Jobs" in `Running` before it's submitted, take its uid from the task's ID,
+  attach `job.yaml`, and with S3 set its Results field to the progress page's address; a
+  job is refused when Wrike can't be reached, and a submission that fails moves its task
+  to `Failed`. The followup reports how a run ended: its status, a comment with the link or
+  the reason, and the Results and Expiration fields. `resume` moves the task back to
+  `Running`.
+- **`gnoto wrike [task_id]`,** `service/wrike/task_handler.sh`. A waiting task's answers
+  become a job file through each option's labels in `options.yaml`, with its one
+  samplesheet attachment beside it, and run through the same checks and submission as
+  `run`, as a form request, so each FASTQ must sit under `core.input_roots`, which `lint`
+  now checks, and missing databases are fetched without asking. A request that fails its
+  checks moves to `Failed` with what failed in a comment. "Repeat an earlier run" takes
+  that run's `job.yaml` from `history/`, at its version, on the new samplesheet. The scan
+  starts waiting tasks, copies Expiration dates, removes runs whose task was deleted, and
+  reactivates a suspended webhook.
+- **The listener,** `gnoto _listen` in `service/wrike/listener.sh`: every event in each
+  payload, each message deleted once handled. It handles `TaskCreated`, `TaskDeleted` and
+  `TaskCustomFieldChanged`, the webhook's three events, which `WRIKE_WEBHOOK_EVENTS` in
+  `service/wrike/config.sh` keeps in step with its `case`. A request that has to hand over
+  to another version is left to the scan, since the listener never exits to hand over.
+  Without Slurm it exits after starting a job, so the launcher can start it, and systemd
+  starts the listener again.
+- **Publish,** `service/publish.sh`. The zip is kept in exactly one place: Globus when it's
+  set, otherwise S3, otherwise the run directory, and Present's link to it names that
+  place. With S3, `results/` goes to `<run_prefix>/<uid>/`, text files typed to open in the
+  browser and the pages last, uncached. Each destination is checked once written, and only
+  then does the state record `published.verified_utc`, which lets the followup delete the
+  run directory. The state's `published` keeps where everything went, for the teardown.
+  With S3, `present/progress.sh` uploads the progress page whenever it changes, from
+  submission on. A cancel after Compute keeps the results, as "Publish failed", and so do
+  the staged reads, which `gnoto publish <uid>` needs to build the zip again. That command
+  runs Present and Publish again as a job, `_publish`, at the run's own commit.
+- **Teardown and expiry,** `service/expire.sh`. The teardown deletes a run's S3 results
+  but `assets/`, puts the expired page at its address, deletes its Globus folder, and moves
+  its task to `Expired`. A copy it can't delete keeps the run's expiry file, due now, for
+  the daily check to try again. `gnoto extend <uid> <YYYY-MM-DD|never>` keeps the floor,
+  and with Wrike writes the task's date. The daily check copies Wrike's dates in first,
+  holding a date before the floor to the floor, in Wrike too, and reading an empty date as
+  Unlimited unless gnoto's own write of it is still waiting to be replayed. Then it removes
+  each run whose date has come, deletes leftovers whose cleanup time has come, and warns a
+  run's task once, mentioning its authors and followers, when its removal is
+  `expiration_notice_days` away. A removal date counts by the day, as Wrike's does.
+  `gnoto remove` now also removes a published run whose run directory has gone.
+- **The units,** `service/daily.sh` and `service/systemd/`. `gnoto _daily` replays Wrike
+  changes, runs the expiry check, writes `logs/health.yaml` from `lint`, which `status`
+  shows, and rotates the logs. `gnoto _poll` is the scan. Each unit checks it's on the host
+  `generated.yaml` records, writes a heartbeat in `logs/`, and logs there as well as to the
+  journal. `gnoto config systemd [--move]` installs the units as user units, with linger,
+  and `lint` reports a unit whose template has changed, as after an upgrade, which now
+  restarts the listener when run as the units' account on their host.
+- **Configuration.** `gnoto config wrike` adopts or creates the "gnoto" space, the "gnoto"
+  workflow with its six statuses, "gnoto Jobs", the fields, Pipeline, Previous Run, Results
+  and Expiration, and one per question in the pipelines' `options.yaml`, a question two
+  pipelines ask being one field, and the webhook when SQS is set up. It prints the form's
+  checklist, then finds "gnoto Request" by name and compares its questions. `config s3` and
+  `config sqs` check the bucket and queue, or with `--deploy [--profile=<name>]` build the
+  stacks `gnoto-iam`, `gnoto-s3` and `gnoto-sqs` from `service/aws/stacks/`, writing their
+  outputs to `generated.yaml` and printing the IAM user's first key once. `config globus`
+  makes the run folder and its anonymous read permission. Each shows its plan and asks;
+  `--dry-run` stops after the plan, and `--yes` answers for a script. `config core` makes
+  `RUN_ID_SALT`.
+- **AWS's own pieces.** `service/aws/lambda/webhook.py` is the old Lambda, its challenge check
+  unchanged, on `python3.14`: Lambda's `python3.15` is a public preview, which AWS says isn't
+  for production. `service/aws/cloudfront/directory-index.js` is the old CloudFront function
+  with `RUN_PREFIX` from `aws.run_prefix`. The stacks carry both inline, filled in at deploy;
+  the Lambda without its comments is 2,274 characters, under CloudFormation's 4,096.
+  `service/aws/policies/` holds the IAM policies for a site that sets up its own bucket and
+  queue.
+
+A review of the finished code by a second agent found nine bugs, now fixed and covered by
+the tests below where they can be: a repeat of an earlier run at another version handed
+the whole scan to that version, so the scan now hands over that one task, as `gnoto wrike
+<task_id>` through a new hand-over the launcher reads, and turns down a repeat of a run
+whose version predates requests from the form; without Slurm, systemd stopped the jobs a
+unit started along with the unit, so the launcher now starts them in a scope of their own
+when a unit runs it; a `chmod` at the end of an `&&` list ended a command under `set -e`
+when another user owned the directory; a replayed comment with line breaks was split into
+several arguments; the daily `lint` didn't load the pipelines' options, so it saw the
+request form as wrong every day; `gnoto publish` lost a run's end and expiry when its job
+was refused; a `remove` landing between the followup's two looks at its marker had the task
+called Completed after it was Expired; a date copied from Wrike could overwrite gnoto's own
+write still waiting to be replayed; and two messages printed seconds after their words.
+
+How it was tested, all in the test bed or in Docker on the development machine:
+
+- **Stand-ins.** `testbed.sh services` starts `test/wrike/stub.py`, a stateful stand-in for
+  the parts of Wrike's API gnoto calls, with injected failures; s3mock 5.2.3 for S3, since
+  MinIO no longer publishes images; and ElasticMQ for SQS. The test users'
+  `~/.aws/config` points the AWS CLI at them, so gnoto has no setting for tests.
+- **The Lambda,** `test/aws/webhook-test.sh`, in `public.ecr.aws/lambda/python:3.14` with
+  ElasticMQ: 15 checks, signed and unsigned events, the handshake, challenges that must be
+  refused, and base64 bodies, all passing. The stacks pass `cfn-lint` 1.60.1 with their code
+  filled in.
+- **`test/lib/integrations-test.sh`,** 135 checks, all passing: retries, replay and its
+  keys, `config wrike` twice with nothing changed the second time, answers to a job file,
+  rejection, repeats, Publish to S3 and Globus, the progress page, the teardown and its
+  expired page, `extend`, Wrike's dates and the floor, the daily check, the followup's
+  report, the listener's events, the health summary, `config s3` and `config sqs` with
+  `--deploy` against a stand-in for the AWS CLI's CloudFormation and IAM calls, and the
+  units.
+- **The finish test, `test/testbed/checks/integrations.sh --publish`,** 44 checks, all
+  passing. `config wrike` makes its objects, prints the checklist, then finds the form; a
+  command-line job gets its task, its progress page on S3 from submission, publishes there,
+  loses its run directory, and its task ends Completed with the link and the Expiration
+  date; a form request repeating it, started by the listener from an SQS message, runs at
+  its version and gives the same core tables; `extend`, a date edited in Wrike, the daily
+  check removing a run whose date has come, with its expired page and the task Expired; a
+  deleted task's run removed by the listener; and a run whose publish failed, published by
+  `gnoto publish`. By hand, a repeat of a run made at an older commit, sent through the
+  scan, was handed to that commit, which started it.
+- **Regression:** `lib` 66, `pipelines` 25, `outputs` 45, `runs` 75, `versions` 98, `job`
+  173, `present` 57 and `progress` 47 checks pass, the launcher's 69 in `debian:13-slim`
+  with the helper's stub test, and `checks/job.sh --small --remove` on an install with no
+  integrations.
 
 ### Phase 8: public release
 
@@ -1332,14 +1460,14 @@ in step.
 
 | Old | New | Phase | Notes |
 | --- | --- | --- | --- |
-| `scripts/wrike_api.sh` | `service/wrike/api.sh` | 7 | IDs and `WRIKE_FORM_ANSWERS` move out |
-| `scripts/wrike_task_handler.sh` | `service/wrike/task_handler.sh` | 7 | Becomes `gnoto wrike`. Writes a job file, then calls the shared lint and submit code |
-| `scripts/wrike_sqs_listener.sh` | `service/wrike/listener.sh` | 7 | Calls `gnoto wrike <task_id>` for each new task, and rewrites `expiry/<uid>` when a task's Expiration date changes |
-| `scripts/wrike_delete_handler.sh` | `service/wrike/delete_handler.sh` | 7 | Runs `remove`, which uses the cancel file for a running job |
-| `scripts/wrike_expiration.sh` | `service/expire.sh`, plus a Wrike part in `service/wrike/` | 7 | Acts only on `<data_dir>/expiry/`. With Wrike, it first copies each task's Expiration date into its file |
-| `scripts/globus.sh` | `service/publish.sh` | 7 | Its Globus copy joins the S3 upload |
-| `systemd/wrike-sqs-listener.service` | `service/systemd/gnoto-listener.service` | 7 | Template |
-| `systemd/wrike-expiration.service`, `.timer` | `service/systemd/gnoto-daily.service`, `.timer` | 7 | Template. Installs with or without Wrike, and runs expiry, `lint`, Wrike replays, delayed deletions and log rotation |
+| `scripts/wrike_api.sh` | `service/wrike/api.sh` | 7 | Done: IDs in `generated.yaml`, answers in `options.yaml`, the token through `curl --config`, retries and replays |
+| `scripts/wrike_task_handler.sh` | `service/wrike/task_handler.sh` | 7 | Done: `gnoto wrike [task_id]`, which writes a job file, then calls the shared lint and submit code |
+| `scripts/wrike_sqs_listener.sh` | `service/wrike/listener.sh` | 7 | Done: `gnoto _listen`, which starts each new task as `gnoto wrike <task_id>` does, removes a deleted task's run, and rewrites `expiry/<uid>` when a task's Expiration date changes |
+| `scripts/wrike_delete_handler.sh` | `service/wrike/listener.sh` | 7 | Done: a `TaskDeleted` event runs `remove`, which uses the cancel file for a running job |
+| `scripts/wrike_expiration.sh` | `service/expire.sh`, with `wrike_sync_dates` in `service/wrike/tasks.sh` | 7 | Done: acts only on `<data_dir>/expiry/`. With Wrike, it first copies each task's Expiration date into its file |
+| `scripts/globus.sh` | `service/publish.sh`, and `service/globus.sh` for `config globus` | 7 | Done: its Globus copy joins the S3 upload |
+| `systemd/wrike-sqs-listener.service` | `service/systemd/gnoto-listener.service` | 7 | Done: a template |
+| `systemd/wrike-expiration.service`, `.timer` | `service/systemd/gnoto-daily.service`, `.timer` | 7 | Done: a template. Installs with or without Wrike, and runs expiry, `lint`, Wrike replays, delayed deletions and log rotation. `gnoto-wrike.service` and `.timer` are new, for the scan |
 
 ### Compute steps
 
@@ -1397,11 +1525,11 @@ in step.
 
 Daniel plans to tear down everything in place and roll out gnoto as an external user would.
 
-- **Save the AWS settings first.** The old repo records the Wrike fields, workflow and form
-  (`docs/wrike/responses.md`), and the Lambda and CloudFront function source. It has no record
-  of the IAM policies, bucket policy, CloudFront distribution settings, API Gateway setup or
-  queue settings, and the CloudFormation stacks have to reproduce them. Save them outside this
-  public repo.
+- **The old AWS settings needn't be saved.** Daniel decided on 2026-11-12 that gnoto's
+  stacks and IAM policies are written new, independent of the old setup's, so its IAM
+  policies, bucket policy, CloudFront distribution, API Gateway and queue go with it. The old
+  repo still records the Wrike fields, workflow and form (`docs/wrike/responses.md`), and the
+  Lambda and CloudFront function source, which `service/aws/` carries on.
 - **Keep `db/` and Apptainer until phase 6 is done.** Since phase 5, gnoto fetches every
   database it reads into its own `core.db_dir`, and phase 6's probes run on gnoto, so only
   the cluster's Apptainer, still the copy inside the old install, needs a home of its own

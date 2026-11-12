@@ -23,6 +23,10 @@
 # The settings are exported, except secrets, which no child process or container
 # should see. generated.yaml's are set but not exported.
 #
+# Besides lib/'s helpers, it loads the integrations' that a job and its
+# followup use: Wrike's calls and tasks from service/wrike/, the AWS calls from
+# service/aws/aws.sh, and Publish from service/publish.sh.
+#
 # Safe to source more than once. A child process sources it again, because
 # functions don't pass to it.
 
@@ -137,3 +141,7 @@ source "$CODE_DIR/lib/containers.sh"
 source "$CODE_DIR/lib/scheduler.sh"
 source "$CODE_DIR/lib/versions.sh"
 source "$CODE_DIR/lib/outputs.sh"
+source "$CODE_DIR/service/wrike/api.sh"
+source "$CODE_DIR/service/wrike/tasks.sh"
+source "$CODE_DIR/service/aws/aws.sh"
+source "$CODE_DIR/service/publish.sh"

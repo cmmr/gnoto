@@ -3,9 +3,10 @@
 # section's settings or takes them as arguments, or turns a section on or off.
 #
 # Sourced by:  lib/main.sh, for
-#              gnoto config [<section> [--on|--off] [--<key>=<value> ...]] and
-#              gnoto config slurm --probe
-# Defines:     config_main, config_set
+#              gnoto config [<section> [--on|--off] [--<key>=<value> ...]],
+#              gnoto config s3|sqs|systemd and gnoto config slurm --probe
+# Defines:     config_main, config_set, config_confirm, generated_set,
+#              run_id_salt
 # Requires:    yq, flock; the settings and helpers from lib/env.sh, which loads
 #              each section's declarations from lib/config/; args_parse from
 #              lib/args.sh
@@ -23,6 +24,13 @@
 # section is on unless --off says otherwise. gnoto config slurm --probe checks
 # every compute node with a Slurm job, from lib/nodes.sh, and writes nothing to
 # config.yaml.
+#
+# Once a section that's on is written, its step, config_<section>_step, does
+# its one-time setup: core's makes RUN_ID_SALT, and wrike's and globus's are in
+# service/. s3, sqs and systemd are steps with no section of their own. Each
+# step shows its plan, through config_confirm, and asks before changing
+# anything; --dry-run stops after the plan, and --yes answers for a script.
+# Machine-made values go to <data_dir>/generated.yaml, through generated_set.
 #
 # Strings are written double-quoted, because the launcher reads its bootstrap
 # settings with an awk that accepts only   key: "value", true or false.
@@ -145,6 +153,54 @@ config_add_section() {
     ) 9> "$CONFIG_FILE.lock" || exit 1
 }
 
+# generated_set [--keep] <dotted key> <value>: writes a machine-made value, such
+# as a Wrike ID or a stack's output, into <data_dir>/generated.yaml under a
+# lock, and sets its variable here too: core.run_id_salt is RUN_ID_SALT, and
+# wrike.statuses.running is WRIKE_STATUSES_RUNNING. An empty value removes the
+# key. --keep leaves a value that's already there, and sets the variable to
+# it. A new file is mode 660 and takes the data directory's group, which its
+# setgid gives it.
+generated_set() {
+    local keep="" key value file=$DATA_DIR/generated.yaml name tmp
+    [[ $1 != --keep ]] || { keep=1; shift; }
+    key=$1 value=$2
+    name=${key//./_}
+    name=${name^^}
+    name=${name#CORE_}
+    value=$( {
+        flock -w 30 9 || fail "Can't lock $file."
+        if [[ -n $keep && -s $file ]]; then
+            old=$(yq -o=json . "$file" | jq -r --arg key "$key" 'getpath($key | split(".")) // ""') ||
+                fail "Can't read $file."
+            [[ -z $old ]] || { printf '%s' "$old"; exit 0; }
+        fi
+        tmp=$(mktemp "$file.XXXXXX") || fail "Can't write in $DATA_DIR."
+        if ! { printf '# Written by gnoto config: IDs and outputs it made or found. A value in config.yaml wins.\n'
+            { if [[ -s $file ]]; then yq -o=json . "$file"; else echo "{}"; fi; } | jq --arg key "$key" --arg value "$value" '
+                (. // {}) | ($key | split(".")) as $path
+                | if $value == "" then delpaths([$path]) else setpath($path; $value) end' |
+                yq -P -oy '.'; } > "$tmp" || ! chmod 660 "$tmp"; then
+            rm -f "$tmp"
+            fail "Can't write $key to $file."
+        fi
+        if [[ -e $file ]]; then
+            # Into the file itself, which keeps its group
+            cat "$tmp" > "$file" && rm -f "$tmp" || { rm -f "$tmp"; fail "Can't write $file."; }
+        else
+            mv "$tmp" "$file" || { rm -f "$tmp"; fail "Can't write $file."; }
+        fi
+        printf '%s' "$value"
+    } 9>> "$DATA_DIR/generated.yaml.lock") || exit 1
+    printf -v "$name" '%s' "$value"
+}
+
+# Makes RUN_ID_SALT, which turns a Wrike task's ID into its run's uid, once
+run_id_salt() {
+    [[ -z ${RUN_ID_SALT:-} ]] || return 0
+    mkdir -p "$DATA_DIR" || fail "Can't create $DATA_DIR."
+    generated_set --keep core.run_id_salt "$(head -c 30 /dev/urandom | base64 | tr -d '/+=')"
+}
+
 config_has_section() {
     [[ -e $CONFIG_FILE ]] && SECTION=$1 yq -e 'has(strenv(SECTION))' "$CONFIG_FILE" > /dev/null 2>&1
 }
@@ -231,25 +287,87 @@ config_walk() {
     done
 }
 
-config_main() {
-    local usage="Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...]], or gnoto config slurm --probe"
-    local section option="" present="" enabled key settings i why
+# config_confirm <where> <plan item> ...: shows what a step is about to change,
+# and asks before it does. --dry-run stops after the plan, returning 1, and
+# --yes answers for a script.
+config_confirm() {
+    local where=$1 item answer
+    shift
+    echo "This changes $where:"
+    for item in "$@"; do
+        echo "  - $item"
+    done
+    if [[ -n ${CONFIG_DRY_RUN:-} ]]; then
+        echo "Nothing was changed, with --dry-run."
+        return 1
+    fi
+    [[ -z ${CONFIG_YES:-} ]] || return 0
+    [[ -t 0 ]] || fail "No terminal to confirm on. Add --yes to go ahead, or --dry-run to see the plan alone."
+    printf 'Go ahead? [y/N] ' >&2
+    read -r answer || answer=""
+    [[ $answer == [yY]* ]] || fail "Nothing was changed."
+}
 
-    args_parse "$usage" "on off probe" "$@"
+# gnoto config s3|sqs|systemd: the steps that have no section of their own
+config_step_main() {
+    local step=$1 i usage
+    case $step in
+        s3) usage="Usage: gnoto config s3 [--deploy [--profile=<name>] [--domain=<name> --certificate=<arn>]] [--dry-run] [--yes]" ;;
+        sqs) usage="Usage: gnoto config sqs [--deploy [--profile=<name>]] [--dry-run] [--yes]" ;;
+        systemd) usage="Usage: gnoto config systemd [--move] [--dry-run] [--yes]" ;;
+    esac
+    [[ -z ${ARG_FLAGS[on]:-}${ARG_FLAGS[off]:-}${ARG_FLAGS[probe]:-} ]] || fail "$usage"
+    [[ $step == systemd || -z ${ARG_FLAGS[move]:-} ]] || fail "$usage"
+    [[ $step != systemd || -z ${ARG_FLAGS[deploy]:-} ]] || fail "$usage"
+    CONFIG_DEPLOY=${ARG_FLAGS[deploy]:-}
+    CONFIG_MOVE=${ARG_FLAGS[move]:-}
+    CONFIG_DRY_RUN=${ARG_FLAGS[dry-run]:-}
+    CONFIG_YES=${ARG_FLAGS[yes]:-}
+    CONFIG_PROFILE="" CONFIG_DOMAIN="" CONFIG_CERTIFICATE=""
+    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
+        case $step:${ARG_KEYS[i]} in
+            s3:profile | sqs:profile) CONFIG_PROFILE=${ARG_VALUES[i]} ;;
+            s3:domain) CONFIG_DOMAIN=${ARG_VALUES[i]} ;;
+            s3:certificate) CONFIG_CERTIFICATE=${ARG_VALUES[i]} ;;
+            *) fail "--${ARG_KEYS[i]} isn't an option here. $usage" ;;
+        esac
+    done
+    [[ -n $CONFIG_DEPLOY || -z $CONFIG_PROFILE$CONFIG_DOMAIN$CONFIG_CERTIFICATE ]] ||
+        fail "--profile, --domain and --certificate are for --deploy. $usage"
+    "config_${step}_step"
+}
+
+config_main() {
+    local usage="Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe"
+    local section option="" present="" enabled key settings i why step_only=""
+
+    args_parse "$usage" "on off probe deploy move dry-run yes" "$@"
     if [[ ${#ARG_WORDS[@]} -eq 0 ]]; then
         [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_FLAGS[@]} -eq 0 ]] || fail "$usage"
         for section in "${CONFIG_SECTIONS[@]}"; do
             printf '%-10s %s\n' "$section" "${CONFIG_ABOUT[$section]}"
         done
+        printf '%-10s %s\n' s3 "Check the S3 bucket and results address, or with --deploy, build them" \
+            sqs "Check the SQS queue for Wrike's webhook, or with --deploy, build it" \
+            systemd "Install the units that expire results, scan Wrike and listen to SQS"
         return 0
     fi
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
     section=${ARG_WORDS[0]}
+    case $section in
+        s3 | sqs | systemd)
+            config_step_main "$section"
+            return
+            ;;
+    esac
+    [[ -z ${ARG_FLAGS[deploy]:-}${ARG_FLAGS[move]:-} ]] ||
+        fail "--deploy is for gnoto config s3 and sqs, and --move for gnoto config systemd."
+    CONFIG_DRY_RUN=${ARG_FLAGS[dry-run]:-}
+    CONFIG_YES=${ARG_FLAGS[yes]:-}
     [[ -n ${CONFIG_ABOUT[$section]-} ]] || fail "gnoto config has no section $section. Run $(gnoto_command config) to list them."
     if [[ -n ${ARG_FLAGS[probe]:-} ]]; then
         [[ $section == slurm ]] || fail "--probe is for $(gnoto_command config slurm), which checks every compute node."
         [[ ${#ARG_FLAGS[@]} -eq 1 && ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto config slurm --probe takes nothing else."
-        source "$CODE_DIR/lib/lint.sh"
         nodes_probe
         return
     fi
@@ -276,15 +394,20 @@ config_main() {
         why=$(config_check "${CONFIG_TYPE[$section.$key]}" "${ARG_VALUES[i]}") || fail "--$key: $why"
         CONFIG_GIVEN[$key]=${ARG_VALUES[i]}
     done
-    if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && ! -t 0 ]]; then
-        fail "$(gnoto_command config "$section") asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
-    fi
-
     declare -gA CONFIG_NEW=()
     ! config_has_section "$section" || present=1
+    # With --dry-run or --yes alone, a section that's there keeps its settings,
+    # and only its step runs
+    if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && -n $present && -n $CONFIG_DRY_RUN$CONFIG_YES ]]; then
+        step_only=1
+    elif [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && ! -t 0 ]]; then
+        fail "$(gnoto_command config "$section") asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
+    fi
     enabled=true
     [[ $option != --off ]] || enabled=false
-    if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option ]]; then
+    if [[ -n $step_only ]]; then
+        :
+    elif [[ ${#ARG_KEYS[@]} -eq 0 && -z $option ]]; then
         echo "Press Enter to keep a suggestion, or type none to clear it." >&2
         config_walk "$section" ask
         if [[ -z $present ]]; then
@@ -310,5 +433,24 @@ config_main() {
         echo "$section is on, in $CONFIG_FILE." >&2
     else
         echo "$section is off, in $CONFIG_FILE. To turn it on, run: $(gnoto_command config "$section" --on)" >&2
+        return 0
+    fi
+
+    # The section's one-time setup, with the settings just written
+    if declare -F "config_${section}_step" > /dev/null; then
+        source "$CODE_DIR/lib/env.sh"
+        "config_${section}_step"
     fi
 }
+
+# What gnoto config core does once its settings are written: the data
+# directory, and the salt that turns a Wrike task's ID into its run's uid
+config_core_step() {
+    mkdir -p "$DATA_DIR" || fail "Can't create $DATA_DIR."
+    chmod g+s "$DATA_DIR" 2> /dev/null || :
+    run_id_salt
+}
+
+# lint.sh brings the integrations' steps, from service/, with their checks
+source "$CODE_DIR/lib/lint.sh"
+source "$CODE_DIR/lib/jobfile.sh"

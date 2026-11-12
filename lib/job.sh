@@ -2,11 +2,12 @@
 # job.sh - The head job: runs one job's three stages, Compute, Present and
 # Publish, in its run directory.
 #
-# Sourced by:  lib/main.sh, for the _job and _local commands that
-#              lib/start.sh submits
-# Defines:     job_main
+# Sourced by:  lib/main.sh, for the _job, _publish and _local commands that
+#              lib/start.sh and gnoto publish submit
+# Defines:     job_main, job_publish_main
 # Requires:    nextflow, sha256sum and stat, from the image; the settings and
-#              helpers from lib/env.sh, and record_write from lib/jobfile.sh
+#              helpers from lib/env.sh, with publish_run from
+#              service/publish.sh, and record_write from lib/jobfile.sh
 # Runs:        pipelines/<name>/pipeline.sh's steps, Nextflow,
 #              steps/<name>_composition.sh, present/prune_results.sh on a copy
 #              of the core tables, present/<name>.sh, and present/progress.sh
@@ -17,7 +18,7 @@
 # post-process steps, then the composition step that builds the core tables.
 # These always run: no setting turns them off. Present writes the dashboard
 # into results/ and the deliverables zip beside it, and needs no network.
-# Publish copies them to S3 and Globus, which phase 7 builds. Each stage
+# Publish copies them to S3 and Globus, as service/publish.sh says. Each stage
 # records itself in the state's stages when it finishes, so the followup knows
 # whether the results were made.
 #
@@ -38,8 +39,9 @@
 # from Slurm or from the progress watcher when it sees a cancel file, reaches
 # them at once. Nextflow then cancels its tasks through the scancel stand-in.
 #
-# Never touches Wrike or the run's results address: the followup reports how
-# the run ended, from .status, .message and .notes in the state.
+# Never touches Wrike: the followup reports how the run ended, from .status,
+# .message and .notes in the state. gnoto publish runs Present and Publish
+# alone, as job_publish_main, for a run whose Compute finished.
 
 CHILD_PID=""
 PROGRESS_PID=""
@@ -491,15 +493,18 @@ present() {
     state_set stages.present "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 }
 
-# Phase 7 copies the zip and pages to Globus or S3 here. Until then, the
-# results stay in the run directory, as they do when neither is set.
+# Copies the zip and pages to Globus or S3, as config.yaml says, through
+# publish_run in service/publish.sh. With neither, or for a selftest, they stay
+# in the run directory.
 publish() {
+    set_run_status "Publishing"
+    set_run_stage "Publishing your results."
     if [[ -n $(state_get selftest) ]]; then
         log "A selftest run publishes nothing. Its results are in $PWD/results until its report is written."
-    elif [[ ${AWS_ENABLED:-false} == true || ${GLOBUS_ENABLED:-false} == true ]]; then
-        state_append notes "Publishing to S3 and Globus isn't built yet, so the results stay in $PWD." || :
+    else
+        publish_run "${PWD##*/}"
+        [[ -n $(state_get published.verified_utc) ]] || log "The results are in $PWD/results."
     fi
-    log "The results are in $PWD/results."
     state_set stages.publish "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 }
 
@@ -552,6 +557,32 @@ job_main() {
     # The watcher stops before the dashboard replaces its page
     stop_progress
     present "$pipeline"
+    publish
+    set_run_status Completed
+    state_set stage "Finished."
+}
+
+# job_publish_main <run directory>: Present and Publish again, for gnoto
+# publish, in a run whose Compute finished
+job_publish_main() {
+    local run_dir=${1%/}
+    [[ $run_dir == "$DATA_DIR"/runs/* ]] && is_valid_uid "${run_dir##*/}" ||
+        fail "$run_dir isn't a run directory."
+    cd "$run_dir" || fail "Can't enter $run_dir."
+    state_present || fail "$run_dir has no run_state.json."
+    [[ -n $(state_get stages.compute) ]] || fail "Run ${run_dir##*/}'s results were never made, so there's nothing to publish."
+    state_set started_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    state_set code_dir.publish "$CODE_DIR"
+    [[ -z ${SLURM_JOB_ID:-} ]] || state_set scheduler.job_id "$SLURM_JOB_ID"
+    if [[ -e cancel ]]; then
+        set_run_status Cancelled
+        fail "Publishing was cancelled before it started."
+    fi
+    trap 'job_on_signal TERM' TERM
+    trap 'job_on_signal INT' INT
+    trap 'job_on_signal HUP' HUP
+    PRESENT_STEP=$(state_get_json steps | jq '[.[]?.name] | index("dashboard") // 0')
+    present "$(state_get pipeline)"
     publish
     set_run_status Completed
     state_set stage "Finished."
