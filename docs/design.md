@@ -73,8 +73,10 @@ settings to watch, as covered under "What same output means" and "Configuration"
 - **Publish:** S3 and Globus. These are skipped when unset. The deliverables zip holds
   everything: the reads, as zero or more sets of raw, decontaminated and cleaned FASTQs,
   and the results, the dashboard's HTML files included. It's kept in exactly one place:
-  Globus if it's set, otherwise S3, otherwise the run directory. S3 also serves the
-  dashboard pages and pruned results as a browsable site.
+  Globus if it's set, otherwise S3, otherwise the run directory. With both set, a zip of
+  `globus.min_zip_mb`, 100 MB, or less goes to S3 beside the dashboard, and only a larger
+  one to Globus. S3 also serves the dashboard pages and pruned results as a browsable
+  site.
 
 **Repository layout:**
 
@@ -521,8 +523,11 @@ whose settings are only partly filled in is a FAIL that says what to add.
 - **S3:** identity, bucket access under the run prefix, and that `results_base_url`
   serves a test file uploaded there, including a directory page.
 - **SQS:** identity, queue access, and how many messages are waiting.
-- **Globus:** the collection serves a file written into the run folder to anyone, the
-  client credentials work, and the anonymous read permission exists.
+- **Globus:** the run folder can be written, the client can manage the collection's
+  permissions, no permission opens the run folder or anything above it to anyone, which
+  is a FAIL, and how many runs are shared, a WARN from 90 of the 100 a user can be covered
+  by. `config globus` also checks, once, that a run shared there reaches anyone with its
+  address.
 - **systemd:** where the units are and whether they're running, and a unit whose
   template this version changed, as after an upgrade. Without the daily timer, a
   job's `lint` warns that its results won't expire.
@@ -1302,7 +1307,7 @@ step, and systemd has no section. An integration whose section is off or missing
 | SQS | Checks access to the queue. With `--deploy`, builds the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, and the queue policy for gnoto's IAM user | Set up the queue and webhook endpoint yourself, or supply admin credentials once for `--deploy` |
 | Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
-| Globus | With the client credentials in `config.yaml`, creates the run folder and grants the anonymous read permission | Create the guest collection and a client for gnoto, and put the collection's UUID and URL and the client's ID and secret in `config.yaml` |
+| Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it, and checks once, with a test folder shared and unshared again, that a run shared there reaches anyone with its address | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, and put the collection's UUID and URL and the client's ID and secret in `config.yaml` |
 
 **Wrike.**
 
@@ -1406,9 +1411,18 @@ service account, runs `config systemd` from its own login session, because
 **Globus.** Every Globus call uses the client credentials in `config.yaml`,
 `globus.cli_client_id` and `cli_client_secret`, passed only to the call that needs them.
 Any group member's command can then authenticate, and nobody runs `globus login`, whose
-token would sit in one person's home directory. A run only copies files into
-`globus.dir`, so it doesn't authenticate at all. Creating the guest collection stays
+token would sit in one person's home directory. Creating the guest collection stays
 manual, since it depends on the site's endpoint and its policies.
+
+A run's zip goes to `<globus.dir>/<run_prefix>/<uid>/`, and the run gets a permission of
+its own: Publish grants anonymous read on that folder alone, with gnoto's client, which holds
+the Access Manager role on the collection, and the teardown deletes it. Nothing grants anyone
+access to the run folder itself or above it. A Globus user signed in to the collection's
+file manager could then list every run and download any of them, as Daniel found with
+`cmmr/nextflow`'s one permission on its run folder (2026-11-12). The download link still
+works for anyone, since a run's uid can't be guessed. Globus lets one user be covered by at
+most 100 of a collection's permissions, and an anonymous one covers everyone, so only zips
+over `globus.min_zip_mb` go there, and `lint` warns as the shared runs near the limit.
 
 ## Images
 
@@ -1727,11 +1741,9 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   version's `lint`, took 34 seconds, and a new install's first command in the test bed 2
   minutes 51 seconds. Whether its size matters elsewhere, such as in a Zenodo bundle, is open.
 - **Zenodo fit:** the real size of each image bundle.
-- **Globus listing:** whether the anonymous read rule on the run folder lets any logged-in
-  Globus user list every run, and so download every zip. Test it from an unrelated Globus
-  account. If the folder lists, either grant a rule per run at publish and delete it at
-  teardown, or record a decision that results are public and can be found. Deferred by
-  Daniel on 2026-11-05.
+- **Globus's limit of 100 permissions per user:** whether an anonymous permission counts
+  toward it for every user, as Globus's FAQ suggests without saying, and what the 101st
+  does. Settled for now by sending only zips over 100 MB to Globus.
 - **Large zips on S3:** CloudFront caches a response only up to 50 GB
   ([quotas](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html)),
   so a bigger deliverables zip needs a download test, or a link straight to S3. Deferred

@@ -1234,8 +1234,12 @@ the stacks and IAM policies are written new, independent of `cmmr/nextflow`'s, r
 from saved settings; everything is built and tested against stand-ins locally, and the real
 services only on the cluster, in new objects beside the old ones; and with S3, a running
 job's progress page is published at its results address from submission, with a Results
-link field on its Wrike task. Whether Globus's one anonymous read permission lets anyone
-list every run is Daniel's to test, and the permission is built as designed meanwhile.
+link field on its Wrike task. Daniel then tested Globus's one anonymous read permission on
+the run folder, against `cmmr/nextflow`'s collection, from an unrelated Globus account: it
+let him list every run and download from any of them. So, at his call, each run on Globus
+gets a permission of its own, and only a zip over 100 MB goes there, the rest to S3 beside
+the dashboard, which keeps the shared runs under Globus's limit of 100 permissions per
+user.
 
 What's built:
 
@@ -1271,8 +1275,11 @@ What's built:
   Without Slurm it exits after starting a job, so the launcher can start it, and systemd
   starts the listener again.
 - **Publish,** `service/publish.sh`. The zip is kept in exactly one place: Globus when it's
-  set, otherwise S3, otherwise the run directory, and Present's link to it names that
-  place. With S3, `results/` goes to `<run_prefix>/<uid>/`, text files typed to open in the
+  set, otherwise S3, otherwise the run directory, and with both, only a zip over
+  `globus.min_zip_mb` (100 MB) goes to Globus. Present decides, from the zip's size, since
+  its link names that place, and records it for Publish. On Globus, Publish grants
+  anonymous read on the run's own folder through gnoto's client, and the teardown deletes
+  that permission. With S3, `results/` goes to `<run_prefix>/<uid>/`, text files typed to open in the
   browser and the pages last, uncached. Each destination is checked once written, and only
   then does the state record `published.verified_utc`, which lets the followup delete the
   run directory. The state's `published` keeps where everything went, for the teardown.
@@ -1306,7 +1313,9 @@ What's built:
   `config sqs` check the bucket and queue, or with `--deploy [--profile=<name>]` build the
   stacks `gnoto-iam`, `gnoto-s3` and `gnoto-sqs` from `service/aws/stacks/`, writing their
   outputs to `generated.yaml` and printing the IAM user's first key once. `config globus`
-  makes the run folder and its anonymous read permission. Each shows its plan and asks;
+  makes the run folder, refuses a permission that opens it, and checks once, with a test
+  folder shared and unshared again, that a shared run reaches anyone with its address;
+  `lint` fails on such a permission and warns from 90 shared runs. Each shows its plan and asks;
   `--dry-run` stops after the plan, and `--yes` answers for a script. `config core` makes
   `RUN_ID_SALT`.
 - **AWS's own pieces.** `service/aws/lambda/webhook.py` is the old Lambda, its challenge check
@@ -1341,9 +1350,11 @@ How it was tested, all in the test bed or in Docker on the development machine:
   ElasticMQ: 15 checks, signed and unsigned events, the handshake, challenges that must be
   refused, and base64 bodies, all passing. The stacks pass `cfn-lint` 1.60.1 with their code
   filled in.
-- **`test/lib/integrations-test.sh`,** 135 checks, all passing: retries, replay and its
+- **`test/lib/integrations-test.sh`,** 150 checks, all passing: retries, replay and its
   keys, `config wrike` twice with nothing changed the second time, answers to a job file,
-  rejection, repeats, Publish to S3 and Globus, the progress page, the teardown and its
+  rejection, repeats, Publish to S3 and Globus by the zip's size, each run's Globus
+  permission against a stand-in for `globus-cli`, `lint`'s checks of those permissions,
+  the progress page, the teardown and its
   expired page, `extend`, Wrike's dates and the floor, the daily check, the followup's
   report, the listener's events, the health summary, `config s3` and `config sqs` with
   `--deploy` against a stand-in for the AWS CLI's CloudFormation and IAM calls, and the

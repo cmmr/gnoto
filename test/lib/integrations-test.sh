@@ -78,8 +78,42 @@ globus:
   uuid: "00000000-0000-0000-0000-000000000000"
   url: "https://globus.example.invalid"
   run_prefix: "gnoto"
+  cli_client_id: "test-client"
+  cli_client_secret: "test-secret"
 EOF
 chmod 660 "$WORK/install/config.yaml"
+
+# A stand-in for globus-cli's permission calls, which keeps the rules in a
+# file, a "<id>\t<principal>\t<path>" line each, and records the client it was
+# called as
+mkdir -p "$WORK/globusbin"
+cat > "$WORK/globusbin/globus" << EOF
+#!/bin/bash
+RULES=$WORK/globus-rules
+touch "\$RULES"
+echo "\${GLOBUS_CLI_CLIENT_ID:-}" > $WORK/globus-client
+case "\$1 \$2 \$3" in
+    "endpoint show "*) echo '{"display_name": "stand-in"}' ;;
+    "endpoint permission create")
+        path=\${4#*:}
+        principal=anonymous
+        [[ " \$* " != *" --all-authenticated "* ]] || principal=all_authenticated_users
+        id=rule-\$RANDOM
+        printf '%s\t%s\t%s\n' "\$id" "\$principal" "\$path" >> "\$RULES"
+        echo "{\"access_id\": \"\$id\", \"code\": \"Created\"}"
+        ;;
+    "endpoint permission delete")
+        grep -q "^\$5	" "\$RULES" || { echo "AccessRuleNotFound" >&2; exit 1; }
+        grep -v "^\$5	" "\$RULES" > "\$RULES.tmp"; mv "\$RULES.tmp" "\$RULES"
+        ;;
+    "endpoint permission list")
+        jq -R -s '{DATA: [split("\n")[] | select(length > 0) | split("\t") | {id: .[0], principal_type: .[1], path: .[2]}]}' "\$RULES"
+        ;;
+    *) echo "the stand-in has no \$*" >&2; exit 1 ;;
+esac
+EOF
+chmod +x "$WORK/globusbin/globus"
+export PATH=$WORK/globusbin:$PATH
 export GNOTO_INSTALL_DIR=$WORK/install
 export GNOTO_LAUNCHER=$WORK/install/gnoto
 export WRIKE_TRIES=3 WRIKE_WAIT=0
@@ -241,8 +275,12 @@ finished_run() {
 echo "Publish"
 UID1=$(derive_uid "MATESTRUN001")
 finished_run "$UID1" "" Completed
-(cd "$RUNS/$UID1" && publish_run "$UID1" > "$WORK/publish.out" 2>&1)
+(cd "$RUNS/$UID1" && GLOBUS_MIN_ZIP_MB=0 publish_run "$UID1" > "$WORK/publish.out" 2>&1)
 check "it publishes" "0" "$?"
+check "a zip over globus.min_zip_mb gets a Globus permission of its own" "anonymous /gnoto/$UID1/" \
+    "$(cut -f2,3 "$WORK/globus-rules" | tr '\t' ' ')"
+check "made as gnoto's client" "test-client" "$(cat "$WORK/globus-client")"
+check "which the state records" "$(cut -f1 "$WORK/globus-rules")" "$(cd "$RUNS/$UID1" && state_get published.globus_rule)"
 check "the results to S3, under the run's prefix" "<html>dashboard</html>" "$(curl -s "$S3/$PREFIX/$UID1/index.html")"
 check "a table typed as text, to open in the browser" "yes" \
     "$(curl -sI "$S3/$PREFIX/$UID1/table.csv" | grep -qi '^content-type: text/plain' && echo yes)"
@@ -255,6 +293,19 @@ check "the state records where, and that it was checked" "yes" \
     "$(cd "$RUNS/$UID1" && [[ -n $(state_get published.verified_utc) && $(state_get published.s3_prefix) == "$PREFIX/$UID1" && $(state_get published.globus_dir) == "$WORK/globus/gnoto/$UID1" ]] && echo yes)"
 check "the dashboard's address" "$S3/$PREFIX/$UID1/index.html" "$(cd "$RUNS/$UID1" && state_get published.url)"
 check "the zip's" "https://globus.example.invalid/gnoto/$UID1/Mock-run_$UID1.zip?download" "$(cd "$RUNS/$UID1" && state_get published.zip_url)"
+(cd "$RUNS/$UID1" && state_unset published.verified_utc && echo zip > "Mock-run_$UID1.zip" &&
+    GLOBUS_MIN_ZIP_MB=0 publish_run "$UID1" > /dev/null 2>&1)
+check "published again, it keeps its one permission" "1" "$(grep -c . "$WORK/globus-rules")"
+UIDS=$(derive_uid "MATESTRUN0S")
+finished_run "$UIDS" "" Completed
+(cd "$RUNS/$UIDS" && publish_run "$UIDS" > /dev/null 2>&1)
+check "a zip of globus.min_zip_mb or less goes to S3, with Globus set" "zip no" \
+    "$(curl -s "$S3/$PREFIX/$UIDS/Mock-run_$UIDS.zip") $(exists "$WORK/globus/gnoto/$UIDS")"
+check "and makes no Globus permission" "1" "$(grep -c . "$WORK/globus-rules")"
+check "the line between them is globus.min_zip_mb" "s3 globus" \
+    "$(cd "$RUNS/$UIDS" && zip_destination 104857600) $(cd "$RUNS/$UIDS" && zip_destination 104857601)"
+check "Globus alone takes every zip, S3 alone every zip" "globus s3" \
+    "$(cd "$RUNS/$UIDS" && AWS_ENABLED=false zip_destination 1) $(cd "$RUNS/$UIDS" && GLOBUS_ENABLED=false zip_destination 999999999)"
 UID2=$(derive_uid "MATESTRUN002")
 finished_run "$UID2" "" Completed
 (cd "$RUNS/$UID2" && GLOBUS_ENABLED=false publish_run "$UID2" > /dev/null 2>&1)
@@ -263,11 +314,13 @@ check "and its address is S3's" "$S3/$PREFIX/$UID2/Mock-run_$UID2.zip" "$(cd "$R
 (cd "$RUNS/$UID2" && GLOBUS_ENABLED=false AWS_S3_BUCKET=no-such-bucket publish_run "$UID2" > "$WORK/fail.out" 2>&1)
 check "a bucket it can't write fails the stage" "1" "$?"
 check "with the reason" "yes" "$(grep -q "couldn't be copied to s3://no-such-bucket" "$WORK/fail.out" && echo yes)"
-check "the zip's href names Globus" "https://globus.example.invalid/gnoto/$UID1/x.zip?download" \
-    "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1")"
-check "or S3, without Globus" "$S3/$PREFIX/$UID1/x.zip" "$(cd "$RUNS/$UID1" && GLOBUS_ENABLED=false bundle_href x.zip "$UID1")"
+check "a large zip's href names Globus" "https://globus.example.invalid/gnoto/$UID1/x.zip?download" \
+    "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1" 200000000)"
+check "and records where it goes, for Publish" "globus" "$(cd "$RUNS/$UID1" && state_get published.zip_destination)"
+check "a small one's S3" "$S3/$PREFIX/$UID1/x.zip" "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1" 1000)"
+check "which Publish then follows" "s3" "$(cd "$RUNS/$UID1" && publish_destination)"
 check "or the run directory, without either" "../x.zip" \
-    "$(cd "$RUNS/$UID1" && GLOBUS_ENABLED=false AWS_ENABLED=false bundle_href x.zip "$UID1")"
+    "$(cd "$RUNS/$UID1" && GLOBUS_ENABLED=false AWS_ENABLED=false bundle_href x.zip "$UID1" 200000000)"
 
 echo "the progress page on S3"
 UID3=$(derive_uid "MATESTRUN003")
@@ -298,6 +351,23 @@ check "S3 keeps only the expired page and its assets" "assets/gnoto.css index.ht
 check "which names the run" "yes" "$(curl -s "$S3/$PREFIX/$UID1/index.html" | grep -q "$UID1" && echo yes)"
 check "and its sample count" "yes" "$(curl -s "$S3/$PREFIX/$UID1/index.html" | grep -q '3 samples' && echo yes)"
 check "the Globus folder went" "no" "$(exists "$WORK/globus/gnoto/$UID1")"
+check "and its permission, first" "0" "$(grep -c . "$WORK/globus-rules")"
+LINT_FAILS=0 LINT_WARNS=0
+out=$(lint_globus)
+check "lint: Globus is set up, with no run shared" "yes" "$(has "$out" "OK    globus: 0 runs shared, each by a permission of its own")"
+printf 'rule-open\tall_authenticated_users\t/gnoto/\n' >> "$WORK/globus-rules"
+LINT_FAILS=0
+out=$(lint_globus)
+check "lint fails on a permission that opens the run folder" "yes" \
+    "$(has "$out" "FAIL  globus: a permission lets anyone list every run and download any of them: rule-open on /gnoto/")"
+printf 'rule-root\tanonymous\t/\n' > "$WORK/globus-rules"
+out=$(lint_globus)
+check "or anything above it" "yes" "$(has "$out" "rule-root on /")"
+for (( i = 0; i < 95; i++ )); do printf 'rule-%s\tanonymous\t/gnoto/run%s/\n' "$i" "$i"; done > "$WORK/globus-rules"
+out=$(lint_globus)
+check "lint warns as the shared runs near the 100 a user can be covered by" "yes" \
+    "$(has "$out" "WARN  globus: 95 runs are shared")"
+: > "$WORK/globus-rules"
 check "the run directory and expiry file went" "no no" "$(exists "$RUNS/$UID1") $(exists "$EXPIRY/$UID1")"
 check "history says when" "yes" "$(jq -e '.removed_utc' "$HISTORY/$UID1/state.json" > /dev/null && echo yes)"
 check "the task moved to Expired" "$(wrike_status_id expired)" "$(wrike_call GET "tasks/$TASK_T" | jq -r '.data[0].customStatusId')"

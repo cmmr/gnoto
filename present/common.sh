@@ -215,10 +215,15 @@ bundle_name() {
     printf '%s%s.zip' "${slug:+${slug}_}" "$uid"
 }
 
-# Where the pages link the zip: bundle_href <zip> <uid>. Its address on the
-# Globus collection or S3, wherever Publish puts it, or else beside results/.
+# Where the pages link the zip: bundle_href <zip> <uid> <bytes>. Its address
+# on the Globus collection or S3, wherever its size sends it, or else beside
+# results/. Records the choice, which Publish follows.
 bundle_href() {
-    case $(publish_destination) in
+    local destination
+    destination=$(zip_destination "${3:-0}")
+    # Publish puts the zip where its link says
+    state_set published.zip_destination "$destination" > /dev/null || return 1
+    case $destination in
         globus) globus_run_url "$2" "$1" ;;
         s3) printf "%s%s" "$(s3_run_url "$2")" "$(escape_url "$1")" ;;
         *) printf "../%s" "$1" ;;
