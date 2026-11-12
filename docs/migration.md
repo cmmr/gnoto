@@ -1151,8 +1151,14 @@ image for `DADA2_TAXONOMY`, `check` failed while the config didn't name it, pass
 `containers` refused a process ampliseq doesn't have and an image by tag, and without
 `process_images` wrote the committed `containers.config` again. The fix is offered upstream
 as benjjneb/dada2 pull request 2230, with a comment on issue 2211 that points to it, both
-posted on 2026-11-12 with Daniel's approval. `DADA2_TAXONOMY` still runs ampliseq's image
-until CI publishes `gnoto-dada2` and a commit names its digest.
+posted on 2026-11-12 with Daniel's approval. CI published `gnoto-dada2` from `73c2aa8`,
+tagged `b0a2dfc2756c` and public, and checked every image with the new `lock.sh`. Pulled
+by digest, as an ordinary user, it named the tie's species at the same confidence every
+time. ampliseq's `lock.yaml` names it for `DADA2_TAXONOMY`, and `lock.sh containers`
+changed only that process's line in `containers.config`. In the test bed, `checks/job.sh
+--small` passed with it: Apptainer pulled `gnoto-dada2` by digest and `DADA2_TAXONOMY` ran
+in it. ampliseq's reference tables come from the next selftest, since its ties now break
+one fixed way.
 
 ### Phase 7: integrations
 

@@ -12,6 +12,9 @@ step_images:
   # For the 16s-v5v6 fixture. 3.2.1, not the latest, 3.4.1, because both of
   # 3.4.1's builds segfault reading its .sra file (2026-11-09)
   sra_tools: "quay.io/biocontainers/sra-tools@sha256:d388f70b57293aaaab21275ebfc7e6bde9f51103561cda9a36cb410375c12179" # 3.2.1--h4304569_1
+# Processes that run in an image gnoto builds instead of their module's
+process_images:
+  DADA2_TAXONOMY: "ghcr.io/cmmr/gnoto-dada2@sha256:6cc5b3d38dbc8e15dfc25658ef5d6f7a7f4e756fef84a2ff5b7ade0284664132" # b0a2dfc2756c, from images/gnoto-dada2
 databases:
   db:dada2/silva-138.2:
     files: 2
