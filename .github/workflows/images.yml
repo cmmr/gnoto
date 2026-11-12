@@ -58,6 +58,16 @@ jobs:
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: images/publish.sh gnoto-kneaddata
 
+  gnoto-dada2:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build and publish
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: images/publish.sh gnoto-dada2
+
   mirrors:
     runs-on: ubuntu-24.04
     steps:

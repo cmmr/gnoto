@@ -30,6 +30,9 @@
 # takes the module's own https:// file instead, which Seqera's registry serves
 # at a path naming its SHA-256: the file is checked against it here.
 #
+# A process lock.yaml's process_images names runs in that image instead, one
+# gnoto builds, by digest. Its line's comment still names its module's address.
+#
 # A digest is the sha256 of the manifest the registry serves for the tag. For a
 # multi-platform image, that's its index, which must list linux/amd64.
 
@@ -277,13 +280,20 @@ pipeline_selectors() {
 }
 
 write_containers() {
-    local pipeline=$1 dir=$REPO/pipelines/$1 out repository commit address https pinned count=0 files=0
-    local -A digests=() blobs=()
+    local pipeline=$1 dir=$REPO/pipelines/$1 out repository commit address https pinned selector image count=0 files=0
+    local -A digests=() blobs=() replaced=()
     [[ -f $dir/lock.yaml ]] || fail "there's no $dir/lock.yaml"
     fetch_upstream "$pipeline"
     pipeline_selectors "$pipeline" > "$WORK/pinning"
     repository=$(yq '.upstream.repository' "$dir/lock.yaml")
     commit=$(yq '.upstream.commit' "$dir/lock.yaml")
+
+    while IFS=$'\t' read -r selector image; do
+        [[ $image =~ $DIGEST_RE ]] || fail "$dir/lock.yaml: process_images.$selector isn't an image by digest"
+        cut -f1 "$WORK/pinning" | grep -qxF -- "$selector" ||
+            fail "$dir/lock.yaml: process_images names $selector, which isn't a process at the pinned commit"
+        replaced[$selector]=$image
+    done < <(process_images "$dir/lock.yaml")
 
     while IFS=$'\t' read -r _ address https; do
         [[ -z ${digests[$address]:-} ]] || continue
@@ -307,9 +317,17 @@ write_containers() {
         echo "// digest, at the commit lock.yaml pins, ${commit:0:7}. Written by pipelines/lock.sh"
         echo "// from every module there; each digest's tag follows it. An image that needs"
         echo "// its entrypoint gives way to the module's file for Apptainer, by its SHA-256."
+        if (( ${#replaced[@]} > 0 )); then
+            echo "// A process lock.yaml's process_images names runs in that image instead."
+        fi
         echo
         echo "process {"
         while IFS=$'\t' read -r selector address _; do
+            if [[ -n ${replaced[$selector]:-} ]]; then
+                printf "    withName: '%s' { container = '%s' } // %s, replaced by process_images\n" \
+                    "$selector" "${replaced[$selector]}" "$address"
+                continue
+            fi
             printf "    withName: '%s' { container = '%s' } // %s" "$selector" "${digests[$address]}" "$address"
             [[ ${digests[$address]} != https://* ]] || printf ', whose image needs its entrypoint'
             printf '\n'
@@ -319,7 +337,12 @@ write_containers() {
     chmod 644 "$out"
     mv -f "$out" "$dir/containers.config"
     yq -i '.nextflow_containers = "containers.config" | .nextflow_containers style="double"' "$dir/lock.yaml"
-    echo "Wrote $dir/containers.config: $(wc -l < "$WORK/pinning") processes and aliases in $count images, $files of them by their file for Apptainer."
+    echo "Wrote $dir/containers.config: $(wc -l < "$WORK/pinning") processes and aliases in $count images, $files of them by their file for Apptainer, ${#replaced[@]} replaced by process_images."
+}
+
+# lock.yaml's process_images, as "<process><tab><image>" lines
+process_images() {
+    yq -o=json '.process_images // {}' "$1" | jq -r 'to_entries[] | [.key, .value] | @tsv'
 }
 
 # lock.yaml's databases: each pipelines/databases.yaml entry used by this
@@ -387,7 +410,7 @@ check_blob() {
 
 check_all() {
     local image file pipeline lock name address selector tag config
-    local -A CHECKED=()
+    local -A CHECKED=() replaced=()
 
     IFS= read -r image < "$REPO/IMAGE" || image=""
     image=${image#docker://}
@@ -420,7 +443,18 @@ check_all() {
         fetch_upstream "$pipeline"
         pipeline_selectors "$pipeline" > "$WORK/$pipeline.wanted"
         config_entries "$REPO/pipelines/$pipeline/$config" | sort > "$WORK/$pipeline.have"
+        replaced=()
+        while IFS=$'\t' read -r selector address; do
+            replaced[$selector]=$address
+            awk -F'\t' -v s="$selector" -v a="$address" '$1 == s && $2 == a { found = 1 } END { exit !found }' \
+                "$WORK/$pipeline.have" ||
+                problem "pipelines/$pipeline/$config ($selector) doesn't name the image lock.yaml's process_images does; run lock.sh containers $pipeline"
+        done < <(process_images "$lock")
         while IFS=$'\t' read -r selector address tag; do
+            if [[ -n ${replaced[$selector]:-} ]]; then
+                check_address "$address" "pipelines/$pipeline/$config ($selector)"
+                continue
+            fi
             if [[ $address == https://* ]]; then
                 check_blob "$address" "pipelines/$pipeline/$config ($selector)"
                 grep -qxF -- "$selector"$'\t'"$tag"$'\t'"$address" "$WORK/$pipeline.wanted" ||

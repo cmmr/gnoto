@@ -8,6 +8,7 @@
 # Usage:     images/publish.sh gnoto <docker-archive tarball>
 #            images/publish.sh gnoto-rbiom
 #            images/publish.sh gnoto-kneaddata
+#            images/publish.sh gnoto-dada2
 #            images/publish.sh mirrors
 # Requires:  bash, git and docker. skopeo runs from its image, pinned below.
 # Env:       REGISTRY, where images go, ghcr.io/cmmr by default; REGISTRY_USER
@@ -27,9 +28,9 @@
 # gnoto's image rebuilds byte for byte, and skopeo's gzip is deterministic, so
 # the same recipe and skopeo give the same digest. Its digest is learned from
 # CHECK_REGISTRY first: an existing tag with another digest fails, as a build
-# that no longer reproduces. The Dockerfile images, gnoto-rbiom and
-# gnoto-kneaddata, don't rebuild byte for byte, so an existing tag is kept as
-# it is.
+# that no longer reproduces. The Dockerfile images, gnoto-rbiom,
+# gnoto-kneaddata and gnoto-dada2, don't rebuild byte for byte, so an existing
+# tag is kept as it is.
 
 set -euo pipefail
 
@@ -158,6 +159,7 @@ case ${1:-} in
     gnoto) publish_gnoto "${2:?Usage: publish.sh gnoto <tarball>}" ;;
     gnoto-rbiom) publish_docker gnoto-rbiom "$REPO/pipelines/*/lock.yaml" ;;
     gnoto-kneaddata) publish_docker gnoto-kneaddata "$REPO/modules" ;;
+    gnoto-dada2) publish_docker gnoto-dada2 "$REPO/pipelines/*/lock.yaml" ;;
     mirrors) publish_mirrors ;;
-    *) fail "Usage: publish.sh gnoto <tarball> | gnoto-rbiom | gnoto-kneaddata | mirrors" ;;
+    *) fail "Usage: publish.sh gnoto <tarball> | gnoto-rbiom | gnoto-kneaddata | gnoto-dada2 | mirrors" ;;
 esac

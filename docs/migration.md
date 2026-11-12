@@ -1114,6 +1114,46 @@ tables: *B. fragilis* in the mock, 9 then 10. Those six tables replaced theirs i
 past were left as they were. The next full selftest shows whether `--reorder` makes the
 mOTUs counts repeat.
 
+**The fourth selftest,** `wvkautfs` at `3d50bfc`, found 14 of the 15 jobs identical, every
+one of taxprofiler's among them, so `--reorder` held, and biobakery's `human` had no HUMAnN
+difference this time. ampliseq's `v5v6` named a species its reference hadn't: one
+*Gordonia* ASV's species bootstrap was 50 where the reference's was 48, and `minBoot` is
+50, so *namibiensis* appeared in its taxonomy, its feature table and the L7 tables. Three
+other ASVs' confidences moved by 1 to 4 replicates. DADA2's classifier, 1.38.0 in the pinned
+image, breaks an exact tie between two reference taxa with a generator seeded from
+`std::random_device`, which `set.seed()` doesn't reach. In that image, a query tied
+between two species of one genus, classified eight times with `set.seed(100)` before each
+call, at 1 thread and 4, got species bootstraps from 39 to 54, and named either species or
+none. So the confidences that `stable-files` leaves out vary for that reason, not with the
+node, and a taxon whose confidence sits at the cutoff can vary with them.
+
+**`gnoto-dada2`,** at Daniel's call. DADA2's own issues 1115, from 2020, and 2211, from August
+2026, report the same thing, unfixed. `cmmr/dada2` is Daniel's fork of DADA2's repository, and
+one commit there gives each query sequence its own `std::mt19937`, seeded from one `runif()`
+drawn after the bootstrap numbers, which stay as they were, and takes a tie's uniform straight
+from the generator's output, which every standard library computes alike. The commit is on
+`seeded-tie-breaks`, from `master`, for upstream, and on `RELEASE_3_22-seeded-tie-breaks`,
+Bioconductor's 1.38.0 with it, for gnoto. Bioconductor's 1.38.0 differs from `master` only in
+its version, README and Windows build flags. In ampliseq's DADA2 image, after
+`set.seed(100)` each time, a query tied between two species got confidences from 39 to 59 in
+24 calls from the released build, naming either species or none, and 55 for the same species
+in 16 calls from the patched one. On `v5v6`'s 38 ASVs against SILVA 138.2's training set,
+two sessions of the released build, at 1 thread and 4, disagreed by up to 6 confidences in 3
+ASVs, and so did the released code rebuilt with the image's compilers, while two sessions of
+the patched build gave identical results. `images/gnoto-dada2/` rebuilds
+DADA2 from that commit in ampliseq's DADA2 image, with the image's own GCC 15.2, and
+`check.R` stops the build unless a tie repeats under `set.seed()`: the built image named the
+same species at the same confidence in all 16 calls, at 1 thread and 4, in two processes, as
+an ordinary user. `lock.yaml`'s new `process_images` names an image for one process, which
+`lock.sh containers` writes into `containers.config`. In the gnoto image, with a stand-in
+image for `DADA2_TAXONOMY`, `check` failed while the config didn't name it, passed once
+`containers` had written it, and failed again with the entry gone from `lock.yaml`;
+`containers` refused a process ampliseq doesn't have and an image by tag, and without
+`process_images` wrote the committed `containers.config` again. The fix is offered upstream
+as benjjneb/dada2 pull request 2230, with a comment on issue 2211 that points to it, both
+posted on 2026-11-12 with Daniel's approval. `DADA2_TAXONOMY` still runs ampliseq's image
+until CI publishes `gnoto-dada2` and a commit names its digest.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs

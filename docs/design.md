@@ -1048,6 +1048,8 @@ nextflow_containers: "containers.config"
 step_images:
   vsearch: "quay.io/biocontainers/vsearch@sha256:..." # 2.32.0--hd2be7a0_0
   rbiom: "ghcr.io/cmmr/gnoto-rbiom@sha256:..." # 008bf3987dab, from images/gnoto-rbiom
+process_images:
+  DADA2_TAXONOMY: "ghcr.io/cmmr/gnoto-dada2@sha256:..." # <tag>, from images/gnoto-dada2
 databases:
   db:pplace/v1:
     files: 2
@@ -1074,6 +1076,11 @@ address with no registry takes the pipeline's own `apptainer.registry`. The `htt
 files that nf-core names for Singularity and Apptainer are passed over, because a downloaded
 file generally has no registry digest. Reading every module, rather than running `nextflow
 inspect`, also covers processes that only a hand-added parameter turns on.
+
+A process `lock.yaml` names under `process_images` gets that image instead, one gnoto builds,
+by digest. Its line's comment still names its module's address, so `check` can still tell
+whether the config matches the modules at the pinned commit, and `check` fails when the config
+and `process_images` disagree. ampliseq's `DADA2_TAXONOMY` runs in `gnoto-dada2` this way.
 
 One kind of image is the exception. Seqera's pixi-built images, whose entrypoint is
 `/shell-hook.sh`, put their tools on `PATH` only there, and `apptainer exec` never runs an
@@ -1362,14 +1369,15 @@ Registry (GHCR). Everything else is pinned by digest where it already lives.
 | `gnoto`: the tools listed under "Host and image" | Built with Nix | **Yes** | Every script and Nextflow run on it |
 | `gnoto-rbiom`: R, rbiom, h5lite | Built with Docker from rocker's R image, with pak installing a lockfile resolved against Posit's dated CRAN snapshot | **Yes** | Nobody else can provide it |
 | `gnoto-kneaddata`: KneadData from its `master` branch | Built with Docker from KneadData 0.12.4's BioContainers image, with `master`'s `kneaddata` package in place of the release's | **Yes** | No release has the fix for its parallel TRF yet |
+| `gnoto-dada2`: DADA2 1.38.0 whose classifier repeats under `set.seed()` | Built with Docker from the image ampliseq's DADA2 modules name, with DADA2 rebuilt from a commit on `cmmr/dada2` | **Yes** | No DADA2 release breaks its classifier's ties reproducibly |
 | `bowtie2_htslib_samtools_pigz` | `community.wave.seqera.io` | **Yes, a mirror** | It's one vendor's registry, with no formal retention policy that we could find |
 | KneadData's base, MetaPhlAn, HUMAnN, mOTUs, Nonpareil, Marker-MAGu, EsViritu, MultiQC, biom-format, vsearch, gotree, minimap2, sra-tools | `quay.io/biocontainers` | No | Pinned by digest, and archived on Zenodo by any release that changes them |
 | The images ampliseq and taxprofiler use | Wherever upstream names them | No | Pinned through `containers.config`, and archived the same way |
 
 **Publishing.** `.github/workflows/images.yml` runs `images/publish.sh` whenever a push to
-`main` changes a recipe, `IMAGE` or the workflow. It builds gnoto with Nix and `gnoto-rbiom`
-and `gnoto-kneaddata` with Docker, copies each image `images/mirrors.txt` lists, by tag and
-digest, with its digest kept, and pushes them to `ghcr.io/cmmr/`. An image gnoto builds is
+`main` changes a recipe, `IMAGE` or the workflow. It builds gnoto with Nix and `gnoto-rbiom`,
+`gnoto-kneaddata` and `gnoto-dada2` with Docker, copies each image `images/mirrors.txt`
+lists, by tag and digest, with its digest kept, and pushes them to `ghcr.io/cmmr/`. An image gnoto builds is
 tagged with the first 12 characters of its recipe's git hash, so a recipe already published
 is left alone, and a copy keeps its source's tag. The run lists each digest, which `IMAGE`,
 `lock.yaml` and the modules then name in a commit of their own, since an image has to exist
@@ -1437,6 +1445,22 @@ holding. KneadData's three processes run in it. Once a release has the fix, they
 that release's BioContainers image and the recipe goes. Either way, KNEADDATA gives KneadData
 at least 2 threads: with 1, KneadData sends its own progress into the file Tandem Repeats
 Finder's results go to, overwriting their start, so each file's first repeat read is kept.
+
+**`gnoto-dada2` is ampliseq's DADA2 image with DADA2 rebuilt from `cmmr/dada2`.** DADA2's
+classifier, `assignTaxonomy`, breaks an exact tie between two reference taxa at random, with a
+generator seeded from `std::random_device`, which `set.seed()` doesn't reach. So its bootstrap
+confidences differ from run to run by a replicate or a few, and a taxon whose confidence is
+near `minBoot` is named in one run and not the next. `cmmr/dada2`, a fork of DADA2's
+repository, holds one change, which gives each sequence a generator seeded from R's, so its
+ties break the same way at any thread count. Its branch `RELEASE_3_22-seeded-tie-breaks` is
+Bioconductor's 1.38.0, the release ampliseq runs, with that change.
+`images/gnoto-dada2/Dockerfile` starts from the image ampliseq's DADA2 modules name, by
+digest, and rebuilds DADA2 in it from that branch's tarball at a commit, checked by its
+SHA-256, with the image's own compilers, so R, Rcpp, RcppParallel and TBB are the image's. The
+build checks that a tie repeats under `set.seed()` at 1 thread and at 4. Only
+`DADA2_TAXONOMY` runs in it, named in ampliseq's `lock.yaml` under `process_images`. The change
+is offered upstream as DADA2's pull request 2230, and once a DADA2 release that ampliseq runs
+has it, the process goes back to ampliseq's image and the recipe goes.
 
 **Archive.** A release that changes any image also gets an image bundle on Zenodo, in
 case a registry changes. `nf-core pipelines download` can
