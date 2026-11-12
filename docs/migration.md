@@ -1206,6 +1206,13 @@ the reference's rows and this run's the same order, left the other three tables 
 were, and failed with a message on a table missing a column. The reference is re-sorted to
 match.
 
+**The seventh selftest,** `3whniwlm` at `d786532`, again found all 15 jobs' core tables
+identical, now with DADA2's confidences and `virus-assemblies.tsv` compared byte for byte.
+Every taxonomy, count, feature and EsViritu table was identical in its bytes too. Bytes
+differed only in what `stable-files` reads past: Nonpareil's columns and Faith's PD in
+`alpha_diversity.tsv`, HUMAnN's last digits, and taxprofiler's upstream merges, read
+`unordered`.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs
