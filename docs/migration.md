@@ -1106,6 +1106,14 @@ that name in a subworkflow, with the real config. Running mOTUs itself on one in
 orders, which needs its database, wasn't done. taxprofiler's short-read jobs may then make
 slightly different tables, so their reference tables come from the next selftest.
 
+**The third selftest,** `nwmvidx4` at `9f8ec49`, ran taxprofiler's five jobs alone, and all
+completed in 13 minutes. `human`, `mouse` and `ont` were identical to the reference. `mixed`
+and `phix`, which both run the mock, each had one mOTUs count one apart in the same three
+tables: *B. fragilis* in the mock, 9 then 10. Those six tables replaced theirs in
+`pipelines/taxprofiler/selftest/`. The files that differed only where `stable-files` reads
+past were left as they were. The next full selftest shows whether `--reorder` makes the
+mOTUs counts repeat.
+
 ### Phase 7: integrations
 
 - **`remove` came forward.** Daniel asked for it on 2026-11-09, to clear out old test runs

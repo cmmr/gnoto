@@ -7,7 +7,7 @@ Roseburia hominis [ref_mOTU_v31_00861]	301301	0	2
 Fusobacterium nucleatum subsp. animalis [ref_mOTU_v31_01001]	851	0	7
 Alistipes shahii [ref_mOTU_v31_01014]	328814	1	0
 Lactobacillus fermentum [ref_mOTU_v31_01407]	1613	0	1
-Bacteroides fragilis [ref_mOTU_v31_01597]	817	0	9
+Bacteroides fragilis [ref_mOTU_v31_01597]	817	0	10
 Veillonella rogosae [ref_mOTU_v31_01939]	423477	0	11
 Bacteroides dorei/vulgatus [ref_mOTU_v31_02367]	NA	3	0
 [Eubacterium] siraeum [ref_mOTU_v31_02370]	39492	2	0
