@@ -73,10 +73,11 @@ settings to watch, as covered under "What same output means" and "Configuration"
 - **Publish:** S3 and Globus. These are skipped when unset. The deliverables zip holds
   everything: the reads, as zero or more sets of raw, decontaminated and cleaned FASTQs,
   and the results, the dashboard's HTML files included. It's kept in exactly one place:
-  Globus if it's set, otherwise S3, otherwise the run directory. With both set, a zip of
-  `globus.min_zip_mb`, 100 MB, or less goes to S3 beside the dashboard, and only a larger
-  one to Globus. S3 also serves the dashboard pages and pruned results as a browsable
-  site.
+  on Globus for a pipeline named in `globus.pipelines`, by default taxprofiler and
+  biobakery, when Globus is set up; otherwise on S3 beside the dashboard; otherwise in the
+  run directory. S3 also serves the dashboard pages and pruned results as a browsable
+  site, at an address with a random token in it, and a zip on Globus is reached through
+  that dashboard's Get the data.
 
 **Repository layout:**
 
@@ -100,10 +101,11 @@ workflows/, modules/  Nextflow code
 steps/                compute steps: samplesheets, region detection, tables, reference builds
 present/              dashboard templates and rendering
 service/wrike/        API helpers, tasks, gnoto wrike, the listener, config wrike
-service/aws/          CloudFormation stacks (IAM user, S3, SQS), Lambda, CloudFront function,
+service/aws/          CloudFormation stacks (IAM user, S3, SQS), Lambdas, CloudFront function,
                       IAM policies for a site's own setup, S3 and SQS helpers, config s3 and sqs
 service/systemd/      unit templates and config systemd
 service/globus.sh     config globus and its checks
+service/access.sh     Get the data: the listener's Globus grant to a dashboard's reader
 service/publish.sh    publish step: S3 upload, the Globus copy, the progress page on S3
 service/expire.sh     daily expiry check, extend, and the teardown remove shares
 service/daily.sh      what the units run: the daily timer, the poll scan, heartbeats
@@ -527,11 +529,13 @@ whose settings are only partly filled in is a FAIL that says what to add.
 - **S3:** identity, bucket access under the run prefix, and that `results_base_url`
   serves a test file uploaded there, including a directory page.
 - **SQS:** identity, queue access, and how many messages are waiting.
-- **Globus:** the run folder can be written, the client can manage the collection's
-  permissions, no permission opens the run folder or anything above it to anyone, which
-  is a FAIL, and how many runs are shared, a WARN from 90 of the 100 a user can be covered
-  by. `config globus` also checks, once, that a run shared there reaches anyone with its
-  address.
+- **Globus:** `globus.pipelines` names pipelines, the dashboards' app and Get the data's
+  address are set, with S3 and SQS, and the address answers a test request; the run folder
+  can be written, the client can manage the collection's permissions, no anonymous or
+  all-users permission opens the run folder, anything above it or any run in it, which is
+  a FAIL, and how many runs are shared and with how many identities, a WARN from 900 of the
+  1000 permissions a collection holds. `config globus` also checks, once, that the client
+  can share a test folder with an identity and take it back.
 - **systemd:** where the units are and whether they're running, and a unit whose
   template this version changed, as after an upgrade. Without the daily timer, a
   job's `lint` warns that its results won't expire.
@@ -650,9 +654,9 @@ comes after it.
 `history/<uid>/`, then deletes the Nextflow work directory and staged inputs. When Globus
 or S3 is set, the job checks that the zip arrived, and with S3 the browsable pages too,
 then deletes the whole run directory, `results/` included, since the zip holds everything
-in it. With Globus alone, the dashboard lives inside the zip, and `status` shows the
-Globus link. With neither, `results/` and the zip stay until they expire or `remove`
-deletes them.
+in it. Globus delivers only with S3, since a reader reaches a zip there through the
+dashboard. Without S3, `results/` and the zip stay until they expire or `remove` deletes
+them.
 
 **Cleanup on failure.** A failed or cancelled run also copies its `job.yaml`, record and
 final state to `history/<uid>/`, plus a short error summary that outlasts the logs. It
@@ -1308,10 +1312,10 @@ step, and systemd has no section. An integration whose section is off or missing
 | Slurm | Asks where Slurm's commands and `slurm.conf` are, then for the partition, account, largest task and run time limit, suggesting what `sinfo` reports. `--on` takes every suggestion | Load Slurm's module first, so its commands are suggested |
 | Apptainer | Asks where Apptainer is and for the paths containers must see | None |
 | S3 | Checks access to the bucket and the results address. With `--deploy`, builds the S3 stack: bucket, CloudFront and its function, and the bucket policy for gnoto's IAM user | Set up the bucket and CloudFront yourself, or supply admin credentials once for `--deploy`. A custom domain needs its own certificate and DNS |
-| SQS | Checks access to the queue. With `--deploy`, builds the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, and the queue policy for gnoto's IAM user | Set up the queue and webhook endpoint yourself, or supply admin credentials once for `--deploy` |
+| SQS | Checks access to the queue. With `--deploy`, builds the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, with Globus's app set the Lambda and API Gateway for Get the data, and the queue policy for gnoto's IAM user | Set up the queue and the webhook and access endpoints yourself, or supply admin credentials once for `--deploy` |
 | Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
-| Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it, and checks once, with a test folder shared and unshared again, that a run shared there reaches anyone with its address | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, and put the collection's UUID and URL and the client's ID and secret in `config.yaml` |
+| Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it to everyone, and checks once, with a test folder shared with the client and unshared again, that the client can share a run. Says how to register the dashboards' app, and to run `config sqs --deploy` once it's set | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, register the dashboards' app, a public client returning to `<results_base_url>/<run_prefix>/access.html`, and put the collection's UUID and URL and both clients' IDs, and gnoto's secret, in `config.yaml` |
 
 **Wrike.**
 
@@ -1357,13 +1361,14 @@ step, and systemd has no section. An integration whose section is off or missing
 
 **S3 and SQS.** Each is its own CloudFormation stack, so a site can set up either one
 alone. Each stack is one file that's safe to re-deploy and removable in one command, with
-no new tool to install. S3 publishes results, and SQS delivers Wrike's webhook to the
-listener.
+no new tool to install. S3 publishes results, and SQS delivers Wrike's webhook and the
+dashboards' requests for Globus access to the listener.
 
 - **Two ways to set up.** A site that runs its own bucket and CloudFront, or its own
   queue, fills in those settings, and `config` only checks them. `service/aws/` ships what
   such a site attaches itself: the CloudFront function that serves directory pages, the
-  Lambda that checks Wrike's signature, and the IAM policies gnoto's keys need. `--deploy`
+  Lambda that checks Wrike's signature, the Lambda behind Get the data, and the IAM
+  policies gnoto's keys need. `--deploy`
   builds the same pieces as stacks instead. Most sites are expected to set up S3 and
   CloudFront themselves.
 - **One IAM user:** with `--deploy`, a small third stack holds gnoto's least-privilege IAM
@@ -1373,15 +1378,15 @@ listener.
 - **Two sets of credentials:** admin keys are used only during `--deploy`, through
   `--profile`. `config` prints the IAM user's new access key once, for the user to paste
   into `config.yaml`, which it never rewrites.
-- **Stack outputs,** such as the CloudFront address and the queue and webhook URLs, go to
-  `generated.yaml`. A value in `config.yaml` overrides them.
+- **Stack outputs,** such as the CloudFront address and the queue, webhook and access URLs,
+  go to `generated.yaml`. A value in `config.yaml` overrides them.
 - **Permissions:** the policies include `sqs:GetQueueAttributes`, which the daily `lint`
   uses to count waiting messages.
 - **Results URL:** `aws.results_base_url` sets the address, so the bucket name doesn't
   have to be a domain.
 - **The stacks** are `gnoto-iam`, `gnoto-s3` and `gnoto-sqs`, from `service/aws/stacks/`,
-  with the CloudFront function and the Lambda filled in from their files at deploy, the
-  Lambda without its comments, since CloudFormation takes inline code only up to 4,096
+  with the CloudFront function and the Lambdas filled in from their files at deploy, the
+  Lambdas without their comments, since CloudFormation takes inline code only up to 4,096
   characters. The S3 stack's bucket is private, read by CloudFront through an origin access
   control, and the IAM user may write only under the run prefix. CloudFront caches an object
   for at most five minutes unless it says otherwise, so removed results soon leave its edge.
@@ -1389,11 +1394,13 @@ listener.
   both made by hand with the domain's DNS. The SQS stack's queue keeps a message 14 days
   and hides one being handled for 10 minutes, and Wrike posts to an HTTP API's `POST /wrike`
   route in front of the Lambda, which runs `python3.14`: Lambda's `python3.15` is a public
-  preview, which AWS says isn't for production.
+  preview, which AWS says isn't for production. With `globus.app_client_id` and S3 set, the
+  stack adds Get the data's Lambda behind a second HTTP API's `POST /access`, which allows
+  only the results' origin, and whose Lambda may read only each run's `globus.json`.
 
 **systemd.** Unit templates are filled from `slurm.bin_dir` and `slurm.conf`,
-because a user unit doesn't read the login shell. The listener installs only when
-Wrike and SQS are both configured. The polling timer for `gnoto wrike` installs whenever
+because a user unit doesn't read the login shell. The listener installs when SQS is
+configured with Wrike, Globus or both. The polling timer for `gnoto wrike` installs whenever
 Wrike is configured, unless `wrike.poll_minutes` is 0. The daily timer,
 `gnoto-daily.timer`, installs either way, so a CLI-only install gets expiry with no daemon.
 It runs the expiry check, `lint` for the health file, Wrike replays, delayed deletions and
@@ -1418,15 +1425,40 @@ Any group member's command can then authenticate, and nobody runs `globus login`
 token would sit in one person's home directory. Creating the guest collection stays
 manual, since it depends on the site's endpoint and its policies.
 
-A run's zip goes to `<globus.dir>/<run_prefix>/<uid>/`, and the run gets a permission of
-its own: Publish grants anonymous read on that folder alone, with gnoto's client, which holds
-the Access Manager role on the collection, and the teardown deletes it. Nothing grants anyone
-access to the run folder itself or above it. A Globus user signed in to the collection's
-file manager could then list every run and download any of them, as Daniel found with
-`cmmr/nextflow`'s one permission on its run folder (2026-11-12). The download link still
-works for anyone, since a run's uid can't be guessed. Globus lets one user be covered by at
-most 100 of a collection's permissions, and an anonymous one covers everyone, so only zips
-over `globus.min_zip_mb` go there, and `lint` warns as the shared runs near the limit.
+A run's zip goes to `<globus.dir>/<run_prefix>/<uid>/`, and Publish grants nobody
+anything. Globus lets anyone list the folders above one shared with everyone, so any
+anonymous or all-users permission on a run would let anyone signed in to Globus list every
+run and download any, as Daniel found (2026-11-12). Instead, whoever has a run's dashboard
+address may have its data through their own Globus sign-in, with no list of who that is:
+
+1. **Get the data,** on the Overview in place of Download everything, signs the reader in
+   to Globus with PKCE, through the dashboards' app, `globus.app_client_id`, a public
+   client. The PKCE verifier stays in the tab's session storage.
+2. **The return page,** `<run_prefix>/access.html` in the bucket, one page for every run
+   since Globus returns only to an address the app was registered with, checks the
+   sign-in's state and posts the code, the verifier and the run's folder to Get the data's
+   Lambda.
+3. **The Lambda** refuses an address without the `globus.json` Publish writes beside a
+   Globus run's dashboard, exchanges the code, asks Globus Auth who signed in, revokes the
+   token, and queues only the identity.
+4. **The listener** checks the run against its state, its token included, grants the
+   identity read on the run's folder with gnoto's client, which holds the Access Manager
+   role on the collection, and answers at `<run's folder>/access/<request>.json`. The
+   dashboard waits for that answer, and then its button downloads the zip, with a link to
+   transfer it in Globus's web app instead.
+
+A run is shared with at most `globus.max_people`, 20, identities, since a collection holds
+at most 1000 permissions. The permissions are the record of who has access, and the
+teardown deletes every one on the run's folder, so the run's state, which another account
+may own, holds none of it. Someone already granted can take the `?download` link under
+the button, which asks Globus to sign them in.
+
+**A run's address.** A run's dashboard is at
+`<results_base_url>/<run_prefix>/<uid>-<token>/`, where the token is 80 random bits, made
+with the run's state. The uid alone shows wherever the run does, in `squeue`, `status`,
+the zip's name and Wrike, so it can't keep the address secret, and the token can: with a
+thousand runs live, guessing one would take about 10^21 requests. The address is what
+gives access, as it is for a zip on S3, and nothing limits how fast it can be guessed.
 
 ## Images
 
@@ -1745,9 +1777,11 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   version's `lint`, took 34 seconds, and a new install's first command in the test bed 2
   minutes 51 seconds. Whether its size matters elsewhere, such as in a Zenodo bundle, is open.
 - **Zenodo fit:** the real size of each image bundle.
-- **Globus's limit of 100 permissions per user:** whether an anonymous permission counts
-  toward it for every user, as Globus's FAQ suggests without saying, and what the 101st
-  does. Settled for now by sending only zips over 100 MB to Globus.
+- **Get the data on the real collection:** whether the `?download` link serves a zip in
+  the browser to an identity with a permission of its own once it signs in, whether a
+  granted identity listing `<run_prefix>/` sees other runs' folders (their uids alone,
+  which give no access), and that the dashboards' app, registered as a public client,
+  returns to `access.html`.
 - **Large zips on S3:** CloudFront caches a response only up to 50 GB
   ([quotas](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html)),
   so a bigger deliverables zip needs a download test, or a link straight to S3. Deferred

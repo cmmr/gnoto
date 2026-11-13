@@ -134,6 +134,7 @@ case $COMMAND in
             _poll) [[ $# -eq 0 ]] || usage; poll_main ;;
             _listen)
                 [[ $# -eq 0 ]] || usage
+                source "$CODE_DIR/service/access.sh"
                 source "$CODE_DIR/service/wrike/listener.sh"
                 listen_main
                 ;;

@@ -3,31 +3,41 @@
 # they go, and keeps a running job's progress page at its results address.
 #
 # Sourced by:  lib/env.sh
-# Defines:     globus_on, globus_run_dir, globus_run_url, gnoto_globus,
-#              globus_rule_grant, globus_rule_delete, zip_destination,
-#              publish_destination, publish_results_url, publish_run,
+# Defines:     globus_ready, globus_takes, globus_run_dir, globus_run_path,
+#              globus_run_url, globus_browse_url, gnoto_globus,
+#              globus_path_rules, globus_path_rules_delete, globus_rule_delete,
+#              run_address, zip_destination, publish_destination,
+#              publish_results_url, publish_access_page, publish_run,
 #              progress_publish, published_location
 # Requires:    the S3 helpers from service/aws/aws.sh; state helpers from
 #              lib/run_state.sh; zip's sizes from stat; globus-cli, from the
 #              image
 # Env:         GLOBUS_ENABLED, GLOBUS_DIR, GLOBUS_UUID, GLOBUS_URL,
-#              GLOBUS_RUN_PREFIX, GLOBUS_MIN_ZIP_MB and the client's
-#              credentials, and the aws section's settings
+#              GLOBUS_RUN_PREFIX, GLOBUS_PIPELINES, GLOBUS_APP_CLIENT_ID and
+#              the client's credentials, and the aws section's settings
 #
-# The deliverables zip is kept in exactly one place: the Globus collection when
-# Globus is set, otherwise S3, otherwise the run directory. With both, a zip of
-# globus.min_zip_mb (100 MB) or less goes to S3 beside the dashboard, and only
-# a larger one to Globus. Present decides, since the pages link the zip where it
+# The deliverables zip is kept in exactly one place: on the Globus collection
+# for a pipeline named in globus.pipelines (taxprofiler and biobakery unless
+# set) when Globus is ready, otherwise on S3 beside the dashboard, otherwise in
+# the run directory. Present decides, since the pages link the zip where it
 # goes, and records it as published.zip_destination, which Publish follows.
-# With S3, the results folder, with the dashboard's pages, goes to
-# <run_prefix>/<uid>/ in the bucket, and is served from
-# <results_base_url>/<run_prefix>/<uid>/.
 #
-# On Globus, the zip goes to <globus.dir>/<run_prefix>/<uid>/, and the run gets
-# a permission of its own: anonymous read on that folder alone, which the
-# teardown deletes. Nothing grants access to the run folder itself, which would
-# let anyone signed in to Globus list every run. The grant is made with gnoto's
-# client, whose credentials are passed only to that call.
+# With S3, the results folder, with the dashboard's pages, goes to
+# <run_prefix>/<uid>-<token>/ in the bucket, and is served from
+# <results_base_url>/<run_prefix>/<uid>-<token>/. The token, made with the
+# run's state, is what keeps the address from being guessed: the uid shows
+# wherever the run does, such as in squeue and the zip's name.
+#
+# On Globus, the zip goes to <globus.dir>/<run_prefix>/<uid>/, and Publish
+# grants nobody anything, since an anonymous permission would let anyone signed
+# in to Globus list every run and download any. Whoever has the dashboard's
+# address gets the data through its Get the data button instead: it signs them
+# in to Globus, and the listener grants that identity read on the run's folder
+# (service/access.sh). So Globus is ready only with S3 and the queue's access
+# address too. Publish writes globus.json beside the dashboard, which tells
+# the access Lambda the address is a run on Globus, and access.html, the page
+# Globus's sign-in returns to, at <run_prefix>/access.html. The teardown
+# deletes every permission on the run's folder.
 #
 # Each destination is checked once it's written: the zip's size, and with S3,
 # the dashboard and the number of files. Only then does the run's state record
@@ -35,15 +45,34 @@
 # Where it was published goes in the state's published, so a later teardown
 # finds it whatever config.yaml says by then.
 
-# Globus delivers the zip when the globus section is on with a directory
-globus_on() {
-    [[ ${GLOBUS_ENABLED:-false} == true && -n ${GLOBUS_DIR:-} ]]
+GLOBUS_AUTH_URL=${GLOBUS_AUTH_URL:-https://auth.globus.org}
+
+# Globus delivers zips when its section is on with its directory, collection
+# and the dashboard's app, and S3 and the access address are set up, since a
+# reader gets a run's data only through its dashboard
+globus_ready() {
+    [[ ${GLOBUS_ENABLED:-false} == true && -n ${GLOBUS_DIR:-} && -n ${GLOBUS_UUID:-} &&
+        -n ${GLOBUS_URL:-} && -n ${GLOBUS_APP_CLIENT_ID:-} && -n ${AWS_ACCESS_URL:-} ]] && s3_on && sqs_on
+}
+
+# Whether a pipeline's zip goes to Globus when it's ready: globus_takes <pipeline>
+globus_takes() {
+    local list=${GLOBUS_PIPELINES-taxprofiler,biobakery}
+    list=${list// /}
+    [[ -n $1 && ",$list," == *",$1,"* ]]
 }
 
 # Where a run's files go in the collection: globus_run_dir <uid>
 globus_run_dir() {
     is_valid_uid "$1" || return 1
     printf '%s/%s/%s' "${GLOBUS_DIR%/}" "${GLOBUS_RUN_PREFIX:-gnoto}" "$1"
+}
+
+# That folder as the collection names it, for its permissions:
+# globus_run_path <uid>
+globus_run_path() {
+    is_valid_uid "$1" || return 1
+    printf '/%s/%s/' "${GLOBUS_RUN_PREFIX:-gnoto}" "$1"
 }
 
 # The address that serves a file there. ?download makes the collection answer
@@ -53,25 +82,41 @@ globus_run_url() {
     printf '%s/%s/%s/%s?download' "${GLOBUS_URL%/}" "${GLOBUS_RUN_PREFIX:-gnoto}" "$1" "$(escape_url "$2")"
 }
 
+# The folder in Globus's web app, to transfer it from: globus_browse_url <uid>
+globus_browse_url() {
+    local path
+    path=$(globus_run_path "$1") || return 1
+    printf 'https://app.globus.org/file-manager?origin_id=%s&origin_path=%s' \
+        "$GLOBUS_UUID" "$(jq -rn --arg p "$path" '$p | @uri')"
+}
+
 # globus-cli as gnoto's client, whose credentials go only to this call
 gnoto_globus() {
     env GLOBUS_CLI_CLIENT_ID="${GLOBUS_CLI_CLIENT_ID:-}" GLOBUS_CLI_CLIENT_SECRET="${GLOBUS_CLI_CLIENT_SECRET:-}" \
         globus "$@"
 }
 
-# globus_rule_grant <uid>: anonymous read on the run's own folder in the
-# collection, printing the rule's ID
-globus_rule_grant() {
-    local json id
-    [[ -n ${GLOBUS_UUID:-} && -n ${GLOBUS_CLI_CLIENT_ID:-} && -n ${GLOBUS_CLI_CLIENT_SECRET:-} ]] || {
-        warn "Sharing a run on Globus needs globus.uuid, cli_client_id and cli_client_secret."
-        return 1
-    }
-    json=$(gnoto_globus endpoint permission create "$GLOBUS_UUID:/${GLOBUS_RUN_PREFIX:-gnoto}/$1/" \
-        --anonymous --permissions r -F json 2>&1) || { warn "Globus refused the run's permission: $json"; return 1; }
-    id=$(jq -r '.access_id // empty' <<< "$json" 2> /dev/null)
-    [[ -n $id ]] || { warn "Globus made the run's permission, and its answer named no ID: $json"; return 1; }
-    printf '%s' "$id"
+# The permissions on one folder, as "<id>\t<principal type>\t<principal>"
+# lines: globus_path_rules <collection> <path>. Fails, with Globus's answer,
+# when they can't be listed.
+globus_path_rules() {
+    local json
+    json=$(gnoto_globus endpoint permission list "$1" -F json 2>&1) || { printf '%s' "$json" >&2; return 1; }
+    jq -r --arg path "${2%/}/" '.DATA[]? | select(((.path // "") | rtrimstr("/")) + "/" == $path)
+        | [.id, .principal_type, (.principal // "")] | @tsv' <<< "$json"
+}
+
+# Deletes every permission on a folder: globus_path_rules_delete <collection>
+# <path>. Warns about any it couldn't, and returns 1.
+globus_path_rules_delete() {
+    local rules id failed=0
+    rules=$(globus_path_rules "$1" "$2" 2>&1) ||
+        { warn "Couldn't list the Globus permissions on $2, so they weren't deleted: $rules"; return 1; }
+    while IFS=$'\t' read -r id _; do
+        [[ -n $id ]] || continue
+        globus_rule_delete "$1" "$id" || failed=1
+    done <<< "$rules"
+    return $failed
 }
 
 # globus_rule_delete <collection> <rule>: one that's gone already is fine
@@ -83,16 +128,20 @@ globus_rule_delete() {
     return 1
 }
 
-# Where a zip of so many bytes goes: globus, s3 or local. A selftest's stays
-# local. With both Globus and S3, only a zip larger than globus.min_zip_mb goes
-# to Globus.
+# A run's published folder, <uid>-<token>, from the run directory's state:
+# run_address <uid>
+run_address() {
+    local token
+    token=$(state_get address_token)
+    [[ $token =~ ^[a-z2-7]{16}$ ]] || return 1
+    printf '%s-%s' "$1" "$token"
+}
+
+# Where a pipeline's zip goes: globus, s3 or local. A selftest's stays local.
 zip_destination() {
-    local bytes=${1:-0}
     if [[ -n $(state_get selftest) ]]; then
         echo local
-    elif globus_on && s3_on; then
-        if (( bytes > ${GLOBUS_MIN_ZIP_MB:-100} * 1048576 )); then echo globus; else echo s3; fi
-    elif globus_on; then
+    elif globus_ready && globus_takes "${1:-}"; then
         echo globus
     elif s3_on; then
         echo s3
@@ -101,22 +150,21 @@ zip_destination() {
     fi
 }
 
-# Where this run's zip goes, as Present decided, or else by its size now
+# Where this run's zip goes, as Present decided, or else by its pipeline now
 publish_destination() {
-    local zip
     if [[ -n $(state_get published.zip_destination) ]]; then
         state_get published.zip_destination
     else
-        zip=$(publish_zip_name "${PWD##*/}")
-        zip_destination "$( [[ -z $zip ]] || stat -c %s "$zip")"
+        zip_destination "$(state_get pipeline)"
     fi
 }
 
-# The address of a run's dashboard: S3's, else nothing, since with Globus alone
-# the dashboard is in the zip
+# The address of a run's dashboard: S3's, else nothing, since without S3 the
+# dashboard stays in the run directory and the zip
 publish_results_url() {
-    if [[ -z $(state_get selftest) ]] && s3_on; then
-        printf '%sindex.html' "$(s3_run_url "$1")"
+    local address
+    if [[ -z $(state_get selftest) ]] && s3_on && address=$(run_address "$1"); then
+        printf '%sindex.html' "$(s3_run_url "$address")"
     fi
 }
 
@@ -131,10 +179,11 @@ published_location() {
 # they've changed. Run from the run directory after the page is rendered.
 # Never fails, and stops once Present has replaced the page.
 progress_publish() {
-    local uid=${PWD##*/} prefix name sum digests=.progress-digests
+    local uid=${PWD##*/} address prefix name sum digests=.progress-digests
     s3_on && [[ -z $(state_get selftest) && -z $(state_get stages.present) ]] || return 0
     [[ -f results/index.html ]] || return 0
-    prefix=$(s3_run_key "$uid")
+    address=$(run_address "$uid") || return 0
+    prefix=$(s3_run_key "$address")
     published_location s3_bucket "$AWS_S3_BUCKET"
     published_location s3_prefix "$prefix"
     if [[ ! -e .progress-assets && -d results/assets ]]; then
@@ -156,6 +205,19 @@ progress_publish() {
     return 0
 }
 
+# Puts the page Globus's sign-in returns to at <run_prefix>/access.html in the
+# bucket, from present/templates/access.html with the access address filled in.
+# One page serves every run, since Globus returns only to an address it was
+# given when the dashboard's app was registered.
+publish_access_page() {
+    local page url
+    page=$(< "$CODE_DIR/present/templates/access.html") || return 1
+    url=$(jq -n --arg url "$AWS_ACCESS_URL" '$url')
+    page=${page//__ACCESS_URL__/"$url"}
+    printf '%s\n' "$page" | s3_put - "$AWS_S3_BUCKET" "${AWS_RUN_PREFIX:-gnoto}/access.html" \
+        "text/html; charset=utf-8" no-cache > /dev/null 2>&1
+}
+
 # The run's zip, which Present built in the run directory, or nothing
 publish_zip_name() {
     local uid=$1 zip
@@ -168,16 +230,40 @@ publish_zip_name() {
 # with the reason, when a destination can't be written or doesn't check out,
 # and leaves the results and zip here then, so gnoto publish can try again.
 publish_run() {
-    local uid=$1 destination zip prefix="" dir output count local_count url="" zip_url="" size rule
+    local uid=$1 destination zip prefix="" address dir output count local_count url="" zip_url="" size
 
     destination=$(publish_destination)
     zip=$(publish_zip_name "$uid")
     [[ -d results && -f results/index.html ]] || fail "There's no dashboard in $PWD/results to publish."
 
     if [[ -z $(state_get selftest) ]] && s3_on; then
-        prefix=$(s3_run_key "$uid")
+        address=$(run_address "$uid") || fail "Run $uid's state has no address token, so it has no address to publish at."
+        prefix=$(s3_run_key "$address")
         published_location s3_bucket "$AWS_S3_BUCKET"
         published_location s3_prefix "$prefix"
+    fi
+
+    # A zip on Globus goes first, so the dashboard that offers it never comes
+    # before it
+    if [[ $destination == globus ]]; then
+        [[ -n $zip ]] || fail "There's no zip in $PWD to deliver through Globus."
+        [[ -n $prefix ]] || fail "A zip on Globus is reached through its dashboard on S3, and S3 isn't set up."
+        dir=$(globus_run_dir "$uid") || fail "\"$uid\" isn't a uid."
+        log "Copying $zip to $dir..."
+        published_location globus_dir "$dir"
+        published_location globus_uuid "$GLOBUS_UUID"
+        published_location globus_path "$(globus_run_path "$uid")"
+        mkdir -p "$dir" || fail "Can't create $dir, in globus.dir."
+        # Read through the collection as its owner's account, not the job's
+        chmod a+rx "$(dirname "$dir")" "$dir" 2> /dev/null || :
+        rm -f "$dir/.$zip.tmp"
+        cp "$zip" "$dir/.$zip.tmp" && chmod a+r "$dir/.$zip.tmp" && mv -f "$dir/.$zip.tmp" "$dir/$zip" ||
+            { rm -f "$dir/.$zip.tmp"; fail "Couldn't copy $zip to $dir."; }
+        [[ $(stat -c %s "$dir/$zip") == "$(stat -c %s "$zip")" ]] ||
+            fail "The zip copied to $dir isn't the size of $PWD/$zip."
+    fi
+
+    if [[ -n $prefix ]]; then
         log "Copying the results to s3://$AWS_S3_BUCKET/$prefix/..."
         output=$(s3_upload_results results "$AWS_S3_BUCKET" "$prefix") ||
             fail "The results couldn't be copied to s3://$AWS_S3_BUCKET/$prefix/: $output"
@@ -186,25 +272,12 @@ publish_run() {
 
     case $destination in
         globus)
-            [[ -n $zip ]] || fail "There's no zip in $PWD to deliver through Globus."
-            dir=$(globus_run_dir "$uid") || fail "\"$uid\" isn't a uid."
-            log "Copying $zip to $dir..."
-            published_location globus_dir "$dir"
-            mkdir -p "$dir" || fail "Can't create $dir, in globus.dir."
-            # Read as the collection's anonymous user, not the job's
-            chmod a+rx "$(dirname "$dir")" "$dir" 2> /dev/null || :
-            rm -f "$dir/.$zip.tmp"
-            cp "$zip" "$dir/.$zip.tmp" && chmod a+r "$dir/.$zip.tmp" && mv -f "$dir/.$zip.tmp" "$dir/$zip" ||
-                { rm -f "$dir/.$zip.tmp"; fail "Couldn't copy $zip to $dir."; }
-            [[ $(stat -c %s "$dir/$zip") == "$(stat -c %s "$zip")" ]] ||
-                fail "The zip copied to $dir isn't the size of $PWD/$zip."
-            # Its own permission, unless an earlier attempt made it
-            if [[ -z $(state_get published.globus_rule) || $(state_get published.globus_uuid) != "$GLOBUS_UUID" ]]; then
-                rule=$(globus_rule_grant "$uid") ||
-                    fail "The zip is on Globus, and couldn't be shared there, as the message above says."
-                published_location globus_uuid "$GLOBUS_UUID"
-                state_set published.globus_rule "$rule"
-            fi
+            publish_access_page ||
+                fail "The page Globus's sign-in returns to couldn't be put at s3://$AWS_S3_BUCKET/${AWS_RUN_PREFIX:-gnoto}/access.html."
+            # Last, since it's what lets a reader ask for the zip
+            output=$(printf '{"uid":"%s"}\n' "$uid" |
+                s3_put - "$AWS_S3_BUCKET" "$prefix/globus.json" application/json no-cache 2>&1) ||
+                fail "The zip is on Globus, and the dashboard couldn't be told so at s3://$AWS_S3_BUCKET/$prefix/globus.json: $output"
             zip_url=$(globus_run_url "$uid" "$zip")
             ;;
         s3)
@@ -216,7 +289,7 @@ publish_run() {
                 --query ContentLength --output text 2> /dev/null) || size=""
             [[ $size == "$(stat -c %s "$zip")" ]] ||
                 fail "S3's copy of $zip isn't its size: ${size:-none was found}."
-            zip_url=$(s3_run_url "$uid")$(escape_url "$zip")
+            zip_url=$(s3_run_url "$address")$(escape_url "$zip")
             ;;
     esac
 

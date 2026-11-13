@@ -1237,9 +1237,12 @@ job's progress page is published at its results address from submission, with a 
 link field on its Wrike task. Daniel then tested Globus's one anonymous read permission on
 the run folder, against `cmmr/nextflow`'s collection, from an unrelated Globus account: it
 let him list every run and download from any of them. So, at his call, each run on Globus
-gets a permission of its own, and only a zip over 100 MB goes there, the rest to S3 beside
-the dashboard, which keeps the shared runs under Globus's limit of 100 permissions per
-user.
+got an anonymous permission of its own, and only a zip over 100 MB went there. His next
+test showed that this leaks too, since Globus lets anyone list the folders above one shared
+with everyone. So, at his call, a zip on Globus is reached through its dashboard's Get the
+data, which grants the identity the reader signs in to Globus with, whoever has the
+dashboard's address; the address carries a random token; and the zip goes to Globus by
+pipeline, taxprofiler and biobakery, rather than by size (below).
 
 What's built:
 
@@ -1274,12 +1277,12 @@ What's built:
   to another version is left to the scan, since the listener never exits to hand over.
   Without Slurm it exits after starting a job, so the launcher can start it, and systemd
   starts the listener again.
-- **Publish,** `service/publish.sh`. The zip is kept in exactly one place: Globus when it's
-  set, otherwise S3, otherwise the run directory, and with both, only a zip over
-  `globus.min_zip_mb` (100 MB) goes to Globus. Present decides, from the zip's size, since
-  its link names that place, and records it for Publish. On Globus, Publish grants
-  anonymous read on the run's own folder through gnoto's client, and the teardown deletes
-  that permission. With S3, `results/` goes to `<run_prefix>/<uid>/`, text files typed to open in the
+- **Publish,** `service/publish.sh`. The zip is kept in exactly one place: Globus for a
+  pipeline in `globus.pipelines` when Globus is set up, otherwise S3, otherwise the run
+  directory. Present decides, from the run's pipeline, since its link names that place,
+  and records it for Publish. On Globus, Publish grants nothing, and writes `globus.json`
+  beside the dashboard and the sign-in's return page, `<run_prefix>/access.html`. With S3,
+  `results/` goes to `<run_prefix>/<uid>-<token>/`, text files typed to open in the
   browser and the pages last, uncached. Each destination is checked once written, and only
   then does the state record `published.verified_utc`, which lets the followup delete the
   run directory. The state's `published` keeps where everything went, for the teardown.
@@ -1287,9 +1290,16 @@ What's built:
   submission on. A cancel after Compute keeps the results, as "Publish failed", and so do
   the staged reads, which `gnoto publish <uid>` needs to build the zip again. That command
   runs Present and Publish again as a job, `_publish`, at the run's own commit.
+- **Get the data,** `present/templates/get-data.html` and `access.html`,
+  `service/aws/lambda/access.py` and `service/access.sh`. The button signs the reader in to
+  Globus with PKCE through the dashboards' app; the return page posts the code to the
+  Lambda, which finishes the sign-in, checks the run's `globus.json`, and queues the
+  identity; and the listener grants it read on the run's folder, up to `globus.max_people`
+  identities, and answers at `<run's folder>/access/<request>.json`, which the dashboard
+  waits for.
 - **Teardown and expiry,** `service/expire.sh`. The teardown deletes a run's S3 results
-  but `assets/`, puts the expired page at its address, deletes its Globus folder, and moves
-  its task to `Expired`. A copy it can't delete keeps the run's expiry file, due now, for
+  but `assets/`, puts the expired page at its address, deletes every permission on its
+  Globus folder and then the folder, and moves its task to `Expired`. A copy it can't delete keeps the run's expiry file, due now, for
   the daily check to try again. `gnoto extend <uid> <YYYY-MM-DD|never>` keeps the floor,
   and with Wrike writes the task's date. The daily check copies Wrike's dates in first,
   holding a date before the floor to the floor, in Wrike too, and reading an empty date as
@@ -1312,10 +1322,13 @@ What's built:
   checklist, then finds "gnoto Request" by name and compares its questions. `config s3` and
   `config sqs` check the bucket and queue, or with `--deploy [--profile=<name>]` build the
   stacks `gnoto-iam`, `gnoto-s3` and `gnoto-sqs` from `service/aws/stacks/`, writing their
-  outputs to `generated.yaml` and printing the IAM user's first key once. `config globus`
-  makes the run folder, refuses a permission that opens it, and checks once, with a test
-  folder shared and unshared again, that a shared run reaches anyone with its address;
-  `lint` fails on such a permission and warns from 90 shared runs. Each shows its plan and asks;
+  outputs to `generated.yaml` and printing the IAM user's first key once; with
+  `globus.app_client_id` set, the SQS stack adds Get the data's Lambda and its API.
+  `config globus` makes the run folder, refuses a permission that opens the runs to
+  everyone, checks once, with a test folder shared with the client and unshared again, that
+  the client can share a run, and says how to register the dashboards' app; `lint` fails on
+  such a permission, or without the app and Get the data's address, and warns from 900 of
+  a collection's 1000 permissions. Each shows its plan and asks;
   `--dry-run` stops after the plan, and `--yes` answers for a script. `config core` makes
   `RUN_ID_SALT`. The webhook's secret isn't asked for: at Daniel's call (2026-11-12),
   `config sqs --deploy` or `config wrike` makes a random one in `generated.yaml` the first
@@ -1326,8 +1339,10 @@ What's built:
 - **AWS's own pieces.** `service/aws/lambda/webhook.py` is the old Lambda, its challenge check
   unchanged, on `python3.14`: Lambda's `python3.15` is a public preview, which AWS says isn't
   for production. `service/aws/cloudfront/directory-index.js` is the old CloudFront function
-  with `RUN_PREFIX` from `aws.run_prefix`. The stacks carry both inline, filled in at deploy;
-  the Lambda without its comments is 2,274 characters, under CloudFormation's 4,096.
+  with `RUN_PREFIX` from `aws.run_prefix`, and a run's folder now `<uid>-<token>`.
+  `service/aws/lambda/access.py` is Get the data's Lambda, new. The stacks carry all three
+  inline, filled in at deploy; without their comments the Lambdas are 2,274 and 3,662
+  characters, under CloudFormation's 4,096.
   `service/aws/policies/` holds the IAM policies for a site that sets up its own bucket and
   queue.
 
@@ -1378,6 +1393,28 @@ How it was tested, all in the test bed or in Docker on the development machine:
   173, `present` 57 and `progress` 47 checks pass, the launcher's 69 in `debian:13-slim`
   with the helper's stub test, and `checks/job.sh --small --remove` on an install with no
   integrations.
+
+Get the data, and the dashboard's token, were tested the same way (2026-11-12):
+
+- **The Lambda,** `test/aws/access-test.sh`, in the Lambda image with ElasticMQ and
+  `test/aws/access-stub.py` standing in for Globus Auth and S3 inside the Lambda's
+  container: 19 checks, a sign-in queued as the identity alone, the code exchanged with its
+  verifier for the return page, the token revoked, base64 bodies, an address without
+  `globus.json` refused before Globus is asked, a refused code, a sign-in that names
+  nobody, and malformed requests. The stacks pass `cfn-lint` 1.60.1, and the CloudFront
+  function serves a `<uid>-<token>` folder's dashboard, in Node.
+- **The pages,** in the desktop app's browser against a Node stand-in for CloudFront,
+  Globus Auth's authorize page and the access API on one origin: Get the data's PKCE
+  challenge matched its verifier, the state came back, the page waited for the answer and
+  became the download, and a return with the wrong state was turned away.
+- **`test/lib/integrations-test.sh`,** now 180 checks, all passing: Publish by
+  pipeline, at the run's address, with `globus.json`, the return page, and no permission;
+  Get the data's grants through the listener, once per identity, `globus.max_people`, a
+  wrong token, a run not on Globus and a malformed request; the teardown deleting every
+  permission on the run's folder and no other; `lint`'s new checks; and `config sqs
+  --deploy` with Get the data's parameters.
+- **The finish test,** `checks/integrations.sh --publish`, 44 checks, all passing, with
+  each run's address.
 
 ### Phase 8: public release
 

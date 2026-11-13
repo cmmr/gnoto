@@ -91,7 +91,7 @@ run_dir_delete() (
 # assets/ like every other page, so assets/ stays, or is put back.
 s3_expire() (
     local uid=$1 bucket=$2 prefix=${3%/} state=$4 keys page title completed samples
-    [[ $prefix == "$uid" || $prefix == */"$uid" ]] ||
+    [[ ${prefix##*/} =~ ^$uid(-[a-z2-7]{16})?$ ]] ||
         { warn "Run $uid's S3 location, s3://$bucket/$prefix/, isn't named for it, so it wasn't touched."; return 1; }
     keys=$(s3_keys "$bucket" "$prefix") || { warn "Couldn't list s3://$bucket/$prefix/."; return 1; }
     [[ -n $keys ]] || return 0
@@ -132,22 +132,22 @@ s3_expire() (
 # returns 1.
 teardown_run() (
     local uid=$1 note=$2 dir=$DATA_DIR/runs/$1 history=$DATA_DIR/history/$1 state task="" bucket="" prefix="" globus=""
-    local collection="" rule="" left=0 remote=0
+    local collection="" path="" left=0 remote=0
 
     state=$(run_state_path "$uid")
     if [[ -n $state ]]; then
-        IFS=$'\x1f' read -r task bucket prefix globus collection rule < <(jq -r '[.wrike.task_id // "",
+        IFS=$'\x1f' read -r task bucket prefix globus collection path < <(jq -r '[.wrike.task_id // "",
             .published.s3_bucket // "", .published.s3_prefix // "", .published.globus_dir // "",
-            .published.globus_uuid // "", .published.globus_rule // ""] | join("\u001f")' "$state" 2> /dev/null) || :
+            .published.globus_uuid // "", .published.globus_path // ""] | join("\u001f")' "$state" 2> /dev/null) || :
     fi
 
     if [[ -n $bucket && -n $prefix ]]; then
         s3_expire "$uid" "$bucket" "$prefix" "$state" || { left=1; remote=1; }
     fi
-    # The run's own permission goes first, so nothing is served while its
-    # folder goes
-    if [[ -n $collection && -n $rule ]]; then
-        globus_rule_delete "$collection" "$rule" || { left=1; remote=1; }
+    # Everyone's permission on the run's folder goes first, so nothing is
+    # served while the folder goes
+    if [[ -n $collection && -n $path ]]; then
+        globus_path_rules_delete "$collection" "$path" || { left=1; remote=1; }
     fi
     if [[ -n $globus ]]; then
         if [[ $globus != */"$uid" ]]; then

@@ -8,14 +8,16 @@
 #              dashboard_reset, dashboard_view,
 #              dashboard_methods_view, dashboard_tab, dashboard_tab_end,
 #              dashboard_button, dashboard_formats, dashboard_folder,
-#              dashboard_bundle, dashboard_stat_group, dashboard_stat_row,
-#              dashboard_stat_tiles, dashboard_stat_chips, dashboard_stat_bar,
-#              dashboard_stat_detail, dashboard_stat_share,
+#              dashboard_bundle, dashboard_get_data, dashboard_stat_group,
+#              dashboard_stat_row, dashboard_stat_tiles, dashboard_stat_chips,
+#              dashboard_stat_bar, dashboard_stat_detail, dashboard_stat_share,
 #              dashboard_stat_share_of, dashboard_stat_share_detail,
 #              dashboard_report_section, render_dashboard, dashboard_late_files,
 #              PRESENT_DIR, DASHBOARD_PAGES, DOWNLOAD_EXTENSIONS
 # Requires:    GNU find, jq; escape_html, escape_url, human_size, human_count,
-#              group_count and warn from lib/utilities.sh
+#              group_count and warn from lib/utilities.sh; for a zip on
+#              Globus, state_get, and run_address and globus_browse_url from
+#              service/publish.sh
 # Env:         CODE_DIR, from lib/env.sh
 #
 # Every pipeline gets the same pages in its results folder, and a fourth for a
@@ -371,9 +373,14 @@ dashboard_href() {
 
 # The button that takes the zip, under the expiry date in the bar, so the reader
 # just told the results go away is looking at the way to keep them. A plain
-# link, so a middle-click or a shared address works without scripting.
+# link, so a middle-click or a shared address works without scripting, but for
+# a zip on Globus, which takes a Globus sign-in first.
 dashboard_zip_button() {
     [[ -n $DASHBOARD_BUNDLE_URL ]] || return 0
+    if [[ $(state_get published.zip_destination 2> /dev/null) == globus ]]; then
+        dashboard_get_data
+        return
+    fi
     printf '<a class="shrink-0 bg-primary text-on-primary px-3.5 py-2 rounded-lg text-[13px] font-semibold hover:bg-primary-container transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap"'
     printf ' id="download-all" href="%s" download target="_top"' "$(dashboard_href "$DASHBOARD_BUNDLE_URL")"
     printf '><span class="material-symbols-outlined text-[18px]">archive</span>Download everything'
@@ -382,6 +389,25 @@ dashboard_zip_button() {
             "$(escape_html "$(human_size "$DASHBOARD_BUNDLE_SIZE")")"
     fi
     printf '</a>'
+}
+
+# The Get the data button, from present/templates/get-data.html, for a zip on
+# Globus: from the run directory, whose state names the run and its address
+dashboard_get_data() {
+    local uid address size="" config
+    uid=$(state_get run_id)
+    address=$(run_address "$uid") || { warn "Run $uid's state has no address token, so its zip has no Get the data button."; return 0; }
+    if [[ -n $DASHBOARD_BUNDLE_SIZE ]]; then
+        size="<span class=\"font-normal text-[12px] opacity-80\">($(escape_html "$(human_size "$DASHBOARD_BUNDLE_SIZE")"))</span>"
+    fi
+    config=$(jq -cn --arg run "$address" --arg client "${GLOBUS_APP_CLIENT_ID:-}" --arg auth "$GLOBUS_AUTH_URL" \
+        --arg callback "${AWS_RESULTS_BASE_URL%/}/${AWS_RUN_PREFIX:-gnoto}/access.html" \
+        --arg download "$DASHBOARD_BUNDLE_URL" --arg browse "$(globus_browse_url "$uid")" \
+        '{run: $run, client: $client, auth: $auth, callback: $callback, download: $download, browse: $browse}')
+    render_template "$PRESENT_DIR/templates/get-data.html" \
+        ACCESS_CONFIG "${config//</\\u003c}" \
+        DOWNLOAD_HREF "$(dashboard_href "$DASHBOARD_BUNDLE_URL")" \
+        SIZE "$size"
 }
 
 # Text as HTML, each count human_count shortened written as a span whose

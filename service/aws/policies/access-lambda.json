@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sqs:SendMessage",
+      "Resource": "<queue_arn>"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::<bucket>/<run_prefix>/*/globus.json"
+    }
+  ]
+}

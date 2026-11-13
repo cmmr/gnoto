@@ -30,14 +30,20 @@ state_present() {
     [[ -f "$RUN_STATE_FILE" ]]
 }
 
+# A run's state starts with its address token: 80 random bits as 16 lowercase
+# base32 characters, which name its published folder with the uid, so its
+# address can't be found from the uid alone (service/publish.sh)
 state_init() {
-    local run_id="${1:-${PWD##*/}}"
+    local run_id="${1:-${PWD##*/}}" token
 
+    token=$(head -c 10 /dev/urandom | base32 | tr 'A-Z' 'a-z') || return 1
     jq -n \
         --argjson schema "$RUN_STATE_SCHEMA" \
         --arg run_id "$run_id" \
+        --arg token "$token" \
         --arg created_utc "$(date -u "+%Y-%m-%dT%H:%M:%SZ")" \
-        '{schema: $schema, run_id: $run_id, status: "Submitted", created_utc: $created_utc, notes: []}' \
+        '{schema: $schema, run_id: $run_id, address_token: $token, status: "Submitted",
+          created_utc: $created_utc, notes: []}' \
         > "$RUN_STATE_FILE"
 }
 

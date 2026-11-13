@@ -17,10 +17,13 @@
 // outright; this is for the links it doesn't write, and for an address typed
 // by hand.
 //
-//   /gnoto/<uid>            301 to /gnoto/<uid>/
-//   /gnoto/<uid>/           the dashboard, /gnoto/<uid>/index.html
-//   /gnoto/<uid>/qiime2     301 to /gnoto/<uid>/qiime2/
-//   /gnoto/<uid>/qiime2/    its listing, qiime2/directory_listing.html
+// A run's folder is <uid>-<token>, eight base32 characters, a hyphen and
+// sixteen more:
+//
+//   /gnoto/<run>            301 to /gnoto/<run>/
+//   /gnoto/<run>/           the dashboard, /gnoto/<run>/index.html
+//   /gnoto/<run>/qiime2     301 to /gnoto/<run>/qiime2/
+//   /gnoto/<run>/qiime2/    its listing, qiime2/directory_listing.html
 //   anything with a dot     as it is
 
 var RUN_PREFIX = 'gnoto';
@@ -44,9 +47,9 @@ function handler(event) {
     return request;
 }
 
-// "/<prefix>/<uid>/" and nothing deeper: split on "/", that's four fields,
-// the last empty, and a uid is eight characters
+// "/<prefix>/<run>/" and nothing deeper: split on "/", that's four fields,
+// the last empty
 function isRunRoot(uri) {
     var parts = uri.split('/');
-    return parts.length === 4 && parts[1] === RUN_PREFIX && parts[2].length === 8;
+    return parts.length === 4 && parts[1] === RUN_PREFIX && /^[a-z2-7]{8}-[a-z2-7]{16}$/.test(parts[2]);
 }

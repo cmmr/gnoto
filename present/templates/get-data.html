@@ -1,0 +1,149 @@
+<!--
+  get-data.html - The Get the data button, in place of Download everything on
+  the Overview, for a run whose zip is on Globus.
+
+  Rendered by dashboard_get_data in present/dashboard.sh. Anyone with the
+  dashboard's address may have its data, through their own Globus sign-in: the
+  button signs the reader in to Globus with PKCE, keeping the verifier in this
+  tab's session storage, and Globus returns to access.html, which hands the
+  code to the access Lambda and comes back here. This page then waits for the
+  listener's answer at access/<request>.json beside it, and once access is
+  granted, the button downloads the zip. Someone granted before takes the
+  link under it, which asks Globus to sign them in.
+
+  Placeholders are ACCESS_CONFIG, DOWNLOAD_HREF and SIZE, each wrapped in
+  doubled underscores. ACCESS_CONFIG is JSON with every < escaped: the run's
+  folder, the app's client ID, Globus Auth's address, the return page, and
+  the zip's download and Globus web app addresses.
+-->
+<div class="shrink-0 flex flex-col items-end gap-1 max-w-[360px]" id="get-data">
+<button class="bg-primary text-on-primary px-3.5 py-2 rounded-lg text-[13px] font-semibold hover:bg-primary-container transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-70" id="get-data-button" type="button"><span class="material-symbols-outlined text-[18px]">archive</span><span id="get-data-label">Get the data</span>__SIZE__</button>
+<p class="text-[12px] leading-4 text-on-surface-variant text-right" id="get-data-note">Delivered through Globus, once you sign in with your institution, Google or ORCID. <a class="underline hover:no-underline" href="__DOWNLOAD_HREF__" target="_top">Have access already?</a></p>
+</div>
+<script>
+(function () {
+  var C = __ACCESS_CONFIG__;
+  var KEY = "gnoto-access";
+  var button = document.getElementById("get-data-button");
+  var label = document.getElementById("get-data-label");
+  var note = document.getElementById("get-data-note");
+
+  function load() {
+    try { return JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { return null; }
+  }
+  function store(value) {
+    try {
+      if (value === null) sessionStorage.removeItem(KEY);
+      else sessionStorage.setItem(KEY, JSON.stringify(value));
+      return true;
+    } catch (e) { return false; }
+  }
+  function random(n) {
+    var bytes = new Uint8Array(n);
+    crypto.getRandomValues(bytes);
+    return bytes;
+  }
+  function hex(bytes) {
+    return Array.prototype.map.call(bytes, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+  }
+  function base64url(bytes) {
+    var text = "";
+    for (var i = 0; i < bytes.length; i++) text += String.fromCharCode(bytes[i]);
+    return btoa(text).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  // The note under the button: text, then any [label, address] links
+  function say(text, links) {
+    note.textContent = text;
+    (links || []).forEach(function (link) {
+      var a = document.createElement("a");
+      a.className = "underline hover:no-underline";
+      a.href = link[1];
+      a.target = "_top";
+      a.rel = "noopener";
+      a.textContent = link[0];
+      note.appendChild(document.createTextNode(" "));
+      note.appendChild(a);
+    });
+  }
+  function ready() {
+    button.disabled = false;
+    label.textContent = "Get the data";
+  }
+
+  // Access granted: the button becomes the download
+  function granted() {
+    var link = document.createElement("a");
+    link.className = button.className;
+    link.href = C.download;
+    link.target = "_top";
+    link.setAttribute("download", "");
+    link.innerHTML = button.innerHTML;
+    button.parentNode.replaceChild(link, button);
+    link.querySelector("#get-data-label").textContent = "Download everything";
+    say("You have access. For a large download, transfer it through Globus instead:", [["open it in Globus", C.browse]]);
+  }
+
+  button.addEventListener("click", function () {
+    if (!window.crypto || !crypto.subtle || !window.TextEncoder) {
+      say("This browser can't sign in to Globus from here. Try another.");
+      return;
+    }
+    var verifier = base64url(random(32));
+    var state = hex(random(16));
+    var request = hex(random(16));
+    button.disabled = true;
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)).then(function (digest) {
+      var back = window.top.location.href.split("#")[0];
+      if (!store({run: C.run, verifier: verifier, state: state, request: request, back: back})) {
+        ready();
+        say("Signing in needs this site's session storage, which your browser blocks.");
+        return;
+      }
+      window.top.location.href = C.auth + "/v2/oauth2/authorize?" + [
+        "client_id=" + encodeURIComponent(C.client),
+        "redirect_uri=" + encodeURIComponent(C.callback),
+        "scope=" + encodeURIComponent("openid email profile"),
+        "response_type=code",
+        "state=" + state,
+        "code_challenge=" + base64url(new Uint8Array(digest)),
+        "code_challenge_method=S256"
+      ].join("&");
+    });
+  });
+
+  // Back from signing in: wait for the listener's answer
+  var saved = load();
+  if (saved && saved.run === C.run && saved.queued) {
+    var tries = 0;
+    button.disabled = true;
+    label.textContent = "Getting access…";
+    say("Globus is giving your sign-in access to this run, which takes up to a minute.");
+    (function poll() {
+      fetch("access/" + saved.request + ".json", {cache: "no-store"}).then(function (response) {
+        return response.ok ? response.json() : null;
+      }).catch(function () { return null; }).then(function (answer) {
+        var status = answer && answer.status;
+        if (status) store(null);
+        if (status === "granted") return granted();
+        if (status === "full") {
+          ready();
+          return say("This run is shared with as many people as it can be. Ask whoever sent you this page for a copy.");
+        }
+        if (status === "gone") {
+          ready();
+          return say("This run's data is no longer on Globus.");
+        }
+        if (status) {
+          ready();
+          return say("Globus didn't give your sign-in access. Try again in a few minutes.");
+        }
+        if (++tries < 60) return setTimeout(poll, 3000);
+        store(null);
+        ready();
+        say("Access is taking longer than it should. Try again in a few minutes.");
+      });
+    })();
+  }
+})();
+</script>

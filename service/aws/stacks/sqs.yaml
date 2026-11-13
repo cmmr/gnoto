@@ -1,19 +1,29 @@
-# sqs.yaml - The queue that carries Wrike's webhook to gnoto's listener, with
-# the Lambda that checks each request and the HTTP API Wrike posts to.
+# sqs.yaml - The queue that carries Wrike's webhook and the dashboards'
+# requests for Globus access to gnoto's listener, with the Lambdas that check
+# each request and the HTTP APIs that take them.
 #
 # Deployed by:  gnoto config sqs --deploy, as the stack gnoto-sqs, which fills
-#               in the Lambda's code from service/aws/lambda/webhook.py
-# Parameters:   WebhookSecret (wrike.webhook_secret) and IamStack (gnoto-iam)
-# Outputs:      QueueUrl and WebhookUrl, which config writes to generated.yaml,
-#               and which gnoto config wrike registers the webhook with
+#               in the Lambdas' code from service/aws/lambda/webhook.py and
+#               access.py
+# Parameters:   WebhookSecret (wrike.webhook_secret) and IamStack (gnoto-iam);
+#               and for Get the data, GlobusClientId (globus.app_client_id),
+#               ResultsBucket (aws.s3_bucket), RunPrefix (aws.run_prefix),
+#               ResultsOrigin, the scheme and host of aws.results_base_url, and
+#               RedirectUri, <results_base_url>/<run_prefix>/access.html
+# Outputs:      QueueUrl, WebhookUrl and, with Get the data, AccessUrl, which
+#               config writes to generated.yaml, and which gnoto config wrike
+#               registers the webhook with
 #
 # The queue keeps a message 14 days, the most SQS allows, and hides one the
 # listener is handling for 10 minutes, longer than starting a request takes.
-# The Lambda runs python3.14: python3.15 is a public preview, which AWS says
-# isn't for production, until it's generally available.
+# Get the data's Lambda and API are made only when GlobusClientId and
+# ResultsBucket are set. Its API answers only pages from the results' origin,
+# and the Lambda may read only each run's globus.json. The Lambdas run
+# python3.14: python3.15 is a public preview, which AWS says isn't for
+# production, until it's generally available.
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: gnoto's queue for Wrike's webhook, its Lambda and its HTTP API
+Description: gnoto's queue for Wrike's webhook and Globus access requests, their Lambdas and HTTP APIs
 
 Parameters:
   WebhookSecret:
@@ -25,6 +35,30 @@ Parameters:
     Type: String
     Default: gnoto-iam
     Description: The stack holding gnoto's IAM user
+  GlobusClientId:
+    Type: String
+    Default: ""
+    Description: The dashboards' Globus app, globus.app_client_id, or none for no Get the data
+  ResultsBucket:
+    Type: String
+    Default: ""
+    Description: The results bucket, aws.s3_bucket
+  RunPrefix:
+    Type: String
+    Default: gnoto
+    AllowedPattern: "[A-Za-z0-9._-]+"
+    Description: The folder in the bucket that runs go under, aws.run_prefix
+  ResultsOrigin:
+    Type: String
+    Default: ""
+    Description: The scheme and host the dashboards are served from
+  RedirectUri:
+    Type: String
+    Default: ""
+    Description: The page Globus's sign-in returns to, <results_base_url>/<run_prefix>/access.html
+
+Conditions:
+  Access: !Not [!Or [!Equals [!Ref GlobusClientId, ""], !Equals [!Ref ResultsBucket, ""]]]
 
 Resources:
   Queue:
@@ -102,6 +136,87 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*"
 
+  AccessRole:
+    Type: AWS::IAM::Role
+    Condition: Access
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: queue-and-markers
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt Queue.Arn
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${ResultsBucket}/${RunPrefix}/*/globus.json"
+
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Condition: Access
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-access"
+      RetentionInDays: 30
+
+  AccessFunction:
+    Type: AWS::Lambda::Function
+    Condition: Access
+    DependsOn: AccessLogs
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-access"
+      Description: Finishes a dashboard reader's Globus sign-in and queues their identity for gnoto
+      Runtime: python3.14
+      Architectures: [arm64]
+      Handler: index.lambda_handler
+      MemorySize: 128
+      Timeout: 25
+      Role: !GetAtt AccessRole.Arn
+      Environment:
+        Variables:
+          AWS_SQS_QUEUE_URL: !Ref Queue
+          RESULTS_BUCKET: !Ref ResultsBucket
+          RUN_PREFIX: !Ref RunPrefix
+          GLOBUS_CLIENT_ID: !Ref GlobusClientId
+          REDIRECT_URI: !Ref RedirectUri
+      Code:
+        ZipFile: |
+          __ACCESS_PY__
+
+  AccessApi:
+    Type: AWS::ApiGatewayV2::Api
+    Condition: Access
+    Properties:
+      Name: !Sub "${AWS::StackName}-access"
+      Description: Where a dashboard posts a reader's Globus sign-in
+      ProtocolType: HTTP
+      RouteKey: POST /access
+      Target: !GetAtt AccessFunction.Arn
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref ResultsOrigin
+        AllowMethods: [POST]
+        AllowHeaders: [content-type]
+        MaxAge: 3600
+
+  AccessApiInvokes:
+    Type: AWS::Lambda::Permission
+    Condition: Access
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref AccessFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${AccessApi}/*"
+
   UserPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -123,3 +238,7 @@ Outputs:
   WebhookUrl:
     Description: Where Wrike posts, aws.webhook_url
     Value: !Sub "${Api.ApiEndpoint}/wrike"
+  AccessUrl:
+    Condition: Access
+    Description: Where a dashboard posts a Globus sign-in, aws.access_url
+    Value: !Sub "${AccessApi.ApiEndpoint}/access"

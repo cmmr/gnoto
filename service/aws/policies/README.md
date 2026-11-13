@@ -10,7 +10,13 @@ queue attaches them by hand instead, with each `<placeholder>` filled in:
 | `s3-bucket.json` | the bucket, as its policy, for CloudFront's origin access control | `<bucket>`, `<account>`, `<distribution>` |
 | `sqs-user.json` | gnoto's IAM user | `<queue_arn>` |
 | `sqs-lambda.json` | the webhook Lambda's role, beside `AWSLambdaBasicExecutionRole` | `<queue_arn>` |
+| `access-lambda.json` | Get the data's Lambda's role, beside `AWSLambdaBasicExecutionRole` | `<queue_arn>`, `<bucket>`, `<run_prefix>` |
 
-The Lambda is `../lambda/webhook.py`, handler `lambda_handler`, with `AWS_SQS_QUEUE_URL`
-and `WRIKE_WEBHOOK_SECRET` set. The CloudFront function is
-`../cloudfront/directory-index.js`, with `RUN_PREFIX` set to `aws.run_prefix`.
+The webhook Lambda is `../lambda/webhook.py`, handler `lambda_handler`, with
+`AWS_SQS_QUEUE_URL` and `WRIKE_WEBHOOK_SECRET` set. Get the data's is
+`../lambda/access.py`, handler `lambda_handler`, with `AWS_SQS_QUEUE_URL`,
+`RESULTS_BUCKET`, `RUN_PREFIX`, `GLOBUS_CLIENT_ID` (`globus.app_client_id`) and
+`REDIRECT_URI` (`<results_base_url>/<run_prefix>/access.html`) set, behind an HTTP API
+whose CORS allows only the results' origin, and its address goes in `aws.access_url`. The
+CloudFront function is `../cloudfront/directory-index.js`, with `RUN_PREFIX` set to
+`aws.run_prefix`.

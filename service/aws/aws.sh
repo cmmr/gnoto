@@ -3,7 +3,7 @@
 # makes with it.
 #
 # Sourced by:  lib/env.sh
-# Defines:     gnoto_aws, s3_on, sqs_on, s3_run_key, s3_run_url, s3_put,
+# Defines:     gnoto_aws, s3_on, sqs_on, listener_on, s3_run_key, s3_run_url, s3_put,
 #              s3_upload_results, s3_delete_prefix, s3_count
 # Requires:    aws and jq, from the image; warn from lib/utilities.sh
 # Env:         AWS_ENABLED, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
@@ -14,8 +14,9 @@
 # them, since settings that are secrets are never exported. Without keys in
 # config.yaml, the AWS CLI finds its own, as on an instance with a role.
 #
-# A run's results go under <run_prefix>/<uid>/ in the bucket, and are served
-# at <results_base_url>/<run_prefix>/<uid>/.
+# A run's results go under <run_prefix>/<folder>/ in the bucket, and are served
+# at <results_base_url>/<run_prefix>/<folder>/, where the folder is the run's
+# address, <uid>-<token>, from run_address in service/publish.sh.
 
 # Text files a reader opens in the browser rather than downloads: S3 types an
 # object from its name, and knows only some of these
@@ -37,11 +38,19 @@ s3_on() {
     [[ ${AWS_ENABLED:-false} == true && -n ${AWS_S3_BUCKET:-} && -n ${AWS_RESULTS_BASE_URL:-} ]]
 }
 
-# SQS takes Wrike's webhook when the aws section is on with a queue
+# SQS carries Wrike's webhook and the dashboards' requests for Globus access
+# when the aws section is on with a queue
 sqs_on() {
     [[ ${AWS_ENABLED:-false} == true && -n ${AWS_SQS_QUEUE_URL:-} ]]
 }
 
+# The listener runs when the queue carries something gnoto acts on: Wrike's
+# events, or the dashboards' requests for Globus access
+listener_on() {
+    sqs_on && { wrike_on || globus_ready; }
+}
+
+# s3_run_key <folder> and s3_run_url <folder>: a run's key prefix and address
 s3_run_key() {
     printf '%s/%s' "${AWS_RUN_PREFIX:-gnoto}" "$1"
 }

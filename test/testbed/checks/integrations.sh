@@ -100,6 +100,13 @@ task_uid() {
     in_image "derive_uid $1"
 }
 
+# A run's published folder, <uid>-<token>, from its state, wherever it is
+address() {
+    local file=$DATA_DIR/runs/$1/run_state.json
+    [[ -r $file ]] || file=$DATA_DIR/history/$1/state.json
+    printf '%s-%s' "$1" "$(jq -r '.address_token // empty' "$file" 2> /dev/null)"
+}
+
 mkdir -p "$WORK"
 cd "$WORK" || exit 1
 printf '%s\t%s\t%s\n' mock1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380142_2.fastq.gz" > v4.tsv
@@ -133,6 +140,7 @@ echo "a job from the command line"
 START=$($GNOTO start "${JOB[@]}" --yes 2>&1)
 UID_A=$(sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p' <<< "$START")
 [[ -n $UID_A ]] || { echo "FAIL  gnoto start:"; sed 's/^/      /' <<< "$START"; exit 1; }
+RUN_A=$(address "$UID_A")
 TASK_A=$(sed -n 's/^Its Wrike task is \(.*\)\.$/\1/p' <<< "$START")
 check "it gets a Wrike task" "yes" "$([[ -n $TASK_A ]] && echo yes)"
 check "and its uid comes from the task" "$UID_A" "$(task_uid "$TASK_A")"
@@ -140,22 +148,22 @@ TASKS=$(stub GET /_test/state)
 check "the task is Running" "Running" \
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]' <<< "$TASKS")"
 check "with job.yaml attached" "job.yaml" "$(jq -r --arg t "$TASK_A" '.attachments[] | select(.taskId == $t) | .name' <<< "$TASKS")"
-check "and the progress page's address" "$S3/itest/$UID_A/index.html" \
+check "and the progress page's address" "$S3/itest/$RUN_A/index.html" \
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customFields[] | select(.value | startswith("http")) | .value' <<< "$TASKS")"
-check "which shows the run" "yes" "$(curl -s "$S3/itest/$UID_A/index.html" | grep -q '16S V4 CLI' && echo yes)"
+check "which shows the run" "yes" "$(curl -s "$S3/itest/$RUN_A/index.html" | grep -q '16S V4 CLI' && echo yes)"
 check "it ends as Completed" "Completed" "$(wait_for "$UID_A" 120)"
-check "the dashboard is on S3" "yes" "$(curl -s "$S3/itest/$UID_A/index.html" | grep -q 'overview.html' && echo yes)"
-ZIP_A=$(in_image "gnoto_aws s3 ls s3://gnoto-results/itest/$UID_A/ | awk '/\.zip\$/ { print \$4 }'")
+check "the dashboard is on S3" "yes" "$(curl -s "$S3/itest/$RUN_A/index.html" | grep -q 'overview.html' && echo yes)"
+ZIP_A=$(in_image "gnoto_aws s3 ls s3://gnoto-results/itest/$RUN_A/ | awk '/\.zip\$/ { print \$4 }'")
 check "with the zip beside it" "yes" "$([[ $ZIP_A == *_$UID_A.zip ]] && echo yes)"
-check "which the dashboard links" "yes" "$(curl -s "$S3/itest/$UID_A/overview.html" | grep -qF "$S3/itest/$UID_A/$ZIP_A" && echo yes)"
+check "which the dashboard links" "yes" "$(curl -s "$S3/itest/$RUN_A/overview.html" | grep -qF "$S3/itest/$RUN_A/$ZIP_A" && echo yes)"
 check "the run directory went, once published" "no" "$([[ -e $DATA_DIR/runs/$UID_A ]] && echo yes || echo no)"
 check "history keeps the record" "yes" "$([[ -s $DATA_DIR/history/$UID_A/record.yaml ]] && echo yes)"
-check "status shows the address" "yes" "$($GNOTO status | grep -q "^  $UID_A .*$S3/itest/$UID_A/index.html" && echo yes)"
+check "status shows the address" "yes" "$($GNOTO status | grep -q "^  $UID_A .*$S3/itest/$RUN_A/index.html" && echo yes)"
 TASKS=$(stub GET /_test/state)
 check "the task is Completed" "Completed" \
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]' <<< "$TASKS")"
 check "with a comment linking the results" "yes" \
-    "$(jq -r --arg t "$TASK_A" '.tasks[$t].comments[-1].text' <<< "$TASKS" | grep -qF "Complete: $S3/itest/$UID_A/index.html" && echo yes)"
+    "$(jq -r --arg t "$TASK_A" '.tasks[$t].comments[-1].text' <<< "$TASKS" | grep -qF "Complete: $S3/itest/$RUN_A/index.html" && echo yes)"
 check "and its Expiration date" "$(grep -o 'remove_utc: "[0-9-]*' "$DATA_DIR/expiry/$UID_A" | cut -c14-)" \
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customFields[] | select(.value | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) | .value' <<< "$TASKS")"
 
@@ -174,13 +182,14 @@ for (( i = 0; i < 60; i++ )); do
     sleep 5
 done
 check "the listener starts it" "yes" "$([[ -e $DATA_DIR/runs/$UID_B || -e $DATA_DIR/history/$UID_B ]] && echo yes)"
+RUN_B=$(address "$UID_B")
 check "and its task moves to Running" "Running" \
     "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]')"
 check "it runs as a form request, at the earlier run's version" "true $(sed -n 's/^pipeline: *"*\([^"]*\)"*$/\1/p' "$DATA_DIR/history/$UID_A/job.yaml")" \
     "$(jq -r '.form' "$DATA_DIR/runs/$UID_B/run_state.json" 2> /dev/null) $(jq -r '.version' "$DATA_DIR/runs/$UID_B/run_state.json" 2> /dev/null)"
 check "it ends as Completed" "Completed" "$(wait_for "$UID_B" 120)"
-OUT_A=$(curl -s "$S3/itest/$UID_A/record.yaml" | in_image 'yq -o=json ".outputs" /dev/stdin')
-OUT_B=$(curl -s "$S3/itest/$UID_B/record.yaml" | in_image 'yq -o=json ".outputs" /dev/stdin')
+OUT_A=$(curl -s "$S3/itest/$RUN_A/record.yaml" | in_image 'yq -o=json ".outputs" /dev/stdin')
+OUT_B=$(curl -s "$S3/itest/$RUN_B/record.yaml" | in_image 'yq -o=json ".outputs" /dev/stdin')
 check "its core tables are the command-line job's" "yes" "$([[ -n $OUT_A && $OUT_A != null && $OUT_A == "$OUT_B" ]] && echo yes)"
 check "and its task is Completed" "Completed" \
     "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]')"
@@ -208,8 +217,8 @@ stub PUT "/api/v4/tasks/$TASK_A" -H 'Authorization: bearer stub-token' \
 $GNOTO _daily > daily.log 2>&1
 check "the daily check removes a run whose date has come" "yes" \
     "$(jq -e '.removed_utc' "$DATA_DIR/history/$UID_A/state.json" > /dev/null 2>&1 && echo yes)"
-check "leaving the expired page at its address" "yes" "$(curl -s "$S3/itest/$UID_A/index.html" | grep -q 'Data No Longer Available' && echo yes)"
-check "and nothing else of its results" "no" "$(curl -s -o /dev/null -w '%{http_code}' "$S3/itest/$UID_A/$ZIP_A" | grep -q 200 && echo yes || echo no)"
+check "leaving the expired page at its address" "yes" "$(curl -s "$S3/itest/$RUN_A/index.html" | grep -q 'Data No Longer Available' && echo yes)"
+check "and nothing else of its results" "no" "$(curl -s -o /dev/null -w '%{http_code}' "$S3/itest/$RUN_A/$ZIP_A" | grep -q 200 && echo yes || echo no)"
 check "its task moves to Expired" "Expired" \
     "$(stub GET /_test/state | jq -r --arg t "$TASK_A" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]')"
 check "it writes the health file" "yes" "$(grep -q 'name: "wrike"' "$DATA_DIR/logs/health.yaml" 2> /dev/null && echo yes)"
@@ -223,7 +232,7 @@ for (( i = 0; i < 12; i++ )); do
     sleep 5
 done
 check "the listener removes its run" "yes" "$(jq -e '.removed_utc' "$DATA_DIR/history/$UID_B/state.json" > /dev/null 2>&1 && echo yes)"
-check "and its results on S3" "yes" "$(curl -s "$S3/itest/$UID_B/index.html" | grep -q 'Data No Longer Available' && echo yes)"
+check "and its results on S3" "yes" "$(curl -s "$S3/itest/$RUN_B/index.html" | grep -q 'Data No Longer Available' && echo yes)"
 check "the listener deleted each message it handled" "0" \
     "$(in_image "gnoto_aws sqs get-queue-attributes --queue-url $QUEUE --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text")"
 
@@ -233,12 +242,13 @@ if [[ $PUBLISH == true ]]; then
     START=$($GNOTO start "${JOB[@]/--title=16S V4 CLI/--title=16S V4 publish}" --yes 2>&1)
     UID_C=$(sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p' <<< "$START")
     [[ -n $UID_C ]] || { echo "FAIL  gnoto start:"; sed 's/^/      /' <<< "$START"; exit 1; }
+    RUN_C=$(address "$UID_C")
     check "a run whose publish fails ends so" "Publish failed" "$(wait_for "$UID_C" 120)"
     check "and keeps its results" "yes" "$([[ -s $DATA_DIR/runs/$UID_C/results/index.html ]] && echo yes)"
     $GNOTO config aws --s3_bucket=gnoto-results > /dev/null 2>&1
     $GNOTO publish "$UID_C" > publish.log 2>&1
     check "gnoto publish publishes it" "Completed" "$(wait_for "$UID_C" 30)"
-    check "to S3" "yes" "$(curl -s "$S3/itest/$UID_C/index.html" | grep -q 'overview.html' && echo yes)"
+    check "to S3" "yes" "$(curl -s "$S3/itest/$RUN_C/index.html" | grep -q 'overview.html' && echo yes)"
     check "and the run directory goes" "no" "$([[ -e $DATA_DIR/runs/$UID_C ]] && echo yes || echo no)"
 fi
 

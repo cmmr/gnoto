@@ -71,6 +71,7 @@ aws:
   run_prefix: "$PREFIX"
   sqs_queue_url: "http://elasticmq:9324/000000000000/itest"
   webhook_url: "https://hooks.example.invalid/wrike"
+  access_url: "https://access.example.invalid/access"
 
 globus:
   enabled: true
@@ -80,39 +81,53 @@ globus:
   run_prefix: "gnoto"
   cli_client_id: "test-client"
   cli_client_secret: "test-secret"
+  app_client_id: "11111111-1111-1111-1111-111111111111"
 EOF
 chmod 660 "$WORK/install/config.yaml"
 
-# A stand-in for globus-cli's permission calls, which keeps the rules in a
-# file, a "<id>\t<principal>\t<path>" line each, and records the client it was
-# called as
+# A stand-in for globus-cli's permission calls, which keeps the rules in
+# $GLOBUS_STANDIN/globus-rules, a "<id>\t<principal type>\t<path>\t<principal>"
+# line each, and records the client it was called as
 mkdir -p "$WORK/globusbin"
-cat > "$WORK/globusbin/globus" << EOF
+cat > "$WORK/globusbin/globus" << 'EOF'
 #!/bin/bash
-RULES=$WORK/globus-rules
-touch "\$RULES"
-echo "\${GLOBUS_CLI_CLIENT_ID:-}" > $WORK/globus-client
-case "\$1 \$2 \$3" in
+RULES=$GLOBUS_STANDIN/globus-rules
+touch "$RULES"
+echo "${GLOBUS_CLI_CLIENT_ID:-}" > "$GLOBUS_STANDIN/globus-client"
+case "$1 $2 $3" in
     "endpoint show "*) echo '{"display_name": "stand-in"}' ;;
     "endpoint permission create")
-        path=\${4#*:}
-        principal=anonymous
-        [[ " \$* " != *" --all-authenticated "* ]] || principal=all_authenticated_users
-        id=rule-\$RANDOM
-        printf '%s\t%s\t%s\n' "\$id" "\$principal" "\$path" >> "\$RULES"
-        echo "{\"access_id\": \"\$id\", \"code\": \"Created\"}"
+        path=${4#*:}
+        type=anonymous
+        principal=""
+        args=("$@")
+        for (( i = 4; i < ${#args[@]}; i++ )); do
+            case ${args[i]} in
+                --all-authenticated) type=all_authenticated_users ;;
+                --identity) type=identity; principal=${args[i + 1]} ;;
+            esac
+        done
+        if grep -qF "$(printf '\t%s\t%s\t%s' "$type" "$path" "$principal")" "$RULES"; then
+            echo '{"code": "Exists", "message": "A permission for that principal and path exists"}'
+            exit 1
+        fi
+        id=rule-$RANDOM$RANDOM
+        printf '%s\t%s\t%s\t%s\n' "$id" "$type" "$path" "$principal" >> "$RULES"
+        echo "{\"access_id\": \"$id\", \"code\": \"Created\"}"
         ;;
     "endpoint permission delete")
-        grep -q "^\$5	" "\$RULES" || { echo "AccessRuleNotFound" >&2; exit 1; }
-        grep -v "^\$5	" "\$RULES" > "\$RULES.tmp"; mv "\$RULES.tmp" "\$RULES"
+        grep -q "^$5	" "$RULES" || { echo "AccessRuleNotFound" >&2; exit 1; }
+        grep -v "^$5	" "$RULES" > "$RULES.tmp"; mv "$RULES.tmp" "$RULES"
         ;;
     "endpoint permission list")
-        jq -R -s '{DATA: [split("\n")[] | select(length > 0) | split("\t") | {id: .[0], principal_type: .[1], path: .[2]}]}' "\$RULES"
+        jq -R -s '{DATA: [split("\n")[] | select(length > 0) | split("\t")
+            | {id: .[0], principal_type: .[1], path: .[2], principal: (.[3] // "")}]}' "$RULES"
         ;;
-    *) echo "the stand-in has no \$*" >&2; exit 1 ;;
+    *) echo "the stand-in has no $*" >&2; exit 1 ;;
 esac
 EOF
 chmod +x "$WORK/globusbin/globus"
+export GLOBUS_STANDIN=$WORK
 export PATH=$WORK/globusbin:$PATH
 export GNOTO_INSTALL_DIR=$WORK/install
 export GNOTO_LAUNCHER=$WORK/install/gnoto
@@ -126,6 +141,7 @@ source "$CODE/lib/start.sh"
 source "$CODE/service/expire.sh"
 source "$CODE/service/daily.sh"
 source "$CODE/service/wrike/task_handler.sh"
+source "$CODE/service/access.sh"
 source "$CODE/service/wrike/listener.sh"
 source "$CODE/present/dashboard.sh"
 source "$CODE/present/common.sh"
@@ -219,6 +235,10 @@ printf 'pipeline: ampliseq@%s\ntitle: "Old"\nsamplesheet: "/old/sheet.tsv"\nrete
     "0123456789012345678901234567890123456789" > "$HISTORY/abcdefgh/job.yaml"
 wrike_job_file "$TASK3" "$(wrike_call GET "tasks/$TASK3")" "$WORK/job3" > /dev/null 2>&1
 check "a repeat takes the earlier run's job, named by its address" "true" "$(yq -r .ampliseq.picrust "$WORK/job3/job.yaml" 2> /dev/null)"
+TASK3T=$(new_form_task "Repeat by token" "[$(field pipeline "Repeat an earlier run"),$(field previous_run "$S3/$PREFIX/abcdefgh-abcdefghijklmnop/index.html")]")
+mkdir -p "$WORK/job3t"
+wrike_job_file "$TASK3T" "$(wrike_call GET "tasks/$TASK3T")" "$WORK/job3t" > /dev/null 2>&1
+check "or by an address with its token" "true" "$(yq -r .ampliseq.picrust "$WORK/job3t/job.yaml" 2> /dev/null)"
 check "at its version" "ampliseq@0123456789012345678901234567890123456789" "$(yq -r .pipeline "$WORK/job3/job.yaml" 2> /dev/null)"
 check "with the new title and samplesheet" "Repeat samplesheet.tsv" "$(yq -r '.title + " " + .samplesheet' "$WORK/job3/job.yaml" 2> /dev/null)"
 check "a request is waiting" "yes" "$(wrike_waiting "$JSON" "$(derive_uid "$TASK")" && echo yes)"
@@ -250,16 +270,16 @@ wrike_set_status "$CLI" Completed 2> /dev/null
 check "a change to a deleted task is dropped, not replayed" "0" "$(ls "$WORK/data/logs/wrike-replay/" | wc -l)"
 
 # A finished run, as its followup leaves it: finished_run <uid> <task> <status>
-# [published]
+# [pipeline]
 finished_run() {
     local dir=$RUNS/$1
     mkdir -p "$dir/results/assets" "$HISTORY/$1"
     (
         cd "$dir" || exit 1
         state_init "$1" > /dev/null
-        state_update '. + $f' --argjson f "$(jq -n --arg task "$2" --arg status "$3" \
+        state_update '. + $f' --argjson f "$(jq -n --arg task "$2" --arg status "$3" --arg pipeline "${4:-ampliseq}" \
             --arg ended "$(date -u -d '-20 days' '+%Y-%m-%dT%H:%M:%SZ')" '
-            {pipeline: "ampliseq", version: "ampliseq@1.1.0", title: "Mock run", retention: "1 Month",
+            {pipeline: $pipeline, version: ($pipeline + "@1.1.0"), title: "Mock run", retention: "1 Month",
              owner: "alice", status: $status, ended_utc: $ended, stages: {compute: $ended},
              samples: {count: 3}, scheduler: {kind: "local"}}
             + (if $task != "" then {wrike: {task_id: $task}} else {} end)')"
@@ -273,67 +293,125 @@ finished_run() {
 }
 
 echo "Publish"
+# A run's published folder, <uid>-<token>, from its state
+addr() {
+    printf '%s-%s' "$1" "$(jq -r '.address_token' "$(run_state_path "$1")")"
+}
+
 UID1=$(derive_uid "MATESTRUN001")
-finished_run "$UID1" "" Completed
-(cd "$RUNS/$UID1" && GLOBUS_MIN_ZIP_MB=0 publish_run "$UID1" > "$WORK/publish.out" 2>&1)
+finished_run "$UID1" "" Completed taxprofiler
+A1=$(addr "$UID1")
+check "a run's state has an address token" "yes" "$([[ $A1 =~ ^${UID1}-[a-z2-7]{16}$ ]] && echo yes)"
+(cd "$RUNS/$UID1" && publish_run "$UID1" > "$WORK/publish.out" 2>&1)
 check "it publishes" "0" "$?"
-check "a zip over globus.min_zip_mb gets a Globus permission of its own" "anonymous /gnoto/$UID1/" \
-    "$(cut -f2,3 "$WORK/globus-rules" | tr '\t' ' ')"
-check "made as gnoto's client" "test-client" "$(cat "$WORK/globus-client")"
-check "which the state records" "$(cut -f1 "$WORK/globus-rules")" "$(cd "$RUNS/$UID1" && state_get published.globus_rule)"
-check "the results to S3, under the run's prefix" "<html>dashboard</html>" "$(curl -s "$S3/$PREFIX/$UID1/index.html")"
+check "a pipeline in globus.pipelines puts its zip on Globus alone" "yes no" \
+    "$(exists "$WORK/globus/gnoto/$UID1/Mock-run_$UID1.zip") $(curl -s -o /dev/null -w '%{http_code}' "$S3/$PREFIX/$A1/Mock-run_$UID1.zip" | grep -q 200 && echo yes || echo no)"
+check "and grants nobody anything" "0" "$(cat "$WORK/globus-rules" 2> /dev/null | grep -c . || :)"
+check "the results to S3, under the run's address" "<html>dashboard</html>" "$(curl -s "$S3/$PREFIX/$A1/index.html")"
+check "and nothing at its uid alone" "404" "$(curl -s -o /dev/null -w '%{http_code}' "$S3/$PREFIX/$UID1/index.html")"
 check "a table typed as text, to open in the browser" "yes" \
-    "$(curl -sI "$S3/$PREFIX/$UID1/table.csv" | grep -qi '^content-type: text/plain' && echo yes)"
-check "a page uncached" "yes" "$(curl -sI "$S3/$PREFIX/$UID1/index.html" | grep -qi '^cache-control: no-cache' && echo yes)"
-check "the zip to Globus alone, when it's set" "yes no" \
-    "$(exists "$WORK/globus/gnoto/$UID1/Mock-run_$UID1.zip") $(curl -s -o /dev/null -w '%{http_code}' "$S3/$PREFIX/$UID1/Mock-run_$UID1.zip" | grep -q 200 && echo yes || echo no)"
-check "readable by the collection's anonymous user" "r" "$(stat -c %A "$WORK/globus/gnoto/$UID1/Mock-run_$UID1.zip" | cut -c8)"
+    "$(curl -sI "$S3/$PREFIX/$A1/table.csv" | grep -qi '^content-type: text/plain' && echo yes)"
+check "a page uncached" "yes" "$(curl -sI "$S3/$PREFIX/$A1/index.html" | grep -qi '^cache-control: no-cache' && echo yes)"
+check "globus.json beside the dashboard, for the access Lambda" "$UID1" "$(curl -s "$S3/$PREFIX/$A1/globus.json" | jq -r .uid)"
+check "the sign-in's return page, with the access address" "yes" \
+    "$(curl -s "$S3/$PREFIX/access.html" | grep -qF 'var ACCESS = "https://access.example.invalid/access";' && echo yes)"
+check "readable through the collection" "r" "$(stat -c %A "$WORK/globus/gnoto/$UID1/Mock-run_$UID1.zip" | cut -c8)"
 check "and gone from the run directory" "no" "$(exists "$RUNS/$UID1/Mock-run_$UID1.zip")"
 check "the state records where, and that it was checked" "yes" \
-    "$(cd "$RUNS/$UID1" && [[ -n $(state_get published.verified_utc) && $(state_get published.s3_prefix) == "$PREFIX/$UID1" && $(state_get published.globus_dir) == "$WORK/globus/gnoto/$UID1" ]] && echo yes)"
-check "the dashboard's address" "$S3/$PREFIX/$UID1/index.html" "$(cd "$RUNS/$UID1" && state_get published.url)"
+    "$(cd "$RUNS/$UID1" && [[ -n $(state_get published.verified_utc) && $(state_get published.s3_prefix) == "$PREFIX/$A1" &&
+        $(state_get published.globus_dir) == "$WORK/globus/gnoto/$UID1" && $(state_get published.globus_path) == "/gnoto/$UID1/" ]] && echo yes)"
+check "the dashboard's address" "$S3/$PREFIX/$A1/index.html" "$(cd "$RUNS/$UID1" && state_get published.url)"
 check "the zip's" "https://globus.example.invalid/gnoto/$UID1/Mock-run_$UID1.zip?download" "$(cd "$RUNS/$UID1" && state_get published.zip_url)"
-(cd "$RUNS/$UID1" && state_unset published.verified_utc && echo zip > "Mock-run_$UID1.zip" &&
-    GLOBUS_MIN_ZIP_MB=0 publish_run "$UID1" > /dev/null 2>&1)
-check "published again, it keeps its one permission" "1" "$(grep -c . "$WORK/globus-rules")"
 UIDS=$(derive_uid "MATESTRUN0S")
 finished_run "$UIDS" "" Completed
+AS=$(addr "$UIDS")
 (cd "$RUNS/$UIDS" && publish_run "$UIDS" > /dev/null 2>&1)
-check "a zip of globus.min_zip_mb or less goes to S3, with Globus set" "zip no" \
-    "$(curl -s "$S3/$PREFIX/$UIDS/Mock-run_$UIDS.zip") $(exists "$WORK/globus/gnoto/$UIDS")"
-check "and makes no Globus permission" "1" "$(grep -c . "$WORK/globus-rules")"
-check "the line between them is globus.min_zip_mb" "s3 globus" \
-    "$(cd "$RUNS/$UIDS" && zip_destination 104857600) $(cd "$RUNS/$UIDS" && zip_destination 104857601)"
-check "Globus alone takes every zip, S3 alone every zip" "globus s3" \
-    "$(cd "$RUNS/$UIDS" && AWS_ENABLED=false zip_destination 1) $(cd "$RUNS/$UIDS" && GLOBUS_ENABLED=false zip_destination 999999999)"
+check "any other pipeline's zip goes to S3, with Globus set" "zip no" \
+    "$(curl -s "$S3/$PREFIX/$AS/Mock-run_$UIDS.zip") $(exists "$WORK/globus/gnoto/$UIDS")"
+check "with no globus.json" "404" "$(curl -s -o /dev/null -w '%{http_code}' "$S3/$PREFIX/$AS/globus.json")"
+check "taxprofiler and biobakery go to Globus, and ampliseq to S3" "globus globus s3" \
+    "$(cd "$RUNS/$UIDS" && echo "$(zip_destination taxprofiler) $(zip_destination biobakery) $(zip_destination ampliseq)")"
+check "as globus.pipelines says" "globus s3" \
+    "$(cd "$RUNS/$UIDS" && GLOBUS_PIPELINES=ampliseq; echo "$(zip_destination ampliseq) $(zip_destination taxprofiler)")"
+check "Globus isn't ready without its app, or Get the data's address" "s3 s3" \
+    "$(cd "$RUNS/$UIDS" && echo "$(GLOBUS_APP_CLIENT_ID="" zip_destination taxprofiler) $(AWS_ACCESS_URL="" zip_destination taxprofiler)")"
+check "S3 alone takes every zip, and neither leaves it here" "s3 local" \
+    "$(cd "$RUNS/$UIDS" && echo "$(GLOBUS_ENABLED=false zip_destination taxprofiler) $(AWS_ENABLED=false zip_destination taxprofiler)")"
 UID2=$(derive_uid "MATESTRUN002")
-finished_run "$UID2" "" Completed
+finished_run "$UID2" "" Completed taxprofiler
+A2=$(addr "$UID2")
 (cd "$RUNS/$UID2" && GLOBUS_ENABLED=false publish_run "$UID2" > /dev/null 2>&1)
-check "without Globus, the zip goes to S3" "zip" "$(curl -s "$S3/$PREFIX/$UID2/Mock-run_$UID2.zip")"
-check "and its address is S3's" "$S3/$PREFIX/$UID2/Mock-run_$UID2.zip" "$(cd "$RUNS/$UID2" && state_get published.zip_url)"
+check "without Globus, the zip goes to S3" "zip" "$(curl -s "$S3/$PREFIX/$A2/Mock-run_$UID2.zip")"
+check "and its address is S3's" "$S3/$PREFIX/$A2/Mock-run_$UID2.zip" "$(cd "$RUNS/$UID2" && state_get published.zip_url)"
 (cd "$RUNS/$UID2" && GLOBUS_ENABLED=false AWS_S3_BUCKET=no-such-bucket publish_run "$UID2" > "$WORK/fail.out" 2>&1)
 check "a bucket it can't write fails the stage" "1" "$?"
 check "with the reason" "yes" "$(grep -q "couldn't be copied to s3://no-such-bucket" "$WORK/fail.out" && echo yes)"
-check "a large zip's href names Globus" "https://globus.example.invalid/gnoto/$UID1/x.zip?download" \
-    "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1" 200000000)"
+check "a taxprofiler zip's href names Globus" "https://globus.example.invalid/gnoto/$UID1/x.zip?download" \
+    "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1")"
 check "and records where it goes, for Publish" "globus" "$(cd "$RUNS/$UID1" && state_get published.zip_destination)"
-check "a small one's S3" "$S3/$PREFIX/$UID1/x.zip" "$(cd "$RUNS/$UID1" && bundle_href x.zip "$UID1" 1000)"
-check "which Publish then follows" "s3" "$(cd "$RUNS/$UID1" && publish_destination)"
+check "an ampliseq zip's, S3's, at the run's address" "$S3/$PREFIX/$AS/x.zip" "$(cd "$RUNS/$UIDS" && bundle_href x.zip "$UIDS")"
+check "which Publish then follows" "s3" "$(cd "$RUNS/$UIDS" && publish_destination)"
 check "or the run directory, without either" "../x.zip" \
-    "$(cd "$RUNS/$UID1" && GLOBUS_ENABLED=false AWS_ENABLED=false bundle_href x.zip "$UID1" 200000000)"
+    "$(cd "$RUNS/$UID1" && GLOBUS_ENABLED=false AWS_ENABLED=false bundle_href x.zip "$UID1")"
+(cd "$RUNS/$UID1" && state_set published.zip_destination globus > /dev/null)
+out=$(cd "$RUNS/$UID1" && dashboard_bundle "https://globus.example.invalid/gnoto/$UID1/x.zip?download" 1048576 &&
+    dashboard_zip_button)
+check "a zip on Globus gets Get the data, not a plain link" "yes no" \
+    "$(has "$out" '<span id="get-data-label">Get the data</span>') $(has "$out" 'id="download-all"')"
+check "with the run's address, the app and the return page" "$A1 11111111-1111-1111-1111-111111111111 $S3/$PREFIX/access.html" \
+    "$(sed -n 's/^  var C = \(.*\);$/\1/p' <<< "$out" | jq -r '[.run, .client, .callback] | join(" ")')"
+check "and the zip's size" "yes" "$(has "$out" '(1.0 MB)')"
+
+echo "Get the data"
+# access_event <run> <request> <identity>: the access Lambda's message
+access_event() {
+    jq -cn --arg run "$1" --arg request "$2" --arg identity "$3" \
+        '{gnoto: "globus_access", run: $run, request: $request, identity: $identity, username: "reader@example.org"}'
+}
+answer() {
+    curl -s "$S3/$PREFIX/$1/access/$2.json" | jq -r '.status // empty' 2> /dev/null
+}
+ID_A=aaaaaaaa-0000-4000-8000-000000000001
+ID_B=bbbbbbbb-0000-4000-8000-000000000002
+REQ=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+out=$(listen_event "$(access_event "$A1" "$REQ" "$ID_A")" 2>&1)
+check "the listener grants the identity read on the run's folder" "identity /gnoto/$UID1/ $ID_A" \
+    "$(cut -f2-4 "$WORK/globus-rules" | tr '\t' ' ')"
+check "as gnoto's client" "test-client" "$(cat "$WORK/globus-client")"
+check "and answers the dashboard" "granted" "$(answer "$A1" "$REQ")"
+check "logging who" "yes" "$(has "$out" "gave reader@example.org ($ID_A) read on Globus")"
+REQ2=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+access_request "$(access_event "$A1" "$REQ2" "$ID_A")" > /dev/null 2>&1
+check "asked again, it keeps the one permission" "1 granted" "$(grep -c . "$WORK/globus-rules") $(answer "$A1" "$REQ2")"
+REQ3=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+GLOBUS_MAX_PEOPLE=1 access_request "$(access_event "$A1" "$REQ3" "$ID_B")" > /dev/null 2>&1
+check "past globus.max_people, it's full" "1 full" "$(grep -c . "$WORK/globus-rules") $(answer "$A1" "$REQ3")"
+access_request "$(access_event "$A1" "$REQ3" "$ID_B")" > /dev/null 2>&1
+check "below it, a second identity gets in" "2 granted" "$(grep -c . "$WORK/globus-rules") $(answer "$A1" "$REQ3")"
+REQ4=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+out=$(access_request "$(access_event "$UID1-abcdefghijklmnop" "$REQ4" "$ID_B")" 2>&1)
+check "an address with the wrong token is ignored, unanswered" "yes " \
+    "$(has "$out" "at an address that isn't its own") $(answer "$UID1-abcdefghijklmnop" "$REQ4")"
+out=$(access_request "$(access_event "$AS" "$REQ4" "$ID_B")" 2>&1)
+check "a run whose zip isn't on Globus is gone" "gone" "$(answer "$AS" "$REQ4")"
+out=$(access_request '{"gnoto":"globus_access","run":"x","request":"y","identity":"z"}' 2>&1)
+check "a malformed request is ignored" "yes" "$(has "$out" "isn't well formed")"
+out=$(GLOBUS_APP_CLIENT_ID="" listen_event "$(access_event "$A1" "$REQ4" "$ID_B")" 2>&1)
+check "without Globus ready, the listener ignores one" "yes" "$(has "$out" "since Globus isn't set up")"
 
 echo "the progress page on S3"
 UID3=$(derive_uid "MATESTRUN003")
 mkdir -p "$RUNS/$UID3/results/assets"
 (cd "$RUNS/$UID3" && state_init "$UID3" > /dev/null && echo live > results/index.html && echo '{}' > results/progress.json &&
     echo css > results/assets/gnoto.css && progress_publish)
-check "it's uploaded" "live" "$(curl -s "$S3/$PREFIX/$UID3/index.html")"
-check "with its assets" "css" "$(curl -s "$S3/$PREFIX/$UID3/assets/gnoto.css")"
-check "the state records where, for the teardown" "$PREFIX/$UID3" "$(cd "$RUNS/$UID3" && state_get published.s3_prefix)"
+A3=$(addr "$UID3")
+check "it's uploaded, at the run's address" "live" "$(curl -s "$S3/$PREFIX/$A3/index.html")"
+check "with its assets" "css" "$(curl -s "$S3/$PREFIX/$A3/assets/gnoto.css")"
+check "the state records where, for the teardown" "$PREFIX/$A3" "$(cd "$RUNS/$UID3" && state_get published.s3_prefix)"
 puts=$(cd "$RUNS/$UID3" && progress_publish; cat .progress-digests | wc -l)
 check "a page that hasn't changed isn't uploaded again" "2" "$puts"
 (cd "$RUNS/$UID3" && state_set stages.present now && echo dashboard > results/index.html && progress_publish)
-check "nor once Present has replaced it" "live" "$(curl -s "$S3/$PREFIX/$UID3/index.html")"
+check "nor once Present has replaced it" "live" "$(curl -s "$S3/$PREFIX/$A3/index.html")"
 
 echo "the teardown"
 (cd "$RUNS/$UID1" && cp run_state.json "$HISTORY/$UID1/state.json")
@@ -344,30 +422,47 @@ mkdir -p "$EXPIRY"
 TASK_T=$(wrike_cli_task "Teardown mock" ampliseq alice)
 (cd "$RUNS/$UID1" && state_set wrike.task_id "$TASK_T" && cp run_state.json "$HISTORY/$UID1/state.json")
 write_expiry_file "$UID1" "$(date -u -d '-1 day' '+%Y-%m-%dT%H:%M:%SZ')"
+printf 'rule-other\tidentity\t/gnoto/zzzzzzzz/\t%s\n' "$ID_A" >> "$WORK/globus-rules"
 ( run_lock "$UID1" && teardown_run "$UID1" "Results removed in a test." ) > "$WORK/teardown.out" 2>&1
 check "it succeeds" "0" "$?"
 check "S3 keeps only the expired page and its assets" "assets/gnoto.css index.html" \
-    "$(s3_keys gnoto-results "$PREFIX/$UID1" | sed "s|^$PREFIX/$UID1/||" | sort | paste -sd ' ')"
-check "which names the run" "yes" "$(curl -s "$S3/$PREFIX/$UID1/index.html" | grep -q "$UID1" && echo yes)"
-check "and its sample count" "yes" "$(curl -s "$S3/$PREFIX/$UID1/index.html" | grep -q '3 samples' && echo yes)"
+    "$(s3_keys gnoto-results "$PREFIX/$A1" | sed "s|^$PREFIX/$A1/||" | sort | paste -sd ' ')"
+check "which names the run" "yes" "$(curl -s "$S3/$PREFIX/$A1/index.html" | grep -q "$UID1" && echo yes)"
+check "and its sample count" "yes" "$(curl -s "$S3/$PREFIX/$A1/index.html" | grep -q '3 samples' && echo yes)"
 check "the Globus folder went" "no" "$(exists "$WORK/globus/gnoto/$UID1")"
-check "and its permission, first" "0" "$(grep -c . "$WORK/globus-rules")"
+check "and every permission on it, first, and no other" "rule-other" "$(cut -f1 "$WORK/globus-rules" | paste -sd ' ')"
+: > "$WORK/globus-rules"
 LINT_FAILS=0 LINT_WARNS=0
 out=$(lint_globus)
-check "lint: Globus is set up, with no run shared" "yes" "$(has "$out" "OK    globus: 0 runs shared, each by a permission of its own")"
-printf 'rule-open\tall_authenticated_users\t/gnoto/\n' >> "$WORK/globus-rules"
+check "lint: Globus is set up, with no run shared" "yes" \
+    "$(has "$out" "OK    globus: 0 runs shared, with 0 Globus identities, each by a permission of its own")"
+printf 'rule-a\tidentity\t/gnoto/run1/\t%s\nrule-b\tidentity\t/gnoto/run1/\t%s\nrule-c\tidentity\t/gnoto/run2/\t%s\n' \
+    "$ID_A" "$ID_B" "$ID_A" > "$WORK/globus-rules"
+out=$(lint_globus)
+check "and counts the runs shared, and with whom" "yes" "$(has "$out" "OK    globus: 2 runs shared, with 3 Globus identities")"
+printf 'rule-open\tall_authenticated_users\t/gnoto/\t\n' > "$WORK/globus-rules"
 LINT_FAILS=0
 out=$(lint_globus)
 check "lint fails on a permission that opens the run folder" "yes" \
-    "$(has "$out" "FAIL  globus: a permission lets anyone list every run and download any of them: rule-open on /gnoto/")"
-printf 'rule-root\tanonymous\t/\n' > "$WORK/globus-rules"
+    "$(has "$out" "FAIL  globus: a permission lets anyone signed in to Globus list the runs and download them: rule-open on /gnoto/")"
+printf 'rule-root\tanonymous\t/\t\n' > "$WORK/globus-rules"
 out=$(lint_globus)
 check "or anything above it" "yes" "$(has "$out" "rule-root on /")"
-for (( i = 0; i < 95; i++ )); do printf 'rule-%s\tanonymous\t/gnoto/run%s/\n' "$i" "$i"; done > "$WORK/globus-rules"
+printf 'rule-run\tanonymous\t/gnoto/run1/\t\n' > "$WORK/globus-rules"
 out=$(lint_globus)
-check "lint warns as the shared runs near the 100 a user can be covered by" "yes" \
-    "$(has "$out" "WARN  globus: 95 runs are shared")"
+check "or any run in it" "yes" "$(has "$out" "rule-run on /gnoto/run1/")"
+for (( i = 0; i < 905; i++ )); do printf 'rule-%s\tidentity\t/gnoto/run%s/\t%s\n' "$i" "$i" "$ID_A"; done > "$WORK/globus-rules"
+out=$(lint_globus)
+check "lint warns as the permissions near the 1000 a collection holds" "yes" \
+    "$(has "$out" "WARN  globus: the collection has 905 permissions")"
 : > "$WORK/globus-rules"
+out=$(GLOBUS_APP_CLIENT_ID="" lint_globus)
+check "lint fails without the dashboards' app" "yes" "$(has "$out" "FAIL  globus: globus.app_client_id isn't set")"
+out=$(AWS_ACCESS_URL="" lint_globus)
+check "or Get the data's address" "yes" "$(has "$out" "which needs S3, the queue and aws.access_url")"
+out=$(GLOBUS_PIPELINES=ampliseq,nosuch lint_globus)
+check "or with a pipeline that isn't one" "yes no" \
+    "$(has "$out" "globus.pipelines names nosuch") $(has "$out" "names ampliseq")"
 check "the run directory and expiry file went" "no no" "$(exists "$RUNS/$UID1") $(exists "$EXPIRY/$UID1")"
 check "history says when" "yes" "$(jq -e '.removed_utc' "$HISTORY/$UID1/state.json" > /dev/null && echo yes)"
 check "the task moved to Expired" "$(wrike_status_id expired)" "$(wrike_call GET "tasks/$TASK_T" | jq -r '.data[0].customStatusId')"
@@ -385,11 +480,12 @@ echo "gnoto remove, of a published run with no run directory"
 UID4=$(derive_uid "MATESTRUN004")
 finished_run "$UID4" "" Completed
 (cd "$RUNS/$UID4" && GLOBUS_ENABLED=false publish_run "$UID4" > /dev/null 2>&1 && cp run_state.json "$HISTORY/$UID4/state.json")
+A4=$(addr "$UID4")
 run_dir_delete "$UID4"
 check "it's still published" "yes" "$(published_elsewhere "$UID4" && echo yes)"
 out=$(remove_main --yes "$UID4" 2>&1)
 check "remove takes its results off S3" "index.html" \
-    "$(s3_keys gnoto-results "$PREFIX/$UID4" | sed "s|^$PREFIX/$UID4/||" | grep -v '^assets/' | paste -sd ' ')"
+    "$(s3_keys gnoto-results "$PREFIX/$A4" | sed "s|^$PREFIX/$A4/||" | grep -v '^assets/' | paste -sd ' ')"
 check "and says so" "yes" "$(has "$out" "Removed run $UID4's results.")"
 check "after which it isn't published" "no" "$(published_elsewhere "$UID4" && echo yes || echo no)"
 
@@ -522,7 +618,7 @@ case "\$*" in
         case \$stack in
             gnoto-iam) echo '{"Stacks":[{"Outputs":[{"OutputKey":"UserName","OutputValue":"gnoto-User-ABC"}]}]}' ;;
             gnoto-s3) echo '{"Stacks":[{"Outputs":[{"OutputKey":"ResultsBaseUrl","OutputValue":"$S3"},{"OutputKey":"DistributionId","OutputValue":"E123"},{"OutputKey":"DistributionDomain","OutputValue":"d1.cloudfront.net"}]}]}' ;;
-            gnoto-sqs) echo '{"Stacks":[{"Outputs":[{"OutputKey":"QueueUrl","OutputValue":"http://elasticmq:9324/000000000000/itest"},{"OutputKey":"WebhookUrl","OutputValue":"https://abc.execute-api.us-east-1.amazonaws.com/wrike"}]}]}' ;;
+            gnoto-sqs) echo '{"Stacks":[{"Outputs":[{"OutputKey":"QueueUrl","OutputValue":"http://elasticmq:9324/000000000000/itest"},{"OutputKey":"WebhookUrl","OutputValue":"https://abc.execute-api.us-east-1.amazonaws.com/wrike"},{"OutputKey":"AccessUrl","OutputValue":"https://def.execute-api.us-east-1.amazonaws.com/access"}]}]}' ;;
         esac
         ;;
     *"cloudformation deploy"*)
@@ -553,11 +649,19 @@ check "the IAM user's key, printed once" "yes yes" "$(has "$out" "access_key_id:
 check "the stack's outputs in generated.yaml" "E123" "$(yq -r '.aws.distribution_id' "$WORK/data/generated.yaml")"
 out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_YES=1; config_sqs_step) 2>&1)
 check "the SQS stack, with the webhook's secret" "yes" "$(grep -qx 'WebhookSecret=itest-secret' "$WORK/fake/gnoto-sqs.args" && echo yes)"
-check "and the Lambda's code, without its comments" "yes no" \
-    "$(grep -q '^          def lambda_handler(event, context):$' "$WORK/fake/gnoto-sqs.yaml" && echo yes) $(grep -q 'webhook.py - The Lambda' "$WORK/fake/gnoto-sqs.yaml" && echo yes || echo no)"
+check "and Get the data's app, bucket, origin and return page" "yes yes yes yes yes" \
+    "$(for line in GlobusClientId=11111111-1111-1111-1111-111111111111 ResultsBucket=gnoto-results "RunPrefix=$PREFIX" \
+        ResultsOrigin=http://s3mock:9090 "RedirectUri=$S3/$PREFIX/access.html"; do
+        grep -qx "$line" "$WORK/fake/gnoto-sqs.args" && echo yes || echo "no:$line"; done | paste -sd ' ')"
+check "and both Lambdas' code, without comments or placeholders" "2 yes no no" \
+    "$(grep -c '^          def lambda_handler(event, context):$' "$WORK/fake/gnoto-sqs.yaml") $(grep -q '^          def auth(path, form=None, token=None):$' "$WORK/fake/gnoto-sqs.yaml" && echo yes) $(grep -q 'webhook.py - The Lambda\|access.py - The Lambda' "$WORK/fake/gnoto-sqs.yaml" && echo yes || echo no) $(grep -q '__[A-Z]*_PY__' "$WORK/fake/gnoto-sqs.yaml" && echo yes || echo no)"
+check "its plan names Get the data" "yes" "$(has "$out" "Get the data's Lambda and its HTTP API")"
 check "a second key isn't made" "no" "$(has "$out" "has a new access key")"
-check "the queue and webhook addresses in generated.yaml" "https://abc.execute-api.us-east-1.amazonaws.com/wrike" \
-    "$(yq -r '.aws.webhook_url' "$WORK/data/generated.yaml")"
+check "the queue, webhook and access addresses in generated.yaml" "https://abc.execute-api.us-east-1.amazonaws.com/wrike https://def.execute-api.us-east-1.amazonaws.com/access" \
+    "$(yq -r '.aws.webhook_url + " " + .aws.access_url' "$WORK/data/generated.yaml")"
+out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_YES=1 GLOBUS_APP_CLIENT_ID=""; config_sqs_step) 2>&1)
+check "without the app, Get the data's parameters are empty, which leaves it out" "yes yes" \
+    "$(grep -qx 'GlobusClientId=' "$WORK/fake/gnoto-sqs.args" && echo yes) $(grep -qx 'ResultsBucket=' "$WORK/fake/gnoto-sqs.args" && echo yes)"
 
 echo "settings gnoto fills in"
 mkdir -p "$WORK/fill/install" "$WORK/fill/data"
@@ -583,7 +687,10 @@ check "without Slurm, no SLURM_CONF line" "no" "$(grep -q '^Environment=SLURM_CO
 check "the poll timer's interval" "yes" "$(has "$(WRIKE_POLL_MINUTES=7 systemd_render gnoto-wrike.timer)" "OnUnitActiveSec=7min")"
 check "the units for Wrike and SQS" "gnoto-daily.service gnoto-daily.timer gnoto-wrike.service gnoto-wrike.timer gnoto-listener.service" \
     "$(systemd_units | paste -sd ' ')"
-check "only the daily timer without Wrike" "gnoto-daily.service gnoto-daily.timer" "$(WRIKE_ENABLED=false systemd_units | paste -sd ' ')"
+check "the listener for Globus alone" "gnoto-daily.service gnoto-daily.timer gnoto-listener.service" \
+    "$(WRIKE_ENABLED=false systemd_units | paste -sd ' ')"
+check "only the daily timer without Wrike or Globus" "gnoto-daily.service gnoto-daily.timer" \
+    "$(WRIKE_ENABLED=false GLOBUS_ENABLED=false systemd_units | paste -sd ' ')"
 SYSTEMD_HOST=elsewhere
 out=$(service_start daily 2>&1; echo "status $?")
 check "a unit on another host does nothing" "yes status 1" "$(has "$out" "belong to elsewhere") $(tail -n 1 <<< "$out")"

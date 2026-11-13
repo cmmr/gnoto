@@ -82,7 +82,7 @@ health_write() {
                     printf "  - {name: \"%s\", status: \"%s\", message: \"%s\"}\n", order[i], word[worst[order[i]]], text[order[i]]
                 }
             }' <<< "$out"
-        if sqs_on && wrike_on; then
+        if listener_on; then
             age=$(heartbeat_age listener)
             started=$(yq -r '.started_utc // ""' "$DATA_DIR/logs/listener.heartbeat" 2> /dev/null)
             if [[ -n $age ]] && (( age < 300 )); then

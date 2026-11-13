@@ -107,9 +107,9 @@ wrike_job_file() {
     wrike_call GET "attachments/$id/download" > "$dir/samplesheet.tsv" || return 2
 
     if [[ $pipeline == "$WRIKE_REPEAT_ANSWER" ]]; then
-        # The uid, or the results address it's in
+        # The uid, or the results address it's in, as <uid>-<token>
         previous=${previous,,}
-        [[ $previous =~ (^|/)([a-z2-7]{8})(/|$) ]] && previous=${BASH_REMATCH[2]}
+        [[ $previous =~ (^|/)([a-z2-7]{8})(-[a-z2-7]{16})?(/|$) ]] && previous=${BASH_REMATCH[2]}
         if ! is_valid_uid "$previous"; then
             echo "it repeats an earlier run, and \"$(wrike_quote "$previous")\" isn't a run's ID: eight letters and digits, as in its results address."
             return 1

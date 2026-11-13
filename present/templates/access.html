@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!--
+  access.html - The page Globus's sign-in returns to, from a run's Get the
+  data button (present/templates/get-data.html). One page serves every run, at
+  <results_base_url>/<run_prefix>/access.html, the address the dashboards'
+  Globus app is registered with.
+
+  Put in the bucket by Publish (publish_access_page in service/publish.sh),
+  with the access address filled in where ACCESS_URL is written between
+  doubled underscores. It checks the sign-in's state against what the button
+  kept in this tab's session storage, posts the authorization code with its
+  PKCE verifier to the access Lambda (service/aws/lambda/access.py), and goes
+  back to the run's dashboard, which waits for the listener's answer. It
+  answers in plain text, since it has no run's assets to style it with.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="noindex" name="robots">
+<title>Signing in - gnoto</title>
+<style>
+body { margin: 0; background: #fbf9f8; color: #1b1c1c; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+main { max-width: 36rem; margin: 15vh auto 0; padding: 0 24px; }
+h1 { margin: 0 0 8px; font-size: 20px; color: #00245a; }
+p { margin: 0; font-size: 14px; line-height: 22px; color: #454651; }
+a { color: #00245a; }
+</style>
+</head>
+<body>
+<main>
+<h1 id="title">Signing you in</h1>
+<p id="message">Asking for access to the run's data&hellip;</p>
+</main>
+<script>
+(function () {
+  var ACCESS = __ACCESS_URL__;
+  var KEY = "gnoto-access";
+  var title = document.getElementById("title");
+  var message = document.getElementById("message");
+  var saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) {}
+  var query = new URLSearchParams(location.search);
+  var back = saved && typeof saved.back === "string" && saved.back.indexOf(location.origin + "/") === 0
+    ? saved.back : null;
+
+  function stop(heading, text) {
+    title.textContent = heading;
+    message.textContent = text;
+    if (back) {
+      var a = document.createElement("a");
+      a.href = back;
+      a.textContent = "Back to the run";
+      message.appendChild(document.createTextNode(" "));
+      message.appendChild(a);
+    }
+  }
+
+  // The code is single-use; keep it out of the history either way
+  history.replaceState(null, "", location.pathname);
+  if (!saved || !back || !saved.state || query.get("state") !== saved.state) {
+    return stop("Start from the run's page",
+      "This sign-in didn't begin at a run's Get the data button in this tab, so it can't be used.");
+  }
+  if (query.get("error") || !query.get("code")) {
+    return stop("Not signed in", "Globus didn't sign you in"
+      + (query.get("error_description") ? ": " + query.get("error_description") : "."));
+  }
+  fetch(ACCESS, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain"},
+    body: JSON.stringify({run: saved.run, code: query.get("code"), verifier: saved.verifier, request: saved.request})
+  }).then(function (response) {
+    if (response.status === 202) {
+      delete saved.verifier;
+      delete saved.state;
+      saved.queued = true;
+      try { sessionStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      location.replace(back);
+    } else if (response.status === 404) {
+      stop("Not on Globus", "This run's data is no longer on Globus.");
+    } else {
+      stop("Not granted", "Access couldn't be asked for (" + response.status + "). Try again from the run's page.");
+    }
+  }, function () {
+    stop("Not granted", "gnoto couldn't be reached to ask for access. Try again from the run's page.");
+  });
+})();
+</script>
+</body>
+</html>

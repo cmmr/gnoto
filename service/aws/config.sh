@@ -11,10 +11,11 @@
 #              lib/config.sh; lint_ok, lint_warn and lint_fail from lib/lint.sh
 #
 # A site that runs its own bucket, CloudFront and queue fills in aws.s3_bucket,
-# results_base_url, sqs_queue_url and webhook_url, and config only checks them.
-# --deploy builds the same pieces instead, as the stacks in service/aws/stacks/:
-# gnoto-iam, gnoto's IAM user, deployed by whichever runs first; gnoto-s3; and
-# gnoto-sqs. They're deployed with the admin credentials of --profile, used for
+# results_base_url, sqs_queue_url, webhook_url and access_url, and config only
+# checks them. --deploy builds the same pieces instead, as the stacks in
+# service/aws/stacks/: gnoto-iam, gnoto's IAM user, deployed by whichever runs
+# first; gnoto-s3; and gnoto-sqs, with Get the data's Lambda when Globus has
+# its app. They're deployed with the admin credentials of --profile, used for
 # nothing else, and their outputs go to generated.yaml, where a value in
 # config.yaml wins. The first deploy makes the IAM user's access key and prints
 # it once, to put in config.yaml with gnoto config aws, since config never
@@ -37,11 +38,20 @@ indent() {
     sed "s/^/$(printf '%*s' "$1" '')/" "$2"
 }
 
+# A Lambda's code from service/aws/lambda/<name>.py, without its comments,
+# indented to go inline in a stack: lambda_inline <name>
+lambda_inline() {
+    local code
+    code=$(grep -v '^ *#' "$CODE_DIR/service/aws/lambda/$1.py" | awk 'NF || prev { print } { prev = NF }')
+    (( ${#code} <= 4000 )) || fail "service/aws/lambda/$1.py is ${#code} characters without its comments, more than CloudFormation takes inline."
+    printf '%s\n' "$code" | indent 10 /dev/stdin
+}
+
 # A stack's template with the code it carries filled in: stack_template <name>.
 # The Lambda's comments are left out, since inline code is limited to 4,096
 # characters.
 stack_template() {
-    local name=$1 file=$CODE_DIR/service/aws/stacks/$1.yaml code
+    local name=$1 file=$CODE_DIR/service/aws/stacks/$1.yaml code webhook access
     case $name in
         s3)
             code=$(sed "s/^var RUN_PREFIX = 'gnoto';/var RUN_PREFIX = '${AWS_RUN_PREFIX:-gnoto}';/" \
@@ -49,10 +59,11 @@ stack_template() {
             CODE=$code awk '/^ *__DIRECTORY_INDEX_JS__$/ { print ENVIRON["CODE"]; next } { print }' "$file"
             ;;
         sqs)
-            code=$(grep -v '^ *#' "$CODE_DIR/service/aws/lambda/webhook.py" | awk 'NF || prev { print } { prev = NF }')
-            (( ${#code} <= 4000 )) || fail "service/aws/lambda/webhook.py is ${#code} characters without its comments, more than CloudFormation takes inline."
-            code=$(printf '%s\n' "$code" | indent 10 /dev/stdin)
-            CODE=$code awk '/^ *__WEBHOOK_PY__$/ { print ENVIRON["CODE"]; next } { print }' "$file"
+            webhook=$(lambda_inline webhook) && access=$(lambda_inline access) || exit 1
+            WEBHOOK=$webhook ACCESS=$access awk '
+                /^ *__WEBHOOK_PY__$/ { print ENVIRON["WEBHOOK"]; next }
+                /^ *__ACCESS_PY__$/ { print ENVIRON["ACCESS"]; next }
+                { print }' "$file"
             ;;
         *) cat "$file" ;;
     esac
@@ -150,25 +161,42 @@ config_s3_step() {
     echo "S3 is ready."
 }
 
+# The parameters that make Get the data's Lambda, as Key=Value lines: empty
+# ones, which leave it out, unless Globus is on with its app and S3 is set up
+access_parameters() {
+    local client="" bucket="" origin="" redirect="" base=${AWS_RESULTS_BASE_URL%/}
+    if [[ ${GLOBUS_ENABLED:-false} == true && -n ${GLOBUS_APP_CLIENT_ID:-} ]] && s3_on; then
+        client=$GLOBUS_APP_CLIENT_ID
+        bucket=$AWS_S3_BUCKET
+        origin=$(sed -E 's#^(https?://[^/]+).*#\1#' <<< "$base")
+        redirect=$base/${AWS_RUN_PREFIX:-gnoto}/access.html
+    fi
+    printf '%s\n' "GlobusClientId=$client" "ResultsBucket=$bucket" "RunPrefix=${AWS_RUN_PREFIX:-gnoto}" \
+        "ResultsOrigin=$origin" "RedirectUri=$redirect"
+}
+
 # gnoto config sqs [--deploy [--profile=<name>]] [--dry-run] [--yes]
 config_sqs_step() {
-    local plan=() outputs
+    local plan=() outputs access=() what="the webhook's Lambda and its HTTP API"
     [[ ${AWS_ENABLED:-false} == true ]] || fail "The aws section is off. $(gnoto_command config aws --on) turns it on."
     if [[ -n ${CONFIG_DEPLOY:-} ]]; then
         [[ -n ${AWS_REGION:-} ]] || fail "Set aws.region first: $(gnoto_command config aws --region=us-east-1)"
+        mapfile -t access < <(access_parameters)
+        [[ ${access[0]} == GlobusClientId= ]] || what+=", Get the data's Lambda and its HTTP API"
         stack_exists "$STACK_IAM" || plan+=("Create the stack $STACK_IAM: gnoto's IAM user, and its access key")
         if stack_exists "$STACK_SQS"; then
-            plan+=("Update the stack $STACK_SQS: the queue, the webhook's Lambda and its HTTP API, and the user's access to the queue")
+            plan+=("Update the stack $STACK_SQS: the queue, $what, and the user's access to the queue")
         else
-            plan+=("Create the stack $STACK_SQS: a queue, the webhook's Lambda and its HTTP API, and the user's access to the queue")
+            plan+=("Create the stack $STACK_SQS: a queue, $what, and the user's access to the queue")
         fi
         deploy_confirm "in AWS account $(admin_aws sts get-caller-identity --query Account --output text 2> /dev/null || echo "(unknown)"), region $AWS_REGION" "${plan[@]}"
         iam_deploy
         wrike_webhook_secret
-        stack_deploy "$STACK_SQS" sqs "WebhookSecret=$WRIKE_WEBHOOK_SECRET" "IamStack=$STACK_IAM"
+        stack_deploy "$STACK_SQS" sqs "WebhookSecret=$WRIKE_WEBHOOK_SECRET" "IamStack=$STACK_IAM" "${access[@]}"
         outputs=$(stack_outputs "$STACK_SQS")
         generated_set aws.sqs_queue_url "$(awk -F'\t' '$1 == "QueueUrl" { print $2 }' <<< "$outputs")"
         generated_set aws.webhook_url "$(awk -F'\t' '$1 == "WebhookUrl" { print $2 }' <<< "$outputs")"
+        generated_set aws.access_url "$(awk -F'\t' '$1 == "AccessUrl" { print $2 }' <<< "$outputs")"
         echo "The queue and the webhook's address are in $DATA_DIR/generated.yaml. $(gnoto_command config wrike) registers the webhook."
         source "$CODE_DIR/lib/env.sh"
     fi

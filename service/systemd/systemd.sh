@@ -13,7 +13,7 @@
 #   gnoto-daily.timer     always, so an install with neither Wrike nor S3 still
 #                         has its results expire
 #   gnoto-wrike.timer     with Wrike, unless wrike.poll_minutes is 0
-#   gnoto-listener        with Wrike and SQS
+#   gnoto-listener        with SQS, and Wrike or Globus
 #
 # They run the install directory's launcher, which hands each command to the
 # current version, so an upgrade needs no reinstall unless a template changed,
@@ -37,7 +37,7 @@ systemd_units() {
         echo gnoto-wrike.service
         echo gnoto-wrike.timer
     fi
-    if wrike_on && sqs_on; then
+    if listener_on; then
         echo gnoto-listener.service
     fi
 }
