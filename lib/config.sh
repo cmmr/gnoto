@@ -135,7 +135,7 @@ config_add_section() {
     text="$section:"
     [[ $section == core ]] || text+=$'\n'"  enabled: $2"
     for key in ${CONFIG_KEYS[$section]}; do
-        [[ $key != enabled ]] || continue
+        [[ $key != enabled && -n ${CONFIG_NEW[$key]+set} ]] || continue
         text+=$'\n'"  $key: $(config_yaml "$section.$key" "${CONFIG_NEW[$key]}")"
     done
     (
@@ -274,6 +274,8 @@ config_walk() {
 
     for key in ${CONFIG_KEYS[$section]}; do
         [[ $key != enabled ]] || continue
+        # A setting with no question is gnoto's to fill in, unless given
+        [[ -n ${CONFIG_QUESTION[$section.$key]} || -n ${CONFIG_GIVEN[$key]+set} ]] || continue
         if [[ -n ${CONFIG_GIVEN[$key]+set} ]]; then
             ANSWER=${CONFIG_GIVEN[$key]}
         elif [[ -n $ask ]]; then
@@ -414,7 +416,7 @@ config_main() {
             config_add_section "$section" true
         else
             for key in ${CONFIG_KEYS[$section]}; do
-                [[ $key == enabled ]] || config_set "$section" "$key" "${CONFIG_NEW[$key]}"
+                [[ $key == enabled || -z ${CONFIG_NEW[$key]+set} ]] || config_set "$section" "$key" "${CONFIG_NEW[$key]}"
             done
         fi
     elif [[ -z $present ]]; then

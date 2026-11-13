@@ -1317,7 +1317,12 @@ What's built:
   folder shared and unshared again, that a shared run reaches anyone with its address;
   `lint` fails on such a permission and warns from 90 shared runs. Each shows its plan and asks;
   `--dry-run` stops after the plan, and `--yes` answers for a script. `config core` makes
-  `RUN_ID_SALT`.
+  `RUN_ID_SALT`. The webhook's secret isn't asked for: at Daniel's call (2026-11-12),
+  `config sqs --deploy` or `config wrike` makes a random one in `generated.yaml` the first
+  time either needs it, which a value in `config.yaml` overrides. Setting that up showed
+  that a new section's empty values, such as `aws.sqs_queue_url: ""`, hid what
+  `generated.yaml` held, the stacks' outputs among them, so `lib/env.sh` now lets only a
+  value that isn't empty win.
 - **AWS's own pieces.** `service/aws/lambda/webhook.py` is the old Lambda, its challenge check
   unchanged, on `python3.14`: Lambda's `python3.15` is a public preview, which AWS says isn't
   for production. `service/aws/cloudfront/directory-index.js` is the old CloudFront function
@@ -1350,7 +1355,7 @@ How it was tested, all in the test bed or in Docker on the development machine:
   ElasticMQ: 15 checks, signed and unsigned events, the handshake, challenges that must be
   refused, and base64 bodies, all passing. The stacks pass `cfn-lint` 1.60.1 with their code
   filled in.
-- **`test/lib/integrations-test.sh`,** 150 checks, all passing: retries, replay and its
+- **`test/lib/integrations-test.sh`,** 153 checks, all passing: retries, replay and its
   keys, `config wrike` twice with nothing changed the second time, answers to a job file,
   rejection, repeats, Publish to S3 and Globus by the zip's size, each run's Globus
   permission against a stand-in for `globus-cli`, `lint`'s checks of those permissions,
@@ -1369,7 +1374,7 @@ How it was tested, all in the test bed or in Docker on the development machine:
   deleted task's run removed by the listener; and a run whose publish failed, published by
   `gnoto publish`. By hand, a repeat of a run made at an older commit, sent through the
   scan, was handed to that commit, which started it.
-- **Regression:** `lib` 66, `pipelines` 25, `outputs` 45, `runs` 75, `versions` 98, `job`
+- **Regression:** `lib` 67, `pipelines` 25, `outputs` 45, `runs` 75, `versions` 98, `job`
   173, `present` 57 and `progress` 47 checks pass, the launcher's 69 in `debian:13-slim`
   with the helper's stub test, and `checks/job.sh --small --remove` on an install with no
   integrations.

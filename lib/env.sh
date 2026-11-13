@@ -11,7 +11,8 @@
 # generated.yaml in the data directory. Each setting becomes a shell variable:
 # core.data_dir is DATA_DIR, and slurm.max_cpus is SLURM_MAX_CPUS. A nested key
 # joins with underscores, so wrike.statuses.running is WRIKE_STATUSES_RUNNING.
-# config.yaml wins over generated.yaml. lib/config/<section>.sh declares each
+# A value in config.yaml wins over generated.yaml, and an empty one doesn't
+# hide what generated.yaml says. lib/config/<section>.sh declares each
 # section's settings and defaults, and config.yaml's other keys are ignored.
 # Without config.yaml, everything is at its default: the data directory is
 # <install>/data, and jobs run locally.
@@ -57,7 +58,7 @@ gnoto_settings() {
 # Sets the variables from one file: all of them, or with "known", only those
 # lib/config/ declares
 gnoto_load_settings() {
-    local file=$1 only_known=${2:-} lines name value
+    local file=$1 only_known=${2:-} only_set=${3:-} lines name value
     lines=$(gnoto_settings "$file") || {
         printf 'gnoto: %s has an error, above\n' "$file" >&2
         return 1
@@ -67,6 +68,7 @@ gnoto_load_settings() {
         if [[ -n $only_known && " ${GNOTO_KNOWN[*]} " != *" $name "* ]]; then
             continue
         fi
+        [[ -z $only_set || -n $value ]] || continue
         printf -v "$name" '%s' "$value"
     done <<< "$lines"
 }
@@ -78,8 +80,9 @@ config_section() {
 }
 
 # Declares a setting: its section, key, type, default, and the question gnoto
-# config asks for it. The types are bool, int, text, secret, path (on the host),
-# paths (comma-separated) and dir (a directory gnoto writes to).
+# config asks for it, or none for one it never asks for, which gnoto fills in
+# itself unless a site sets it. The types are bool, int, text, secret, path (on
+# the host), paths (comma-separated) and dir (a directory gnoto writes to).
 config_setting() {
     local section=$1 key=$2 name=${2^^}
     [[ $section == core ]] || name=${section^^}_$name
@@ -110,10 +113,12 @@ DATA_DIR=${DATA_DIR:-$INSTALL_DIR/data}
 DB_DIR=${DB_DIR:-$DATA_DIR/db}
 
 if [[ -r $DATA_DIR/generated.yaml ]]; then
-    # config.yaml wins, so load generated.yaml first, then config.yaml again
+    # A value in config.yaml wins, so load generated.yaml, then config.yaml's
+    # values again. An empty one, as a new section holds for what it leaves to
+    # gnoto, such as a stack's outputs, doesn't hide what generated.yaml says.
     gnoto_load_settings "$DATA_DIR/generated.yaml" || return 1
     if [[ -e $GNOTO_CONFIG ]]; then
-        gnoto_load_settings "$GNOTO_CONFIG" known || return 1
+        gnoto_load_settings "$GNOTO_CONFIG" known set || return 1
     fi
     DATA_DIR=${DATA_DIR:-$INSTALL_DIR/data}
     DB_DIR=${DB_DIR:-$DATA_DIR/db}

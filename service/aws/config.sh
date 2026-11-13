@@ -156,8 +156,6 @@ config_sqs_step() {
     [[ ${AWS_ENABLED:-false} == true ]] || fail "The aws section is off. $(gnoto_command config aws --on) turns it on."
     if [[ -n ${CONFIG_DEPLOY:-} ]]; then
         [[ -n ${AWS_REGION:-} ]] || fail "Set aws.region first: $(gnoto_command config aws --region=us-east-1)"
-        [[ -n ${WRIKE_WEBHOOK_SECRET:-} ]] ||
-            fail "Set wrike.webhook_secret first, a secret you choose, which signs Wrike's requests: $(gnoto_command config wrike)"
         stack_exists "$STACK_IAM" || plan+=("Create the stack $STACK_IAM: gnoto's IAM user, and its access key")
         if stack_exists "$STACK_SQS"; then
             plan+=("Update the stack $STACK_SQS: the queue, the webhook's Lambda and its HTTP API, and the user's access to the queue")
@@ -166,6 +164,7 @@ config_sqs_step() {
         fi
         deploy_confirm "in AWS account $(admin_aws sts get-caller-identity --query Account --output text 2> /dev/null || echo "(unknown)"), region $AWS_REGION" "${plan[@]}"
         iam_deploy
+        wrike_webhook_secret
         stack_deploy "$STACK_SQS" sqs "WebhookSecret=$WRIKE_WEBHOOK_SECRET" "IamStack=$STACK_IAM"
         outputs=$(stack_outputs "$STACK_SQS")
         generated_set aws.sqs_queue_url "$(awk -F'\t' '$1 == "QueueUrl" { print $2 }' <<< "$outputs")"

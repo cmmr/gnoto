@@ -3,8 +3,8 @@
 # checks of it.
 #
 # Sourced by:  lib/config.sh and lib/lint.sh
-# Defines:     config_wrike_step, wrike_fields_spec, lint_wrike,
-#              WRIKE_WEBHOOK_EVENTS
+# Defines:     config_wrike_step, wrike_fields_spec, wrike_webhook_secret,
+#              lint_wrike, WRIKE_WEBHOOK_EVENTS
 # Requires:    wrike_call from service/wrike/api.sh; generated_set,
 #              config_confirm and run_id_salt from lib/config.sh; options_json
 #              and pipeline_names from lib/jobfile.sh; lint_ok, lint_warn and
@@ -70,6 +70,14 @@ wrike_fields_spec() {
            {key: "results", title: "Results", type: "Text", values: [], help: "", pipelines: [], gnoto: true},
            {key: "expiration", title: "Expiration", type: "Date", values: [], help: "", pipelines: [], gnoto: true}]
           + .' <<< "$all"
+}
+
+# The secret Wrike signs the webhook's deliveries with, which the SQS stack's
+# Lambda checks: wrike.webhook_secret, or else a random one, made in
+# generated.yaml the first time config sqs --deploy or config wrike needs it
+wrike_webhook_secret() {
+    [[ -z ${WRIKE_WEBHOOK_SECRET:-} ]] || return 0
+    generated_set --keep wrike.webhook_secret "$(openssl rand -hex 32)"
 }
 
 # The bot account: its ID, name and role, as "id<tab>name<tab>role"
@@ -185,7 +193,6 @@ config_wrike_step() {
         fi
     done < <(jq -c '.[]' <<< "$spec")
     if sqs_on && [[ -n ${AWS_WEBHOOK_URL:-} ]]; then
-        [[ -n ${WRIKE_WEBHOOK_SECRET:-} ]] || fail "Set wrike.webhook_secret, the secret the webhook is signed with, as the SQS stack has it."
         if [[ -n $folder ]]; then
             webhooks=$(wrike_find_webhooks "$folder" "$AWS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
         else
@@ -275,10 +282,11 @@ config_wrike_step() {
             fi
         done <<< "$webhooks"
         if [[ -z $hook ]]; then
+            wrike_webhook_secret
             hook=$(wrike_call POST "folders/$folder/webhooks" --data-urlencode "hookUrl=$AWS_WEBHOOK_URL" \
                 --data-urlencode "secret=$WRIKE_WEBHOOK_SECRET" --data-urlencode "events=[$WRIKE_WEBHOOK_EVENTS]" |
                 jq -r '.data[0].id // empty') ||
-                fail "Wrike didn't create the webhook. Its handshake with $AWS_WEBHOOK_URL may have failed: check that wrike.webhook_secret is the secret the SQS stack was deployed with."
+                fail "Wrike didn't create the webhook. Its handshake with $AWS_WEBHOOK_URL may have failed: the SQS stack's Lambda checks it with wrike.webhook_secret as the stack was deployed, so if that changed since, deploy it again: $(gnoto_command config sqs --deploy)"
         fi
         generated_set wrike.webhook_id "$hook"
     fi

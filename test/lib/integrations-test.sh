@@ -559,6 +559,20 @@ check "a second key isn't made" "no" "$(has "$out" "has a new access key")"
 check "the queue and webhook addresses in generated.yaml" "https://abc.execute-api.us-east-1.amazonaws.com/wrike" \
     "$(yq -r '.aws.webhook_url' "$WORK/data/generated.yaml")"
 
+echo "settings gnoto fills in"
+mkdir -p "$WORK/fill/install" "$WORK/fill/data"
+printf 'core:\n  data_dir: "%s"\n\naws:\n  enabled: true\n  sqs_queue_url: ""\n  webhook_url: "mine"\n\nwrike:\n  enabled: true\n  webhook_secret: ""\n' \
+    "$WORK/fill/data" > "$WORK/fill/install/config.yaml"
+printf 'aws:\n  sqs_queue_url: "from-the-stack"\n  webhook_url: "from-the-stack"\n' > "$WORK/fill/data/generated.yaml"
+out=$(GNOTO_INSTALL_DIR=$WORK/fill/install bash -c 'source "$1/lib/env.sh" && echo "$AWS_SQS_QUEUE_URL $AWS_WEBHOOK_URL"' _ "$CODE")
+check "an empty value in config.yaml doesn't hide generated.yaml's, and a value wins" "from-the-stack mine" "$out"
+out=$(GNOTO_INSTALL_DIR=$WORK/fill/install bash -c 'source "$1/lib/env.sh" && source "$1/lib/args.sh" &&
+    source "$1/lib/config.sh" && wrike_webhook_secret && first=$WRIKE_WEBHOOK_SECRET &&
+    source "$1/lib/env.sh" && wrike_webhook_secret && echo "$first $WRIKE_WEBHOOK_SECRET"' _ "$CODE")
+check "the webhook secret is made random, once, in generated.yaml" "yes yes" \
+    "$([[ ${out% *} =~ ^[0-9a-f]{64}$ ]] && echo yes) $([[ ${out#* } == "${out% *}" ]] && echo yes)"
+check "and kept there" "${out% *}" "$(yq -r .wrike.webhook_secret "$WORK/fill/data/generated.yaml")"
+
 echo "the systemd units"
 out=$(INSTALL_DIR=/opt/gnoto APPTAINER_BIN_DIR=/opt/apptainer/bin SLURM_ENABLED=true SLURM_BIN_DIR=/opt/slurm/bin SLURM_CONF=/etc/slurm.conf systemd_render gnoto-daily.service)
 check "a unit runs the install's launcher" "yes" "$(has "$out" "ExecStart=/opt/gnoto/gnoto _daily")"

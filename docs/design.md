@@ -428,11 +428,15 @@ can't check a host path, so those answers are taken as given.
    from the run directory so that no stray `nextflow.config` is loaded.
 
 **Machine-written values go in a second file.** `config` writes the site's answers into
-`config.yaml`, but Wrike object IDs, custom field and status IDs, `RUN_ID_SALT` and the
-outputs of any stack it deploys go to `<data_dir>/generated.yaml`, with the same mode and
-group as `config.yaml`, so every group member can read both. A value in `config.yaml` wins.
-Losing the salt loses no results, because the output location can still be listed to find
-them.
+`config.yaml`, but Wrike object IDs, custom field and status IDs, `RUN_ID_SALT`, the
+webhook's secret and the outputs of any stack it deploys go to `<data_dir>/generated.yaml`,
+with the same mode and group as `config.yaml`, so every group member can read both. A value
+in `config.yaml` wins, and an empty one, as a new section holds for what it leaves to gnoto,
+doesn't hide what `generated.yaml` says. A setting declared with no question, such as
+`wrike.webhook_secret`, is never asked for, and a new section doesn't write it: `config sqs
+--deploy` or `config wrike` makes a random secret the first time either needs one, and a
+site whose own Lambda already has one sets it in `config.yaml`. Losing the salt loses no
+results, because the output location can still be listed to find them.
 
 ## The command line
 
