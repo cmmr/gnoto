@@ -66,12 +66,16 @@ aws:
   access_key_id: "test"
   secret_access_key: "test"
   region: "us-east-1"
-  s3_bucket: "gnoto-results"
-  results_base_url: "$S3"
-  run_prefix: "$PREFIX"
-  sqs_queue_url: "http://elasticmq:9324/000000000000/itest"
-  webhook_url: "https://hooks.example.invalid/wrike"
-  access_url: "https://access.example.invalid/access"
+  s3:
+    enabled: true
+    bucket: "gnoto-results"
+    results_base_url: "$S3/$PREFIX"
+    run_prefix: "$PREFIX"
+  sqs:
+    enabled: true
+    queue_url: "http://elasticmq:9324/000000000000/itest"
+    webhook_url: "https://hooks.example.invalid/wrike"
+    access_url: "https://access.example.invalid/access"
 
 globus:
   enabled: true
@@ -334,7 +338,7 @@ check "taxprofiler and biobakery go to Globus, and ampliseq to S3" "globus globu
 check "as globus.pipelines says" "globus s3" \
     "$(cd "$RUNS/$UIDS" && GLOBUS_PIPELINES=ampliseq; echo "$(zip_destination ampliseq) $(zip_destination taxprofiler)")"
 check "Globus isn't ready without its app, or Get the data's address" "s3 s3" \
-    "$(cd "$RUNS/$UIDS" && echo "$(GLOBUS_APP_CLIENT_ID="" zip_destination taxprofiler) $(AWS_ACCESS_URL="" zip_destination taxprofiler)")"
+    "$(cd "$RUNS/$UIDS" && echo "$(GLOBUS_APP_CLIENT_ID="" zip_destination taxprofiler) $(AWS_SQS_ACCESS_URL="" zip_destination taxprofiler)")"
 check "S3 alone takes every zip, and neither leaves it here" "s3 local" \
     "$(cd "$RUNS/$UIDS" && echo "$(GLOBUS_ENABLED=false zip_destination taxprofiler) $(AWS_ENABLED=false zip_destination taxprofiler)")"
 UID2=$(derive_uid "MATESTRUN002")
@@ -458,8 +462,8 @@ check "lint warns as the permissions near the 1000 a collection holds" "yes" \
 : > "$WORK/globus-rules"
 out=$(GLOBUS_APP_CLIENT_ID="" lint_globus)
 check "lint fails without the dashboards' app" "yes" "$(has "$out" "FAIL  globus: globus.app_client_id isn't set")"
-out=$(AWS_ACCESS_URL="" lint_globus)
-check "or Get the data's address" "yes" "$(has "$out" "which needs S3, the queue and aws.access_url")"
+out=$(AWS_SQS_ACCESS_URL="" lint_globus)
+check "or Get the data's address" "yes" "$(has "$out" "which needs S3, the queue and aws.sqs.access_url")"
 out=$(GLOBUS_PIPELINES=ampliseq,nosuch lint_globus)
 check "or with a pipeline that isn't one" "yes no" \
     "$(has "$out" "globus.pipelines names nosuch") $(has "$out" "names ampliseq")"
@@ -602,73 +606,245 @@ out=$(status_health)
 check "status shows it" "yes" "$(has "$out" "Integrations, checked by the daily lint")"
 check "aligned" "yes" "$(grep -qE '^  wrike +warn +webhook Suspended$' <<< "$out" && echo yes)"
 
-echo "gnoto config s3 and sqs --deploy, with CloudFormation faked"
-# A stand-in aws for the admin calls, which records them, and hands every
-# other call to the real one
+echo "gnoto config s3 and sqs, with the deploy account faked"
+# A stand-in aws for the deploy account's calls, which records them, and hands
+# every other call, gnoto's own, to the real one. What the account has is in
+# files in $FAKE_AWS: profiles, buckets (mine), taken, policies, certificates
+# and stack-bucket, the bucket the S3 stack made.
 REAL_AWS=$(command -v aws)
-mkdir -p "$WORK/fakebin" "$WORK/fake"
-cat > "$WORK/fakebin/aws" << EOF
+FAKE_AWS=$WORK/fake
+export REAL_AWS FAKE_AWS S3
+mkdir -p "$WORK/fakebin" "$FAKE_AWS"
+cat > "$WORK/fakebin/aws" << 'EOF'
 #!/bin/bash
-FAKE=$WORK/fake
-case "\$*" in
-    *"sts get-caller-identity"*) echo 123456789012 ;;
+F=$FAKE_AWS
+value() { sed -n "s/.* $1 \([^ ]*\).*/\1/p" <<< " $* "; }
+listed() { [[ -n $1 && -e $F/$2 ]] && grep -qx -- "$1" "$F/$2"; }
+printf '%s\n' "$*" >> "$F/calls"
+case "$*" in
+    *"configure list-profiles"*) cat "$F/profiles" 2> /dev/null ;;
+    *"configure get region"*) [[ $(value --profile "$@") == admin ]] && echo eu-west-2 ;;
+    *"sts get-caller-identity"*"--output json"*) echo '{"Account":"123456789012","Arn":"arn:aws:iam::123456789012:user/admin"}' ;;
     *"cloudformation describe-stacks"*)
-        stack=\$(sed -n 's/.*--stack-name \([^ ]*\).*/\1/p' <<< "\$*")
-        [[ -e \$FAKE/\$stack ]] || exit 255
-        case \$stack in
+        stack=$(value --stack-name "$@")
+        [[ -e $F/$stack ]] || exit 255
+        case $stack in
             gnoto-iam) echo '{"Stacks":[{"Outputs":[{"OutputKey":"UserName","OutputValue":"gnoto-User-ABC"}]}]}' ;;
-            gnoto-s3) echo '{"Stacks":[{"Outputs":[{"OutputKey":"ResultsBaseUrl","OutputValue":"$S3"},{"OutputKey":"DistributionId","OutputValue":"E123"},{"OutputKey":"DistributionDomain","OutputValue":"d1.cloudfront.net"}]}]}' ;;
+            gnoto-s3) jq -cn --arg url "$S3/gnoto" '{Stacks: [{Outputs: [{OutputKey: "ResultsBaseUrl", OutputValue: $url},
+                {OutputKey: "DistributionId", OutputValue: "E123"}, {OutputKey: "DistributionDomain", OutputValue: "d1.cloudfront.net"}]}]}' ;;
+            gnoto-certificate) echo '{"Stacks":[{"Outputs":[{"OutputKey":"CertificateArn","OutputValue":"arn:aws:acm:us-east-1:123456789012:certificate/made"}]}]}' ;;
             gnoto-sqs) echo '{"Stacks":[{"Outputs":[{"OutputKey":"QueueUrl","OutputValue":"http://elasticmq:9324/000000000000/itest"},{"OutputKey":"WebhookUrl","OutputValue":"https://abc.execute-api.us-east-1.amazonaws.com/wrike"},{"OutputKey":"AccessUrl","OutputValue":"https://def.execute-api.us-east-1.amazonaws.com/access"}]}]}' ;;
         esac
         ;;
-    *"cloudformation deploy"*)
-        stack=\$(sed -n 's/.*--stack-name \([^ ]*\).*/\1/p' <<< "\$*")
-        template=\$(sed -n 's/.*--template-file \([^ ]*\).*/\1/p' <<< "\$*")
-        cp "\$template" "\$FAKE/\$stack.yaml"
-        printf '%s\n' "\$@" > "\$FAKE/\$stack.args"
-        touch "\$FAKE/\$stack"
+    *"cloudformation describe-stack-resource"*"Bucket "*)
+        [[ -s $F/stack-bucket ]] || exit 255
+        cat "$F/stack-bucket"
         ;;
-    *"iam list-access-keys"*) [[ -e \$FAKE/key ]] && echo '{"AccessKeyMetadata":[{}]}' || echo '{"AccessKeyMetadata":[]}' ;;
-    *"iam create-access-key"*) touch "\$FAKE/key"; echo '{"AccessKey":{"AccessKeyId":"AKIAFAKE","SecretAccessKey":"fake-secret"}}' ;;
-    *) exec "$REAL_AWS" "\$@" ;;
+    *"cloudformation describe-stack-resource"*) exit 255 ;;
+    *"cloudformation deploy"*)
+        stack=$(value --stack-name "$@")
+        cp "$(value --template-file "$@")" "$F/$stack.yaml"
+        printf '%s\n' "$@" > "$F/$stack.args"
+        touch "$F/$stack"
+        ;;
+    *"s3api head-bucket"*)
+        bucket=$(value --bucket "$@")
+        listed "$bucket" buckets && exit 0
+        if listed "$bucket" taken; then echo "An error occurred (403) when calling the HeadBucket operation: Forbidden" >&2
+        else echo "An error occurred (404) when calling the HeadBucket operation: Not Found" >&2; fi
+        exit 255
+        ;;
+    *"s3api get-bucket-policy"*)
+        listed "$(value --bucket "$@")" policies && { echo '{"Policy":"{}"}'; exit 0; }
+        echo "An error occurred (NoSuchBucketPolicy) when calling the GetBucketPolicy operation" >&2
+        exit 255
+        ;;
+    *"s3api get-bucket-location"*) echo eu-west-1 ;;
+    *"s3api list-buckets"*) paste -sd '\t' "$F/buckets" ;;
+    *"route53 get-hosted-zone"*) [[ $(value --id "$@") == Z0123456789 ]] && echo example.org. ;;
+    *"route53 list-hosted-zones"*)
+        echo '{"HostedZones":[{"Id":"/hostedzone/Z0123456789","Name":"example.org.","Config":{"PrivateZone":false}},
+            {"Id":"/hostedzone/ZPRIVATE","Name":"internal.","Config":{"PrivateZone":true}}]}'
+        ;;
+    *"acm list-certificates"*) cat "$F/certificates" 2> /dev/null || echo '{"CertificateSummaryList":[]}' ;;
+    *"iam list-access-keys"*) [[ -e $F/key ]] && echo '{"AccessKeyMetadata":[{"AccessKeyId":"AKIAFAKE"}]}' || echo '{"AccessKeyMetadata":[]}' ;;
+    *"iam create-access-key"*) touch "$F/key"; echo '{"AccessKey":{"AccessKeyId":"AKIAFAKE","SecretAccessKey":"fake-secret"}}' ;;
+    *) exec "$REAL_AWS" "$@" ;;
 esac
 EOF
 chmod +x "$WORK/fakebin/aws"
-out=$(PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_DRY_RUN=1 CONFIG_PROFILE=admin; config_s3_step 2>&1)
-check "--dry-run shows the plan" "yes yes" "$(has "$out" "Create the stack gnoto-iam") $(has "$out" "Create the stack gnoto-s3: the bucket gnoto-results")"
-check "and deploys nothing" "no" "$(exists "$WORK/fake/gnoto-s3")"
-out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_YES=1 CONFIG_PROFILE=admin; config_s3_step) 2>&1)
-check "it deploys the IAM user's stack, then the S3 stack" "yes yes" "$(exists "$WORK/fake/gnoto-iam") $(exists "$WORK/fake/gnoto-s3")"
-check "with the bucket and run prefix" "yes yes" \
-    "$(grep -qx 'BucketName=gnoto-results' "$WORK/fake/gnoto-s3.args" && echo yes) $(grep -qx "RunPrefix=$PREFIX" "$WORK/fake/gnoto-s3.args" && echo yes)"
-check "and the admin profile" "yes" "$(grep -qx -- --profile "$WORK/fake/gnoto-s3.args" && grep -qx admin "$WORK/fake/gnoto-s3.args" && echo yes)"
-check "the CloudFront function's code, with the run prefix, in the template" "yes" \
-    "$(grep -q "        var RUN_PREFIX = '$PREFIX';" "$WORK/fake/gnoto-s3.yaml" && echo yes)"
-check "and no placeholder left" "no" "$(grep -q '__DIRECTORY_INDEX_JS__' "$WORK/fake/gnoto-s3.yaml" && echo yes || echo no)"
-check "the IAM user's key, printed once" "yes yes" "$(has "$out" "access_key_id:     AKIAFAKE") $(has "$out" "secret_access_key: fake-secret")"
-check "the stack's outputs in generated.yaml" "E123" "$(yq -r '.aws.distribution_id' "$WORK/data/generated.yaml")"
-out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_YES=1; config_sqs_step) 2>&1)
-check "the SQS stack, with the webhook's secret" "yes" "$(grep -qx 'WebhookSecret=itest-secret' "$WORK/fake/gnoto-sqs.args" && echo yes)"
+printf '%s\n' default admin > "$FAKE_AWS/profiles"
+printf '%s\n' gnoto-results other-results policy-results > "$FAKE_AWS/buckets"
+printf '%s\n' taken-results > "$FAKE_AWS/taken"
+printf '%s\n' policy-results > "$FAKE_AWS/policies"
+jq -n '{CertificateSummaryList: [{CertificateArn: "arn:aws:acm:us-east-1:123456789012:certificate/wild",
+    DomainName: "*.example.org", SubjectAlternativeNameSummaries: ["*.example.org"]}]}' > "$FAKE_AWS/certificates"
+
+# A fresh install for config s3 and sqs: fresh_install <name>
+fresh_install() {
+    mkdir -p "$WORK/$1/install" "$WORK/$1/data" "$WORK/$1/home"
+    printf 'core:\n  data_dir: "%s"\n' "$WORK/$1/data" > "$WORK/$1/install/config.yaml"
+}
+# answering <name> <answer>... -- <config arguments>: gnoto config in that
+# install, at a terminal, as script gives it, with the stand-in on PATH and its
+# own home, the test user's AWS config kept for gnoto's own calls
+AWS_CONFIG=${AWS_CONFIG_FILE:-$HOME/.aws/config}
+answering() {
+    local name=$1 answers=()
+    shift
+    while [[ $1 != -- ]]; do answers+=("$1"); shift; done
+    shift
+    printf '%s\n' "${answers[@]}" | HOME=$WORK/$name/home AWS_CONFIG_FILE=$AWS_CONFIG \
+        PATH=$WORK/fakebin:$PATH GNOTO_INSTALL_DIR=$WORK/$name/install GNOTO_LAUNCHER=gnoto CODE=$CODE \
+        script -qec "bash -c 'source \"\$CODE/lib/env.sh\" && source \"\$CODE/lib/args.sh\" && source \"\$CODE/lib/config.sh\" && config_main $*'" /dev/null
+}
+setting() {
+    yq -r "$2 // \"\"" "$WORK/$1/install/config.yaml"
+}
+
+fresh_install ia
+: > "$FAKE_AWS/calls"
+out=$(answering ia 2 "" 4 1 taken-results 1 "" 2 "" 2 n -- s3 2>&1)
+check "config s3 asks which of several profiles deploys, checks it, and says who it is" "yes" \
+    "$(has "$out" "Signed in as arn:aws:iam::123456789012:user/admin")"
+check "it offers the account's buckets, and turns down one with a policy of its own" "yes" \
+    "$(has "$out" "policy-results can't be used, since it has a bucket policy of its own")"
+check "and a name another account has" "yes" "$(has "$out" "taken-results belongs to another AWS account")"
+check "and offers no private zone" "no" "$(has "$out" "A name in internal")"
+check "then lists every setting it's about to write and deploy, in one list" "yes yes yes yes yes yes yes yes" \
+    "$(for line in "is about to write these settings to $WORK/ia/install/config.yaml, and deploy them:" \
+        "  Deploy profile   admin" "  Region           eu-west-2" "  Bucket           gnoto-results-123456789012, new" \
+        "  Address          https://gnoto.example.org" \
+        "  DNS              A and AAAA records in Route 53, hosted zone Z0123456789, example.org" \
+        "  Certificate      arn:aws:acm:us-east-1:123456789012:certificate/wild" \
+        "  - Create the stack gnoto-s3, in eu-west-2: the bucket, its policy, a CloudFront distribution and its function, the DNS records"; do
+        has "$out" "$line"; done | paste -sd ' ')"
+check "and asks to go ahead, yes by default" "yes" "$(has "$out" "Go ahead? [Y/n]")"
+check "answered no, it writes nothing and deploys nothing" "no no no" \
+    "$(config_has() { yq -e .aws "$WORK/ia/install/config.yaml" > /dev/null 2>&1 && echo yes || echo no; }; config_has) $(grep -q 'cloudformation deploy' "$FAKE_AWS/calls" && echo yes || echo no) $(has "$out" "Deploying the stack")"
+check "and every call to the account is with the profile chosen" "0" \
+    "$(grep -v 'configure ' "$FAKE_AWS/calls" | grep -vc -- '--profile admin' || :)"
+
+out=$(answering ia 2 "" 1 "" 2 "" 2 y -- s3 2>&1)
+check "answered yes, it writes the profile, its region and the s3 settings" \
+    "admin eu-west-2 true true gnoto-results-123456789012 gnoto.example.org Z0123456789 arn:aws:acm:us-east-1:123456789012:certificate/wild" \
+    "$(setting ia .aws.deploy_profile) $(setting ia .aws.region) $(setting ia .aws.enabled) $(setting ia .aws.s3.enabled) $(setting ia .aws.s3.bucket) $(setting ia .aws.s3.domain) $(setting ia .aws.s3.hosted_zone_id) $(setting ia .aws.s3.certificate_arn)"
+check "and deploys them, with the certificate chosen" "yes no" \
+    "$(grep -qx CertificateArn=arn:aws:acm:us-east-1:123456789012:certificate/wild "$FAKE_AWS/gnoto-s3.args" && echo yes) $(exists "$FAKE_AWS/gnoto-certificate")"
+
+rm -f "$FAKE_AWS/certificates"
+out=$(answering ia "" "" 3 "" "" y -- s3 2>&1)
+check "asked again, it suggests what's there; with no certificate for the name, none is asked for" \
+    "other-results gnoto.example.org no" \
+    "$(setting ia .aws.s3.bucket) $(setting ia .aws.s3.domain) $(has "$out" "Which certificate serves")"
+check "and the list says gnoto makes one" "yes" \
+    "$(has "$out" "  Certificate      made by gnoto, in the stack gnoto-certificate in us-east-1, validated in the hosted zone")"
+check "which the deploy does, in us-east-1, and gives the S3 stack" "yes yes" \
+    "$(grep -qx us-east-1 "$FAKE_AWS/gnoto-certificate.args" && echo yes) $(grep -qx CertificateArn=arn:aws:acm:us-east-1:123456789012:certificate/made "$FAKE_AWS/gnoto-s3.args" && echo yes)"
+check "an existing bucket goes in as one, with its region" "yes yes" \
+    "$(grep -qx BucketExists=true "$FAKE_AWS/gnoto-s3.args" && echo yes) $(grep -qx BucketRegion=eu-west-1 "$FAKE_AWS/gnoto-s3.args" && echo yes)"
+
+fresh_install ib
+: > "$FAKE_AWS/profiles"
+: > "$FAKE_AWS/calls"
+: > "$FAKE_AWS/stack-bucket"
+rm -f "$FAKE_AWS/key" "$FAKE_AWS"/gnoto-*
+out=$(answering ib AKIAEXAMPLEEXAMPLE12 's3cr3t' "" 2 1 n -- s3 2>&1)
+check "with no profile, it asks for an access key, and lists it as a new profile" "yes" \
+    "$(has "$out" "  Deploy profile   gnoto, new in $WORK/ib/home/.aws/credentials, from the access key given")"
+check "answered no, it saves nothing" "no" "$(exists "$WORK/ib/home/.aws/credentials")"
+out=$(answering ib AKIAEXAMPLEEXAMPLE12 's3cr3t' "" 2 1 y -- s3 2>&1)
+check "answered yes, it saves the key as the profile gnoto, which only its owner reads" "yes 600" \
+    "$(grep -qx 'aws_secret_access_key = s3cr3t' "$WORK/ib/home/.aws/credentials" && echo yes) $(stat -c %a "$WORK/ib/home/.aws/credentials")"
+# Answers piped in are echoed as they arrive, before the prompt turns echo off,
+# so only the command lines can show whether the secret stays off them
+check "never putting the secret on a command line" "no" "$(grep -q s3cr3t "$FAKE_AWS/calls" && echo yes || echo no)"
+check "and deploys with it" "gnoto yes" "$(setting ib .aws.deploy_profile) $(exists "$FAKE_AWS/gnoto-s3")"
+check "gnoto's own new key goes into config.yaml" "AKIAFAKE fake-secret" \
+    "$(setting ib .aws.access_key_id) $(setting ib .aws.secret_access_key)"
+check "the stack's outputs into generated.yaml" "$S3/gnoto E123" \
+    "$(yq -r '.aws.s3.results_base_url + " " + .aws.s3.distribution_id' "$WORK/ib/data/generated.yaml")"
+check "and the template has the CloudFront function" "yes no" \
+    "$(grep -q '^        function handler(event) {$' "$FAKE_AWS/gnoto-s3.yaml" && echo yes) $(grep -q '__DIRECTORY_INDEX_JS__' "$FAKE_AWS/gnoto-s3.yaml" && echo yes || echo no)"
+check "then lint checks it, with gnoto's keys" "yes" "$(has "$out" "OK    s3: $S3/gnoto/ serves what's under s3://gnoto-results/gnoto/")"
+
+# --deploy takes what config.yaml holds, lists it, and asks, unless given --yes
+deploying() {
+    local name=$1
+    shift
+    HOME=$WORK/$name/home AWS_CONFIG_FILE=$AWS_CONFIG PATH=$WORK/fakebin:$PATH \
+        GNOTO_INSTALL_DIR=$WORK/$name/install GNOTO_LAUNCHER=gnoto bash -c 'source "$1/lib/env.sh" &&
+        source "$1/lib/args.sh" && source "$1/lib/config.sh" && config_main "${@:2}"' _ "$CODE" "$@" < /dev/null 2>&1
+}
+printf '%s\n' default admin > "$FAKE_AWS/profiles"
+rm -f "$FAKE_AWS"/gnoto-*
+out=$(deploying ia s3 --deploy --dry-run)
+check "--deploy --dry-run lists what config.yaml holds and what deploying it changes, and stops" "yes yes yes yes no" \
+    "$(has "$out" "gnoto config s3 --deploy is about to deploy these settings, from $WORK/ia/install/config.yaml:") $(has "$out" "  Bucket           other-results, the account's own, in eu-west-1") $(has "$out" "  - Create the stack gnoto-certificate, in us-east-1: a certificate for gnoto.example.org") $(has "$out" "Nothing was changed, with --dry-run.") $(exists "$FAKE_AWS/gnoto-s3")"
+out=$(deploying ia s3 --deploy)
+check "--deploy without a terminal or --yes stops before changing anything" "yes no" \
+    "$(has "$out" "No terminal to confirm on. Add --yes to go ahead") $(exists "$FAKE_AWS/gnoto-s3")"
+out=$(answering ia n -- s3 --deploy 2>&1)
+check "--deploy answered no changes nothing" "yes yes no" \
+    "$(has "$out" "Go ahead? [Y/n]") $(has "$out" "Nothing was changed.") $(exists "$FAKE_AWS/gnoto-s3")"
+out=$(deploying ia s3 --deploy --yes)
+check "--deploy --yes makes the certificate in us-east-1 first" "yes" "$(grep -qx us-east-1 "$FAKE_AWS/gnoto-certificate.args" && echo yes)"
+check "and gives it to the S3 stack, with the zone for its records" "yes yes yes" \
+    "$(grep -qx CertificateArn=arn:aws:acm:us-east-1:123456789012:certificate/made "$FAKE_AWS/gnoto-s3.args" && echo yes) $(grep -qx HostedZoneId=Z0123456789 "$FAKE_AWS/gnoto-s3.args" && echo yes) $(grep -qx DomainName=gnoto.example.org "$FAKE_AWS/gnoto-s3.args" && echo yes)"
+check "in the region config.yaml names" "yes" "$(grep -qx eu-west-2 "$FAKE_AWS/gnoto-s3.args" && echo yes)"
+check "with no DNS to point by hand" "no" "$(has "$out" "DNS at")"
+yq -i '.aws.s3.certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/given" | .aws.s3.hosted_zone_id = ""
+    | .aws.s3.bucket = "brand-new-results"' "$WORK/ia/install/config.yaml"
+rm -f "$FAKE_AWS"/gnoto-certificate*
+out=$(deploying ia s3 --deploy --yes)
+check "a given certificate, with DNS elsewhere: no certificate stack, and DNS pointed by hand" "no yes yes yes" \
+    "$(exists "$FAKE_AWS/gnoto-certificate") $(grep -qx CertificateArn=arn:aws:acm:us-east-1:123456789012:certificate/given "$FAKE_AWS/gnoto-s3.args" && echo yes) $(has "$out" "  DNS              by hand: point gnoto.example.org at the distribution") $(has "$out" "Point gnoto.example.org's DNS at d1.cloudfront.net")"
+check "a free name is a bucket the stack makes" "yes" "$(grep -qx BucketExists=false "$FAKE_AWS/gnoto-s3.args" && echo yes)"
+echo brand-new-results > "$FAKE_AWS/stack-bucket"
+echo brand-new-results >> "$FAKE_AWS/buckets"
+out=$(deploying ia s3 --deploy --yes)
+check "and stays the stack's once it's there" "yes yes" \
+    "$(grep -qx BucketExists=false "$FAKE_AWS/gnoto-s3.args" && echo yes) $(has "$out" "  Bucket           brand-new-results, the stack's own")"
+yq -i '.aws.s3.bucket = "policy-results"' "$WORK/ia/install/config.yaml"
+out=$(deploying ia s3 --deploy --yes)
+check "an existing bucket with a policy of its own is refused" "yes" \
+    "$(has "$out" "The bucket policy-results can't take gnoto's results, since it has a bucket policy of its own")"
+yq -i '.aws.s3.bucket = "taken-results"' "$WORK/ia/install/config.yaml"
+out=$(deploying ia s3 --deploy --yes)
+check "and another account's" "yes" "$(has "$out" "The bucket taken-results belongs to another AWS account")"
+yq -i '.aws.s3.certificate_arn = ""' "$WORK/ia/install/config.yaml"
+out=$(deploying ia s3 --deploy --yes)
+check "a domain with neither a certificate nor a zone is refused" "yes" \
+    "$(has "$out" "with neither a certificate_arn nor a hosted_zone_id")"
+out=$(deploying ia sqs --deploy --yes)
+check "sqs --deploy refuses while sqs is off" "yes" "$(has "$out" "sqs is off.")"
+out=$(answering ia "" "" n -- sqs 2>&1)
+check "config sqs lists the profile, region and Get the data, and what it deploys" "yes yes yes" \
+    "$(has "$out" "gnoto config sqs is about to write these settings to") $(has "$out" "  Get the data     off, without Globus's app and S3") $(has "$out" "  - Create the stack gnoto-sqs, in eu-west-2")"
+check "and answered no, leaves sqs out" "no" "$(yq -e .aws.sqs "$WORK/ia/install/config.yaml" > /dev/null 2>&1 && echo yes || echo no)"
+
+out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_YES=1; config_sqs_deploy) 2>&1)
+check "the SQS stack, with the webhook's secret" "yes" "$(grep -qx 'WebhookSecret=itest-secret' "$FAKE_AWS/gnoto-sqs.args" && echo yes)"
 check "and Get the data's app, bucket, origin and return page" "yes yes yes yes yes" \
     "$(for line in GlobusClientId=11111111-1111-1111-1111-111111111111 ResultsBucket=gnoto-results "RunPrefix=$PREFIX" \
         ResultsOrigin=http://s3mock:9090 "RedirectUri=$S3/$PREFIX/access.html"; do
-        grep -qx "$line" "$WORK/fake/gnoto-sqs.args" && echo yes || echo "no:$line"; done | paste -sd ' ')"
+        grep -qx "$line" "$FAKE_AWS/gnoto-sqs.args" && echo yes || echo "no:$line"; done | paste -sd ' ')"
 check "and both Lambdas' code, without comments or placeholders" "2 yes no no" \
-    "$(grep -c '^          def lambda_handler(event, context):$' "$WORK/fake/gnoto-sqs.yaml") $(grep -q '^          def auth(path, form=None, token=None):$' "$WORK/fake/gnoto-sqs.yaml" && echo yes) $(grep -q 'webhook.py - The Lambda\|access.py - The Lambda' "$WORK/fake/gnoto-sqs.yaml" && echo yes || echo no) $(grep -q '__[A-Z]*_PY__' "$WORK/fake/gnoto-sqs.yaml" && echo yes || echo no)"
+    "$(grep -c '^          def lambda_handler(event, context):$' "$FAKE_AWS/gnoto-sqs.yaml") $(grep -q '^          def auth(path, form=None, token=None):$' "$FAKE_AWS/gnoto-sqs.yaml" && echo yes) $(grep -q 'webhook.py - The Lambda\|access.py - The Lambda' "$FAKE_AWS/gnoto-sqs.yaml" && echo yes || echo no) $(grep -q '__[A-Z]*_PY__' "$FAKE_AWS/gnoto-sqs.yaml" && echo yes || echo no)"
 check "its plan names Get the data" "yes" "$(has "$out" "Get the data's Lambda and its HTTP API")"
-check "a second key isn't made" "no" "$(has "$out" "has a new access key")"
 check "the queue, webhook and access addresses in generated.yaml" "https://abc.execute-api.us-east-1.amazonaws.com/wrike https://def.execute-api.us-east-1.amazonaws.com/access" \
-    "$(yq -r '.aws.webhook_url + " " + .aws.access_url' "$WORK/data/generated.yaml")"
-out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_DEPLOY=1 CONFIG_YES=1 GLOBUS_APP_CLIENT_ID=""; config_sqs_step) 2>&1)
+    "$(yq -r '.aws.sqs.webhook_url + " " + .aws.sqs.access_url' "$WORK/data/generated.yaml")"
+out=$( (PATH=$WORK/fakebin:$PATH; CONFIG_YES=1 GLOBUS_APP_CLIENT_ID=""; config_sqs_deploy) 2>&1)
 check "without the app, Get the data's parameters are empty, which leaves it out" "yes yes" \
-    "$(grep -qx 'GlobusClientId=' "$WORK/fake/gnoto-sqs.args" && echo yes) $(grep -qx 'ResultsBucket=' "$WORK/fake/gnoto-sqs.args" && echo yes)"
+    "$(grep -qx 'GlobusClientId=' "$FAKE_AWS/gnoto-sqs.args" && echo yes) $(grep -qx 'ResultsBucket=' "$FAKE_AWS/gnoto-sqs.args" && echo yes)"
+check "the run prefix's address, with access.html at its root" "$S3/$PREFIX/access.html" "$(s3_access_url)"
 
 echo "settings gnoto fills in"
 mkdir -p "$WORK/fill/install" "$WORK/fill/data"
-printf 'core:\n  data_dir: "%s"\n\naws:\n  enabled: true\n  sqs_queue_url: ""\n  webhook_url: "mine"\n\nwrike:\n  enabled: true\n  webhook_secret: ""\n' \
+printf 'core:\n  data_dir: "%s"\n\naws:\n  enabled: true\n  sqs:\n    enabled: true\n    queue_url: ""\n    webhook_url: "mine"\n\nwrike:\n  enabled: true\n  webhook_secret: ""\n' \
     "$WORK/fill/data" > "$WORK/fill/install/config.yaml"
-printf 'aws:\n  sqs_queue_url: "from-the-stack"\n  webhook_url: "from-the-stack"\n' > "$WORK/fill/data/generated.yaml"
-out=$(GNOTO_INSTALL_DIR=$WORK/fill/install bash -c 'source "$1/lib/env.sh" && echo "$AWS_SQS_QUEUE_URL $AWS_WEBHOOK_URL"' _ "$CODE")
+printf 'aws:\n  sqs:\n    queue_url: "from-the-stack"\n    webhook_url: "from-the-stack"\n' > "$WORK/fill/data/generated.yaml"
+out=$(GNOTO_INSTALL_DIR=$WORK/fill/install bash -c 'source "$1/lib/env.sh" && echo "$AWS_SQS_QUEUE_URL $AWS_SQS_WEBHOOK_URL"' _ "$CODE")
 check "an empty value in config.yaml doesn't hide generated.yaml's, and a value wins" "from-the-stack mine" "$out"
 out=$(GNOTO_INSTALL_DIR=$WORK/fill/install bash -c 'source "$1/lib/env.sh" && source "$1/lib/args.sh" &&
     source "$1/lib/config.sh" && wrike_webhook_secret && first=$WRIKE_WEBHOOK_SECRET &&

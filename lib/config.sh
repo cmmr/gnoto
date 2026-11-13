@@ -4,9 +4,11 @@
 #
 # Sourced by:  lib/main.sh, for
 #              gnoto config [<section> [--on|--off] [--<key>=<value> ...]],
-#              gnoto config s3|sqs|systemd and gnoto config slurm --probe
-# Defines:     config_main, config_set, config_confirm, generated_set,
-#              run_id_salt
+#              gnoto config s3|sqs [--deploy] [--dry-run] [--yes], gnoto
+#              config systemd and gnoto config slurm --probe
+# Defines:     config_main, config_set, config_add_section, config_get,
+#              config_has_section, config_choose, config_text, config_yes,
+#              config_confirm, config_proceed, generated_set, run_id_salt
 # Requires:    yq, flock; the settings and helpers from lib/env.sh, which loads
 #              each section's declarations from lib/config/; args_parse from
 #              lib/args.sh
@@ -21,16 +23,23 @@
 # set its enabled. When config.yaml doesn't have the section yet, any of these
 # adds the whole section, with what's given and suggestions for the rest, and
 # only that section, so config.yaml holds only what a site has chosen. A new
-# section is on unless --off says otherwise. gnoto config slurm --probe checks
-# every compute node with a Slurm job, from lib/nodes.sh, and writes nothing to
-# config.yaml.
+# section is on unless --off says otherwise. A subsection, such as aws's s3, is
+# named by its last part, and adding it adds its parent too; turning it on
+# turns its parent on. gnoto config slurm --probe checks every compute node
+# with a Slurm job, from lib/nodes.sh, and writes nothing to config.yaml.
 #
 # Once a section that's on is written, its step, config_<section>_step, does
 # its one-time setup: core's makes RUN_ID_SALT, and wrike's and globus's are in
-# service/. s3, sqs and systemd are steps with no section of their own. Each
-# step shows its plan, through config_confirm, and asks before changing
-# anything; --dry-run stops after the plan, and --yes answers for a script.
-# Machine-made values go to <data_dir>/generated.yaml, through generated_set.
+# service/. s3 and sqs instead ask their own questions, offering what the AWS
+# account has, while --deploy takes what config.yaml holds; either shows every
+# setting it's about to apply and what deploying them changes, and asks to go
+# ahead, yes by default, through config_proceed, before writing or deploying
+# anything (service/aws/config.sh). Their --on and --off only write what to
+# fill in. systemd is a step with no section of its own. Each other step shows
+# its plan, through config_confirm, and asks before changing anything, no by
+# default. Everywhere, --dry-run stops after the plan, and --yes answers for a
+# script. Machine-made values go to <data_dir>/generated.yaml, through
+# generated_set.
 #
 # Strings are written double-quoted, because the launcher reads its bootstrap
 # settings with an awk that accepts only   key: "value", true or false.
@@ -47,74 +56,97 @@ config_yaml() {
     esac
 }
 
-# Sets section.key in config.yaml. The key's line is changed in place, with its
-# comment kept in the same column, so the rest of the file stays as it was. A
-# missing enabled goes first in its section, and any other missing key last.
-# Only what that can't place, such as a missing section, goes through yq, which
-# respaces the file. The text is written into the existing file, because the
-# image can't give a new file the install's group: its user namespace doesn't
-# map it.
+# The awk functions config_set and config_add_section share, which follow the
+# path each line of config.yaml sits at: after track(line), depth is how deep
+# its key is, at[1..depth] its path, and within() whether that path starts with
+# the section path part[1..n]. Blank and comment lines leave the path as it is.
+CONFIG_AWK_PATH='
+    function track(line,   lead, name, l) {
+        if (line ~ /^ *(#.*)?$/) return 0
+        match(line, /^ */)
+        lead = RLENGTH
+        name = substr(line, lead + 1)
+        sub(/:.*/, "", name)
+        depth = int(lead / 2) + 1
+        at[depth] = name
+        for (l = depth + 1; l <= 9; l++) delete at[l]
+        return 1
+    }
+    function within(   l) {
+        if (depth < n) return 0
+        for (l = 1; l <= n; l++) if (at[l] != part[l]) return 0
+        return 1
+    }'
+
+# Sets section.key in config.yaml, where a section may be a subsection, such
+# as aws.s3. The key's line is changed in place, with its comment kept in the
+# same column, so the rest of the file stays as it was. A missing enabled goes
+# first in its section, and any other missing key after the section's last
+# setting. Only what that can't place, such as a missing section, goes through
+# yq, which respaces the file. The text is written into the existing file,
+# because the image can't give a new file the install's group: its user
+# namespace doesn't map it.
 config_set() {
-    local section="$1" key="$2" value="$3" tmp
+    local section="$1" key="$2" value="$3" tmp path
 
     [[ "$value" != *'"'* && "$value" != *$'\n'* ]] ||
         fail "A value with a double quote or a line break can't go in config.yaml: $value"
+    path=.${section}.$key
     (
         flock -w 30 9 || fail "Can't lock $CONFIG_FILE."
         tmp=$(mktemp) || exit 1
         VALUE=$(config_yaml "$section.$key" "$value")
         export SECTION="$section" KEY="$key" VALUE
-        if ! awk '
-                BEGIN { prefix = "  " ENVIRON["KEY"] ":"; header = "^" ENVIRON["SECTION"] ":[ ]*(#.*)?$" }
+        if ! awk "$CONFIG_AWK_PATH"'
+                BEGIN {
+                    n = split(ENVIRON["SECTION"], part, ".")
+                    prefix = sprintf("%" (2 * n) "s", "") ENVIRON["KEY"] ":"
+                    line = prefix " " ENVIRON["VALUE"]
+                }
                 NR == FNR {
-                    if ($0 ~ /^[^ #]/) {
-                        here = ($0 ~ header)
-                        if (here) last = FNR
-                    } else if (here) {
-                        if (index($0, prefix) == 1) found = 1
-                        if ($0 ~ /^ +[^ ]/) last = FNR
-                    }
-                    next
-                }
-                FNR == 1 { here = 0 }
-                /^[^ #]/ {
-                    here = ($0 ~ header)
-                    print
-                    if (here && !found && (ENVIRON["KEY"] == "enabled" || FNR == last)) {
-                        print prefix " " ENVIRON["VALUE"]
-                        done = 1
-                    }
-                    next
-                }
-                here && !done && index($0, prefix) == 1 {
-                    rest = substr($0, length(prefix) + 1)
-                    if (match(rest, /^ *"[^"]*"/) || match(rest, /^ *[^ #"]*/)) {
-                        tail = substr(rest, RLENGTH + 1)
-                        if (tail ~ /^ *(#.*)?$/) {
-                            text = prefix " " ENVIRON["VALUE"]
-                            if (match(tail, /^ *#/)) {
-                                column = length($0) - length(tail) + RLENGTH - 1
-                                if (length(text) < column) {
-                                    text = sprintf("%-" column "s", text)
-                                } else {
-                                    text = text "  "
-                                }
-                                text = text substr(tail, RLENGTH)
-                            }
-                            print text
-                            done = 1
-                            next
+                    if (track($0) && within()) {
+                        if (depth == n) {
+                            header = FNR
+                        } else if (depth == n + 1) {
+                            if ($0 ~ /^ *[^ :#]+: *[^ #]/) own = FNR
+                            if (at[depth] == ENVIRON["KEY"]) found = FNR
                         }
                     }
+                    next
                 }
-                { print }
-                !found && !done && FNR == last {
-                    print prefix " " ENVIRON["VALUE"]
-                    done = 1
+                FNR == 1 { split("", at) }
+                {
+                    track($0)
+                    if (FNR == found && index($0, prefix) == 1) {
+                        rest = substr($0, length(prefix) + 1)
+                        if (match(rest, /^ *"[^"]*"/) || match(rest, /^ *[^ #"]*/)) {
+                            tail = substr(rest, RLENGTH + 1)
+                            if (tail ~ /^ *(#.*)?$/) {
+                                text = line
+                                if (match(tail, /^ *#/)) {
+                                    column = length($0) - length(tail) + RLENGTH - 1
+                                    if (length(text) < column) {
+                                        text = sprintf("%-" column "s", text)
+                                    } else {
+                                        text = text "  "
+                                    }
+                                    text = text substr(tail, RLENGTH)
+                                }
+                                print text
+                                done = 1
+                                next
+                            }
+                        }
+                    }
+                    print
+                    if (!found && !done && header &&
+                        FNR == (ENVIRON["KEY"] == "enabled" || !own ? header : own)) {
+                        print line
+                        done = 1
+                    }
                 }
                 END { exit !done }' "$CONFIG_FILE" "$CONFIG_FILE" > "$tmp" &&
-            ! yq '.[strenv(SECTION)][strenv(KEY)] = env(VALUE)
-                | (.[strenv(SECTION)][strenv(KEY)] | select(tag == "!!str")) style="double"' \
+            ! yq "$path = env(VALUE) | ($path | select(tag == \"!!str\")) style=\"double\"" \
                 "$CONFIG_FILE" > "$tmp"; then
             rm -f "$tmp"
             fail "Can't write $section.$key to $CONFIG_FILE."
@@ -128,18 +160,39 @@ config_set() {
 }
 
 # Adds a section to config.yaml with the values in CONFIG_NEW and enabled $2,
-# creating the file at mode 660 in the user's own group if there isn't one
+# creating the file at mode 660 in the user's own group if there isn't one. A
+# subsection goes at the end of its parent, which must be there.
 config_add_section() {
-    local section=$1 key text tmp
+    local section=$1 key text tmp pad="" name=$1
 
-    text="$section:"
-    [[ $section == core ]] || text+=$'\n'"  enabled: $2"
+    if [[ $section == *.* ]]; then
+        pad="  "
+        name=${section##*.}
+    fi
+    text="$pad$name:"
+    [[ $section == core ]] || text+=$'\n'"$pad  enabled: $2"
     for key in ${CONFIG_KEYS[$section]}; do
         [[ $key != enabled && -n ${CONFIG_NEW[$key]+set} ]] || continue
-        text+=$'\n'"  $key: $(config_yaml "$section.$key" "${CONFIG_NEW[$key]}")"
+        text+=$'\n'"$pad  $key: $(config_yaml "$section.$key" "${CONFIG_NEW[$key]}")"
     done
     (
         flock -w 30 9 || fail "Can't lock $CONFIG_FILE."
+        if [[ -n $pad ]]; then
+            tmp=$(mktemp) || exit 1
+            if ! PARENT=${section%.*} TEXT=$text awk "$CONFIG_AWK_PATH"'
+                    BEGIN { n = split(ENVIRON["PARENT"], part, ".") }
+                    NR == FNR { if (track($0) && within()) last = FNR; next }
+                    FNR == 1 { split("", at) }
+                    { print }
+                    FNR == last { print ENVIRON["TEXT"] }
+                    END { exit !last }' "$CONFIG_FILE" "$CONFIG_FILE" > "$tmp" ||
+                ! cat "$tmp" > "$CONFIG_FILE"; then
+                rm -f "$tmp"
+                fail "Can't add $section to $CONFIG_FILE."
+            fi
+            rm -f "$tmp"
+            exit 0
+        fi
         if [[ -e $CONFIG_FILE ]]; then
             printf '\n%s\n' "$text" >> "$CONFIG_FILE" || fail "Can't write $CONFIG_FILE."
             exit 0
@@ -201,8 +254,88 @@ run_id_salt() {
     generated_set --keep core.run_id_salt "$(head -c 30 /dev/urandom | base64 | tr -d '/+=')"
 }
 
+# Whether config.yaml has a section, or a subsection such as aws.s3
 config_has_section() {
-    [[ -e $CONFIG_FILE ]] && SECTION=$1 yq -e 'has(strenv(SECTION))' "$CONFIG_FILE" > /dev/null 2>&1
+    [[ -e $CONFIG_FILE ]] && yq -o=json . "$CONFIG_FILE" 2> /dev/null |
+        jq -e --arg path "$1" 'getpath($path | split(".")) | type == "object"' > /dev/null 2>&1
+}
+
+# A section's value as config.yaml has it, or nothing: config_get <section> <key>
+config_get() {
+    [[ -e $CONFIG_FILE ]] || return 0
+    yq -o=json . "$CONFIG_FILE" 2> /dev/null |
+        jq -r --arg path "$1.$2" 'getpath($path | split(".")) // empty | tostring' 2> /dev/null
+}
+
+# The section a word names: a section, or a subsection by its last part, so s3
+# is aws.s3. Prints nothing for neither.
+config_resolve() {
+    local section found=""
+    if [[ -n ${CONFIG_ABOUT[$1]-} ]]; then
+        printf '%s' "$1"
+        return 0
+    fi
+    for section in "${CONFIG_SECTIONS[@]}"; do
+        [[ $section != *."$1" ]] || found=$section
+    done
+    printf '%s' "$found"
+}
+
+# config_choose <question> <default> <option> ...: lists the options, numbered,
+# and sets CHOICE to the number chosen. Enter takes the default.
+config_choose() {
+    local question=$1 default=$2 i answer
+    shift 2
+    printf '%s\n' "$question" >&2
+    for (( i = 1; i <= $#; i++ )); do
+        printf '  %d) %s\n' "$i" "${!i}" >&2
+    done
+    while :; do
+        read -r -e -p "  [$default] " answer || fail "No answer, so nothing more was written."
+        answer=${answer:-$default}
+        if [[ $answer =~ ^[0-9]+$ ]] && (( answer >= 1 && answer <= $# )); then
+            CHOICE=$answer
+            return 0
+        fi
+        echo "  Give a number from 1 to $#." >&2
+    done
+}
+
+# config_text <question> <suggestion> [secret]: sets ANSWER to what's typed, or
+# the suggestion. A secret isn't shown as it's typed.
+config_text() {
+    local shown=${2:-none}
+    printf '%s\n' "$1" >&2
+    if [[ -n ${3:-} ]]; then
+        [[ -z $2 ]] || shown="set, hidden"
+        read -r -s -p "  [$shown] " ANSWER || fail "No answer, so nothing more was written."
+        echo >&2
+    else
+        read -r -e -p "  [$shown] " ANSWER || fail "No answer, so nothing more was written."
+    fi
+    ANSWER=${ANSWER:-$2}
+}
+
+# Asks whether to go ahead with what was just shown, yes by default. --dry-run
+# stops here, returning 1, and --yes answers for a script.
+config_proceed() {
+    if [[ -n ${CONFIG_DRY_RUN:-} ]]; then
+        echo "Nothing was changed, with --dry-run." >&2
+        return 1
+    fi
+    [[ -z ${CONFIG_YES:-} ]] || return 0
+    [[ -t 0 ]] || fail "No terminal to confirm on. Add --yes to go ahead, or --dry-run to see the settings alone."
+    config_yes "Go ahead?" yes || fail "Nothing was changed."
+}
+
+# config_yes <question> <yes|no>: whether the answer is yes, Enter giving the
+# default
+config_yes() {
+    local answer hint="[y/N]"
+    [[ $2 != yes ]] || hint="[Y/n]"
+    read -r -e -p "$1 $hint " answer || answer=""
+    answer=${answer:-$2}
+    [[ $answer == [yY]* ]]
 }
 
 # Prints what to suggest for section.key: what the section's suggest function
@@ -210,6 +343,7 @@ config_has_section() {
 config_suggest() {
     local section=$1 key=$2 name=${2^^}
     [[ $section == core ]] || name=${section^^}_$name
+    name=${name//./_}
     if declare -F "config_${section}_suggest" > /dev/null && "config_${section}_suggest" "$key"; then
         return 0
     fi
@@ -310,63 +444,81 @@ config_confirm() {
     [[ $answer == [yY]* ]] || fail "Nothing was changed."
 }
 
-# gnoto config s3|sqs|systemd: the steps that have no section of their own
+# gnoto config systemd: the step that has no section of its own
 config_step_main() {
-    local step=$1 i usage
-    case $step in
-        s3) usage="Usage: gnoto config s3 [--deploy [--profile=<name>] [--domain=<name> --certificate=<arn>]] [--dry-run] [--yes]" ;;
-        sqs) usage="Usage: gnoto config sqs [--deploy [--profile=<name>]] [--dry-run] [--yes]" ;;
-        systemd) usage="Usage: gnoto config systemd [--move] [--dry-run] [--yes]" ;;
-    esac
-    [[ -z ${ARG_FLAGS[on]:-}${ARG_FLAGS[off]:-}${ARG_FLAGS[probe]:-} ]] || fail "$usage"
-    [[ $step == systemd || -z ${ARG_FLAGS[move]:-} ]] || fail "$usage"
-    [[ $step != systemd || -z ${ARG_FLAGS[deploy]:-} ]] || fail "$usage"
-    CONFIG_DEPLOY=${ARG_FLAGS[deploy]:-}
+    local usage="Usage: gnoto config systemd [--move] [--dry-run] [--yes]"
+    [[ -z ${ARG_FLAGS[on]:-}${ARG_FLAGS[off]:-}${ARG_FLAGS[probe]:-}${ARG_FLAGS[deploy]:-} && ${#ARG_KEYS[@]} -eq 0 ]] ||
+        fail "$usage"
     CONFIG_MOVE=${ARG_FLAGS[move]:-}
     CONFIG_DRY_RUN=${ARG_FLAGS[dry-run]:-}
     CONFIG_YES=${ARG_FLAGS[yes]:-}
-    CONFIG_PROFILE="" CONFIG_DOMAIN="" CONFIG_CERTIFICATE=""
-    for (( i = 0; i < ${#ARG_KEYS[@]}; i++ )); do
-        case $step:${ARG_KEYS[i]} in
-            s3:profile | sqs:profile) CONFIG_PROFILE=${ARG_VALUES[i]} ;;
-            s3:domain) CONFIG_DOMAIN=${ARG_VALUES[i]} ;;
-            s3:certificate) CONFIG_CERTIFICATE=${ARG_VALUES[i]} ;;
-            *) fail "--${ARG_KEYS[i]} isn't an option here. $usage" ;;
-        esac
+    config_systemd_step
+}
+
+# Adds a subsection's parent with its suggestions alone, as --on or --off adds
+# a section, keeping what CONFIG_GIVEN holds for the subsection
+config_add_parent() {
+    local parent=$1 enabled=$2 key
+    local -A given=()
+    for key in "${!CONFIG_GIVEN[@]}"; do
+        given[$key]=${CONFIG_GIVEN[$key]}
     done
-    [[ -n $CONFIG_DEPLOY || -z $CONFIG_PROFILE$CONFIG_DOMAIN$CONFIG_CERTIFICATE ]] ||
-        fail "--profile, --domain and --certificate are for --deploy. $usage"
-    "config_${step}_step"
+    declare -gA CONFIG_GIVEN=() CONFIG_NEW=()
+    config_walk "$parent" ""
+    config_add_section "$parent" "$enabled"
+    declare -gA CONFIG_NEW=()
+    for key in "${!given[@]}"; do
+        CONFIG_GIVEN[$key]=${given[$key]}
+    done
 }
 
 config_main() {
-    local usage="Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe"
-    local section option="" present="" enabled key settings i why step_only=""
+    local usage="Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy] [--dry-run] [--yes], gnoto config systemd [--move], or gnoto config slurm --probe"
+    local word section short option="" present="" enabled key settings i why step_only=""
 
     args_parse "$usage" "on off probe deploy move dry-run yes" "$@"
     if [[ ${#ARG_WORDS[@]} -eq 0 ]]; then
         [[ ${#ARG_KEYS[@]} -eq 0 && ${#ARG_FLAGS[@]} -eq 0 ]] || fail "$usage"
         for section in "${CONFIG_SECTIONS[@]}"; do
-            printf '%-10s %s\n' "$section" "${CONFIG_ABOUT[$section]}"
+            if [[ $section == *.* ]]; then
+                printf '  %-8s %s\n' "${section##*.}" "${CONFIG_ABOUT[$section]}"
+            else
+                printf '%-10s %s\n' "$section" "${CONFIG_ABOUT[$section]}"
+            fi
         done
-        printf '%-10s %s\n' s3 "Check the S3 bucket and results address, or with --deploy, build them" \
-            sqs "Check the SQS queue for Wrike's webhook, or with --deploy, build it" \
-            systemd "Install the units that expire results, scan Wrike and listen to SQS"
+        printf '%-10s %s\n' systemd "Install the units that expire results, scan Wrike and listen to SQS"
         return 0
     fi
     [[ ${#ARG_WORDS[@]} -eq 1 ]] || fail "$usage"
-    section=${ARG_WORDS[0]}
-    case $section in
-        s3 | sqs | systemd)
-            config_step_main "$section"
-            return
-            ;;
-    esac
-    [[ -z ${ARG_FLAGS[deploy]:-}${ARG_FLAGS[move]:-} ]] ||
-        fail "--deploy is for gnoto config s3 and sqs, and --move for gnoto config systemd."
+    word=${ARG_WORDS[0]}
+    if [[ $word == systemd ]]; then
+        config_step_main
+        return
+    fi
+    section=$(config_resolve "$word")
+    [[ -n $section ]] || fail "gnoto config has no section $word. Run $(gnoto_command config) to list them."
+    short=${section##*.}
+    [[ -z ${ARG_FLAGS[move]:-} ]] || fail "--move is for $(gnoto_command config systemd)."
     CONFIG_DRY_RUN=${ARG_FLAGS[dry-run]:-}
     CONFIG_YES=${ARG_FLAGS[yes]:-}
-    [[ -n ${CONFIG_ABOUT[$section]-} ]] || fail "gnoto config has no section $section. Run $(gnoto_command config) to list them."
+
+    # s3 and sqs: --deploy deploys what config.yaml holds, and with no options,
+    # they ask their own questions. Either shows the settings and what deploying
+    # them changes, and asks before going ahead, unless given --yes.
+    if declare -F "config_${short}_deploy" > /dev/null; then
+        if [[ -n ${ARG_FLAGS[deploy]:-} ]]; then
+            [[ ${#ARG_KEYS[@]} -eq 0 && -z ${ARG_FLAGS[on]:-}${ARG_FLAGS[off]:-}${ARG_FLAGS[probe]:-} ]] ||
+                fail "--deploy deploys with what config.yaml holds, so it takes only --dry-run and --yes."
+            "config_${short}_deploy"
+            return
+        fi
+        if [[ ${#ARG_KEYS[@]} -eq 0 && -z ${ARG_FLAGS[on]:-}${ARG_FLAGS[off]:-}${ARG_FLAGS[probe]:-} ]]; then
+            [[ -t 0 ]] || fail "$(gnoto_command config "$word") asks questions, so run it from a terminal, or give --deploy, --on or --off."
+            "config_${short}_interactive"
+            return
+        fi
+    fi
+    [[ -z ${ARG_FLAGS[deploy]:-} ]] || fail "--deploy is for $(gnoto_command config s3) and $(gnoto_command config sqs)."
     if [[ -n ${ARG_FLAGS[probe]:-} ]]; then
         [[ $section == slurm ]] || fail "--probe is for $(gnoto_command config slurm), which checks every compute node."
         [[ ${#ARG_FLAGS[@]} -eq 1 && ${#ARG_KEYS[@]} -eq 0 ]] || fail "gnoto config slurm --probe takes nothing else."
@@ -403,10 +555,18 @@ config_main() {
     if [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && -n $present && -n $CONFIG_DRY_RUN$CONFIG_YES ]]; then
         step_only=1
     elif [[ ${#ARG_KEYS[@]} -eq 0 && -z $option && ! -t 0 ]]; then
-        fail "$(gnoto_command config "$section") asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
+        fail "$(gnoto_command config "$word") asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>."
     fi
     enabled=true
     [[ $option != --off ]] || enabled=false
+    # A subsection needs its parent, which turning it on turns on too
+    if [[ $section == *.* && -z $step_only ]]; then
+        if ! config_has_section "${section%.*}"; then
+            config_add_parent "${section%.*}" "$enabled"
+        elif [[ $option != --off && $(config_get "${section%.*}" enabled) != true ]]; then
+            config_set "${section%.*}" enabled true
+        fi
+    fi
     if [[ -n $step_only ]]; then
         :
     elif [[ ${#ARG_KEYS[@]} -eq 0 && -z $option ]]; then
@@ -431,10 +591,16 @@ config_main() {
 
     if [[ $section == core ]]; then
         echo "core is set, in $CONFIG_FILE." >&2
-    elif [[ $(SECTION=$section yq '.[strenv(SECTION)].enabled' "$CONFIG_FILE") == true ]]; then
-        echo "$section is on, in $CONFIG_FILE." >&2
+    elif [[ $(config_get "$section" enabled) == true ]]; then
+        echo "$word is on, in $CONFIG_FILE." >&2
     else
-        echo "$section is off, in $CONFIG_FILE. To turn it on, run: $(gnoto_command config "$section" --on)" >&2
+        echo "$word is off, in $CONFIG_FILE. To turn it on, run: $(gnoto_command config "$word" --on)" >&2
+        return 0
+    fi
+
+    # s3 and sqs deploy only when asked
+    if declare -F "config_${short}_deploy" > /dev/null; then
+        echo "Fill in what it needs there, or let $(gnoto_command config "$word") ask, then deploy it with: $(gnoto_command config "$word" --deploy)" >&2
         return 0
     fi
 

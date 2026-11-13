@@ -1,0 +1,43 @@
+# certificate.yaml - The certificate for the dashboards' domain, when ACM has
+# none issued for it.
+#
+# Deployed by:  gnoto config s3 --deploy, as the stack gnoto-certificate, in
+#               us-east-1, the only region CloudFront takes certificates from,
+#               whatever aws.region is
+# Parameters:   DomainName (aws.s3.domain) and HostedZoneId
+#               (aws.s3.hosted_zone_id), the Route 53 zone it's validated in
+# Outputs:      CertificateArn, which config passes to the stack gnoto-s3
+#
+# ACM validates it through DNS records the stack makes in the zone, so the
+# deploy waits until it's issued, usually a few minutes, and renews it itself.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: The certificate for gnoto's dashboards' domain
+
+Parameters:
+  DomainName:
+    Type: String
+    MinLength: 1
+    Description: The dashboards' domain, aws.s3.domain
+  HostedZoneId:
+    Type: String
+    MinLength: 1
+    Description: The domain's Route 53 hosted zone, aws.s3.hosted_zone_id
+
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: app
+          Value: gnoto
+
+Outputs:
+  CertificateArn:
+    Description: The certificate, for the stack gnoto-s3
+    Value: !Ref Certificate

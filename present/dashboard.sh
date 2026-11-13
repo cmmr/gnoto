@@ -401,7 +401,7 @@ dashboard_get_data() {
         size="<span class=\"font-normal text-[12px] opacity-80\">($(escape_html "$(human_size "$DASHBOARD_BUNDLE_SIZE")"))</span>"
     fi
     config=$(jq -cn --arg run "$address" --arg client "${GLOBUS_APP_CLIENT_ID:-}" --arg auth "$GLOBUS_AUTH_URL" \
-        --arg callback "${AWS_RESULTS_BASE_URL%/}/${AWS_RUN_PREFIX:-gnoto}/access.html" \
+        --arg callback "$(s3_access_url)" \
         --arg download "$DASHBOARD_BUNDLE_URL" --arg browse "$(globus_browse_url "$uid")" \
         '{run: $run, client: $client, auth: $auth, callback: $callback, download: $download, browse: $browse}')
     render_template "$PRESENT_DIR/templates/get-data.html" \

@@ -16,7 +16,8 @@ The webhook Lambda is `../lambda/webhook.py`, handler `lambda_handler`, with
 `AWS_SQS_QUEUE_URL` and `WRIKE_WEBHOOK_SECRET` set. Get the data's is
 `../lambda/access.py`, handler `lambda_handler`, with `AWS_SQS_QUEUE_URL`,
 `RESULTS_BUCKET`, `RUN_PREFIX`, `GLOBUS_CLIENT_ID` (`globus.app_client_id`) and
-`REDIRECT_URI` (`<results_base_url>/<run_prefix>/access.html`) set, behind an HTTP API
-whose CORS allows only the results' origin, and its address goes in `aws.access_url`. The
-CloudFront function is `../cloudfront/directory-index.js`, with `RUN_PREFIX` set to
-`aws.run_prefix`.
+`REDIRECT_URI` (`<results_base_url>/access.html`) set, behind an HTTP API whose CORS
+allows only the results' origin, and its address goes in `aws.sqs.access_url`. The CloudFront
+function is `../cloudfront/directory-index.js`, on the viewer request of the behavior that
+serves results. `aws.s3.results_base_url` is the address that serves the run prefix, as the
+stack's distribution does at its root, with the origin path `/<run_prefix>`.

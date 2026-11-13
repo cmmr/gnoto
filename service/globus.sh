@@ -61,7 +61,7 @@ globus_role_advice() {
 
 # The page the dashboards' app returns to, which it's registered with
 globus_return_page() {
-    printf '%s/%s/access.html' "${AWS_RESULTS_BASE_URL%/}" "${AWS_RUN_PREFIX:-gnoto}"
+    s3_access_url
 }
 
 # gnoto config globus, once its settings are written
@@ -99,7 +99,7 @@ config_globus_step() {
 
     if [[ -z ${GLOBUS_APP_CLIENT_ID:-} ]]; then
         echo "A reader gets a run's data by signing in from its dashboard, through an app registered for gnoto: at app.globus.org/settings/developers, register a public client (\"thick client or script\") whose redirect is $(globus_return_page), then $(gnoto_command config globus "--app_client_id=<its client ID>")."
-    elif [[ -z ${AWS_ACCESS_URL:-} ]]; then
+    elif [[ -z ${AWS_SQS_ACCESS_URL:-} ]]; then
         echo "The dashboards post a reader's sign-in to a Lambda that $(gnoto_command config sqs --deploy) makes, now that globus.app_client_id is set."
     fi
     LINT_FAILS=0
@@ -125,15 +125,15 @@ lint_globus() {
     done
     if [[ -z ${GLOBUS_APP_CLIENT_ID:-} ]]; then
         lint_fail "globus: globus.app_client_id isn't set, so nobody could get a run's data. $(gnoto_command config globus) says how to register the app"
-    elif ! s3_on || ! sqs_on || [[ -z ${AWS_ACCESS_URL:-} ]]; then
-        lint_fail "globus: a reader gets a run's data through its dashboard, which needs S3, the queue and aws.access_url. $(gnoto_command config sqs --deploy) makes the address once S3 is set up"
+    elif ! s3_on || ! sqs_on || [[ -z ${AWS_SQS_ACCESS_URL:-} ]]; then
+        lint_fail "globus: a reader gets a run's data through its dashboard, which needs S3, the queue and aws.sqs.access_url. $(gnoto_command config sqs --deploy) makes the address once S3 is set up"
     else
         code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 -X POST -H 'Content-Type: text/plain' \
-            --data '{}' "$AWS_ACCESS_URL" 2> /dev/null) || code=""
+            --data '{}' "$AWS_SQS_ACCESS_URL" 2> /dev/null) || code=""
         if [[ $code == 400 ]]; then
             lint_ok "globus: Get the data's address answers"
         else
-            lint_fail "globus: Get the data's address, $AWS_ACCESS_URL, didn't answer a test request as expected (HTTP ${code:-none})"
+            lint_fail "globus: Get the data's address, $AWS_SQS_ACCESS_URL, didn't answer a test request as expected (HTTP ${code:-none})"
         fi
     fi
     if [[ ! -d $dir || ! -w $dir ]]; then

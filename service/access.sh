@@ -7,7 +7,7 @@
 # Requires:    gnoto_globus and globus_path_rules from service/publish.sh;
 #              s3_put from service/aws/aws.sh; run_state_path and run_value
 #              from service/expire.sh; log and warn from lib/utilities.sh
-# Env:         GLOBUS_MAX_PEOPLE, AWS_S3_BUCKET and AWS_RUN_PREFIX
+# Env:         GLOBUS_MAX_PEOPLE, AWS_S3_BUCKET and AWS_S3_RUN_PREFIX
 #
 # The access Lambda (service/aws/lambda/access.py) queues
 # {"gnoto": "globus_access", run, request, identity, username} once Globus has
@@ -32,7 +32,7 @@ ACCESS_IDENTITY_PATTERN='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
 
 # access_answer <run> <request> <status>
 access_answer() {
-    local key=${AWS_RUN_PREFIX:-gnoto}/$1/access/$2.json
+    local key=${AWS_S3_RUN_PREFIX:-gnoto}/$1/access/$2.json
     printf '{"status":"%s"}\n' "$3" | s3_put - "$AWS_S3_BUCKET" "$key" application/json no-cache > /dev/null 2>&1 ||
         warn "Couldn't answer a Globus access request at s3://$AWS_S3_BUCKET/$key."
 }

@@ -73,7 +73,9 @@ gnoto_load_settings() {
     done <<< "$lines"
 }
 
-# Declares a section of config.yaml, and the line gnoto config prints for it
+# Declares a section of config.yaml, and the line gnoto config prints for it. A
+# subsection is named by its path, such as aws.s3, and gnoto config takes it by
+# its last part, s3.
 config_section() {
     CONFIG_SECTIONS+=("$1")
     CONFIG_ABOUT[$1]=$2
@@ -82,10 +84,13 @@ config_section() {
 # Declares a setting: its section, key, type, default, and the question gnoto
 # config asks for it, or none for one it never asks for, which gnoto fills in
 # itself unless a site sets it. The types are bool, int, text, secret, path (on
-# the host), paths (comma-separated) and dir (a directory gnoto writes to).
+# the host), paths (comma-separated) and dir (a directory gnoto writes to). A
+# subsection's setting joins its path with underscores: aws.s3.bucket is
+# AWS_S3_BUCKET.
 config_setting() {
     local section=$1 key=$2 name=${2^^}
     [[ $section == core ]] || name=${section^^}_$name
+    name=${name//./_}
     GNOTO_KNOWN+=("$name")
     [[ $3 != secret ]] || GNOTO_SECRETS+=("$name")
     printf -v "$name" '%s' "$4"
@@ -125,10 +130,10 @@ if [[ -r $DATA_DIR/generated.yaml ]]; then
 fi
 unset GNOTO_CONFIG
 
-AWS_RUN_PREFIX=${AWS_RUN_PREFIX:-gnoto}
+AWS_S3_RUN_PREFIX=${AWS_S3_RUN_PREFIX:-gnoto}
 GLOBUS_RUN_PREFIX=${GLOBUS_RUN_PREFIX:-gnoto}
 
-for GNOTO_NAME in "${GNOTO_KNOWN[@]}" DATA_DIR DB_DIR AWS_RUN_PREFIX GLOBUS_RUN_PREFIX; do
+for GNOTO_NAME in "${GNOTO_KNOWN[@]}" DATA_DIR DB_DIR AWS_S3_RUN_PREFIX GLOBUS_RUN_PREFIX; do
     if [[ " ${GNOTO_SECRETS[*]} " != *" $GNOTO_NAME "* ]]; then
         export "${GNOTO_NAME?}"
     fi

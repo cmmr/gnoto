@@ -24,7 +24,7 @@
 #              and Samplesheet, which are the task's title and attachment. A
 #              question several pipelines ask is one field. A dropdown's
 #              answers are kept to options.yaml's, with no others allowed.
-#   webhook    on "gnoto Jobs", to aws.webhook_url, when SQS is set up, for
+#   webhook    on "gnoto Jobs", to aws.sqs.webhook_url, when SQS is set up, for
 #              WRIKE_WEBHOOK_EVENTS. Webhooks can't be edited, so one with other
 #              events is deleted before its replacement is made, so no event
 #              arrives twice.
@@ -192,14 +192,14 @@ config_wrike_step() {
             plan+=("Change the answers of the field \"$(jq -r .title <<< "$field")\" to $(jq -r '.values | join(", ")' <<< "$field")")
         fi
     done < <(jq -c '.[]' <<< "$spec")
-    if sqs_on && [[ -n ${AWS_WEBHOOK_URL:-} ]]; then
+    if sqs_on && [[ -n ${AWS_SQS_WEBHOOK_URL:-} ]]; then
         if [[ -n $folder ]]; then
-            webhooks=$(wrike_find_webhooks "$folder" "$AWS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
+            webhooks=$(wrike_find_webhooks "$folder" "$AWS_SQS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
         else
             webhooks=""
         fi
         if [[ -z $webhooks ]]; then
-            plan+=("Create the webhook on \"$WRIKE_FOLDER_TITLE\" to $AWS_WEBHOOK_URL, for $WRIKE_WEBHOOK_EVENTS")
+            plan+=("Create the webhook on \"$WRIKE_FOLDER_TITLE\" to $AWS_SQS_WEBHOOK_URL, for $WRIKE_WEBHOOK_EVENTS")
         elif [[ $(jq -sc 'map(.events | sort | join(",")) | unique' <<< "$webhooks") != "$(jq -cn --arg e "$WRIKE_WEBHOOK_EVENTS" '[$e | split(",") | sort | join(",")]')" ||
             $(grep -c . <<< "$webhooks") -gt 1 ]]; then
             plan+=("Replace the webhook on \"$WRIKE_FOLDER_TITLE\", deleting the old one first, for $WRIKE_WEBHOOK_EVENTS")
@@ -270,8 +270,8 @@ config_wrike_step() {
     done < <(jq -c '.[]' <<< "$spec")
 
     # The webhook
-    if sqs_on && [[ -n ${AWS_WEBHOOK_URL:-} ]]; then
-        webhooks=$(wrike_find_webhooks "$folder" "$AWS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
+    if sqs_on && [[ -n ${AWS_SQS_WEBHOOK_URL:-} ]]; then
+        webhooks=$(wrike_find_webhooks "$folder" "$AWS_SQS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
         hook=""
         while IFS= read -r field; do
             [[ -n $field ]] || continue
@@ -283,10 +283,10 @@ config_wrike_step() {
         done <<< "$webhooks"
         if [[ -z $hook ]]; then
             wrike_webhook_secret
-            hook=$(wrike_call POST "folders/$folder/webhooks" --data-urlencode "hookUrl=$AWS_WEBHOOK_URL" \
+            hook=$(wrike_call POST "folders/$folder/webhooks" --data-urlencode "hookUrl=$AWS_SQS_WEBHOOK_URL" \
                 --data-urlencode "secret=$WRIKE_WEBHOOK_SECRET" --data-urlencode "events=[$WRIKE_WEBHOOK_EVENTS]" |
                 jq -r '.data[0].id // empty') ||
-                fail "Wrike didn't create the webhook. Its handshake with $AWS_WEBHOOK_URL may have failed: the SQS stack's Lambda checks it with wrike.webhook_secret as the stack was deployed, so if that changed since, deploy it again: $(gnoto_command config sqs --deploy)"
+                fail "Wrike didn't create the webhook. Its handshake with $AWS_SQS_WEBHOOK_URL may have failed: the SQS stack's Lambda checks it with wrike.webhook_secret as the stack was deployed, so if that changed since, deploy it again: $(gnoto_command config sqs --deploy)"
         fi
         generated_set wrike.webhook_id "$hook"
     fi

@@ -3,20 +3,25 @@
 # makes with it.
 #
 # Sourced by:  lib/env.sh
-# Defines:     gnoto_aws, s3_on, sqs_on, listener_on, s3_run_key, s3_run_url, s3_put,
-#              s3_upload_results, s3_delete_prefix, s3_count
+# Defines:     gnoto_aws, s3_on, sqs_on, listener_on, s3_run_key, s3_run_url,
+#              s3_access_url, s3_put, s3_upload_results, s3_delete_prefix,
+#              s3_count
 # Requires:    aws and jq, from the image; warn from lib/utilities.sh
 # Env:         AWS_ENABLED, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
-#              AWS_REGION, AWS_S3_BUCKET, AWS_RESULTS_BASE_URL, AWS_RUN_PREFIX
-#              and AWS_SQS_QUEUE_URL, from config.yaml and generated.yaml
+#              AWS_REGION, AWS_S3_ENABLED, AWS_S3_BUCKET,
+#              AWS_S3_RESULTS_BASE_URL, AWS_S3_RUN_PREFIX, AWS_SQS_ENABLED and
+#              AWS_SQS_QUEUE_URL, from config.yaml and generated.yaml
 #
 # The keys are set only in the environment of the one aws call that needs
 # them, since settings that are secrets are never exported. Without keys in
-# config.yaml, the AWS CLI finds its own, as on an instance with a role.
+# config.yaml, the AWS CLI uses the running account's own, such as a profile in
+# its ~/.aws. Instance metadata is turned off, so an instance's role isn't used.
 #
 # A run's results go under <run_prefix>/<folder>/ in the bucket, and are served
-# at <results_base_url>/<run_prefix>/<folder>/, where the folder is the run's
-# address, <uid>-<token>, from run_address in service/publish.sh.
+# at <results_base_url>/<folder>/, where the folder is the run's address,
+# <uid>-<token>, from run_address in service/publish.sh. results_base_url is
+# the address that serves the run prefix, which the S3 stack's CloudFront
+# serves at its domain's root, through its origin path.
 
 # Text files a reader opens in the browser rather than downloads: S3 types an
 # object from its name, and knows only some of these
@@ -24,24 +29,28 @@ S3_TEXT_EXTENSIONS=(txt tsv csv log yaml yml gff fasta fa fna nwk newick sh nf c
 # The pages that frame the rest, uploaded last, index.html last of all
 S3_PAGES=(overview.html deliverables.html methods.html index.html)
 
+# The keys go in the environment of a subshell that becomes the aws call, never
+# on a command line, where ps would show them
 gnoto_aws() {
-    local keys=()
-    if [[ -n ${AWS_ACCESS_KEY_ID:-} ]]; then
-        keys=(AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-}")
-    fi
-    env "${keys[@]}" AWS_DEFAULT_REGION="${AWS_REGION:-}" AWS_PAGER="" AWS_EC2_METADATA_DISABLED=true \
-        aws "$@"
+    (
+        if [[ -n ${AWS_ACCESS_KEY_ID:-} ]]; then
+            export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+        fi
+        export AWS_DEFAULT_REGION=${AWS_REGION:-} AWS_PAGER="" AWS_EC2_METADATA_DISABLED=true
+        exec aws "$@"
+    )
 }
 
-# S3 publishes results when the aws section is on with a bucket and an address
+# S3 publishes results when aws and its s3 are on, with a bucket and an address
 s3_on() {
-    [[ ${AWS_ENABLED:-false} == true && -n ${AWS_S3_BUCKET:-} && -n ${AWS_RESULTS_BASE_URL:-} ]]
+    [[ ${AWS_ENABLED:-false} == true && ${AWS_S3_ENABLED:-false} == true &&
+        -n ${AWS_S3_BUCKET:-} && -n ${AWS_S3_RESULTS_BASE_URL:-} ]]
 }
 
 # SQS carries Wrike's webhook and the dashboards' requests for Globus access
-# when the aws section is on with a queue
+# when aws and its sqs are on, with a queue
 sqs_on() {
-    [[ ${AWS_ENABLED:-false} == true && -n ${AWS_SQS_QUEUE_URL:-} ]]
+    [[ ${AWS_ENABLED:-false} == true && ${AWS_SQS_ENABLED:-false} == true && -n ${AWS_SQS_QUEUE_URL:-} ]]
 }
 
 # The listener runs when the queue carries something gnoto acts on: Wrike's
@@ -52,11 +61,17 @@ listener_on() {
 
 # s3_run_key <folder> and s3_run_url <folder>: a run's key prefix and address
 s3_run_key() {
-    printf '%s/%s' "${AWS_RUN_PREFIX:-gnoto}" "$1"
+    printf '%s/%s' "${AWS_S3_RUN_PREFIX:-gnoto}" "$1"
 }
 
 s3_run_url() {
-    printf '%s/%s/' "${AWS_RESULTS_BASE_URL%/}" "$(s3_run_key "$1")"
+    printf '%s/%s/' "${AWS_S3_RESULTS_BASE_URL%/}" "$1"
+}
+
+# The page Globus's sign-in returns to, <run_prefix>/access.html in the bucket,
+# which the dashboards' Globus app is registered with
+s3_access_url() {
+    printf '%s/access.html' "${AWS_S3_RESULTS_BASE_URL%/}"
 }
 
 # s3_put <file, or - for stdin> <bucket> <key> <content type> [cache control]

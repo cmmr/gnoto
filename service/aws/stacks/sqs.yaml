@@ -7,9 +7,9 @@
 #               access.py
 # Parameters:   WebhookSecret (wrike.webhook_secret) and IamStack (gnoto-iam);
 #               and for Get the data, GlobusClientId (globus.app_client_id),
-#               ResultsBucket (aws.s3_bucket), RunPrefix (aws.run_prefix),
-#               ResultsOrigin, the scheme and host of aws.results_base_url, and
-#               RedirectUri, <results_base_url>/<run_prefix>/access.html
+#               ResultsBucket (aws.s3.bucket), RunPrefix (aws.s3.run_prefix),
+#               ResultsOrigin, the scheme and host of aws.s3.results_base_url, and
+#               RedirectUri, <results_base_url>/access.html
 # Outputs:      QueueUrl, WebhookUrl and, with Get the data, AccessUrl, which
 #               config writes to generated.yaml, and which gnoto config wrike
 #               registers the webhook with
@@ -42,12 +42,12 @@ Parameters:
   ResultsBucket:
     Type: String
     Default: ""
-    Description: The results bucket, aws.s3_bucket
+    Description: The results bucket, aws.s3.bucket
   RunPrefix:
     Type: String
     Default: gnoto
     AllowedPattern: "[A-Za-z0-9._-]+"
-    Description: The folder in the bucket that runs go under, aws.run_prefix
+    Description: The folder in the bucket that runs go under, aws.s3.run_prefix
   ResultsOrigin:
     Type: String
     Default: ""
@@ -55,7 +55,7 @@ Parameters:
   RedirectUri:
     Type: String
     Default: ""
-    Description: The page Globus's sign-in returns to, <results_base_url>/<run_prefix>/access.html
+    Description: The page Globus's sign-in returns to, <results_base_url>/access.html
 
 Conditions:
   Access: !Not [!Or [!Equals [!Ref GlobusClientId, ""], !Equals [!Ref ResultsBucket, ""]]]
@@ -233,12 +233,12 @@ Resources:
 
 Outputs:
   QueueUrl:
-    Description: The queue the listener reads, aws.sqs_queue_url
+    Description: The queue the listener reads, aws.sqs.queue_url
     Value: !Ref Queue
   WebhookUrl:
-    Description: Where Wrike posts, aws.webhook_url
+    Description: Where Wrike posts, aws.sqs.webhook_url
     Value: !Sub "${Api.ApiEndpoint}/wrike"
   AccessUrl:
     Condition: Access
-    Description: Where a dashboard posts a Globus sign-in, aws.access_url
+    Description: Where a dashboard posts a Globus sign-in, aws.sqs.access_url
     Value: !Sub "${AccessApi.ApiEndpoint}/access"

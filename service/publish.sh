@@ -24,7 +24,7 @@
 #
 # With S3, the results folder, with the dashboard's pages, goes to
 # <run_prefix>/<uid>-<token>/ in the bucket, and is served from
-# <results_base_url>/<run_prefix>/<uid>-<token>/. The token, made with the
+# <results_base_url>/<uid>-<token>/. The token, made with the
 # run's state, is what keeps the address from being guessed: the uid shows
 # wherever the run does, such as in squeue and the zip's name.
 #
@@ -52,7 +52,7 @@ GLOBUS_AUTH_URL=${GLOBUS_AUTH_URL:-https://auth.globus.org}
 # reader gets a run's data only through its dashboard
 globus_ready() {
     [[ ${GLOBUS_ENABLED:-false} == true && -n ${GLOBUS_DIR:-} && -n ${GLOBUS_UUID:-} &&
-        -n ${GLOBUS_URL:-} && -n ${GLOBUS_APP_CLIENT_ID:-} && -n ${AWS_ACCESS_URL:-} ]] && s3_on && sqs_on
+        -n ${GLOBUS_URL:-} && -n ${GLOBUS_APP_CLIENT_ID:-} && -n ${AWS_SQS_ACCESS_URL:-} ]] && s3_on && sqs_on
 }
 
 # Whether a pipeline's zip goes to Globus when it's ready: globus_takes <pipeline>
@@ -90,10 +90,13 @@ globus_browse_url() {
         "$GLOBUS_UUID" "$(jq -rn --arg p "$path" '$p | @uri')"
 }
 
-# globus-cli as gnoto's client, whose credentials go only to this call
+# globus-cli as gnoto's client, whose credentials go only to this call, in the
+# environment of a subshell that becomes it, never on a command line
 gnoto_globus() {
-    env GLOBUS_CLI_CLIENT_ID="${GLOBUS_CLI_CLIENT_ID:-}" GLOBUS_CLI_CLIENT_SECRET="${GLOBUS_CLI_CLIENT_SECRET:-}" \
-        globus "$@"
+    (
+        export GLOBUS_CLI_CLIENT_ID=${GLOBUS_CLI_CLIENT_ID:-} GLOBUS_CLI_CLIENT_SECRET=${GLOBUS_CLI_CLIENT_SECRET:-}
+        exec globus "$@"
+    )
 }
 
 # The permissions on one folder, as "<id>\t<principal type>\t<principal>"
@@ -212,9 +215,9 @@ progress_publish() {
 publish_access_page() {
     local page url
     page=$(< "$CODE_DIR/present/templates/access.html") || return 1
-    url=$(jq -n --arg url "$AWS_ACCESS_URL" '$url')
+    url=$(jq -n --arg url "$AWS_SQS_ACCESS_URL" '$url')
     page=${page//__ACCESS_URL__/"$url"}
-    printf '%s\n' "$page" | s3_put - "$AWS_S3_BUCKET" "${AWS_RUN_PREFIX:-gnoto}/access.html" \
+    printf '%s\n' "$page" | s3_put - "$AWS_S3_BUCKET" "${AWS_S3_RUN_PREFIX:-gnoto}/access.html" \
         "text/html; charset=utf-8" no-cache > /dev/null 2>&1
 }
 
@@ -273,7 +276,7 @@ publish_run() {
     case $destination in
         globus)
             publish_access_page ||
-                fail "The page Globus's sign-in returns to couldn't be put at s3://$AWS_S3_BUCKET/${AWS_RUN_PREFIX:-gnoto}/access.html."
+                fail "The page Globus's sign-in returns to couldn't be put at s3://$AWS_S3_BUCKET/${AWS_S3_RUN_PREFIX:-gnoto}/access.html."
             # Last, since it's what lets a reader ask for the zip
             output=$(printf '{"uid":"%s"}\n' "$uid" |
                 s3_put - "$AWS_S3_BUCKET" "$prefix/globus.json" application/json no-cache 2>&1) ||

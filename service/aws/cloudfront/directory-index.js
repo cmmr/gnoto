@@ -1,11 +1,10 @@
 // directory-index.js - The CloudFront function in front of gnoto's results:
 // serves a folder's page for a folder's address.
 //
-// Deployed by:  gnoto config s3 --deploy, inline in service/aws/stacks/s3.yaml,
-//               with RUN_PREFIX set to aws.run_prefix. A site that sets up
-//               its own CloudFront publishes this file as a cloudfront-js-2.0
-//               function, with RUN_PREFIX set by hand, and associates it with
-//               the viewer request event of the behavior that serves results.
+// Deployed by:  gnoto config s3 --deploy, inline in service/aws/stacks/s3.yaml.
+//               A site that sets up its own CloudFront publishes this file as
+//               a cloudfront-js-2.0 function, and associates it with the viewer
+//               request event of the behavior that serves results.
 //
 // S3 stores objects, so a request for a folder matches none, and every folder
 // link inside a pipeline's own report would be a 404 without this. Across a
@@ -18,15 +17,17 @@
 // by hand.
 //
 // A run's folder is <uid>-<token>, eight base32 characters, a hyphen and
-// sixteen more:
+// sixteen more. The stack's distribution serves the run prefix at its root,
+// through its origin path, so this sees addresses without it:
 //
-//   /gnoto/<run>            301 to /gnoto/<run>/
-//   /gnoto/<run>/           the dashboard, /gnoto/<run>/index.html
-//   /gnoto/<run>/qiime2     301 to /gnoto/<run>/qiime2/
-//   /gnoto/<run>/qiime2/    its listing, qiime2/directory_listing.html
+//   /<run>                  301 to /<run>/
+//   /<run>/                 the dashboard, /<run>/index.html
+//   /<run>/qiime2           301 to /<run>/qiime2/
+//   /<run>/qiime2/          its listing, qiime2/directory_listing.html
 //   anything with a dot     as it is
-
-var RUN_PREFIX = 'gnoto';
+//
+// A run's folder is recognised at any depth, so a site whose own distribution
+// serves the prefix as a path works too.
 
 function handler(event) {
     var request = event.request;
@@ -42,14 +43,7 @@ function handler(event) {
         };
     }
     if (uri.endsWith('/')) {
-        request.uri += isRunRoot(uri) ? 'index.html' : 'directory_listing.html';
+        request.uri += /\/[a-z2-7]{8}-[a-z2-7]{16}\/$/.test(uri) ? 'index.html' : 'directory_listing.html';
     }
     return request;
-}
-
-// "/<prefix>/<run>/" and nothing deeper: split on "/", that's four fields,
-// the last empty
-function isRunRoot(uri) {
-    var parts = uri.split('/');
-    return parts.length === 4 && parts[1] === RUN_PREFIX && /^[a-z2-7]{8}-[a-z2-7]{16}$/.test(parts[2]);
 }

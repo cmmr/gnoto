@@ -11,7 +11,7 @@
 # Env:          AWS_SQS_QUEUE_URL, the queue; RESULTS_BUCKET and RUN_PREFIX,
 #               where the dashboards are; GLOBUS_CLIENT_ID, the dashboards'
 #               Globus app, a public client; REDIRECT_URI, its return page,
-#               <results_base_url>/<run_prefix>/access.html; GLOBUS_AUTH_URL,
+#               <results_base_url>/access.html; GLOBUS_AUTH_URL,
 #               https://auth.globus.org unless a test sets it
 #
 # The return page posts {run, code, verifier, request}: the run's folder,

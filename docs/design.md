@@ -344,14 +344,16 @@ core       Where gnoto keeps its runs, caches and databases, and for how long
 apptainer  Where Apptainer is, and the paths containers must see
 slurm      Run jobs on a Slurm cluster, rather than on this machine
 wrike      Take job requests from a Wrike form, and report each job's progress there
-aws        Publish results through S3 and CloudFront, and take Wrike's webhook through SQS
+aws        The AWS account that S3 and SQS use, and gnoto's access keys there
+  s3       Publish results through S3 and CloudFront
+  sqs      Take Wrike's webhook and Globus access requests through SQS
 globus     Deliver results through a Globus guest collection
-s3         Check the S3 bucket and results address, or with --deploy, build them
-sqs        Check the SQS queue for Wrike's webhook, or with --deploy, build it
 systemd    Install the units that expire results, scan Wrike and listen to SQS
 ```
 
-The last three are steps with no section of their own, as "Configuring integrations" says.
+`s3` and `sqs` are subsections of `aws` in `config.yaml`, each with its own `enabled`, and
+`gnoto config` takes them by their own names. `systemd` is a step with no section of its
+own, as "Configuring integrations" says.
 
 `gnoto config <section>` asks for each of the section's settings, suggesting what its
 declaration finds, or else the current value. Given settings as arguments, as in
@@ -456,7 +458,7 @@ that version's launcher once the image exits, as "Versions and the code cache" s
 | `gnoto lint [--deep] [--dev] [--yes] job.yaml` | Checks a job file, its samples and its databases. `--deep` computes every database's full digest. `--dev` checks it with the install's own files. `--yes` accepts a database download | Only if you accept a database download |
 | `gnoto lint [--yes] --inputs=<dir> record.yaml` | Checks a record for an exact re-run, finding its inputs under `<dir>` | Only if you accept a database download |
 | `gnoto config [<section> [--on\|--off] [--<key>=<value> ...] [--dry-run] [--yes]]` | Lists the sections. Given one, asks for its settings and writes them. Given settings as `--<key>=<value>` instead, writes those without asking. `--on` or `--off` turns it on or off. A new section is added whole, with what's given and what's found for the rest, and on unless `--off` is given. An integration's step then does its one-time setup, safe to repeat, after showing its plan and asking. `--dry-run` stops after the plan, and `--yes` answers for a script; either alone, for a section that's there, runs only its step | Yes, after showing the plan |
-| `gnoto config s3\|sqs [--deploy [--profile=<name>]] [--dry-run] [--yes]` | Checks the bucket and results address, or the queue. `--deploy` builds them as CloudFormation stacks, using the admin `--profile`. `config s3 --deploy` takes `--domain` and `--certificate` for a custom domain | Only with `--deploy`, after showing the plan |
+| `gnoto config s3\|sqs [--deploy] [--dry-run] [--yes]` | From a terminal, asks what S3 or SQS needs, offering what the AWS account has: the profile to deploy with, the region, and for S3 the bucket, the domain and its certificate. `--deploy` asks none of it and takes what `config.yaml` holds. Either lists every setting it's about to apply and the stacks it creates or updates, and asks to go ahead, yes by default, then writes the answers, the `aws` section's included, and deploys. `--yes` answers for a script, and `--dry-run` stops after the list. `--on` and `--off` write what to fill in, and deploy nothing | Yes, after listing the settings and asking |
 | `gnoto config systemd [--move] [--dry-run] [--yes]` | Installs gnoto's units as user units of this account, with linger. `--move` moves them to this host or account | Yes, after showing the plan |
 | `gnoto config slurm --probe` | Checks every compute node the partition is starting jobs on with a small Slurm job pinned to it, waiting up to an hour for busy ones | Only the list of nodes gnoto's jobs avoid |
 | `gnoto status [--all] [uid]` | Reports integration health, and running and recent jobs, leaving out those whose results were removed unless given `--all`. Given a uid, shows that run in detail | No |
@@ -1311,11 +1313,11 @@ step, and systemd has no section. An integration whose section is off or missing
 | Core | Asks for the data and database directories and how long runs are kept, creates the directories, generates `RUN_ID_SALT` | Install Apptainer if missing. Off `PATH`, run `gnoto init --apptainer=<path>` first |
 | Slurm | Asks where Slurm's commands and `slurm.conf` are, then for the partition, account, largest task and run time limit, suggesting what `sinfo` reports. `--on` takes every suggestion | Load Slurm's module first, so its commands are suggested |
 | Apptainer | Asks where Apptainer is and for the paths containers must see | None |
-| S3 | Checks access to the bucket and the results address. With `--deploy`, builds the S3 stack: bucket, CloudFront and its function, and the bucket policy for gnoto's IAM user | Set up the bucket and CloudFront yourself, or supply admin credentials once for `--deploy`. A custom domain needs its own certificate and DNS |
-| SQS | Checks access to the queue. With `--deploy`, builds the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, with Globus's app set the Lambda and API Gateway for Get the data, and the queue policy for gnoto's IAM user | Set up the queue and the webhook and access endpoints yourself, or supply admin credentials once for `--deploy` |
+| S3 | Asks the deploy profile, region, bucket, domain and certificate, offering the account's own, writes them, and offers to deploy: gnoto's IAM user, whose key it writes to `config.yaml`, the bucket or an existing one's policy, CloudFront and its function, and with a Route 53 hosted zone, a domain's DNS records and, unless one's issued, its certificate. Then checks it all with gnoto's keys | An AWS CLI profile that can create the stacks, or an access key to make one from. A domain outside Route 53 needs its own certificate and DNS. A site that sets up its own bucket and CloudFront fills in `aws.s3.results_base_url` and gnoto's keys |
+| SQS | Asks the deploy profile and region, and offers to deploy the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, with Globus's app set the Lambda and API Gateway for Get the data, and the queue policy for gnoto's IAM user | The same profile. A site that sets up its own queue fills in `aws.sqs.queue_url`, `webhook_url` and `access_url` |
 | Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
-| Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it to everyone, and checks once, with a test folder shared with the client and unshared again, that the client can share a run. Says how to register the dashboards' app, and to run `config sqs --deploy` once it's set | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, register the dashboards' app, a public client returning to `<results_base_url>/<run_prefix>/access.html`, and put the collection's UUID and URL and both clients' IDs, and gnoto's secret, in `config.yaml` |
+| Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it to everyone, and checks once, with a test folder shared with the client and unshared again, that the client can share a run. Says how to register the dashboards' app, and to run `config sqs --deploy` once it's set | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, register the dashboards' app, a public client returning to `<results_base_url>/access.html`, and put the collection's UUID and URL and both clients' IDs, and gnoto's secret, in `config.yaml` |
 
 **Wrike.**
 
@@ -1360,43 +1362,76 @@ step, and systemd has no section. An integration whose section is off or missing
   | `Expired` | Completed | The teardown |
 
 **S3 and SQS.** Each is its own CloudFormation stack, so a site can set up either one
-alone. Each stack is one file that's safe to re-deploy and removable in one command, with
-no new tool to install. S3 publishes results, and SQS delivers Wrike's webhook and the
-dashboards' requests for Globus access to the listener.
+alone, and its own subsection of `aws` in `config.yaml`, with its own `enabled`. Each stack
+is one file that's safe to re-deploy and removable in one command, with no new tool to
+install. S3 publishes results, and SQS delivers Wrike's webhook and the dashboards'
+requests for Globus access to the listener.
 
+- **One command each.** `gnoto config s3`, from a terminal, asks everything S3 needs,
+  offering what the account already has:
+  1. **The profile to deploy with:** the only AWS CLI profile in `~/.aws`, or the one
+     chosen from several. With none, it asks for an access key, to save as the profile
+     `gnoto` in the person's own `~/.aws/credentials`, which only they can read, never
+     in `config.yaml`, which gnoto's group reads. It checks the profile works, saying who
+     it signs in as.
+  2. **The region,** suggesting the profile's own.
+  3. **The bucket:** one of the account's, unless it has a bucket policy of its own,
+     which the stack's would replace, or a new one, named for the account unless given.
+     A name another account has is turned down.
+  4. **Where the dashboards are served:** CloudFront's own address; a name in one of the
+     account's public Route 53 zones, `gnoto.<zone>` unless given; or a domain elsewhere.
+     For a name in a zone, it offers the issued certificates in ACM in us-east-1 that
+     cover it, or making a new one, and with none issued, asks nothing and the deploy
+     makes one. A domain elsewhere needs an issued certificate.
+
+  `gnoto config sqs` asks only the profile and the region, and shows whether Get the data
+  is on. `--deploy` asks none of it, and takes what `config.yaml` holds. Either lists every
+  setting it's about to apply, one to a line, then the stacks it creates or updates, and
+  asks to go ahead, yes by default; only then does it write the profile and `config.yaml`,
+  the `aws` section's included, and deploy. `--yes` answers for a script, and `--dry-run`
+  stops after the list. `--on` and `--off` write what `--deploy` needs filled in, and
+  deploy nothing.
 - **Two ways to set up.** A site that runs its own bucket and CloudFront, or its own
-  queue, fills in those settings, and `config` only checks them. `service/aws/` ships what
-  such a site attaches itself: the CloudFront function that serves directory pages, the
-  Lambda that checks Wrike's signature, the Lambda behind Get the data, and the IAM
-  policies gnoto's keys need. `--deploy`
-  builds the same pieces as stacks instead. Most sites are expected to set up S3 and
-  CloudFront themselves.
-- **One IAM user:** with `--deploy`, a small third stack holds gnoto's least-privilege IAM
-  user, deployed by whichever of `config s3 --deploy` and `config sqs --deploy` runs first.
-  The S3 and SQS stacks each attach their own policy to it, so the keys in `config.yaml`
-  cover whichever of the two is set up. Removing a stack removes its permissions.
-- **Two sets of credentials:** admin keys are used only during `--deploy`, through
-  `--profile`. `config` prints the IAM user's new access key once, for the user to paste
-  into `config.yaml`, which it never rewrites.
+  queue, fills in `aws.s3.results_base_url`, or `aws.sqs.queue_url`, `webhook_url` and
+  `access_url`, and its own keys, and `lint` checks them. `service/aws/` ships what such a
+  site attaches itself: the CloudFront function that serves directory pages, the Lambda
+  that checks Wrike's signature, the Lambda behind Get the data, and the IAM policies
+  gnoto's keys need.
+- **Two sets of credentials:** the deploy profile, `aws.deploy_profile`, creates the stacks
+  and gnoto's IAM user, and is used for nothing else. Everything else uses gnoto's
+  least-privilege IAM user, whose access key a deploy writes into `config.yaml` when it
+  makes one: when `config.yaml` holds none of the user's keys, as long as the user has
+  fewer than two.
+- **One IAM user:** a small third stack, `gnoto-iam`, holds it, deployed by whichever of
+  the S3 and SQS deploys runs first. The S3 and SQS stacks each attach their own policy to
+  it, so its keys cover whichever of the two is set up. Removing a stack removes its
+  permissions.
 - **Stack outputs,** such as the CloudFront address and the queue, webhook and access URLs,
   go to `generated.yaml`. A value in `config.yaml` overrides them.
 - **Permissions:** the policies include `sqs:GetQueueAttributes`, which the daily `lint`
   uses to count waiting messages.
-- **Results URL:** `aws.results_base_url` sets the address, so the bucket name doesn't
-  have to be a domain.
-- **The stacks** are `gnoto-iam`, `gnoto-s3` and `gnoto-sqs`, from `service/aws/stacks/`,
-  with the CloudFront function and the Lambdas filled in from their files at deploy, the
-  Lambdas without their comments, since CloudFormation takes inline code only up to 4,096
-  characters. The S3 stack's bucket is private, read by CloudFront through an origin access
-  control, and the IAM user may write only under the run prefix. CloudFront caches an object
-  for at most five minutes unless it says otherwise, so removed results soon leave its edge.
-  A custom domain takes `--domain` and `--certificate`, an ACM certificate in us-east-1,
-  both made by hand with the domain's DNS. The SQS stack's queue keeps a message 14 days
-  and hides one being handled for 10 minutes, and Wrike posts to an HTTP API's `POST /wrike`
-  route in front of the Lambda, which runs `python3.14`: Lambda's `python3.15` is a public
-  preview, which AWS says isn't for production. With `globus.app_client_id` and S3 set, the
-  stack adds Get the data's Lambda behind a second HTTP API's `POST /access`, which allows
-  only the results' origin, and whose Lambda may read only each run's `globus.json`.
+- **Results URL:** `aws.s3.results_base_url` is the address that serves the run prefix, so
+  runs sit at the domain's root, as `https://results.example.org/<uid>-<token>/`, while
+  their objects stay under `<run_prefix>/` in the bucket, where the IAM user may write. The
+  bucket's name never shows, so it needn't be a domain.
+- **The stacks** are `gnoto-iam`, `gnoto-s3`, `gnoto-sqs` and `gnoto-certificate`, from
+  `service/aws/stacks/`, with the CloudFront function and the Lambdas filled in from their
+  files at deploy, the Lambdas without their comments, since CloudFormation takes inline
+  code only up to 4,096 characters. A bucket the S3 stack makes is private, read by
+  CloudFront through an origin access control, and kept when it leaves the stack or the
+  stack goes; an existing bucket gets the same policy. The IAM user may write only under
+  the run prefix. The distribution serves the run prefix at its root, through its origin
+  path `/<run_prefix>`. CloudFront caches an object for at most five minutes unless it says
+  otherwise, so removed results soon leave its edge. With a hosted zone, the stack makes
+  the domain's A and AAAA alias records; for a domain elsewhere, `config` says where to
+  point its DNS. A certificate gnoto makes is in the stack `gnoto-certificate`, deployed in
+  us-east-1, the only region CloudFront takes certificates from, whatever `aws.region` is,
+  and validated through the zone. The SQS stack's queue keeps a message 14 days and hides
+  one being handled for 10 minutes, and Wrike posts to an HTTP API's `POST /wrike` route in
+  front of the Lambda, which runs `python3.14`: Lambda's `python3.15` is a public preview,
+  which AWS says isn't for production. With `globus.app_client_id` and S3 set, the stack
+  adds Get the data's Lambda behind a second HTTP API's `POST /access`, which allows only
+  the results' origin, and whose Lambda may read only each run's `globus.json`.
 
 **systemd.** Unit templates are filled from `slurm.bin_dir` and `slurm.conf`,
 because a user unit doesn't read the login shell. The listener installs when SQS is
@@ -1434,10 +1469,10 @@ address may have its data through their own Globus sign-in, with no list of who 
 1. **Get the data,** on the Overview in place of Download everything, signs the reader in
    to Globus with PKCE, through the dashboards' app, `globus.app_client_id`, a public
    client. The PKCE verifier stays in the tab's session storage.
-2. **The return page,** `<run_prefix>/access.html` in the bucket, one page for every run
-   since Globus returns only to an address the app was registered with, checks the
-   sign-in's state and posts the code, the verifier and the run's folder to Get the data's
-   Lambda.
+2. **The return page,** `<results_base_url>/access.html`, `<run_prefix>/access.html` in
+   the bucket, one page for every run since Globus returns only to an address the app was
+   registered with, checks the sign-in's state and posts the code, the verifier and the
+   run's folder to Get the data's Lambda.
 3. **The Lambda** refuses an address without the `globus.json` Publish writes beside a
    Globus run's dashboard, exchanges the code, asks Globus Auth who signed in, revokes the
    token, and queues only the identity.
@@ -1454,7 +1489,7 @@ may own, holds none of it. Someone already granted can take the `?download` link
 the button, which asks Globus to sign them in.
 
 **A run's address.** A run's dashboard is at
-`<results_base_url>/<run_prefix>/<uid>-<token>/`, where the token is 80 random bits, made
+`<results_base_url>/<uid>-<token>/`, where the token is 80 random bits, made
 with the run's state. The uid alone shows wherever the run does, in `squeue`, `status`,
 the zip's name and Wrike, so it can't keep the address secret, and the token can: with a
 thousand runs live, guessing one would take about 10^21 requests. The address is what

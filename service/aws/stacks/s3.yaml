@@ -4,20 +4,30 @@
 # Deployed by:  gnoto config s3 --deploy, as the stack gnoto-s3, which fills in
 #               the CloudFront function's code from
 #               service/aws/cloudfront/directory-index.js
-# Parameters:   BucketName, RunPrefix (aws.run_prefix), IamStack (gnoto-iam),
-#               and for a custom domain, DomainName and CertificateArn, an ACM
-#               certificate in us-east-1, whose DNS record points the domain at
-#               the distribution. Both are made by hand.
+# Parameters:   BucketName (aws.s3.bucket), with BucketExists true and its
+#               BucketRegion for one the account has already; RunPrefix
+#               (aws.s3.run_prefix); IamStack (gnoto-iam); and for a custom
+#               domain, DomainName and CertificateArn, an ACM certificate in
+#               us-east-1, with HostedZoneId for the stack to make its records
 # Outputs:      ResultsBaseUrl and DistributionId, which config writes to
-#               generated.yaml
+#               generated.yaml, and DistributionDomain, where a domain whose
+#               DNS is elsewhere points
 #
-# The bucket is private: CloudFront reads it through an origin access control,
-# and gnoto's IAM user may write only under the run prefix. A page is uploaded
-# with Cache-Control: no-cache, so a progress page that becomes a dashboard is
-# never served stale; anything else is cached for at most five minutes unless
-# it says otherwise, so a run's removed results soon leave the edge too.
-# Deleting the stack fails while the bucket holds anything, which keeps the
-# results from going with it by accident.
+# The distribution serves the run prefix at its root, through its origin path,
+# so a run's dashboard is at <ResultsBaseUrl>/<uid>-<token>/ while its objects
+# are under <RunPrefix>/ in the bucket. With HostedZoneId, the stack makes the
+# domain's A and AAAA records, aliases of the distribution. The certificate
+# comes from ACM, or from the stack gnoto-certificate in us-east-1, the only
+# region CloudFront takes certificates from.
+#
+# A bucket the stack makes is private: CloudFront reads it through an origin
+# access control, and gnoto's IAM user may write only under the run prefix. It's
+# kept when it leaves the stack, or the stack goes, with whatever it holds. An
+# existing bucket gets the same policy, which config checks it has none of its
+# own for the stack to replace. A page is uploaded with Cache-Control: no-cache,
+# so a progress page that becomes a dashboard is never served stale; anything
+# else is cached for at most five minutes unless it says otherwise, so a run's
+# removed results soon leave the edge too.
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: gnoto's results bucket and the CloudFront distribution that serves it
@@ -25,12 +35,21 @@ Description: gnoto's results bucket and the CloudFront distribution that serves 
 Parameters:
   BucketName:
     Type: String
-    Description: The bucket's name, aws.s3_bucket
+    Description: The bucket's name, aws.s3.bucket
+  BucketExists:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: Whether the bucket is one the account has already, rather than the stack's to make
+  BucketRegion:
+    Type: String
+    Default: ""
+    Description: An existing bucket's region
   RunPrefix:
     Type: String
     Default: gnoto
     AllowedPattern: "[A-Za-z0-9._-]+"
-    Description: The folder in the bucket that runs go under, aws.run_prefix
+    Description: The folder in the bucket that runs go under, aws.s3.run_prefix
   IamStack:
     Type: String
     Default: gnoto-iam
@@ -43,17 +62,38 @@ Parameters:
     Type: String
     Default: ""
     Description: The custom domain's ACM certificate, in us-east-1
+  HostedZoneId:
+    Type: String
+    Default: ""
+    Description: The custom domain's Route 53 hosted zone, for the stack to make its records, or empty
   PriceClass:
     Type: String
     Default: PriceClass_100
     AllowedValues: [PriceClass_100, PriceClass_200, PriceClass_All]
 
 Conditions:
+  MakeBucket: !Equals [!Ref BucketExists, "false"]
   CustomDomain: !Not [!Equals [!Ref DomainName, ""]]
+  DomainRecords: !And [!Condition CustomDomain, !Not [!Equals [!Ref HostedZoneId, ""]]]
+
+Rules:
+  CertificateGiven:
+    RuleCondition: !Not [!Equals [!Ref DomainName, ""]]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref CertificateArn, ""]]
+        AssertDescription: A custom domain needs its certificate, CertificateArn
+  ExistingBucketRegion:
+    RuleCondition: !Equals [!Ref BucketExists, "true"]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref BucketRegion, ""]]
+        AssertDescription: An existing bucket needs its region, BucketRegion
 
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
+    Condition: MakeBucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Ref BucketName
       PublicAccessBlockConfiguration:
@@ -112,7 +152,7 @@ Resources:
 
   Distribution:
     Type: AWS::CloudFront::Distribution
-    # CertificateArn is empty unless there's a custom domain, and only used then
+    # CertificateArn is empty without a custom domain, and only used with one
     Metadata:
       cfn-lint:
         config:
@@ -122,6 +162,7 @@ Resources:
         Comment: gnoto's published results
         Enabled: true
         HttpVersion: http2and3
+        IPV6Enabled: true
         PriceClass: !Ref PriceClass
         Aliases: !If [CustomDomain, [!Ref DomainName], !Ref "AWS::NoValue"]
         ViewerCertificate: !If
@@ -132,7 +173,11 @@ Resources:
           - CloudFrontDefaultCertificate: true
         Origins:
           - Id: results
-            DomainName: !GetAtt Bucket.RegionalDomainName
+            DomainName: !If
+              - MakeBucket
+              - !GetAtt Bucket.RegionalDomainName
+              - !Sub "${BucketName}.s3.${BucketRegion}.${AWS::URLSuffix}"
+            OriginPath: !Sub "/${RunPrefix}"
             OriginAccessControlId: !GetAtt OriginAccess.Id
             S3OriginConfig:
               OriginAccessIdentity: ""
@@ -146,10 +191,33 @@ Resources:
             - EventType: viewer-request
               FunctionARN: !GetAtt DirectoryIndex.FunctionMetadata.FunctionARN
 
+  # Z2FDTNDATAQYW2 is the hosted zone every CloudFront alias names
+  DomainRecordA:
+    Type: AWS::Route53::RecordSet
+    Condition: DomainRecords
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
+  DomainRecordAAAA:
+    Type: AWS::Route53::RecordSet
+    Condition: DomainRecords
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref Bucket
+      Bucket: !If [MakeBucket, !Ref Bucket, !Ref BucketName]
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -158,7 +226,7 @@ Resources:
             Principal:
               Service: cloudfront.amazonaws.com
             Action: s3:GetObject
-            Resource: !Sub "${Bucket.Arn}/*"
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${BucketName}/*"
             Condition:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
@@ -175,20 +243,20 @@ Resources:
           - Sid: ListRuns
             Effect: Allow
             Action: s3:ListBucket
-            Resource: !GetAtt Bucket.Arn
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${BucketName}"
             Condition:
               StringLike:
                 s3:prefix: [!Sub "${RunPrefix}/*"]
           - Sid: WriteRuns
             Effect: Allow
             Action: [s3:GetObject, s3:PutObject, s3:DeleteObject]
-            Resource: !Sub "${Bucket.Arn}/${RunPrefix}/*"
+            Resource: !Sub "arn:${AWS::Partition}:s3:::${BucketName}/${RunPrefix}/*"
 
 Outputs:
   BucketName:
-    Value: !Ref Bucket
+    Value: !Ref BucketName
   ResultsBaseUrl:
-    Description: Where the results are served from, aws.results_base_url
+    Description: Where the run prefix is served from, aws.s3.results_base_url
     Value: !If
       - CustomDomain
       - !Sub "https://${DomainName}"

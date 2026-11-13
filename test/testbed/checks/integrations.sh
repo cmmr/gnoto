@@ -113,11 +113,11 @@ printf '%s\t%s\t%s\n' mock1 "$FIXTURE/SRR17380142_1.fastq.gz" "$FIXTURE/SRR17380
 
 echo "setting up the integrations"
 curl -sS -X POST "$STUB/_test/reset" > /dev/null || { echo "FAIL  the stand-ins aren't running: testbed.sh services"; exit 1; }
+$GNOTO config aws --on --access_key_id=test --secret_access_key=test --region=us-east-1 > config.log 2>&1
+$GNOTO config s3 --on --bucket=gnoto-results --results_base_url="$S3/itest" --run_prefix=itest >> config.log 2>&1
+$GNOTO config sqs --on --queue_url="$QUEUE" --webhook_url=https://hooks.example.invalid/wrike >> config.log 2>&1
 in_image "gnoto_aws sqs create-queue --queue-name gnoto > /dev/null"
 in_image "gnoto_aws sqs purge-queue --queue-url $QUEUE > /dev/null"
-$GNOTO config aws --access_key_id=test --secret_access_key=test --region=us-east-1 --s3_bucket=gnoto-results \
-    --results_base_url="$S3" --run_prefix=itest --sqs_queue_url="$QUEUE" \
-    --webhook_url=https://hooks.example.invalid/wrike > config.log 2>&1
 $GNOTO config wrike --api_url="$STUB/api/v4" --api_token=stub-token --webhook_secret=testbed-secret \
     --poll_minutes=5 --yes >> config.log 2>&1
 check "config wrike prints the form's checklist" "yes" "$(grep -q 'create a request form named "gnoto Request"' config.log && echo yes)"
@@ -131,6 +131,7 @@ check "config wrike finds the form, which matches" "yes" "$(grep -q 'matches gno
 $GNOTO lint > lint.log 2>&1
 check "lint passes Wrike, S3 and SQS" "yes yes yes" \
     "$(grep -q 'OK    wrike: the request form matches' lint.log && echo yes) $(grep -q 'OK    s3: .* serves what' lint.log && echo yes) $(grep -q 'OK    sqs: ' lint.log && echo yes)"
+check "and knows every setting gnoto config wrote" "" "$(grep -e "isn't a setting" -e "no section" lint.log)"
 $GNOTO _listen > listener.log 2>&1 &
 LISTENER=$!
 
@@ -238,14 +239,14 @@ check "the listener deleted each message it handled" "0" \
 
 if [[ $PUBLISH == true ]]; then
     echo "gnoto publish, after a publish that failed"
-    $GNOTO config aws --s3_bucket=no-such-bucket > /dev/null 2>&1
+    $GNOTO config s3 --bucket=no-such-bucket > /dev/null 2>&1
     START=$($GNOTO start "${JOB[@]/--title=16S V4 CLI/--title=16S V4 publish}" --yes 2>&1)
     UID_C=$(sed -n 's/^Started \([a-z2-7]\{8\}\),.*/\1/p' <<< "$START")
     [[ -n $UID_C ]] || { echo "FAIL  gnoto start:"; sed 's/^/      /' <<< "$START"; exit 1; }
     RUN_C=$(address "$UID_C")
     check "a run whose publish fails ends so" "Publish failed" "$(wait_for "$UID_C" 120)"
     check "and keeps its results" "yes" "$([[ -s $DATA_DIR/runs/$UID_C/results/index.html ]] && echo yes)"
-    $GNOTO config aws --s3_bucket=gnoto-results > /dev/null 2>&1
+    $GNOTO config s3 --bucket=gnoto-results > /dev/null 2>&1
     $GNOTO publish "$UID_C" > publish.log 2>&1
     check "gnoto publish publishes it" "Completed" "$(wait_for "$UID_C" 30)"
     check "to S3" "yes" "$(curl -s "$S3/itest/$RUN_C/index.html" | grep -q 'overview.html' && echo yes)"

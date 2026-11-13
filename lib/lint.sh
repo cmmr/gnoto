@@ -84,14 +84,34 @@ fixed_requests() {
     ' "$CODE_DIR"/pipelines/*/resources.config "$CODE_DIR"/workflows/*/nextflow.config | sort -u
 }
 
-# Every setting in a YAML file, as section.key lines
+# Every setting in a YAML file, as section.key lines, or in a subsection,
+# section.subsection.key
 yaml_keys() {
-    yq -o=json . "$1" 2> /dev/null | jq -r '(. // {}) | to_entries[]
-        | if (.value | type) == "object" then .key as $s | .value | keys[] | "\($s).\(.)" else .key end'
+    yq -o=json . "$1" 2> /dev/null | jq -r 'def settings($path): to_entries[]
+        | (if $path == "" then .key else "\($path).\(.key)" end) as $key
+        | if (.value | type) == "object" then .value | settings($key) else $key end;
+        (. // {}) | settings("")'
+}
+
+# Warns of each setting in config.yaml this version doesn't know, which is
+# likely a typo
+lint_config_keys() {
+    local key section
+    while IFS= read -r key; do
+        [[ -n $key ]] || continue
+        section=${key%.*}
+        if [[ $key != *.* ]]; then
+            lint_warn "config.yaml: $key: should be a section, such as core:"
+        elif [[ -z ${CONFIG_ABOUT[${key%%.*}]+set} ]]; then
+            lint_warn "config.yaml: there's no section ${key%%.*}. $(gnoto_command config) lists them"
+        elif [[ -z ${CONFIG_ABOUT[$section]+set} || " ${CONFIG_KEYS[$section]-} " != *" ${key##*.} "* ]]; then
+            lint_warn "config.yaml: $key isn't a setting gnoto knows, so it's ignored. Is it a typo?"
+        fi
+    done < <(yaml_keys "$1")
 }
 
 lint_config_file() {
-    local config=$INSTALL_DIR/config.yaml file mode group key section setting yq_value boot_value
+    local config=$INSTALL_DIR/config.yaml file mode group setting yq_value boot_value
     local generated=$DATA_DIR/generated.yaml
 
     if [[ ! -e $config ]]; then
@@ -115,18 +135,7 @@ lint_config_file() {
         lint_fail "config.yaml: is tracked by git, which would publish its secrets. Run: git rm --cached config.yaml"
     fi
 
-    # Keys this version doesn't know, which are likely typos
-    while IFS= read -r key; do
-        [[ -n $key ]] || continue
-        section=${key%%.*}
-        if [[ $key != *.* ]]; then
-            lint_warn "config.yaml: $key: should be a section, such as core:"
-        elif [[ -z ${CONFIG_ABOUT[$section]+set} ]]; then
-            lint_warn "config.yaml: there's no section $section. $(gnoto_command config) lists them"
-        elif [[ " ${CONFIG_KEYS[$section]} " != *" ${key#*.} "* ]]; then
-            lint_warn "config.yaml: $key isn't a setting gnoto knows, so it's ignored. Is it a typo?"
-        fi
-    done < <(yaml_keys "$config")
+    lint_config_keys "$config"
 
     # The launcher reads eight settings with its own awk, before it can start
     # the image that holds yq. Both must read them the same way.
@@ -285,14 +294,17 @@ lint_list() {
     printf '%s' "$*" | sed 's/,/, /g'
 }
 
-# What the integrations' own checks will cover, for now only whether each is on
 # The integrations' own checks, each in service/, for the sections that are
-# on. Those that aren't say so.
+# on. Those that aren't say so: s3 and sqs by their own names, and as off with
+# aws off too.
 lint_integrations() {
     local section name
-    for section in wrike aws globus; do
-        name=${section^^}_ENABLED
-        [[ ${!name:-false} == true ]] || lint_ok "$section: off"
+    for section in wrike aws.s3 aws.sqs globus; do
+        name=${section^^}
+        name=${name//./_}_ENABLED
+        if [[ ${!name:-false} != true || ($section == aws.* && ${AWS_ENABLED:-false} != true) ]]; then
+            lint_ok "${section#aws.}: off"
+        fi
     done
     lint_wrike
     lint_s3

@@ -51,7 +51,7 @@ check "data_dir default" "$DIR/data" "$(with_env "$DIR" 'echo $DATA_DIR')"
 check "db_dir default" "$DIR/data/db" "$(with_env "$DIR" 'echo $DB_DIR')"
 check "defaults from lib/config/" "false true 14 14 5" \
     "$(with_env "$DIR" 'echo $SLURM_ENABLED $APPTAINER_ENABLED $KEEP_RUN_DAYS $EXPIRATION_NOTICE_DAYS $WRIKE_POLL_MINUTES')"
-check "run prefixes default" "gnoto gnoto" "$(with_env "$DIR" 'echo $AWS_RUN_PREFIX $GLOBUS_RUN_PREFIX')"
+check "run prefixes default" "gnoto gnoto" "$(with_env "$DIR" 'echo $AWS_S3_RUN_PREFIX $GLOBUS_RUN_PREFIX')"
 check "NXF_HOME" "$DIR/data/nextflow" "$(with_env "$DIR" 'echo $NXF_HOME')"
 check "umask" "0002" "$(with_env "$DIR" 'umask')"
 
@@ -67,15 +67,17 @@ wrike:
   api_token: "t0k'"'"'en"
 aws:
   region: "us-east-1"
-  sqs_queue_url: "from-config"
+  sqs:
+    queue_url: "from-config"
 PATH: "bad"' 'core:
   run_id_salt: "salty"
 wrike:
   ids:
     folder: "F1"
 aws:
-  sqs_queue_url: "from-generated"
-  webhook_url: "hook"')
+  sqs:
+    queue_url: "from-generated"
+    webhook_url: "hook"')
 mkdir -p "$DIR/data"
 check "values" "/elsewhere 32 short /a,/b us-east-1" \
     "$(with_env "$DIR" 'echo $DATA_DIR $SLURM_MAX_CPUS $SLURM_PARTITION $APPTAINER_BINDS $AWS_REGION')"
@@ -90,7 +92,7 @@ sed -i 's|/elsewhere|'"$WORK"'/elsewhere-data|' "$DIR/config.yaml"
 mv "$WORK/generated.yaml" "$WORK/elsewhere-data/generated.yaml"
 check "generated.yaml nested key" "F1" "$(with_env "$DIR" 'echo $WRIKE_IDS_FOLDER')"
 check "config.yaml wins over generated.yaml" "from-config hook" \
-    "$(with_env "$DIR" 'echo $AWS_SQS_QUEUE_URL $AWS_WEBHOOK_URL')"
+    "$(with_env "$DIR" 'echo $AWS_SQS_QUEUE_URL $AWS_SQS_WEBHOOK_URL')"
 check "generated secret not exported" "salty unset" \
     "$(with_env "$DIR" 'echo $RUN_ID_SALT $(bash -c "echo \${RUN_ID_SALT-unset}")')"
 
@@ -151,9 +153,68 @@ check "config_set: enabled first, a number bare, a new key last" \
     "$(cat "$DIR/config.yaml")"
 with_env "$DIR" 'source "$CODE/lib/config.sh"; config_set slurm enabled false'
 check "config_set: enabled in place" "  enabled: false" "$(grep enabled "$DIR/config.yaml")"
-check "config: lists the sections and steps" "core apptainer slurm wrike aws globus s3 sqs systemd" \
+check "config: lists the sections and steps" "core apptainer slurm wrike aws s3 sqs globus systemd" \
     "$(with_env "$DIR" 'source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main' |
         awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
+check "config: a subsection listed under its parent" "yes" \
+    "$(with_env "$DIR" 'source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main' |
+        grep -q '^  s3       Publish results' && echo yes)"
+
+# A subsection's keys sit one level deeper, edited in place like any other, and
+# a new one goes at the end of its parent
+DIR=$(install config-set-nested 'aws:
+  enabled: true
+  region: "us-east-1"        # Where
+  s3:
+    bucket: "old"            # Results
+  sqs:
+    enabled: false
+
+globus:
+  enabled: false')
+with_env "$DIR" 'source "$CODE/lib/config.sh"
+    config_set aws.s3 bucket new
+    config_set aws.s3 enabled true
+    config_set aws.s3 domain gnoto.example.org
+    config_set aws deploy_profile admin
+    config_set aws.sqs enabled true'
+check "config_set: in a subsection, in place, enabled first, a new key last" \
+    "$(printf '%s\n' 'aws:' '  enabled: true' '  region: "us-east-1"        # Where' '  deploy_profile: "admin"' '  s3:' \
+        '    enabled: true' '    bucket: "new"            # Results' '    domain: "gnoto.example.org"' '  sqs:' \
+        '    enabled: true' '' 'globus:' '  enabled: false')" "$(cat "$DIR/config.yaml")"
+check "env: a subsection's settings" "true new gnoto.example.org admin true" \
+    "$(with_env "$DIR" 'echo $AWS_S3_ENABLED $AWS_S3_BUCKET $AWS_S3_DOMAIN $AWS_DEPLOY_PROFILE $AWS_SQS_ENABLED')"
+check "config_get and config_has_section, nested" "new yes no" \
+    "$(with_env "$DIR" 'source "$CODE/lib/config.sh"; echo "$(config_get aws.s3 bucket)" \
+        "$(config_has_section aws.sqs && echo yes)" "$(config_has_section aws.nothing && echo yes || echo no)"')"
+DIR=$(install config-add-nested 'aws:
+  enabled: true
+  region: "eu-west-1"
+
+core:
+  data_dir: "/d"')
+with_env "$DIR" 'source "$CODE/lib/config.sh"; declare -gA CONFIG_NEW=([bucket]=b); config_add_section aws.s3 true'
+check "config_add_section: a subsection at the end of its parent" \
+    "$(printf '%s\n' 'aws:' '  enabled: true' '  region: "eu-west-1"' '  s3:' '    enabled: true' '    bucket: "b"' '' \
+        'core:' '  data_dir: "/d"')" "$(cat "$DIR/config.yaml")"
+
+# lint knows a subsection's settings, and names the ones it doesn't
+DIR=$(install lint-keys 'aws:
+  region: "us-east-1"
+  s3:
+    enabled: true
+    bucket: "b"
+    buckt: "typo"
+  sqs:
+    queue_url: "q"
+  sns:
+    topic: "t"
+nope:
+  x: 1')
+check "lint: a subsection's settings, and what isn't one" \
+    "$(printf '%s\n' "aws.s3.buckt isn't" "aws.sns.topic isn't" "there's no section nope")" \
+    "$(with_env "$DIR" 'source "$CODE/lib/lint.sh"; lint_config_keys "$INSTALL_DIR/config.yaml"' |
+        sed -n "s/.*config.yaml: \([^ ]* isn't\).*/\1/p; s/.*\(there's no section [a-z]*\).*/\1/p")"
 
 # Runs gnoto config with arguments and no terminal, printing what it says,
 # without the date. The launcher names itself by its path, as it does when
@@ -165,6 +226,29 @@ config_args() {
         source "$CODE/lib/args.sh"; source "$CODE/lib/config.sh"; config_main "$@") < /dev/null 2>&1 |
         sed 's/^\[[^]]*\] ERROR: //'
 }
+
+# s3 and sqs: --on and --off write what to fill in, aws's included, and deploy
+# nothing; with no terminal, they ask nothing
+DIR=$(install config-on-nested 'core:
+  data_dir: "/d"')
+OUT=$(config_args "$DIR" s3 --on)
+check "config s3 --on: adds aws, on, and s3 with what to fill in" \
+    '{"enabled":true,"deploy_profile":"","region":"","s3":{"enabled":true,"bucket":"","run_prefix":"gnoto","domain":"","hosted_zone_id":"","certificate_arn":""}}' \
+    "$(yq -o=json -I=0 .aws "$DIR/config.yaml")"
+check "and says how to deploy, without deploying" "yes" "$(grep -q 'config s3 --deploy' <<< "$OUT" && echo yes || echo "$OUT")"
+config_args "$DIR" sqs --off > /dev/null
+check "config sqs --off: adds sqs off, beside s3" "false true" \
+    "$(yq '(.aws.sqs.enabled | tostring) + " " + (.aws.s3.enabled | tostring)' "$DIR/config.yaml")"
+config_args "$DIR" aws --off > /dev/null
+config_args "$DIR" s3 --on > /dev/null
+check "config s3 --on: turns aws back on" "true" "$(yq .aws.enabled "$DIR/config.yaml")"
+OUT=$(config_args "$DIR" s3)
+check "config s3 without a terminal: says what it takes" \
+    "$DIR/gnoto config s3 asks questions, so run it from a terminal, or give --deploy, --on or --off." "$OUT"
+OUT=$(config_args "$DIR" s3 --deploy --bucket=x)
+check "config s3 --deploy: takes no settings" "--deploy deploys with what config.yaml holds, so it takes only --dry-run and --yes." "$OUT"
+OUT=$(config_args "$DIR" s3 --deploy)
+check "config s3 --deploy: needs what --on left to fill in" "aws.region isn't set. $DIR/gnoto config s3 asks for it." "$OUT"
 
 # How a message names a command: as the launcher says, or by the install's
 # launcher's path without it
@@ -214,12 +298,12 @@ for case in "slurm --max_cpu=4|--max_cpu: slurm has no setting max_cpu. Its sett
     "slurm --enabled=true|--enabled: turn slurm on or off with --on or --off." \
     "slurm --on --off|Give --on or --off, not both." \
     "core --on|core is always on. Run $DIR/gnoto config core to change its settings." \
-    "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe" \
+    "slurm --account|--account needs a value, as --account=<value>. Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy] [--dry-run] [--yes], gnoto config systemd [--move], or gnoto config slurm --probe" \
     "slurm|$DIR/gnoto config slurm asks questions, so run it from a terminal, or give --on, --off or its settings as --<key>=<value>." \
     "core --probe|--probe is for $DIR/gnoto config slurm, which checks every compute node." \
     "nothing|gnoto config has no section nothing. Run $DIR/gnoto config to list them." \
     "slurm --probe --on|gnoto config slurm --probe takes nothing else." \
-    "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy], gnoto config systemd [--move], or gnoto config slurm --probe"; do
+    "--account=x|Usage: gnoto config [<section> [--on|--off] [--<key>=<value> ...] [--dry-run] [--yes]], gnoto config s3|sqs [--deploy] [--dry-run] [--yes], gnoto config systemd [--move], or gnoto config slurm --probe"; do
     read -r -a args <<< "${case%%|*}"
     check "config: refuses ${case%%|*}" "${case#*|}" "$(config_args "$DIR" "${args[@]}")"
 done

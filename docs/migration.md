@@ -1282,8 +1282,9 @@ What's built:
   directory. Present decides, from the run's pipeline, since its link names that place,
   and records it for Publish. On Globus, Publish grants nothing, and writes `globus.json`
   beside the dashboard and the sign-in's return page, `<run_prefix>/access.html`. With S3,
-  `results/` goes to `<run_prefix>/<uid>-<token>/`, text files typed to open in the
-  browser and the pages last, uncached. Each destination is checked once written, and only
+  `results/` goes to `<run_prefix>/<uid>-<token>/`, served at
+  `<results_base_url>/<uid>-<token>/`, text files typed to open in the browser and the
+  pages last, uncached. Each destination is checked once written, and only
   then does the state record `published.verified_utc`, which lets the followup delete the
   run directory. The state's `published` keeps where everything went, for the teardown.
   With S3, `present/progress.sh` uploads the progress page whenever it changes, from
@@ -1333,13 +1334,14 @@ What's built:
   `RUN_ID_SALT`. The webhook's secret isn't asked for: at Daniel's call (2026-11-12),
   `config sqs --deploy` or `config wrike` makes a random one in `generated.yaml` the first
   time either needs it, which a value in `config.yaml` overrides. Setting that up showed
-  that a new section's empty values, such as `aws.sqs_queue_url: ""`, hid what
+  that a new section's empty values, such as `aws.sqs.queue_url: ""`, hid what
   `generated.yaml` held, the stacks' outputs among them, so `lib/env.sh` now lets only a
   value that isn't empty win.
 - **AWS's own pieces.** `service/aws/lambda/webhook.py` is the old Lambda, its challenge check
   unchanged, on `python3.14`: Lambda's `python3.15` is a public preview, which AWS says isn't
-  for production. `service/aws/cloudfront/directory-index.js` is the old CloudFront function
-  with `RUN_PREFIX` from `aws.run_prefix`, and a run's folder now `<uid>-<token>`.
+  for production. `service/aws/cloudfront/directory-index.js` is the old CloudFront function,
+  which now knows a run by its `<uid>-<token>` folder at any depth and needs no run prefix,
+  since the distribution serves the prefix at its root through its origin path.
   `service/aws/lambda/access.py` is Get the data's Lambda, new. The stacks carry all three
   inline, filled in at deploy; without their comments the Lambdas are 2,274 and 3,662
   characters, under CloudFormation's 4,096.
@@ -1415,6 +1417,61 @@ Get the data, and the dashboard's token, were tested the same way (2026-11-12):
   --deploy` with Get the data's parameters.
 - **The finish test,** `checks/integrations.sh --publish`, 44 checks, all passing, with
   each run's address.
+
+Then, at Daniel's call (2026-11-13), the S3 stack's distribution serves the run prefix at
+its root, through its origin path, so a site's domain shows runs as
+`https://gnoto.example.org/<uid>-<token>/` and the return page as `/access.html`, and the
+results address is the one that serves the run prefix. A Route 53 hosted zone has the
+stack make the domain's A and AAAA alias records. The finish test,
+`checks/integrations.sh --publish`, passed its 44 checks with `lint`'s S3 check reading the
+run prefix's address.
+
+Then, also at his call, getting S3 and SQS running takes one command each:
+
+- **`config.yaml`'s layout.** `s3` and `sqs` are subsections of `aws`, `aws.s3` and
+  `aws.sqs`, each with its own `enabled`, so `aws.s3.bucket` is `AWS_S3_BUCKET`, and
+  `aws` keeps the deploy profile, region and gnoto's keys. `config_set` and
+  `config_add_section` follow a key's path to any depth, editing in place as before, and a
+  subsection goes at the end of its parent. `gnoto config` lists them under `aws`, and
+  takes them by their own names; adding one adds `aws`, and turning one on turns `aws` on.
+  `lint` reads a subsection's settings by their full path, so it warns of a typo there
+  rather than of the subsection itself.
+- **`gnoto config s3`,** from a terminal, picks the deploy profile, the only one in
+  `~/.aws` or one chosen from several, or with none, an access key it asks for, to save as
+  the profile `gnoto`, written by `printf` into the person's own `~/.aws/credentials`, never
+  a command line; then the region, the account's buckets or a new one, CloudFront's own
+  address or a name in one of the account's public Route 53 zones or elsewhere, and an
+  issued certificate that covers it or, with none, none asked for. `gnoto config sqs` asks
+  the profile and region. `--deploy` asks none of it, from `config.yaml`. Either then
+  lists every setting it's about to apply, one to a line, and the stacks it creates or
+  updates, and asks "Go ahead? [Y/n]" (Daniel, 2026-11-13); only on a yes does it save the
+  profile and write `config.yaml`, `aws`'s included, and deploy. `--yes` answers for a
+  script, and `--dry-run` stops after the list. `--on` and `--off` write what to fill in.
+  The options `--profile`, `--domain`, `--certificate` and `--hosted_zone` are gone.
+- **The deploy** makes the certificate, when the domain needs one, in the stack
+  `gnoto-certificate` in us-east-1, whatever `aws.region` is; deploys gnoto's IAM user,
+  writing its new access key into `config.yaml` when that holds none of the user's keys;
+  and deploys the S3 stack with the bucket it makes, kept when it leaves the stack, or an
+  existing one, unless it has a policy of its own, or another account has its name.
+- **Keys off command lines.** A key typed for the deploy, gnoto's AWS keys and its Globus
+  client's secret now reach the `aws` or `globus` call through the environment of a
+  subshell that becomes it, not `env`'s arguments, which `ps` showed for a moment.
+- **Tests.** `lib-test.sh`, 80 checks, covers nested settings, `lint`'s reading of them,
+  `--on` and `--off`, and `--deploy`'s refusals. `integrations-test.sh` drives `config s3` through `script`
+  against a stand-in AWS CLI that knows profiles, buckets, zones and certificates: several
+  profiles and none, a bucket with a policy and one another account has, a zone's name
+  with a wildcard certificate and with none, the list and its answers, no writing nothing
+  and yes writing and deploying, and `--deploy` with `--dry-run`, without a terminal or
+  `--yes`, answered no, and with `--yes` making the certificate, using a given one with
+  DNS pointed by hand, keeping its own bucket, and refusing what it can't use. A plain
+  `read` between two of readline's lost answers piped in ahead, so the menus read with
+  readline too, and the access key's two questions come first. `checks/config.sh`, 35
+  checks, now expects the listing's `s3`, `sqs` and `systemd`, `globus`'s new settings and
+  `wrike`'s generated secret, and checks `s3 --on`. The stacks pass `cfn-lint` 1.60.1.
+  `integrations-test.sh` passes its 210 checks, and the finish test,
+  `checks/integrations.sh --publish`, its 45, now making the stand-in queue after
+  `config aws --on` writes the keys, and checking that `lint` knows every setting
+  `gnoto config` wrote.
 
 ### Phase 8: public release
 

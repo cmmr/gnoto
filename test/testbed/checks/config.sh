@@ -59,7 +59,7 @@ check "and runs from its copy in versions/" "$INSTALL/data/versions/$HEAD" \
 
 check "without config.yaml: defaults, and Slurm found on PATH" "false $INSTALL/data $INSTALL/data/db /usr/bin" \
     "$($GNOTO exec bash -c 'echo $SLURM_ENABLED $DATA_DIR $DB_DIR $GNOTO_FOUND_SLURM_BIN_DIR' 2>&1)"
-check "gnoto config lists the sections" "core apptainer slurm wrike aws globus" \
+check "gnoto config lists the sections, s3 and sqs under aws, and systemd" "core apptainer slurm wrike aws s3 sqs globus systemd" \
     "$($GNOTO config | awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
 check "a section off a terminal stops" "yes" \
     "$($GNOTO config slurm < /dev/null 2>&1 | grep -q 'run it from a terminal' && echo yes)"
@@ -108,7 +108,7 @@ check "config slurm: changed in place" "2-00:00:00 true" "$($GNOTO exec yq '.slu
 
 # wrike off, from nothing, then asked for
 $GNOTO config wrike --off > wrike-off.log 2>&1
-check "wrike --off adds it off" '{"enabled":false,"api_token":"","webhook_secret":"","poll_minutes":5}' "$(section wrike)"
+check "wrike --off adds it off" '{"enabled":false,"api_token":"","poll_minutes":5,"api_url":"https://www.wrike.com/api/v4"}' "$(section wrike)"
 check "and says how to turn it on, naming the install's launcher" "yes" \
     "$(grep -qxF "wrike is off, in $CONFIG. To turn it on, run: $GNOTO config wrike --on" wrike-off.log && echo yes)"
 check "or gnoto, when that's what gnoto on PATH runs" "yes" \
@@ -121,10 +121,22 @@ check "config wrike: a secret, still off" "t0ken false" \
 # globus, from nothing, with settings as arguments: on, since --off isn't given
 $GNOTO config globus --run_prefix="lab runs" --dir= < /dev/null > globus.log 2>&1
 check "globus with settings adds it on" \
-    '{"enabled":true,"dir":"","uuid":"","url":"","run_prefix":"lab runs","cli_client_id":"","cli_client_secret":""}' \
+    '{"enabled":true,"dir":"","uuid":"","url":"","run_prefix":"lab runs","cli_client_id":"","cli_client_secret":"","app_client_id":"","pipelines":"taxprofiler,biobakery","max_people":20}' \
     "$(section globus)"
 
-check "only the sections asked for, in that order" "apptainer slurm core wrike globus" \
+# s3 --on adds aws with s3 in it, both on, with what --deploy needs to be filled
+# in, and deploys nothing; sqs --off adds sqs beside it
+$GNOTO config s3 --on < /dev/null > s3.log 2>&1
+check "s3 --on adds aws and s3, both on, with what to fill in" \
+    '{"enabled":true,"deploy_profile":"","region":"","s3":{"enabled":true,"bucket":"","run_prefix":"gnoto","domain":"","hosted_zone_id":"","certificate_arn":""}}' \
+    "$(section aws)"
+check "and says how to deploy" "yes" "$(grep -q "config s3 --deploy" s3.log && echo yes)"
+$GNOTO config sqs --off < /dev/null > sqs.log 2>&1
+check "sqs --off adds sqs, off, after s3" '{"enabled":false}' "$(section aws.sqs)"
+check "s3 --deploy, with nothing filled in, says what's missing" "yes" \
+    "$($GNOTO config s3 --deploy < /dev/null 2>&1 | grep -q "aws.region isn't set" && echo yes)"
+
+check "only the sections asked for, in that order" "apptainer slurm core wrike globus aws" \
     "$($GNOTO exec yq 'keys | join(" ")' "$CONFIG")"
 check "still 660, in alice's own group" "660 alice" "$(stat -c '%a %G' "$CONFIG")"
 echo "      config.yaml:"
