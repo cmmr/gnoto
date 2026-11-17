@@ -52,8 +52,9 @@ WRIKE_STATUSES=("Submitted Active Blue" "Running Active Turquoise" "Completed Co
     "Failed Cancelled Red" "Cancelled Cancelled Gray" "Expired Completed Brown")
 
 # The request form's questions after Title and Samplesheet, in order, as a
-# JSON array of {key, title, type, values, help, pipelines, required, default,
-# field}. pipelines are the Pipeline answers the form shows a question for.
+# JSON array of {key, title, type, values, help, pipelines, rank, required,
+# default, field}. pipelines are the Pipeline answers the form shows a
+# question for, and rank its place in each pipeline's options.yaml.
 # An option with a default is required, starting at that answer, and so is
 # always in the description of a request that names its pipeline. Only
 # Pipeline maps to a custom field. Fails when two pipelines ask one question
@@ -62,29 +63,30 @@ wrike_questions_spec() {
     local pipeline all="[]" options
     for pipeline in $(pipeline_names); do
         options=$(options_json "$pipeline")
-        all=$(jq -c --arg pipeline "$pipeline" --argjson options "$options" '. + [$options[]
+        all=$(jq -c --arg pipeline "$pipeline" --argjson options "$options" '. + [$options | to_entries[]
+            | .key as $rank | .value
             | select(.key != "title" and .key != "samplesheet")
             | ((.labels // {}) | with_entries(.key |= tostring)) as $labels
             | {key, title: .question, type: (if .multiple then "Multiple" else "DropDown" end),
                values: [(.values // [])[] | tostring | ($labels[.] // .)], help: (.help // ""),
                required: (.default != null and .default != ""),
                default: (if .default == null then "" else (.default | tostring | ($labels[.] // .)) end),
-               pipelines: [$pipeline], field: false}]' <<< "$all")
+               pipelines: [$pipeline], rank: {($pipeline): $rank}, field: false}]' <<< "$all")
     done
     jq -c --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" --arg repeat "$WRIKE_REPEAT_ANSWER" \
         --arg pipeline "$WRIKE_PIPELINE_QUESTION" --arg previous "$WRIKE_PREVIOUS_QUESTION" '
         group_by(.key) | map(
             if (map([.title, .values, .type, .default]) | unique | length) > 1
             then error("The option \(.[0].key) is asked differently by \(map(.pipelines[0]) | join(" and ")): one question must have one title, one set of answers and one default")
-            else .[0] + {pipelines: map(.pipelines[0])} end)
+            else .[0] + {pipelines: map(.pipelines[0]), rank: (map(.rank) | add)} end)
         # A repeat keeps the answers of its earlier run, but for how long its results are kept
         | map(if .key == "retention" then .pipelines += [$repeat] else . end)
         | [{key: "pipeline", title: $pipeline, type: "DropDown", values: ($pipelines + [$repeat]),
             help: "Which analysis to run, or to repeat an earlier run on new samples", pipelines: [],
-            required: true, default: "", field: true},
+            rank: {}, required: true, default: "", field: true},
            {key: "previous_run", title: $previous, type: "Text", values: [],
             help: "The earlier run to repeat: its eight-character ID, or its results address", pipelines: [$repeat],
-            required: true, default: "", field: false}]
+            rank: {}, required: true, default: "", field: false}]
           + sort_by([(.pipelines | length) != ($pipelines | length) + 1, .title])' <<< "$all"
 }
 
@@ -176,57 +178,87 @@ wrike_find_webhooks() {
         '.data[]? | select(.folderId == $folder and .hookUrl == $url)'
 }
 
-# The checklist for building the request form by hand, from the questions
+# The checklist for building the request form by hand, from the questions, in
+# the words of Wrike's form builder. Page 1 asks what every request asks, and
+# Pipeline's branching sends each option to the questions only it asks: a
+# follow-up question for one, or a page of their own for several, since an
+# option can have only one follow-up. A question several pipelines ask is on
+# each of their pages. Every page ends by submitting the form.
 wrike_form_checklist() {
     local questions=$1
     cat << EOF
 
 Build the request form in Wrike by hand: gnoto can read forms, but not make them.
-In the "$WRIKE_SPACE_TITLE" space, create a request form named "$WRIKE_FORM_TITLE" that creates a task in
-"$WRIKE_FOLDER_TITLE" with the status Submitted. Title each question exactly as written here,
-and offer exactly the answers listed. Add Pipeline's answer to the custom field Pipeline.
-Leave every other answer in the Description, where Wrike puts it unless told otherwise,
-since gnoto reads it there under the question's title: map no other question to a field.
-
-  1. Title: the task's title, required. "Names the results."
-  2. Samplesheet: an attachment, required. "Tab-separated, no header: sample, fastq1,
-     fastq2. Omit fastq2 for single-end."
+In the "$WRIKE_SPACE_TITLE" space's settings, under Request forms, create a request form named "$WRIKE_FORM_TITLE",
+with these response settings: Create task, Set status to Submitted, and Save to "$WRIKE_FOLDER_TITLE".
+Give it these pages and questions, each question titled exactly as written, with exactly
+the options listed. Leave each question's "Add answer to" at Description, where gnoto
+reads the answer, unless it says otherwise.
 EOF
-    jq -r --argjson answers "$(jq -c 'first(.[] | select(.key == "pipeline")) | .values' <<< "$questions")" '
-        to_entries[] | .key as $i | .value
-        | "  \($i + 3). \(.title): " + (if .type == "Text" then "text" elif .type == "Multiple" then "checkboxes" else "a dropdown" end)
-          + (if .values != [] then ", answers: " + (.values | join(", ")) else "" end)
-          + (if .pipelines != [] and (.pipelines | length) < ($answers | length)
-             then ". Shown when Pipeline is " + (.pipelines | join(" or ")) else "" end)
-          + (if .required then ". Required" else "" end)
-          + (if .default != "" then ", starting at \(.default)" else "" end)
-          + (if .field then ". Its answer goes to the custom field \(.title)" else "" end)
-          + (if .help != "" then ". \"\(.help)\"" else "" end)' <<< "$questions"
+    jq -r '
+        def kind: {DropDown: "Single answer", Multiple: "Multiple answers", Text: "Single line text"}[.type];
+        def detail: (if .help != "" then "Description: \"\(.help)\"" else empty end),
+            (.default as $default | if .values != [] then
+                "Options: " + ([.values[] | if . == $default then "\(.) (preselected)" else . end] | join(", "))
+             else empty end),
+            "Answer required: " + (if .required then "on" else "off" end),
+            (if .field then "Add answer to: \(.title), the custom field" else empty end);
+        def block($first; $pad): "\($first)\(.title): \(kind)", (detail | $pad + .);
+        first(.[] | select(.key == "pipeline")) as $pipeline
+        | ($pipeline.values | length) as $all
+        | [.[] | select(.key != "pipeline" and (.pipelines | length) >= $all)] as $always
+        | [$pipeline.values[] as $answer | {answer: $answer,
+            questions: ([.[] | select(.key != "pipeline" and (.pipelines | length) < $all and any(.pipelines[]; . == $answer))]
+                | sort_by(.rank[$answer] // 0))}]
+        | . as $branches
+        | [.[] | select(.questions | length > 1)] as $paged
+        | ($paged | to_entries | map({(.value.answer): (.key + 2)}) | add // {}) as $page
+        | "", "Page 1",
+          "  1. Title: Single line text", "     Description: \"Names the results.\"", "     Answer required: on",
+          "     Add answer to: Title",
+          ($pipeline | block("  2. "; "     ")),
+          "     Branching for each option, from the icon beside it:",
+          ($branches[]
+              | if (.questions | length) == 0 then "       \(.answer): none"
+                elif (.questions | length) == 1 then "       \(.answer): Add follow-up question, \(.questions[0] | kind)",
+                    (.questions[0] | block("         "; "           "))
+                else "       \(.answer): Redirect, Go to a new page, which is page \($page[.answer])" end),
+          "  3. Samplesheet: Attachment",
+          "     Description: \"Tab-separated, no header: sample, fastq1, fastq2. Omit fastq2 for single-end.\"",
+          "     Answer required: on",
+          ($always | to_entries[] | (.key + 4) as $n | .value | block("  \($n). "; "     ")),
+          "  After page Page 1: Submit form",
+          ($paged[] | $page[.answer] as $n
+              | "", "Page \($n), titled \"\(.answer)\"",
+                (.questions | to_entries[] | (.key + 1) as $i | .value | block("  \($i). "; "     ")),
+                "  After page Page \($n): Submit form")' <<< "$questions"
     echo
     echo "Then run $(gnoto_command config wrike) again, which finds the form and checks its questions."
 }
 
-# What differs between the form and the questions: a line each. Wrike's API
-# doesn't say where a question's answer goes, so that isn't compared.
+# What differs between the form and the questions: a line each. A question
+# asked under several answers is checked each time. Wrike's API doesn't say
+# where a question's answer goes, so that isn't compared.
 wrike_form_drift() {
     local form=$1 questions=$2
     jq -r --argjson spec "$questions" '
         {DropDown: "ComboBox", Multiple: "CheckBox", Text: "TextField"} as $types
-        | {ComboBox: "a dropdown", CheckBox: "checkboxes", TextField: "text", TextArea: "text"} as $names
+        | {ComboBox: "Single answer", CheckBox: "Multiple answers", TextField: "Single line text", TextArea: "Paragraph"} as $names
         | [.data[0].pages[]?.fields[]? | {title, type, mandatory: (.mandatory // false),
             items: [.items[]?.title], chosen: [.items[]? | select(.selectedByDefault) | .title]}] as $form
-        | $spec[] | . as $want
-        | ([$form[] | select(.title == $want.title)] | .[0]) as $q
-        | if $q == null then "the form has no question \"\($want.title)\""
-          else
-              (if $q.type != $types[$want.type] and ($want.type != "Text" or $q.type != "TextArea") then
-                  "the form asks \"\($want.title)\" as \($names[$q.type] // $q.type), not \($names[$types[$want.type]])" else empty end),
-              (if $want.values != [] and ($q.items | sort) != ($want.values | sort) then
-                  "the form offers \"\($want.title)\" the answers \($q.items | join(", ")), not \($want.values | join(", "))" else empty end),
-              (if $want.required and ($q.mandatory | not) then "the form should require \"\($want.title)\"" else empty end),
-              (if $want.default != "" and $q.chosen != [$want.default] then
-                  "the form should start \"\($want.title)\" at \($want.default)" else empty end)
-          end' <<< "$form"
+        | [$spec[] | . as $want
+           | [$form[] | select(.title == $want.title)] as $asked
+           | if $asked == [] then "the form has no question \"\($want.title)\""
+             else $asked[] as $q
+               | (if $q.type != $types[$want.type] and ($want.type != "Text" or $q.type != "TextArea") then
+                     "the form asks \"\($want.title)\" as \($names[$q.type] // $q.type), not \($names[$types[$want.type]])" else empty end),
+                 (if $want.values != [] and ($q.items | sort) != ($want.values | sort) then
+                     "the form offers \"\($want.title)\" the answers \($q.items | join(", ")), not \($want.values | join(", "))" else empty end),
+                 (if $want.required and ($q.mandatory | not) then "the form should require \"\($want.title)\"" else empty end),
+                 (if $want.default != "" and $q.chosen != [$want.default] then
+                     "the form should select \($want.default) by default in \"\($want.title)\"" else empty end)
+             end]
+        | unique[]' <<< "$form"
 }
 
 # The space's custom fields that a question has the title of, and gnoto

@@ -225,15 +225,22 @@ check "the webhook, for the listener's events" "TaskCreated,TaskCustomFieldChang
 check "the salt" "yes" "$([[ -n ${RUN_ID_SALT:-} ]] && echo yes)"
 check "generated.yaml is 660" "660" "$(stat -c %a "$WORK/data/generated.yaml")"
 check "it prints the form's checklist" "yes" "$(has "$out" 'create a request form named "gnoto Request"')"
-check "Pipeline's answers, which go to its field" "yes" \
-    "$(has "$out" "Pipeline: a dropdown, answers: ampliseq, biobakery, taxprofiler, Repeat an earlier run. Required. Its answer goes to the custom field Pipeline")"
-check "every other answer to the description" "yes" "$(has "$out" "Leave every other answer in the Description")"
-check "an option with a default is required, starting at it, and asked of a repeat too" "yes" \
-    "$(has "$out" "Dashboard Retention: a dropdown, answers: 1 Month, 3 Months, 6 Months, 12 Months, 24 Months, Unlimited. Required, starting at 3 Months")"
-check "a question two pipelines ask is asked once, for both" "1" \
-    "$(grep -c "Host Removal: a dropdown, answers: None, PhiX, Human + PhiX, Mouse + PhiX. Shown when Pipeline is biobakery or taxprofiler. Required, starting at PhiX" <<< "$out")"
-check "and one without a default is optional" "yes" \
-    "$(has "$out" "Instrument Platform: a dropdown, answers: ILLUMINA, OXFORD_NANOPORE, PACBIO_SMRT. Shown when Pipeline is taxprofiler. \"")"
+check "in the form builder's words, its response settings, answers in the description" "yes yes" \
+    "$(has "$out" 'Create task, Set status to Submitted, and Save') $(has "$out" "Leave each question's \"Add answer to\" at")"
+check "page 1: Title, then Pipeline, its answer to its custom field" "yes yes yes" \
+    "$(has "$out" "  1. Title: Single line text") $(has "$out" "  2. Pipeline: Single answer") $(has "$out" "     Add answer to: Pipeline, the custom field")"
+check "each pipeline's option redirecting to a page of its own" "ampliseq 2,biobakery 3,taxprofiler 4" \
+    "$(sed -n 's/^       \([a-z]*\): Redirect, Go to a new page, which is page \([0-9]\)$/\1 \2/p' <<< "$out" | paste -sd ,)"
+check "a repeat's one question its follow-up" "yes yes" \
+    "$(has "$out" "       Repeat an earlier run: Add follow-up question, Single line text") $(has "$out" "         Previous Run: Single line text")"
+check "then one every request asks, a repeat too, required and preselected" "yes yes" \
+    "$(has "$out" "  4. Dashboard Retention: Single answer") $(has "$out" "     Options: 1 Month, 3 Months (preselected), 6 Months, 12 Months, 24 Months, Unlimited")"
+check "every page submitting the form" "4" "$(grep -c '^  After page Page [0-9]: Submit form$' <<< "$out")"
+check "ampliseq's page, its four" "4" "$(sed -n '/^Page 2, titled "ampliseq"$/,/^  After page/p' <<< "$out" | grep -c '^  [0-9]\. Ampliseq --')"
+check "a question two pipelines ask on each page, in options.yaml's order" "2" "$(grep -c '^  1\. Host Removal: Single answer$' <<< "$out")"
+check "required, preselected" "yes" "$(has "$out" "     Options: None, PhiX (preselected), Human + PhiX, Mouse + PhiX")"
+check "one without a default optional" "yes" \
+    "$(sed -n '/^  2\. Instrument Platform/,/^  After page/p' <<< "$out" | grep -q '^     Answer required: off$' && echo yes)"
 questions=$(wrike_questions_spec)
 form=$(jq -c --arg space "$WRIKE_SPACE_ID" --arg folder "$WRIKE_FOLDER_ID" --arg status "$(wrike_status_id submitted)" \
     --argjson fields "$(jq -cn --arg id "$(wrike_field_id pipeline)" '{pipeline: $id}')" -f "$CODE/test/wrike/form.jq" <<< "$questions")
@@ -261,13 +268,15 @@ question() {
 check "a form built as the checklist says matches" "" "$(form_drift .)"
 check "a question under another title is missing" "the form has no question \"Host Removal\"" \
     "$(form_drift "($(question "Host Removal") | .title) = \"Host removal\"")"
-check "checkboxes in place of a dropdown" "the form asks \"Host Removal\" as checkboxes, not a dropdown" \
+check "Multiple answers in place of Single answer" "the form asks \"Host Removal\" as Multiple answers, not Single answer" \
     "$(form_drift "($(question "Host Removal") | .type) = \"CheckBox\"")"
+check "a question asked under two answers, checked each time" "the form should require \"Host Removal\"" \
+    "$(form_drift ".pages[0].fields += [$(question "Host Removal") | .mandatory = false]")"
 check "an answer short" "the form offers \"Ampliseq --picrust\" the answers No, not No, Yes" \
     "$(form_drift "($(question "Ampliseq --picrust") | .items) |= .[:1]")"
 check "a question with a default left optional" "the form should require \"Dashboard Retention\"" \
     "$(form_drift "($(question "Dashboard Retention") | .mandatory) = false")"
-check "or starting elsewhere" "the form should start \"Dashboard Retention\" at 3 Months" \
+check "or selecting another by default" "the form should select 3 Months by default in \"Dashboard Retention\"" \
     "$(form_drift "($(question "Dashboard Retention") | .items[]) |= (.selectedByDefault = (.title == \"1 Month\"))")"
 check "a paragraph for text is text" "" "$(form_drift "($(question "Previous Run") | .type) = \"TextArea\"")"
 # A field for a question, as an earlier gnoto made, which Wrike's API can't delete

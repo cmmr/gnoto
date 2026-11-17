@@ -1378,16 +1378,25 @@ step, and systemd has no section. An integration whose section is off or missing
   `TaskCustomFieldChanged` for edits to the Expiration date. Webhooks can't be edited, so
   `config` compares the events and replaces the webhook if they differ, deleting the old one
   first to avoid double delivery.
-- **Request form:** `config` prints a checklist from `options.yaml`, giving each
-  question's title, type and answers, when the form shows it, whether it's required and
-  what it starts at, and that only Pipeline's answer goes to a field. A question several
-  pipelines ask is asked once, with one title, one set of answers and one default, and
-  Dashboard Retention is asked of a repeat too. It then finds the form through the
-  [read endpoints](https://developers.wrike.com/llms.txt), compares each question's title,
-  type, answers, whether it's required and its default, and records the form's ID. `lint`
-  repeats the comparison and warns on drift. Those endpoints don't say where a question's
-  answer goes, so that isn't compared. The form creates its task in "gnoto Jobs" with the
-  status Submitted.
+- **Request form:** `config` prints a checklist from `options.yaml` in the words of
+  Wrike's form builder, as seen in it on 2026-11-17: the response settings (Create task,
+  Set status to Submitted, Save to "gnoto Jobs"), then each page and its questions, each
+  with its type (Single line text, Single answer, Multiple answers or Attachment), its
+  description, its options with the one to preselect, whether "Answer required" is on, and
+  its "Add answer to" where that isn't Description, which is only Title's and Pipeline's.
+  Page 1 asks Title, Pipeline, Samplesheet and what every request asks, Dashboard
+  Retention among them, since a repeat asks it too. The builder lets an option have one
+  follow-up question, so Pipeline's branching sends an option with one question of its
+  own to it as a follow-up, as "Repeat an earlier run" does Previous Run, and one with
+  several to a page of its own ("Redirect", "Go to a new page"), as each pipeline's are,
+  in its `options.yaml`'s order. A question several pipelines ask, with one title, one set
+  of answers and one default, is on each of their pages. Every page ends with "Submit
+  form". `config` then finds the form through the
+  [read endpoints](https://developers.wrike.com/llms.txt), compares each question's
+  title, type, answers, whether it's required and its default, every copy of a question
+  on several pages, and records the form's ID. `lint` repeats the comparison and warns on
+  drift. Those endpoints don't say where a question's answer goes, or which option leads
+  to it, so neither is compared.
 - **Statuses:** `config` creates these in the workflow.
 
   | Status | Wrike group | Set by |
