@@ -173,9 +173,44 @@ CONFIG_YES=1
 # A field an earlier gnoto made for a question, which it forgets
 printf 'wrike:\n  fields:\n    picrust: "IECFOLDPICRUST01"\n' > "$WORK/data/generated.yaml"
 chmod 660 "$WORK/data/generated.yaml"
+# A bot that's a Regular User, in an account that lets only admins make spaces
+stub POST /_test/bot -d '{"admin": false}' > /dev/null
+changes() {
+    stub GET /_test/state | jq '[.calls[] | select(.verb != "GET")] | length'
+}
+# Statuses as the stub's /_test/workflow takes them
+statuses() {
+    local status name group color
+    for status in "$@"; do
+        read -r name group color <<< "$status"
+        jq -cn --arg name "$name" --arg group "$group" --arg color "$color" '{name: $name, group: $group, color: $color}'
+    done | jq -sc .
+}
+calls=$(changes)
+out=$(config_wrike_step 2>&1)
+check "a bot that isn't an account admin is named by its user type" "yes" "$(has "$out" "Wrike's bot account is gnoto Bot, a Regular User.")"
+check "and a person is asked for the space, with the bot its admin, and the space's workflow" "yes yes" \
+    "$(has "$out" '1. Create the space "gnoto", unless it exists, and add gnoto Bot to it as a space admin.') $(has "$out" "2. In the space's settings, under Workflows, create the workflow \"gnoto\" with these statuses, named exactly so, with their groups: Submitted (Active, Blue), Running (Active, Turquoise), Completed (Completed, Green), Failed (Cancelled, Red), Cancelled (Cancelled, Gray), Expired (Completed, Brown).")"
+check "changing nothing" "$calls" "$(changes)"
+# A person makes the space, without the bot, and its own workflow, but for one status
+stub POST /_test/bot -d '{"admin": true}' > /dev/null
+SPACE=$(wrike_call POST spaces --data-urlencode "title=gnoto" --data-urlencode "accessType=Private" \
+    --data-urlencode "members=[]" | jq -r '.data[0].id')
+stub POST /_test/bot -d '{"admin": false}' > /dev/null
+WF=$(stub POST /_test/workflow -d "$(jq -cn --arg space "$SPACE" --argjson statuses "$(statuses "${WRIKE_STATUSES[@]:0:5}")" \
+    '{spaceId: $space, name: "gnoto", statuses: $statuses}')" | jq -r '.data[0].id')
+out=$(config_wrike_step 2>&1)
+check "then for only what's missing: the bot as the space's admin, and a status" "yes yes no" \
+    "$(has "$out" '1. Create the space "gnoto", unless it exists, and add gnoto Bot to it as a space admin.') $(has "$out" "2. In the space's settings, under Workflows, give the workflow \"gnoto\" these statuses, named exactly so, with their groups: Expired (Completed, Brown).") $(has "$out" "create the workflow")"
+stub POST /_test/workflow -d "$(jq -cn --arg space "$SPACE" --argjson statuses "$(statuses "${WRIKE_STATUSES[@]}")" \
+    '{spaceId: $space, name: "gnoto", statuses: $statuses}')" > /dev/null
+stub POST /_test/members -d "{\"spaceId\": \"$SPACE\", \"members\": [{\"id\": \"KUSTUBBOT\", \"isManager\": true}]}" > /dev/null
 out=$(config_wrike_step 2>&1)
 source "$CODE/lib/env.sh"
 check "its plan names the bot account it acts as" "yes" "$(has "$out" "This changes in Wrike, as gnoto Bot:")"
+check "once a person has, it takes the space and the space's own workflow" "$WF $SPACE" "${WRIKE_WORKFLOW_ID:-} ${WRIKE_SPACE_ID:-}"
+check "and makes that workflow the space's default for tasks" "$WF" \
+    "$(stub GET /_test/state | jq -r --arg space "$SPACE" '.spaces[$space].defaultTaskWorkflowId')"
 check "it makes the folder" "yes" "$([[ -n ${WRIKE_FOLDER_ID:-} ]] && echo yes)"
 check "and the six statuses" "6" "$(yq '.wrike.statuses | length' "$WORK/data/generated.yaml")"
 check "and the custom fields Pipeline, Results and Expiration alone" "Expiration,Pipeline,Results" \
@@ -212,6 +247,7 @@ check "and records it" "yes" "$([[ -n ${WRIKE_FORM_ID:-} ]] && echo yes)"
 LINT_FAILS=0 LINT_WARNS=0
 out=$(lint_wrike)
 check "lint: Wrike is set up" "yes" "$(has "$out" "OK    wrike: the request form matches options.yaml")"
+check "lint: the bot account, by its user type" "yes" "$(has "$out" "OK    wrike: the bot account is gnoto Bot, a Regular User")"
 check "lint: the webhook" "yes" "$(has "$out" "OK    wrike: webhook Active")"
 
 echo "the form's questions, compared"

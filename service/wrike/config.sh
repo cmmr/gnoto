@@ -13,11 +13,15 @@
 # Each object is found by its name and adopted when it exists, or else is
 # created after the plan is shown and accepted, and its ID goes to
 # generated.yaml. So the step is safe to repeat, and --dry-run stops after the
-# plan:
+# plan. A bot that isn't an account admin can't make a workflow or change its
+# statuses, and often not a space, so then this lists what a person must make
+# first, the space, with the bot its admin, and the space's own workflow, and
+# stops:
 #
 #   space      "gnoto", whose tasks take the gnoto workflow by default
 #   workflow   "gnoto", with the statuses Submitted, Running, Completed,
-#              Failed, Cancelled and Expired
+#              Failed, Cancelled and Expired: the space's own, or else the
+#              account's, which only an admin bot makes
 #   folder     "gnoto Jobs", in the space, where requests arrive
 #   fields     in the space: Pipeline, which the form fills, and Results and
 #              Expiration, which gnoto fills. Pipeline's answers are kept to
@@ -103,10 +107,36 @@ wrike_webhook_secret() {
     generated_set --keep wrike.webhook_secret "$(openssl rand -hex 32)"
 }
 
-# The bot account: its ID, name and role, as "id<tab>name<tab>role"
+# The bot account: its ID, name, role, and whether it's an account admin or
+# the owner, as "id<tab>name<tab>role<tab>true|false"
 wrike_me() {
     wrike_call GET "contacts" -G --data-urlencode "me=true" |
-        jq -r '.data[0] | [.id, "\(.firstName // "") \(.lastName // "")", ((.profiles // [])[0].role // "")] | @tsv'
+        jq -r '.data[0] | ((.profiles // [])[0] // {}) as $p
+            | [.id, "\(.firstName // "") \(.lastName // "")", ($p.role // ""), (($p.admin // false) or ($p.owner // false))] | @tsv'
+}
+
+# A user's type in the account, such as Regular User or Admin, or nothing
+wrike_user_type() {
+    local type
+    type=$(wrike_call GET "users/$1" 2> /dev/null | jq -r '.data[0].userTypeId // empty')
+    [[ -n $type ]] || return 0
+    wrike_call GET "user_types" 2> /dev/null | jq -r --arg id "$type" 'first(.data[]? | select(.id == $id) | .title) // empty'
+}
+
+# Whether a user is an admin of a space: wrike_space_admin <space> <user>
+wrike_space_admin() {
+    wrike_call GET "spaces/$1" -G --data-urlencode 'fields=["members"]' 2> /dev/null |
+        jq -e --arg user "$2" 'any(.data[0].members[]?; .id == $user and .isManager)' > /dev/null
+}
+
+# Statuses as the checklist names them: "Submitted (Active, Blue), ..."
+wrike_status_text() {
+    local status name group color text=""
+    for status in "$@"; do
+        read -r name group color <<< "$status"
+        text+="${text:+, }$name ($group, $color)"
+    done
+    printf '%s' "$text"
 }
 
 # The space's ID, by title, or nothing
@@ -114,9 +144,19 @@ wrike_find_space() {
     wrike_call GET "spaces" | jq -r --arg title "$WRIKE_SPACE_TITLE" 'first(.data[]? | select(.title == $title) | .id) // empty'
 }
 
-# The workflow, by name, as compact JSON, or nothing
+# The workflow, by name, as compact JSON, or nothing: wrike_find_workflow
+# [space]. A space's own workflows, which a person makes, list apart from the
+# account's, which an admin bot makes.
 wrike_find_workflow() {
-    wrike_call GET "workflows" | jq -c --arg name "$WRIKE_WORKFLOW_NAME" 'first(.data[]? | select(.name == $name)) // empty'
+    local found=""
+    if [[ -n ${1:-} ]]; then
+        found=$(wrike_call GET "spaces/$1/workflows" |
+            jq -c --arg name "$WRIKE_WORKFLOW_NAME" 'first(.data[]? | select(.name == $name)) // empty') || return 1
+    fi
+    [[ -n $found ]] ||
+        found=$(wrike_call GET "workflows" | jq -c --arg name "$WRIKE_WORKFLOW_NAME" 'first(.data[]? | select(.name == $name)) // empty') ||
+        return 1
+    printf '%s' "$found"
 }
 
 wrike_find_folder() {
@@ -201,26 +241,57 @@ wrike_leftover_fields() {
 
 # gnoto config wrike, once its settings are written
 config_wrike_step() {
-    local me bot bot_name role name space workflow folder fields spec plan=() status group color have id field
-    local existing questions leftover webhooks hook form forms drift
+    local me bot bot_name role admin kind name space workflow folder fields spec plan=() status group color have id field
+    local existing questions leftover webhooks hook form forms drift missing=() steps=() i
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     [[ -n ${WRIKE_API_TOKEN:-} ]] || fail "Set wrike.api_token first, the bot account's API token."
     run_id_salt
     me=$(wrike_me) || fail "Wrike refused the token, as above."
-    IFS=$'\t' read -r bot bot_name role <<< "$me"
+    IFS=$'\t' read -r bot bot_name role admin <<< "$me"
     [[ $role != Collaborator ]] || fail "The bot account, $bot_name, is a Collaborator, and those can't create tasks. Give it a full license."
     generated_set wrike.bot_id "$bot"
-    echo "Wrike's bot account is $bot_name." >&2
+    kind=$(wrike_user_type "$bot")
+    if [[ -n $kind ]]; then
+        kind="$([[ $kind == [AEIOUaeiou]* ]] && echo an || echo a) $kind"
+    elif [[ $admin == true ]]; then
+        kind="an account admin"
+    fi
+    echo "Wrike's bot account is $bot_name${kind:+, $kind}." >&2
 
     space=$(wrike_find_space) || fail "Can't list Wrike's spaces."
-    workflow=$(wrike_find_workflow) || fail "Can't list Wrike's workflows."
+    workflow=$(wrike_find_workflow "$space") || fail "Can't list Wrike's workflows."
     [[ -n $space ]] || plan+=("Create the space \"$WRIKE_SPACE_TITLE\"")
     [[ -n $workflow ]] || plan+=("Create the workflow \"$WRIKE_WORKFLOW_NAME\"")
     for status in "${WRIKE_STATUSES[@]}"; do
         read -r name group color <<< "$status"
-        [[ -n $workflow ]] && jq -e --arg name "$name" 'any(.customStatuses[]?; .name == $name)' <<< "$workflow" > /dev/null ||
+        if [[ -z $workflow ]] || ! jq -e --arg name "$name" 'any(.customStatuses[]?; .name == $name)' <<< "$workflow" > /dev/null; then
             plan+=("Add the status $name, in the group $group, to the workflow")
+            missing+=("$status")
+        fi
     done
+
+    # A bot that isn't an account admin can't make a workflow or change its
+    # statuses, and many accounts keep it from making spaces. As the space's
+    # admin it can make the rest, so a person makes the space and its own
+    # workflow first.
+    if [[ $admin != true ]]; then
+        if [[ -z $space ]] || ! wrike_space_admin "$space" "$bot"; then
+            steps+=("Create the space \"$WRIKE_SPACE_TITLE\", unless it exists, and add $bot_name to it as a space admin.")
+        fi
+        if [[ -z $workflow ]]; then
+            steps+=("In the space's settings, under Workflows, create the workflow \"$WRIKE_WORKFLOW_NAME\" with these statuses, named exactly so, with their groups: $(wrike_status_text "${WRIKE_STATUSES[@]}").")
+        elif (( ${#missing[@]} > 0 )); then
+            steps+=("In the space's settings, under Workflows, give the workflow \"$WRIKE_WORKFLOW_NAME\" these statuses, named exactly so, with their groups: $(wrike_status_text "${missing[@]}").")
+        fi
+        if (( ${#steps[@]} > 0 )); then
+            echo "$bot_name is${kind:+ $kind,} not an account admin, so it can't make a workflow or change one, or"
+            echo "in many accounts a space. With your own Wrike account, do this:"
+            for i in "${!steps[@]}"; do
+                printf '  %d. %s\n' $((i + 1)) "${steps[i]}"
+            done
+            fail "Wrike needs those first. Then run $(gnoto_command config wrike) again, which makes the rest as $bot_name."
+        fi
+    fi
     if [[ -n $space ]]; then
         folder=$(wrike_find_folder "$space") || fail "Can't list the space's folders."
         existing=$(wrike_space_fields "$space") || fail "Can't list the space's custom fields."
@@ -371,7 +442,7 @@ config_wrike_step() {
 
 # lint's Wrike checks
 lint_wrike() {
-    local me bot name role questions spec leftover drift json status field missing=()
+    local me bot name role admin kind questions spec leftover drift json status field missing=()
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     if [[ -z ${WRIKE_API_TOKEN:-} ]]; then
         lint_fail "wrike: is on, and wrike.api_token isn't set. $(gnoto_command config wrike) asks for it"
@@ -381,11 +452,13 @@ lint_wrike() {
         lint_fail "wrike: the token doesn't work, or Wrike can't be reached at ${WRIKE_API_URL:-}"
         return 0
     fi
-    IFS=$'\t' read -r bot name role <<< "$me"
+    IFS=$'\t' read -r bot name role admin <<< "$me"
     if [[ $role == Collaborator ]]; then
         lint_fail "wrike: the bot account, $name, is a Collaborator, and those can't create tasks"
     else
-        lint_ok "wrike: the bot account is $name"
+        kind=$(wrike_user_type "$bot")
+        [[ -n $kind || $admin != true ]] || kind="account admin"
+        lint_ok "wrike: the bot account is $name${kind:+, $([[ $kind == [AEIOUaeiou]* ]] && echo an || echo a) $kind}"
     fi
     [[ -n ${INPUT_ROOTS:-} ]] ||
         lint_fail "wrike: core.input_roots isn't set, and form requests may read FASTQs only under it. $(gnoto_command config core --input_roots=/path)"

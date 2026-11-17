@@ -1320,7 +1320,7 @@ step, and systemd has no section. An integration whose section is off or missing
 | Apptainer | Asks where Apptainer is and for the paths containers must see | None |
 | S3 | Asks the deploy profile, region, bucket, domain and certificate, offering the account's own, writes them, and offers to deploy: gnoto's IAM user, whose key it writes to `config.yaml`, the bucket or an existing one's policy, CloudFront and its function, and with a Route 53 hosted zone, a domain's DNS records and, unless one's issued, its certificate. Then checks it all with gnoto's keys | An AWS CLI profile that can create the stacks, or an access key to make one from. A domain outside Route 53 needs its own certificate and DNS. A site that sets up its own bucket and CloudFront fills in `aws.s3.results_base_url` and gnoto's keys |
 | SQS | Asks the deploy profile and region, and offers to deploy the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, with Globus's app set the Lambda and API Gateway for Get the data, and the queue policy for gnoto's IAM user | The same profile. A site that sets up its own queue fills in `aws.sqs.queue_url`, `webhook_url` and `access_url` |
-| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and its three custom fields, plus the webhook when SQS is set up, and names any field left from an earlier gnoto to delete | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
+| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and its three custom fields, plus the webhook when SQS is set up, and names any field left from an earlier gnoto to delete | Needs a Business plan or above. Create the bot account and its token. Unless the bot is an account admin, which it shouldn't be, create the space with the bot as its admin, and the space's own workflow, as `config` lists, and it adopts both by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
 | Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it to everyone, and checks once, with a test folder shared with the client and unshared again, that the client can share a run. Says how to register the dashboards' app, and to run `config sqs --deploy` once it's set | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, register the dashboards' app, a public client returning to `<results_base_url>/access.html`, and put the collection's UUID and URL and both clients' IDs, and gnoto's secret, in `config.yaml` |
 
@@ -1332,8 +1332,21 @@ step, and systemd has no section. An integration whose section is off or missing
   takes only a name, so statuses are added afterward with Modify Workflow. Its scope
   is `amReadWriteWorkflow`, and
   [Wrike's Help Center](https://help.wrike.com/hc/en-us/articles/1500005219382-Default-vs-Custom-Workflows)
-  says only admins on Business plans and above can create custom workflows. If the bot
-  isn't an admin, an admin creates the workflow and `config` adopts it by name.
+  says only admins on Business plans and above can create custom workflows.
+- **A bot that isn't an account admin,** as a bot should be: `config` reads its admin flag
+  from `GET /contacts?me=true` and its user type, such as Regular User, from its `userTypeId`
+  and `GET /user_types`, and names the type. On CMMR's account (2026-11-17), such a bot,
+  made the gnoto space's admin, could make the space's default task workflow, a folder and
+  a custom field, and was refused (403, `not_allowed`) adding or renaming a workflow's
+  status; Wrike's API has no call that makes a space's own workflow, and the account let
+  only admins make spaces. So `config` checks, from `GET /spaces/<id>?fields=["members"]`,
+  that the bot is the space's admin, and, with anything missing, lists what a person must
+  do with their own account, and stops: create the space, unless it exists, with the bot
+  as its space admin, and in the space's settings create the workflow "gnoto" with the six
+  statuses, named exactly so, or give it those it lacks. A space's own workflows list only
+  under `GET /spaces/<id>/workflows`, so `config` looks for the workflow there first, then
+  among the account's, where an admin bot makes it. The bot then makes the rest, as the
+  space's admin.
 - **Names:** the space and the workflow are "gnoto", the folder "gnoto Jobs", and the form
   "gnoto Request". The space's tasks take the workflow by default.
 - **Custom fields:** [`POST /customfields`](https://developers.wrike.com/reference/postcustomfieldsempty.md)
@@ -1851,10 +1864,9 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   layout that seemed likely, and a blank or missing answer counts as unanswered, but the
   only real description seen is one with two single answers. The first form request on
   the cluster settles it.
-- **Wrike custom field rights:** whether creating a custom field needs admin rights, as
-  creating a workflow does. The reference pages list scopes but no admin requirement.
-  CMMR's own rollout isn't affected, because Daniel administers its Wrike, AWS and GitHub
-  accounts.
+- **The bot's webhook:** whether a bot that's only the space's admin can create the
+  webhook on "gnoto Jobs". It made the space's folder and fields on CMMR's account; the
+  webhook waits on the SQS stack.
 - **Reproducibility itself:** which outputs are stable, including how thread count affects
   them, and whether built references rebuild identically. ampliseq's DADA2 tables for
   `16s-v4` came out byte-identical in the local test bed and on the cluster, with the same

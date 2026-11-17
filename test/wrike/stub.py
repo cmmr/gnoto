@@ -30,7 +30,22 @@ Test helpers, which need no token:
                                      its description in the shape Wrike
                                      writes, and the attachment's name there
                                      too.
-  POST /_test/reset                  forgets everything
+  POST /_test/bot                    sets whether the bot is an account
+                                     admin: a JSON body {"admin": false}
+                                     makes it a Regular User, which Wrike
+                                     lets make no workflow or space, as an
+                                     account may set it
+  POST /_test/members                sets a space's members, as an admin
+                                     does in Wrike: a JSON body with spaceId
+                                     and members, [{id, isManager}]
+  POST /_test/workflow               makes or remakes a space's own
+                                     workflow, as its admin does in Wrike,
+                                     which the API can't: a JSON body with
+                                     spaceId, name and statuses, [{name,
+                                     group, color}]. The account's workflows
+                                     list it apart, as Wrike's do
+  POST /_test/reset                  forgets everything, the bot an admin
+                                     again
 """
 
 import html
@@ -45,7 +60,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 TOKEN = sys.argv[sys.argv.index('--token') + 1] if '--token' in sys.argv else 'stub-token'
-BOT = {'id': 'KUSTUBBOT', 'firstName': 'gnoto', 'lastName': 'Bot', 'profiles': [{'role': 'User'}]}
+BOT = {'id': 'KUSTUBBOT', 'type': 'Person', 'firstName': 'gnoto', 'lastName': 'Bot'}
+USER_TYPES = [{'id': 'IEUSERTYPEOWNER0', 'title': 'Owner'}, {'id': 'IEUSERTYPEADMIN0', 'title': 'Admin'},
+              {'id': 'IEUSERTYPEREGULR', 'title': 'Regular User'}, {'id': 'IEUSERTYPEEXTERN', 'title': 'External User'},
+              {'id': 'IEUSERTYPECOLLAB', 'title': 'Collaborator'}]
 LOCK = threading.Lock()
 IDS = itertools.count(1)
 RUN = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
@@ -56,7 +74,15 @@ FAIL = {'count': 0, 'code': 500}
 def reset():
     STATE.clear()
     STATE.update(spaces={}, workflows={}, folders={}, fields={}, tasks={}, webhooks={}, forms={},
-                 attachments={}, calls=[])
+                 attachments={}, calls=[], bot_admin=True)
+
+
+def bot():
+    """The bot as Wrike's contacts and users answer, an admin or a Regular User"""
+    admin = STATE['bot_admin']
+    return {**BOT, 'userTypeId': USER_TYPES[1 if admin else 2]['id'],
+            'profiles': [{'accountId': 'IESTUBAC', 'role': 'User', 'admin': admin, 'owner': False,
+                          'external': False, 'active': True, 'email': 'bot@example.invalid'}]}
 
 
 def new_id(prefix, width=16):
@@ -215,33 +241,85 @@ class Handler(BaseHTTPRequestHandler):
             return self.data('requestForms', [form])
         if path == '/_test/submit':
             return self.data('requestFormSubmits', [submit(json.loads(raw))])
+        if path == '/_test/bot':
+            STATE['bot_admin'] = bool(json.loads(raw)['admin'])
+            return self.data('contacts', [bot()])
+        if path == '/_test/workflow':
+            body = json.loads(raw)
+            wf = next((w for w in STATE['workflows'].values()
+                       if w.get('spaceId') == body['spaceId'] and w['name'] == body['name']), None)
+            if wf is None:
+                wf = {'id': new_id('IEWF'), 'name': body['name'], 'spaceId': body['spaceId'], 'standard': False,
+                      'hidden': False, 'customStatuses': []}
+                STATE['workflows'][wf['id']] = wf
+            wf['customStatuses'] = [{'id': new_id('IEST'), 'hidden': False, **x} for x in body['statuses']]
+            return self.data('workflows', [wf])
+        if path == '/_test/members':
+            body = json.loads(raw)
+            STATE['spaces'][body['spaceId']]['_members'] = [
+                {'id': m['id'], 'accessRoleId': 'IEACCESSROLEFULL', 'isManager': bool(m.get('isManager'))}
+                for m in body['members']]
+            return self.answer(200, {})
         return self.error(404, path)
+
+    def space_view(self, space, p):
+        view = {k: v for k, v in space.items() if k != '_members'}
+        if 'members' in (as_json(p.get('fields')) or []):
+            view['members'] = space['_members']
+        return view
+
+    def refused(self):
+        """Answers as Wrike does a Regular User making a workflow, or a space
+        where the account keeps them from it, and says whether it did"""
+        if STATE['bot_admin']:
+            return False
+        self.error(403, 'Access to the requested entity is denied')
+        return True
 
     def api(self, verb, parts, p, raw):
         s = STATE
         match (verb, parts):
             case ('GET', ['contacts']):
-                return self.data('contacts', [BOT])
+                return self.data('contacts', [bot()])
+            case ('GET', ['users', uid]):
+                if uid != BOT['id']:
+                    raise KeyError(uid)
+                return self.data('users', [bot()])
+            case ('GET', ['user_types']):
+                return self.data('userTypes', USER_TYPES)
             case ('GET', ['spaces']):
-                return self.data('spaces', list(s['spaces'].values()))
+                return self.data('spaces', [self.space_view(x, p) for x in s['spaces'].values()])
             case ('POST', ['spaces']):
+                if self.refused():
+                    return
+                # Its maker is its admin, as in Wrike, unless members are given
+                members = as_json(p.get('members')) if 'members' in p else [{'id': BOT['id'], 'isManager': True}]
                 space = {'id': new_id('MQSPACE', 12), 'title': p['title'], 'accessType': p.get('accessType'),
-                         'defaultTaskWorkflowId': p.get('defaultTaskWorkflowId')}
+                         'defaultTaskWorkflowId': p.get('defaultTaskWorkflowId'),
+                         '_members': [{'id': m['id'], 'accessRoleId': 'IEACCESSROLEFULL',
+                                       'isManager': bool(m.get('isManager'))} for m in members]}
                 s['spaces'][space['id']] = space
-                return self.data('spaces', [space])
+                return self.data('spaces', [self.space_view(space, p)])
             case ('GET', ['spaces', sid]):
-                return self.data('spaces', [s['spaces'][sid]])
+                return self.data('spaces', [self.space_view(s['spaces'][sid], p)])
             case ('PUT', ['spaces', sid]):
                 s['spaces'][sid].update({k: v for k, v in p.items() if k in ('defaultTaskWorkflowId', 'title')})
-                return self.data('spaces', [s['spaces'][sid]])
+                return self.data('spaces', [self.space_view(s['spaces'][sid], p)])
             case ('GET', ['workflows']):
-                return self.data('workflows', list(s['workflows'].values()))
+                # The account's alone, as in Wrike: a space's own list apart
+                return self.data('workflows', [w for w in s['workflows'].values() if not w.get('spaceId')])
+            case ('GET', ['spaces', sid, 'workflows']):
+                return self.data('workflows', [w for w in s['workflows'].values() if w.get('spaceId') == sid])
             case ('POST', ['workflows']):
+                if self.refused():
+                    return
                 wf = {'id': new_id('IEWF'), 'name': p['name'], 'standard': False, 'hidden': False,
                       'customStatuses': [{'id': new_id('IESTNEW'), 'name': 'New', 'group': 'Active', 'hidden': False}]}
                 s['workflows'][wf['id']] = wf
                 return self.data('workflows', [wf])
             case ('PUT', ['workflows', wid]):
+                if self.refused():
+                    return
                 wf = s['workflows'][wid]
                 status = as_json(p.get('customStatus'))
                 if isinstance(status, dict):

@@ -1513,6 +1513,37 @@ None of the earlier plan's fields had been created in the real Wrike.
   now made through the stub's form, Previous Run read from the description, and the task's
   Pipeline named for the pipeline it ran. A version from before this, in the test bed's
   version cache, was told apart from one after by its `wrike_task_answers`.
+- **Fixed after:** `config wrike`'s plan said "as Expired", the last status's name, where
+  it meant the bot's name, since both used `name` (`174e507`).
+
+Then (2026-11-17) the cluster's `config wrike --dry-run` showed the bot, Micro Bot, to be
+a Regular User, and Daniel's account lets only admins make spaces and workflows. At his
+call the bot stays out of admin, and he and this session tried, on the real Wrike, what a
+space admin bot can do. He made the "gnoto" space, private, with the bot its space admin,
+and the space's own workflow "gnoto" with five statuses, one spelled Canceled. As the bot:
+`GET /workflows` doesn't list a space's own workflow, and `GET /spaces/<id>/workflows`
+does; adding the status Expired and renaming Canceled were refused (403, `not_allowed`);
+making the workflow the space's default for tasks, the folder "gnoto Jobs" and the field
+Pipeline worked. So:
+
+- **`config wrike`** names the bot's user type (`wrike_user_type`), and for a bot that
+  isn't an account admin checks it's the space's admin (`wrike_space_admin`), then lists
+  what a person must make with their own account, the space with the bot its admin and
+  the space's workflow with the six statuses, or those it lacks, named exactly so, and
+  stops, changing nothing. It looks for the workflow among the space's own first
+  (`wrike_find_workflow <space>`). `lint` names the user type too, and reads `wrike_me`'s
+  new admin column.
+- **The stub** has a bot that `/_test/bot` makes an admin or a Regular User, which it
+  refuses a workflow, a status or a space; user types; space members, which
+  `/_test/members` sets; and a space's own workflows, which `/_test/workflow` makes, listed
+  apart from the account's.
+- **Tests.** `integrations-test.sh`: a Regular User bot is named so, a person is asked for
+  the space and its workflow and nothing changes, then only for what's still missing,
+  then the bot takes the space and its workflow, makes that workflow the space's default
+  and carries on; lint names the user type. It passes 250 checks. The finish test,
+  `checks/integrations.sh`, with an admin bot making its own workflow, passed its setup
+  and `lint` checks, and was stopped in its first job, which other containers had slowed
+  to a crawl; its jobs don't touch this change.
 
 ### Phase 8: public release
 
