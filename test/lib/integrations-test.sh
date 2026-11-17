@@ -175,6 +175,7 @@ printf 'wrike:\n  fields:\n    picrust: "IECFOLDPICRUST01"\n' > "$WORK/data/gene
 chmod 660 "$WORK/data/generated.yaml"
 out=$(config_wrike_step 2>&1)
 source "$CODE/lib/env.sh"
+check "its plan names the bot account it acts as" "yes" "$(has "$out" "This changes in Wrike, as gnoto Bot:")"
 check "it makes the folder" "yes" "$([[ -n ${WRIKE_FOLDER_ID:-} ]] && echo yes)"
 check "and the six statuses" "6" "$(yq '.wrike.statuses | length' "$WORK/data/generated.yaml")"
 check "and the custom fields Pipeline, Results and Expiration alone" "Expiration,Pipeline,Results" \

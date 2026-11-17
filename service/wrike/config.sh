@@ -201,16 +201,16 @@ wrike_leftover_fields() {
 
 # gnoto config wrike, once its settings are written
 config_wrike_step() {
-    local me bot name role space workflow folder fields spec plan=() status group color have id field
+    local me bot bot_name role name space workflow folder fields spec plan=() status group color have id field
     local existing questions leftover webhooks hook form forms drift
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     [[ -n ${WRIKE_API_TOKEN:-} ]] || fail "Set wrike.api_token first, the bot account's API token."
     run_id_salt
     me=$(wrike_me) || fail "Wrike refused the token, as above."
-    IFS=$'\t' read -r bot name role <<< "$me"
-    [[ $role != Collaborator ]] || fail "The bot account, $name, is a Collaborator, and those can't create tasks. Give it a full license."
+    IFS=$'\t' read -r bot bot_name role <<< "$me"
+    [[ $role != Collaborator ]] || fail "The bot account, $bot_name, is a Collaborator, and those can't create tasks. Give it a full license."
     generated_set wrike.bot_id "$bot"
-    echo "Wrike's bot account is $name." >&2
+    echo "Wrike's bot account is $bot_name." >&2
 
     space=$(wrike_find_space) || fail "Can't list Wrike's spaces."
     workflow=$(wrike_find_workflow) || fail "Can't list Wrike's workflows."
@@ -255,7 +255,7 @@ config_wrike_step() {
     fi
 
     if (( ${#plan[@]} > 0 )); then
-        config_confirm "in Wrike, as $name" "${plan[@]}" || exit 0
+        config_confirm "in Wrike, as $bot_name" "${plan[@]}" || exit 0
     fi
 
     # The workflow and its statuses

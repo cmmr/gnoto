@@ -1502,8 +1502,9 @@ None of the earlier plan's fields had been created in the real Wrike.
   Title as the title, Pipeline in its field, the samplesheet attached and named in the
   description, and every other answer in the description in the real layout.
   `test/wrike/form.jq` builds its form from the checklist's questions.
-- **Tests.** `integrations-test.sh` passes 242 checks: the three fields, the forgotten ID,
-  the checklist's lines, each kind of drift, a leftover field named by `config` and `lint`,
+- **Tests.** `integrations-test.sh` passes 243 checks: the plan naming the bot account,
+  which had shown the last status's name, the three fields, the forgotten ID, the
+  checklist's lines, each kind of drift, a leftover field named by `config` and `lint`,
   the description's layouts (lines, one line, a list under `strong`, blanks, entities, an
   answer posing as a question, a question twice), a missing required answer, Pipeline from
   the description, a repeat's own retention and its Pipeline once submitted, and a
