@@ -181,7 +181,7 @@ wrike_form_checklist() {
     local questions=$1
     cat << EOF
 
-Build the request form in Wrike by hand: its API can read forms, and can't make them.
+Build the request form in Wrike by hand: gnoto can read forms, but not make them.
 In the "$WRIKE_SPACE_TITLE" space, create a request form named "$WRIKE_FORM_TITLE" that creates a task in
 "$WRIKE_FOLDER_TITLE" with the status Submitted. Title each question exactly as written here,
 and offer exactly the answers listed. Add Pipeline's answer to the custom field Pipeline.
