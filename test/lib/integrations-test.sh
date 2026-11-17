@@ -2,7 +2,8 @@
 #
 # integrations-test.sh - Tests phase 7's integrations in the real image,
 # against the test bed's stand-ins: Wrike's calls and their replay, gnoto config
-# wrike, a task's answers made into a job file, the listener's events,
+# wrike and its comparison of the request form, a request's answers read from
+# its description and made into a job file, the listener's events,
 # Publish to S3 and Globus, the progress page on S3, the teardown with its
 # expired page, gnoto extend, the daily expiry check, gnoto remove of a
 # published run, the health summary and the systemd units.
@@ -169,26 +170,37 @@ check "the token isn't on any command line" "0" "$out"
 
 echo "gnoto config wrike"
 CONFIG_YES=1
+# A field an earlier gnoto made for a question, which it forgets
+printf 'wrike:\n  fields:\n    picrust: "IECFOLDPICRUST01"\n' > "$WORK/data/generated.yaml"
+chmod 660 "$WORK/data/generated.yaml"
 out=$(config_wrike_step 2>&1)
 source "$CODE/lib/env.sh"
 check "it makes the folder" "yes" "$([[ -n ${WRIKE_FOLDER_ID:-} ]] && echo yes)"
 check "and the six statuses" "6" "$(yq '.wrike.statuses | length' "$WORK/data/generated.yaml")"
-check "and a field for each option, with gnoto's own" "yes" \
-    "$([[ -n $(wrike_field_id pipeline) && -n $(wrike_field_id expiration) && -n $(wrike_field_id results) &&
-        -n $(wrike_field_id mergepairs_strategy) && -n $(wrike_field_id hostremoval_reference) ]] && echo yes)"
-check "one field for a question two pipelines ask" "1" \
-    "$(stub GET /_test/state | jq '[.fields[] | select(.title == "Host Removal")] | length')"
-check "a dropdown takes no other answers" "false" \
-    "$(stub GET /_test/state | jq -r --arg id "$(wrike_field_id picrust)" '.fields[$id].settings.allowOtherValues')"
+check "and the custom fields Pipeline, Results and Expiration alone" "Expiration,Pipeline,Results" \
+    "$(stub GET /_test/state | jq -r '[.fields[].title] | sort | join(",")')"
+check "recording each one" "yes" \
+    "$([[ -n $(wrike_field_id pipeline) && -n $(wrike_field_id expiration) && -n $(wrike_field_id results) ]] && echo yes)"
+check "and forgetting one it made for a question before" "" "$(yq -r '.wrike.fields.picrust // ""' "$WORK/data/generated.yaml")"
+check "Pipeline takes no other answers" "false" \
+    "$(stub GET /_test/state | jq -r --arg id "$(wrike_field_id pipeline)" '.fields[$id].settings.allowOtherValues')"
 check "the webhook, for the listener's events" "TaskCreated,TaskCustomFieldChanged,TaskDeleted" \
     "$(stub GET /_test/state | jq -r '[.webhooks[]] | .[0].events | sort | join(",")')"
 check "the salt" "yes" "$([[ -n ${RUN_ID_SALT:-} ]] && echo yes)"
 check "generated.yaml is 660" "660" "$(stat -c %a "$WORK/data/generated.yaml")"
 check "it prints the form's checklist" "yes" "$(has "$out" 'create a request form named "gnoto Request"')"
-check "the checklist lists Pipeline's answers" "yes" "$(has "$out" "Pipeline: a dropdown, answers: ampliseq, biobakery, taxprofiler, Repeat an earlier run")"
-spec=$(wrike_fields_spec)
-form=$(jq -c --arg space "$WRIKE_SPACE_ID" '{title: "gnoto Request", spaceId: $space,
-    pages: [{fields: [.[] | select(.gnoto | not) | {title, items: [.values[] | {title: .}]}]}]}' <<< "$spec")
+check "Pipeline's answers, which go to its field" "yes" \
+    "$(has "$out" "Pipeline: a dropdown, answers: ampliseq, biobakery, taxprofiler, Repeat an earlier run. Required. Its answer goes to the custom field Pipeline")"
+check "every other answer to the description" "yes" "$(has "$out" "Leave every other answer in the Description")"
+check "an option with a default is required, starting at it, and asked of a repeat too" "yes" \
+    "$(has "$out" "Dashboard Retention: a dropdown, answers: 1 Month, 3 Months, 6 Months, 12 Months, 24 Months, Unlimited. Required, starting at 3 Months")"
+check "a question two pipelines ask is asked once, for both" "1" \
+    "$(grep -c "Host Removal: a dropdown, answers: None, PhiX, Human + PhiX, Mouse + PhiX. Shown when Pipeline is biobakery or taxprofiler. Required, starting at PhiX" <<< "$out")"
+check "and one without a default is optional" "yes" \
+    "$(has "$out" "Instrument Platform: a dropdown, answers: ILLUMINA, OXFORD_NANOPORE, PACBIO_SMRT. Shown when Pipeline is taxprofiler. \"")"
+questions=$(wrike_questions_spec)
+form=$(jq -c --arg space "$WRIKE_SPACE_ID" --arg folder "$WRIKE_FOLDER_ID" --arg status "$(wrike_status_id submitted)" \
+    --argjson fields "$(jq -cn --arg id "$(wrike_field_id pipeline)" '{pipeline: $id}')" -f "$CODE/test/wrike/form.jq" <<< "$questions")
 stub POST /_test/form -d "$form" > /dev/null
 calls=$(stub GET /_test/state | jq '[.calls[] | select(.verb != "GET")] | length')
 out=$(config_wrike_step 2>&1)
@@ -201,24 +213,72 @@ out=$(lint_wrike)
 check "lint: Wrike is set up" "yes" "$(has "$out" "OK    wrike: the request form matches options.yaml")"
 check "lint: the webhook" "yes" "$(has "$out" "OK    wrike: webhook Active")"
 
+echo "the form's questions, compared"
+# form_drift <jq filter>: what differs once the filter changes the form
+form_drift() {
+    wrike_form_drift "$(jq -cn --argjson form "$form" "{data: [\$form | $1]}")" "$questions"
+}
+question() {
+    printf '.pages[0].fields[] | select(.title == "%s")' "$1"
+}
+check "a form built as the checklist says matches" "" "$(form_drift .)"
+check "a question under another title is missing" "the form has no question \"Host Removal\"" \
+    "$(form_drift "($(question "Host Removal") | .title) = \"Host removal\"")"
+check "checkboxes in place of a dropdown" "the form asks \"Host Removal\" as checkboxes, not a dropdown" \
+    "$(form_drift "($(question "Host Removal") | .type) = \"CheckBox\"")"
+check "an answer short" "the form offers \"Ampliseq --picrust\" the answers No, not No, Yes" \
+    "$(form_drift "($(question "Ampliseq --picrust") | .items) |= .[:1]")"
+check "a question with a default left optional" "the form should require \"Dashboard Retention\"" \
+    "$(form_drift "($(question "Dashboard Retention") | .mandatory) = false")"
+check "or starting elsewhere" "the form should start \"Dashboard Retention\" at 3 Months" \
+    "$(form_drift "($(question "Dashboard Retention") | .items[]) |= (.selectedByDefault = (.title == \"1 Month\"))")"
+check "a paragraph for text is text" "" "$(form_drift "($(question "Previous Run") | .type) = \"TextArea\"")"
+# A field for a question, as an earlier gnoto made, which Wrike's API can't delete
+stub POST /api/v4/customfields -H 'Authorization: bearer stub-token' --data-urlencode "title=Host Removal" \
+    --data-urlencode "type=DropDown" --data-urlencode "spaceId=$WRIKE_SPACE_ID" > /dev/null
+out=$(config_wrike_step 2>&1)
+check "config names a field left for a question, to delete by hand" "yes yes" \
+    "$(has "$out" "delete them by hand in Wrike") $(has "$out" "  Host Removal")"
+LINT_FAILS=0 LINT_WARNS=0
+out=$(lint_wrike)
+check "and lint warns of it" "yes" "$(has "$out" "Delete them in Wrike: Host Removal")"
+
+echo "a request's answers, from its description"
+answers() {
+    wrike_task_answers "$(jq -cn --arg d "$1" '{data: [{description: $d}]}')"
+}
+check "as Wrike writes them, the attachment's name too" '{"Settings":"Default","Attach the sample sheet.":"six_samples.tsv"}' \
+    "$(answers '<b>Settings</b><br />Default<br /><br /><b>Attach the sample sheet.</b><br />six_samples.tsv<br />')"
+check "several answers on lines of their own" '{"Delivered Reads":"Raw,Host Depleted","Host Removal":"Human + PhiX"}' \
+    "$(answers '<b>Delivered Reads</b><br />Raw<br />Host Depleted<br /><br /><b>Host Removal</b><br />Human + PhiX<br />')"
+check "or on one line" '{"Delivered Reads":"Raw,Cleaned"}' "$(answers '<b>Delivered Reads</b><br />Raw, Cleaned<br />')"
+check "or as a list, under strong" '{"Ampliseq --exclude_taxa":"mitochondria,chloroplast"}' \
+    "$(answers '<p><strong>Ampliseq --exclude_taxa</strong></p><ul><li>mitochondria</li><li>chloroplast</li></ul>')"
+check "a blank answer" '{"Instrument Platform":"","Dashboard Retention":"1 Month"}' \
+    "$(answers '<b>Instrument Platform</b><br /><br /><b>Dashboard Retention</b><br />1 Month<br />')"
+check "entities decoded" '{"Previous Run":"https://x.example/a?b=1&c=2"}' "$(answers '<b>Previous Run</b><br />https://x.example/a?b=1&amp;c=2<br />')"
+check "an answer's text can't pose as a question" '{"Previous Run":"<b>Host Removal</b>None"}' \
+    "$(answers '<b>Previous Run</b><br />&lt;b&gt;Host Removal&lt;/b&gt;None<br />')"
+check "a question twice is read once" '{"Host Removal":"PhiX"}' \
+    "$(answers '<b>Host Removal</b><br />PhiX<br /><b>Host Removal</b><br />None<br />')"
+check "a command-line task's description has none" '{}' "$(answers 'Started from the command line by alice.')"
+
 echo "a task's answers, as a job file"
 mkdir -p "$WORK/inputs"
 printf 'mock1\t%s\t%s\n' "$WORK/inputs/a_1.fastq.gz" "$WORK/inputs/a_2.fastq.gz" > "$WORK/sheet.tsv"
-# new_form_task <title> <fields as JSON>: a request, as the form makes it
+# new_form_task <answers, as JSON, by question title>: a request, as the form
+# makes it, with the samplesheet attached
 new_form_task() {
-    local id
-    id=$(stub POST "/api/v4/folders/$WRIKE_FOLDER_ID/tasks" -H 'Authorization: bearer stub-token' \
-        --data-urlencode "title=$1" --data-urlencode "customStatus=$(wrike_status_id submitted)" \
-        --data-urlencode "customFields=$2" --data-urlencode "_author=KUREQUEST" | jq -r '.data[0].id')
-    stub POST "/api/v4/tasks/$id/attachments" -H 'Authorization: bearer stub-token' -H 'X-File-Name: samples.tsv' \
-        -H 'Content-Type: application/octet-stream' --data-binary "@$WORK/sheet.tsv" > /dev/null
-    printf '%s' "$id"
+    stub POST /_test/submit -d "$(jq -cn --arg form "$WRIKE_FORM_ID" --argjson answers "$1" --rawfile sheet "$WORK/sheet.tsv" \
+        '{form: $form, answers: $answers, attachment: {name: "samples.tsv", content: $sheet}, author: "KUREQUEST"}')" |
+        jq -r '.data[0].taskId'
 }
-field() {
-    jq -cn --arg id "$(wrike_field_id "$1")" --arg v "$2" '{id: $id, value: $v}'
-}
-TASK=$(new_form_task "Form mock" "[$(field pipeline ampliseq),$(field retention "6 Months"),$(field picrust Yes),$(field exclude_taxa '["mitochondria","chloroplast"]'),$(field mergepairs_strategy concatenate)]")
+TASK=$(new_form_task '{"Title": "Form mock", "Pipeline": "ampliseq", "Dashboard Retention": "6 Months", "Ampliseq --picrust": "Yes",
+    "Ampliseq --exclude_taxa": ["mitochondria", "chloroplast"], "Ampliseq --mergepairs_strategy": "concatenate"}')
 JSON=$(wrike_call GET "tasks/$TASK")
+check "the form's task has Pipeline in its field" "ampliseq" "$(wrike_task_field "$JSON" pipeline)"
+check "and the other answers in its description alone" "yes 1" \
+    "$(jq -r '.data[0].description' <<< "$JSON" | grep -qF '<b>Ampliseq --exclude_taxa</b><br />mitochondria, chloroplast<br />' && echo yes) $(jq '.data[0].customFields | length' <<< "$JSON")"
 mkdir -p "$WORK/job1"
 wrike_job_file "$TASK" "$JSON" "$WORK/job1" > "$WORK/job1/why" 2>&1
 check "it's written" "0" "$?"
@@ -229,22 +289,50 @@ check "several answers, comma-separated" "mitochondria,chloroplast" "$(yq -r .am
 check "an answer in the pipeline's section" "concatenate" "$(yq -r .ampliseq.mergepairs_strategy "$WORK/job1/job.yaml")"
 check "the samplesheet attached, beside it" "samplesheet.tsv" "$(yq -r .samplesheet "$WORK/job1/job.yaml")"
 check "as it was attached" "$(cat "$WORK/sheet.tsv")" "$(cat "$WORK/job1/samplesheet.tsv")"
-TASK2=$(new_form_task "Bad" "[$(field pipeline ampliseq),$(field picrust Maybe)]")
+TASK2=$(new_form_task '{"Title": "Bad", "Pipeline": "ampliseq", "Dashboard Retention": "3 Months", "Ampliseq --picrust": "Maybe"}')
 mkdir -p "$WORK/job2"
 out=$(wrike_job_file "$TASK2" "$(wrike_call GET "tasks/$TASK2")" "$WORK/job2" 2>&1)
 check "an answer the form doesn't offer is turned down" "yes" "$(has "$out" "\"Maybe\" isn't an answer the form offers for picrust")"
-TASK3=$(new_form_task "Repeat" "[$(field pipeline "Repeat an earlier run"),$(field previous_run "$S3/$PREFIX/abcdefgh/index.html")]")
+TASK2R=$(new_form_task '{"Title": "No retention", "Pipeline": "ampliseq"}')
+mkdir -p "$WORK/job2r"
+out=$(wrike_job_file "$TASK2R" "$(wrike_call GET "tasks/$TASK2R")" "$WORK/job2r" 2>&1)
+check "so is one missing an answer the form always asks" "yes" \
+    "$(has "$out" 'its description has no answer to "Dashboard Retention", which the form always asks of ampliseq.')"
+TASK2D=$(stub POST "/api/v4/folders/$WRIKE_FOLDER_ID/tasks" -H 'Authorization: bearer stub-token' \
+    --data-urlencode "title=Pipeline in the description" --data-urlencode "customStatus=$(wrike_status_id submitted)" \
+    --data-urlencode "description=<b>Pipeline</b><br />ampliseq<br /><br /><b>Dashboard Retention</b><br />1 Month<br />" |
+    jq -r '.data[0].id')
+stub POST "/api/v4/tasks/$TASK2D/attachments" -H 'Authorization: bearer stub-token' -H 'X-File-Name: samples.tsv' \
+    -H 'Content-Type: application/octet-stream' --data-binary "@$WORK/sheet.tsv" > /dev/null
+mkdir -p "$WORK/job2d"
+wrike_job_file "$TASK2D" "$(wrike_call GET "tasks/$TASK2D")" "$WORK/job2d" > /dev/null 2>&1
+check "Pipeline is read from the description when the form left it there" "ampliseq 1 Month" \
+    "$(yq -r '(.pipeline | sub("@.*"; "")) + " " + .retention' "$WORK/job2d/job.yaml" 2> /dev/null)"
+TASK3=$(new_form_task "$(jq -cn --arg run "$S3/$PREFIX/abcdefgh/index.html" \
+    '{Title: "Repeat", Pipeline: "Repeat an earlier run", "Previous Run": $run, "Dashboard Retention": "12 Months"}')")
 mkdir -p "$HISTORY/abcdefgh" "$WORK/job3"
 printf 'pipeline: ampliseq@%s\ntitle: "Old"\nsamplesheet: "/old/sheet.tsv"\nretention: "1 Month"\nampliseq:\n  picrust: true\n' \
     "0123456789012345678901234567890123456789" > "$HISTORY/abcdefgh/job.yaml"
 wrike_job_file "$TASK3" "$(wrike_call GET "tasks/$TASK3")" "$WORK/job3" > /dev/null 2>&1
 check "a repeat takes the earlier run's job, named by its address" "true" "$(yq -r .ampliseq.picrust "$WORK/job3/job.yaml" 2> /dev/null)"
-TASK3T=$(new_form_task "Repeat by token" "[$(field pipeline "Repeat an earlier run"),$(field previous_run "$S3/$PREFIX/abcdefgh-abcdefghijklmnop/index.html")]")
+check "with its own retention" "12 Months" "$(yq -r .retention "$WORK/job3/job.yaml" 2> /dev/null)"
+TASK3T=$(new_form_task "$(jq -cn --arg run "$S3/$PREFIX/abcdefgh-abcdefghijklmnop/index.html" \
+    '{Title: "Repeat by token", Pipeline: "Repeat an earlier run", "Previous Run": $run}')")
 mkdir -p "$WORK/job3t"
 wrike_job_file "$TASK3T" "$(wrike_call GET "tasks/$TASK3T")" "$WORK/job3t" > /dev/null 2>&1
 check "or by an address with its token" "true" "$(yq -r .ampliseq.picrust "$WORK/job3t/job.yaml" 2> /dev/null)"
+check "unanswered, the earlier run's retention" "1 Month" "$(yq -r .retention "$WORK/job3t/job.yaml" 2> /dev/null)"
 check "at its version" "ampliseq@0123456789012345678901234567890123456789" "$(yq -r .pipeline "$WORK/job3/job.yaml" 2> /dev/null)"
 check "with the new title and samplesheet" "Repeat samplesheet.tsv" "$(yq -r '.title + " " + .samplesheet' "$WORK/job3/job.yaml" 2> /dev/null)"
+TASK3N=$(new_form_task '{"Title": "Repeat what", "Pipeline": "Repeat an earlier run"}')
+mkdir -p "$WORK/job3n"
+out=$(wrike_job_file "$TASK3N" "$(wrike_call GET "tasks/$TASK3N")" "$WORK/job3n" 2>&1)
+check "a repeat naming no run is turned down" "yes" "$(has "$out" 'its description has no answer to "Previous Run"')"
+mkdir -p "$WORK/repeat"
+cp "$WORK/job3/job.yaml" "$WORK/repeat/job.yaml"
+(cd "$WORK/repeat" && JOB_PIPELINE=ampliseq wrike_submitted "$TASK3") > /dev/null 2>&1
+check "once submitted, a repeat's Pipeline names the pipeline it runs" "ampliseq" \
+    "$(wrike_task_field "$(wrike_call GET "tasks/$TASK3")" pipeline)"
 check "a request is waiting" "yes" "$(wrike_waiting "$JSON" "$(derive_uid "$TASK")" && echo yes)"
 mkdir -p "$RUNS/$(derive_uid "$TASK")"
 check "and isn't once it has a run directory" "no" "$(wrike_waiting "$JSON" "$(derive_uid "$TASK")" && echo yes || echo no)"
@@ -252,6 +340,8 @@ rmdir "$RUNS/$(derive_uid "$TASK")"
 out=$(wrike_reject "$TASK2" "a test reason." 2>&1)
 check "a rejection moves the task to Failed" "$(wrike_status_id failed)" "$(wrike_call GET "tasks/$TASK2" | jq -r '.data[0].customStatusId')"
 check "with why in a comment" "yes" "$(stub GET /_test/state | jq -r --arg t "$TASK2" '.tasks[$t].comments[-1].text' | grep -q 'a test reason' && echo yes)"
+check "gnoto wrike reads the task, and leaves one no longer waiting" "yes" \
+    "$(has "$(wrike_handle_task "$TASK2" 2>&1)" "isn't waiting to start")"
 
 echo "Wrike changes that fail, and their replay"
 CLI=$(wrike_cli_task "CLI mock" ampliseq alice)

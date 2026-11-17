@@ -121,9 +121,12 @@ in_image "gnoto_aws sqs purge-queue --queue-url $QUEUE > /dev/null"
 $GNOTO config wrike --api_url="$STUB/api/v4" --api_token=stub-token --webhook_secret=testbed-secret \
     --poll_minutes=5 --yes >> config.log 2>&1
 check "config wrike prints the form's checklist" "yes" "$(grep -q 'create a request form named "gnoto Request"' config.log && echo yes)"
-FORM=$(in_image 'wrike_fields_spec() { :; }; source "$GNOTO_CODE_DIR/lib/jobfile.sh"; source "$GNOTO_CODE_DIR/service/wrike/config.sh";
-    jq -c --arg space "$WRIKE_SPACE_ID" "{title: \"gnoto Request\", spaceId: \$space,
-        pages: [{fields: [.[] | select(.gnoto | not) | {title, items: [.values[] | {title: .}]}]}]}" <<< "$(wrike_fields_spec)"')
+check "with the custom fields Pipeline, Results and Expiration alone" "Expiration,Pipeline,Results" \
+    "$(stub GET /_test/state | jq -r '[.fields[].title] | sort | join(",")')"
+FORM=$(in_image 'source "$GNOTO_CODE_DIR/lib/jobfile.sh"; source "$GNOTO_CODE_DIR/service/wrike/config.sh"
+    wrike_questions_spec | jq -c --arg space "$WRIKE_SPACE_ID" --arg folder "$WRIKE_FOLDER_ID" \
+        --arg status "$(wrike_status_id submitted)" --argjson fields "{\"pipeline\": \"$(wrike_field_id pipeline)\"}" \
+        -f "$GNOTO_CODE_DIR/test/wrike/form.jq"')
 check "the checklist's questions can be read" "yes" "$([[ $FORM == *Pipeline* ]] && echo yes)"
 stub POST /_test/form -d "$FORM" > /dev/null
 $GNOTO config wrike --yes > config2.log 2>&1
@@ -169,13 +172,12 @@ check "and its Expiration date" "$(grep -o 'remove_utc: "[0-9-]*' "$DATA_DIR/exp
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customFields[] | select(.value | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) | .value' <<< "$TASKS")"
 
 echo "a request from the Wrike form, repeating it on the same samples"
-FIELDS=$(jq -c '.fields | to_entries | map({(.value.title): .key}) | add' <<< "$TASKS")
-TASK_B=$(stub POST "/api/v4/folders/$(in_image 'printf %s "$WRIKE_FOLDER_ID"')/tasks" -H 'Authorization: bearer stub-token' \
-    --data-urlencode "title=16S V4 form" --data-urlencode "customStatus=$(in_image 'wrike_status_id submitted')" \
-    --data-urlencode "_author=KUREQUEST" --data-urlencode "customFields=$(jq -cn --argjson f "$FIELDS" --arg uid "$UID_A" \
-        '[{id: $f.Pipeline, value: "Repeat an earlier run"}, {id: $f["Previous Run"], value: $uid}]')" | jq -r '.data[0].id')
-stub POST "/api/v4/tasks/$TASK_B/attachments" -H 'Authorization: bearer stub-token' -H 'X-File-Name: samples.tsv' \
-    -H 'Content-Type: application/octet-stream' --data-binary @v4.tsv > /dev/null
+TASK_B=$(stub POST /_test/submit -d "$(jq -cn --arg form "$(in_image 'printf %s "$WRIKE_FORM_ID"')" --arg uid "$UID_A" \
+    --arg sheet "$(< v4.tsv)"$'\n' '{form: $form, author: "KUREQUEST", attachment: {name: "samples.tsv", content: $sheet},
+        answers: {Title: "16S V4 form", Pipeline: "Repeat an earlier run", "Previous Run": $uid, "Dashboard Retention": "1 Month"}}')" |
+    jq -r '.data[0].taskId')
+check "the form puts Previous Run in the task's description" "yes" \
+    "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].description' | grep -qF "<b>Previous Run</b><br />$UID_A<br />" && echo yes)"
 send_event "[{\"taskId\":\"$TASK_B\",\"eventType\":\"TaskCreated\",\"webhookId\":\"x\",\"eventAuthorId\":\"KUREQUEST\"}]"
 UID_B=$(task_uid "$TASK_B")
 for (( i = 0; i < 60; i++ )); do
@@ -186,6 +188,8 @@ check "the listener starts it" "yes" "$([[ -e $DATA_DIR/runs/$UID_B || -e $DATA_
 RUN_B=$(address "$UID_B")
 check "and its task moves to Running" "Running" \
     "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].customStatusId as $s | [.workflows[].customStatuses[] | select(.id == $s) | .name][0]')"
+check "with the pipeline it runs as its Pipeline" "ampliseq" \
+    "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '. as $s | .tasks[$t].customFields[] | select($s.fields[.id].title == "Pipeline") | .value')"
 check "it runs as a form request, at the earlier run's version" "true $(sed -n 's/^pipeline: *"*\([^"]*\)"*$/\1/p' "$DATA_DIR/history/$UID_A/job.yaml")" \
     "$(jq -r '.form' "$DATA_DIR/runs/$UID_B/run_state.json" 2> /dev/null) $(jq -r '.version' "$DATA_DIR/runs/$UID_B/run_state.json" 2> /dev/null)"
 check "it ends as Completed" "Completed" "$(wait_for "$UID_B" 120)"

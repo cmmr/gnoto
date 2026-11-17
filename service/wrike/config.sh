@@ -3,8 +3,8 @@
 # checks of it.
 #
 # Sourced by:  lib/config.sh and lib/lint.sh
-# Defines:     config_wrike_step, wrike_fields_spec, wrike_webhook_secret,
-#              lint_wrike, WRIKE_WEBHOOK_EVENTS
+# Defines:     config_wrike_step, wrike_questions_spec, wrike_fields_spec,
+#              wrike_webhook_secret, lint_wrike, WRIKE_WEBHOOK_EVENTS
 # Requires:    wrike_call from service/wrike/api.sh; generated_set,
 #              config_confirm and run_id_salt from lib/config.sh; options_json
 #              and pipeline_names from lib/jobfile.sh; lint_ok, lint_warn and
@@ -19,19 +19,22 @@
 #   workflow   "gnoto", with the statuses Submitted, Running, Completed,
 #              Failed, Cancelled and Expired
 #   folder     "gnoto Jobs", in the space, where requests arrive
-#   fields     in the space: Pipeline, Previous Run, Results, Expiration, and
-#              one for each question in the pipelines' options.yaml but Title
-#              and Samplesheet, which are the task's title and attachment. A
-#              question several pipelines ask is one field. A dropdown's
-#              answers are kept to options.yaml's, with no others allowed.
+#   fields     in the space: Pipeline, which the form fills, and Results and
+#              Expiration, which gnoto fills. Pipeline's answers are kept to
+#              the pipelines and the repeat, with no others allowed.
 #   webhook    on "gnoto Jobs", to aws.sqs.webhook_url, when SQS is set up, for
 #              WRIKE_WEBHOOK_EVENTS. Webhooks can't be edited, so one with other
 #              events is deleted before its replacement is made, so no event
 #              arrives twice.
 #
-# Wrike's API can't make a request form, so this prints a checklist for one,
-# then looks for it by name, records it, and compares its questions with the
-# fields. lint repeats the comparison.
+# Every other question on the request form, one for each in the pipelines'
+# options.yaml but Title and Samplesheet, which are the task's title and
+# attachment, writes its answer into the task's description, where gnoto reads
+# it. A question several pipelines ask is asked once. Wrike's API can't make a
+# request form, so this prints a checklist for one, then looks for it by name,
+# records it, and compares its questions with the checklist. lint repeats the
+# comparison. Wrike's API can't delete a custom field either, so a field the
+# space still has for a question is named, to delete by hand.
 
 # Keep in step with the case statement in service/wrike/listener.sh: an event
 # the webhook doesn't subscribe to never arrives, with nothing in any log
@@ -44,10 +47,14 @@ WRIKE_FORM_TITLE="gnoto Request"
 WRIKE_STATUSES=("Submitted Active Blue" "Running Active Turquoise" "Completed Completed Green"
     "Failed Cancelled Red" "Cancelled Cancelled Gray" "Expired Completed Brown")
 
-# Every field gnoto reads or writes, as a JSON array of {key, title, type,
-# values, help, pipelines}. Fails when two pipelines ask one question with
-# different titles or answers.
-wrike_fields_spec() {
+# The request form's questions after Title and Samplesheet, in order, as a
+# JSON array of {key, title, type, values, help, pipelines, required, default,
+# field}. pipelines are the Pipeline answers the form shows a question for.
+# An option with a default is required, starting at that answer, and so is
+# always in the description of a request that names its pipeline. Only
+# Pipeline maps to a custom field. Fails when two pipelines ask one question
+# with different titles, answers or defaults.
+wrike_questions_spec() {
     local pipeline all="[]" options
     for pipeline in $(pipeline_names); do
         options=$(options_json "$pipeline")
@@ -56,20 +63,36 @@ wrike_fields_spec() {
             | ((.labels // {}) | with_entries(.key |= tostring)) as $labels
             | {key, title: .question, type: (if .multiple then "Multiple" else "DropDown" end),
                values: [(.values // [])[] | tostring | ($labels[.] // .)], help: (.help // ""),
-               pipelines: [$pipeline]}]' <<< "$all")
+               required: (.default != null and .default != ""),
+               default: (if .default == null then "" else (.default | tostring | ($labels[.] // .)) end),
+               pipelines: [$pipeline], field: false}]' <<< "$all")
     done
-    jq -c --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" --arg repeat "$WRIKE_REPEAT_ANSWER" '
+    jq -c --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" --arg repeat "$WRIKE_REPEAT_ANSWER" \
+        --arg pipeline "$WRIKE_PIPELINE_QUESTION" --arg previous "$WRIKE_PREVIOUS_QUESTION" '
         group_by(.key) | map(
-            if (map(.title) | unique | length) > 1 or (map(.values) | unique | length) > 1 or (map(.type) | unique | length) > 1
-            then error("The option \(.[0].key) is asked differently by \(map(.pipelines[0]) | join(" and ")): one question must have one title and one set of answers")
+            if (map([.title, .values, .type, .default]) | unique | length) > 1
+            then error("The option \(.[0].key) is asked differently by \(map(.pipelines[0]) | join(" and ")): one question must have one title, one set of answers and one default")
             else .[0] + {pipelines: map(.pipelines[0])} end)
-        | [{key: "pipeline", title: "Pipeline", type: "DropDown", values: ($pipelines + [$repeat]),
-            help: "Which analysis to run, or to repeat an earlier run on new samples", pipelines: $pipelines},
-           {key: "previous_run", title: "Previous Run", type: "Text", values: [],
-            help: "The earlier run to repeat: its eight-character ID, or its results address", pipelines: []},
-           {key: "results", title: "Results", type: "Text", values: [], help: "", pipelines: [], gnoto: true},
-           {key: "expiration", title: "Expiration", type: "Date", values: [], help: "", pipelines: [], gnoto: true}]
-          + .' <<< "$all"
+        # A repeat keeps the answers of its earlier run, but for how long its results are kept
+        | map(if .key == "retention" then .pipelines += [$repeat] else . end)
+        | [{key: "pipeline", title: $pipeline, type: "DropDown", values: ($pipelines + [$repeat]),
+            help: "Which analysis to run, or to repeat an earlier run on new samples", pipelines: [],
+            required: true, default: "", field: true},
+           {key: "previous_run", title: $previous, type: "Text", values: [],
+            help: "The earlier run to repeat: its eight-character ID, or its results address", pipelines: [$repeat],
+            required: true, default: "", field: false}]
+          + sort_by([(.pipelines | length) != ($pipelines | length) + 1, .title])' <<< "$all"
+}
+
+# The custom fields gnoto reads or writes, as a JSON array of {key, title,
+# type, values}: the questions that map to one, then Results and Expiration,
+# which gnoto fills and no question asks
+wrike_fields_spec() {
+    local questions
+    questions=$(wrike_questions_spec) || return 1
+    jq -c '[.[] | select(.field) | {key, title, type, values}]
+        + [{key: "results", title: "Results", type: "Text", values: []},
+           {key: "expiration", title: "Expiration", type: "Date", values: []}]' <<< "$questions"
 }
 
 # The secret Wrike signs the webhook's deliveries with, which the SQS stack's
@@ -113,49 +136,73 @@ wrike_find_webhooks() {
         '.data[]? | select(.folderId == $folder and .hookUrl == $url)'
 }
 
-# The checklist for building the request form by hand
+# The checklist for building the request form by hand, from the questions
 wrike_form_checklist() {
-    local spec=$1
+    local questions=$1
     cat << EOF
 
 Build the request form in Wrike by hand: its API can read forms, and can't make them.
 In the "$WRIKE_SPACE_TITLE" space, create a request form named "$WRIKE_FORM_TITLE" that creates a task in
-"$WRIKE_FOLDER_TITLE" with the status Submitted. Map each question to the custom field of
-the same name, and offer exactly the answers listed:
+"$WRIKE_FOLDER_TITLE" with the status Submitted. Title each question exactly as written here,
+and offer exactly the answers listed. Add Pipeline's answer to the custom field Pipeline.
+Leave every other answer in the Description, where Wrike puts it unless told otherwise,
+since gnoto reads it there under the question's title: map no other question to a field.
 
   1. Title: the task's title, required. "Names the results."
   2. Samplesheet: an attachment, required. "Tab-separated, no header: sample, fastq1,
      fastq2. Omit fastq2 for single-end."
 EOF
-    jq -r '[.[] | select(.gnoto | not)] | to_entries[] | .key as $i | .value
+    jq -r --argjson answers "$(jq -c 'first(.[] | select(.key == "pipeline")) | .values' <<< "$questions")" '
+        to_entries[] | .key as $i | .value
         | "  \($i + 3). \(.title): " + (if .type == "Text" then "text" elif .type == "Multiple" then "checkboxes" else "a dropdown" end)
           + (if .values != [] then ", answers: " + (.values | join(", ")) else "" end)
-          + (if .key == "pipeline" then ". Required"
-             elif .key == "previous_run" then ". Shown when Pipeline is Repeat an earlier run"
-             elif (.pipelines | length) > 0 then ". Shown when Pipeline is " + (.pipelines | join(" or "))
-             else "" end)
-          + (if .help != "" then ". \"\(.help)\"" else "" end)' <<< "$spec"
+          + (if .pipelines != [] and (.pipelines | length) < ($answers | length)
+             then ". Shown when Pipeline is " + (.pipelines | join(" or ")) else "" end)
+          + (if .required then ". Required" else "" end)
+          + (if .default != "" then ", starting at \(.default)" else "" end)
+          + (if .field then ". Its answer goes to the custom field \(.title)" else "" end)
+          + (if .help != "" then ". \"\(.help)\"" else "" end)' <<< "$questions"
     echo
     echo "Then run $(gnoto_command config wrike) again, which finds the form and checks its questions."
 }
 
-# What differs between the form and the fields: a line each
+# What differs between the form and the questions: a line each. Wrike's API
+# doesn't say where a question's answer goes, so that isn't compared.
 wrike_form_drift() {
-    local form=$1 spec=$2
-    jq -r --argjson spec "$spec" '
-        [.data[0].pages[]?.fields[]? | {title, items: [.items[]?.title]}] as $questions
-        | $spec[] | select(.gnoto | not) | . as $field
-        | ([$questions[] | select(.title == $field.title)] | .[0]) as $q
-        | if $q == null then "the form has no question \"\($field.title)\""
-          elif $field.values != [] and ($q.items | sort) != ($field.values | sort) then
-              "the form offers \"\($field.title)\" the answers \($q.items | join(", ")), not \($field.values | join(", "))"
-          else empty end' <<< "$form"
+    local form=$1 questions=$2
+    jq -r --argjson spec "$questions" '
+        {DropDown: "ComboBox", Multiple: "CheckBox", Text: "TextField"} as $types
+        | {ComboBox: "a dropdown", CheckBox: "checkboxes", TextField: "text", TextArea: "text"} as $names
+        | [.data[0].pages[]?.fields[]? | {title, type, mandatory: (.mandatory // false),
+            items: [.items[]?.title], chosen: [.items[]? | select(.selectedByDefault) | .title]}] as $form
+        | $spec[] | . as $want
+        | ([$form[] | select(.title == $want.title)] | .[0]) as $q
+        | if $q == null then "the form has no question \"\($want.title)\""
+          else
+              (if $q.type != $types[$want.type] and ($want.type != "Text" or $q.type != "TextArea") then
+                  "the form asks \"\($want.title)\" as \($names[$q.type] // $q.type), not \($names[$types[$want.type]])" else empty end),
+              (if $want.values != [] and ($q.items | sort) != ($want.values | sort) then
+                  "the form offers \"\($want.title)\" the answers \($q.items | join(", ")), not \($want.values | join(", "))" else empty end),
+              (if $want.required and ($q.mandatory | not) then "the form should require \"\($want.title)\"" else empty end),
+              (if $want.default != "" and $q.chosen != [$want.default] then
+                  "the form should start \"\($want.title)\" at \($want.default)" else empty end)
+          end' <<< "$form"
+}
+
+# The space's custom fields that a question has the title of, and gnoto
+# doesn't use: the old way of carrying an answer, which the form may still
+# map that question to. A line each.
+wrike_leftover_fields() {
+    local existing=$1 questions=$2 fields=$3
+    jq -r --argjson questions "$questions" --argjson fields "$fields" '
+        .[] | .title as $title
+        | select(any($questions[]; .title == $title) and (any($fields[]; .title == $title) | not)) | $title' <<< "$existing"
 }
 
 # gnoto config wrike, once its settings are written
 config_wrike_step() {
     local me bot name role space workflow folder fields spec plan=() status group color have id field
-    local existing missing_fields=() update_fields=() webhooks hook form forms drift
+    local existing questions leftover webhooks hook form forms drift
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     [[ -n ${WRIKE_API_TOKEN:-} ]] || fail "Set wrike.api_token first, the bot account's API token."
     run_id_salt
@@ -181,7 +228,8 @@ config_wrike_step() {
         folder="" existing="[]"
     fi
     [[ -n $folder ]] || plan+=("Create the folder \"$WRIKE_FOLDER_TITLE\" in the space")
-    spec=$(wrike_fields_spec) || fail "The pipelines' options.yaml can't be made into Wrike's fields, as above."
+    questions=$(wrike_questions_spec) && spec=$(wrike_fields_spec) ||
+        fail "The pipelines' options.yaml can't be made into the request form's questions, as above."
     while IFS= read -r field; do
         have=$(jq -c --arg title "$(jq -r .title <<< "$field")" 'first(.[] | select(.title == $title)) // empty' <<< "$existing")
         if [[ -z $have ]]; then
@@ -268,6 +316,18 @@ config_wrike_step() {
         [[ -n $id ]] || fail "Wrike didn't create the field \"$(jq -r .title <<< "$field")\"."
         generated_set "wrike.fields.$(jq -r .key <<< "$field")" "$id"
     done < <(jq -c '.[]' <<< "$spec")
+    # Fields gnoto once made for questions whose answers now go to the description
+    while IFS= read -r field; do
+        [[ -z $field ]] || generated_set "wrike.fields.$field" ""
+    done < <({ yq -o=json '.wrike.fields // {}' "$DATA_DIR/generated.yaml" 2> /dev/null || echo "{}"; } |
+        jq -r --argjson spec "$spec" 'keys[] | select(. as $key | all($spec[]; .key != $key))')
+    leftover=$(wrike_leftover_fields "$existing" "$questions" "$spec")
+    if [[ -n $leftover ]]; then
+        echo "The space has custom fields for questions whose answers go to the task's description now:"
+        sed 's/^/  /' <<< "$leftover"
+        echo "A question the form maps to one of them is read as unanswered. Wrike's API can't delete a"
+        echo "field, so delete them by hand in Wrike, which also takes them off the form."
+    fi
 
     # The webhook
     if sqs_on && [[ -n ${AWS_SQS_WEBHOOK_URL:-} ]]; then
@@ -295,15 +355,15 @@ config_wrike_step() {
     forms=$(wrike_call GET "spaces/$space/request_forms") || fail "Can't list the space's request forms."
     form=$(jq -r --arg title "$WRIKE_FORM_TITLE" 'first(.data[]? | select(.title == $title) | .id) // empty' <<< "$forms")
     if [[ -z $form ]]; then
-        wrike_form_checklist "$spec"
+        wrike_form_checklist "$questions"
         return 0
     fi
     generated_set wrike.form_id "$form"
-    drift=$(wrike_form_drift "$(wrike_call GET "request_forms/$form")" "$spec") || drift=""
+    drift=$(wrike_form_drift "$(wrike_call GET "request_forms/$form")" "$questions") || drift=""
     if [[ -n $drift ]]; then
         echo "The form \"$WRIKE_FORM_TITLE\" differs from gnoto's questions:"
         sed 's/^/  /' <<< "$drift"
-        wrike_form_checklist "$spec"
+        wrike_form_checklist "$questions"
         return 0
     fi
     echo "Wrike is ready: the form \"$WRIKE_FORM_TITLE\" matches gnoto's questions."
@@ -311,7 +371,7 @@ config_wrike_step() {
 
 # lint's Wrike checks
 lint_wrike() {
-    local me bot name role spec drift json status field missing=()
+    local me bot name role questions spec leftover drift json status field missing=()
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     if [[ -z ${WRIKE_API_TOKEN:-} ]]; then
         lint_fail "wrike: is on, and wrike.api_token isn't set. $(gnoto_command config wrike) asks for it"
@@ -336,6 +396,7 @@ lint_wrike() {
     for status in "${WRIKE_STATUSES[@]}"; do
         [[ -n $(wrike_status_id "${status%% *}") ]] || missing+=("status ${status%% *}")
     done
+    questions=$(wrike_questions_spec 2> /dev/null) || questions="[]"
     spec=$(wrike_fields_spec 2> /dev/null) || spec="[]"
     while IFS= read -r field; do
         [[ -z $field || -n $(wrike_field_id "$field") ]] || missing+=("field $field")
@@ -343,10 +404,15 @@ lint_wrike() {
     if (( ${#missing[@]} > 0 )); then
         lint_fail "wrike: generated.yaml lacks the $(lint_list "${missing[@]}"). Run: $(gnoto_command config wrike)"
     fi
+    if [[ -n ${WRIKE_SPACE_ID:-} ]] && json=$(wrike_space_fields "$WRIKE_SPACE_ID" 2> /dev/null); then
+        leftover=$(wrike_leftover_fields "$json" "$questions" "$spec")
+        [[ -z $leftover ]] ||
+            lint_warn "wrike: the space has custom fields for questions whose answers go to the description now, and a question the form maps to one is read as unanswered. Delete them in Wrike: $(paste -sd ';' <<< "$leftover" | sed 's/;/, /g')"
+    fi
     if [[ -z ${WRIKE_FORM_ID:-} ]]; then
         lint_warn "wrike: no request form \"$WRIKE_FORM_TITLE\" found yet. $(gnoto_command config wrike) prints its checklist"
     elif json=$(wrike_call GET "request_forms/$WRIKE_FORM_ID" 2> /dev/null); then
-        drift=$(wrike_form_drift "$json" "$spec")
+        drift=$(wrike_form_drift "$json" "$questions")
         if [[ -n $drift ]]; then
             lint_warn "wrike: the request form differs from options.yaml: $(paste -sd ';' <<< "$drift" | sed 's/;/; /g')"
         else

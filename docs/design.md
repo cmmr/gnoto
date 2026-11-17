@@ -712,7 +712,9 @@ the run's address from submission, where the progress page follows the run.
 **`wrike`.** This is the form route's way in. A task is waiting when it sits in
 "gnoto Jobs" with the status `Submitted`, and has no run directory or history yet. For
 each waiting task, `wrike` turns the task's answers into a job file and calls the same
-lint and submit code as `run`. A rejection sets the task to `Failed` with the reason in
+lint and submit code as `run`. It reads Pipeline from its custom field, and every other
+answer from the task's description, as "Custom fields" under "Configuring integrations"
+says. A rejection sets the task to `Failed` with the reason in
 a comment, which also takes it off the waiting list. Missing databases are fetched
 without asking, and the job waits for those fetches to succeed. Given a task ID, it
 handles only that task. Without one, it scans the folder. The `mkdir` guard on the run
@@ -958,7 +960,7 @@ later upgrade can't change what an existing job file means.
 at the top level or in the pipeline's section, and its Wrike title, allowed answers,
 default and help text. A form answer can carry its own label, such as `Yes` for
 `picrust: true`. It produces the skeleton, the Wrike form's
-questions, the checks `gnoto wrike` makes, and the fields `config wrike` creates. Other
+questions in the checklist `config wrike` prints, and the checks `gnoto wrike` makes. Other
 parameters can still be added to a job file by hand, and `lint` checks them against the
 pipeline's schema. Pipeline definitions read answers through `form_answer`, a helper that
 returns an option's value whichever route set it, so they don't care where the answers
@@ -1069,8 +1071,11 @@ run's uid or address, does the second: it reads that run's `job.yaml` from
 `history/<uid>/`, so it works after the results expire, and swaps in the new samplesheet.
 The job then runs at that run's version: when that isn't the version `gnoto wrike` runs, its
 scan hands that one task to it, as `gnoto wrike <task_id>`, one such task each scan, and the
-listener leaves the task to the scan. A version from before requests from the form can't
-take one, so such a request is turned down, saying to repeat the run from the command line.
+listener leaves the task to the scan. A version from before requests from the form, or from
+before their answers moved into the task's description, can't take one, so such a request
+is turned down, saying to repeat the run from the command line. The request's own Dashboard
+Retention, when answered, replaces the earlier run's, and once the job is submitted, the
+task's Pipeline names the pipeline it runs in place of "Repeat an earlier run".
 
 **`lock.yaml`** pins what a pipeline's commit runs with, and `pipelines/lock.sh` writes
 what it can: `containers.config`, and `databases` from the manifests in `core.db_dir`. Each
@@ -1315,7 +1320,7 @@ step, and systemd has no section. An integration whose section is off or missing
 | Apptainer | Asks where Apptainer is and for the paths containers must see | None |
 | S3 | Asks the deploy profile, region, bucket, domain and certificate, offering the account's own, writes them, and offers to deploy: gnoto's IAM user, whose key it writes to `config.yaml`, the bucket or an existing one's policy, CloudFront and its function, and with a Route 53 hosted zone, a domain's DNS records and, unless one's issued, its certificate. Then checks it all with gnoto's keys | An AWS CLI profile that can create the stacks, or an access key to make one from. A domain outside Route 53 needs its own certificate and DNS. A site that sets up its own bucket and CloudFront fills in `aws.s3.results_base_url` and gnoto's keys |
 | SQS | Asks the deploy profile and region, and offers to deploy the SQS stack: queue, Lambda and API Gateway for the Wrike webhook, with Globus's app set the Lambda and API Gateway for Get the data, and the queue policy for gnoto's IAM user | The same profile. A site that sets up its own queue fills in `aws.sqs.queue_url`, `webhook_url` and `access_url` |
-| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and custom fields, plus the webhook when SQS is set up | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
+| Wrike | Creates the space, workflow and statuses, "gnoto Jobs" folder and its three custom fields, plus the webhook when SQS is set up, and names any field left from an earlier gnoto to delete | Needs a Business plan or above. Create the bot account and its token. Have an admin create the workflow if the bot can't, and `config` adopts it by name. Build the request form |
 | systemd | Fills in the unit templates, installs them as user units, enables them and turns on linger | Run it from the service account's own login session. Ask an admin if linger is refused |
 | Globus | With the client credentials in `config.yaml`, creates the run folder, checks that no permission opens it to everyone, and checks once, with a test folder shared with the client and unshared again, that the client can share a run. Says how to register the dashboards' app, and to run `config sqs --deploy` once it's set | Create the guest collection and a client for gnoto, give the client the Access Manager role on the collection, register the dashboards' app, a public client returning to `<results_base_url>/access.html`, and put the collection's UUID and URL and both clients' IDs, and gnoto's secret, in `config.yaml` |
 
@@ -1332,24 +1337,44 @@ step, and systemd has no section. An integration whose section is off or missing
 - **Names:** the space and the workflow are "gnoto", the folder "gnoto Jobs", and the form
   "gnoto Request". The space's tasks take the workflow by default.
 - **Custom fields:** [`POST /customfields`](https://developers.wrike.com/reference/postcustomfieldsempty.md)
-  comes from `options.yaml`, with `allowOtherValues` turned off, since it defaults to
-  on for dropdowns: one field per question but Title and Samplesheet, which are the task's
-  title and its attachment, and one field for a question several pipelines ask, which must
-  have one title and one set of answers. A dropdown's answers are an option's labels, and
-  `config` changes a field's answers to match. `config` also creates Pipeline, whose answers
-  are the pipelines and "Repeat an earlier run", Previous Run, the run that repeats, as its
-  uid or its address, Results, the run's address, and Expiration, the date that holds each
-  run's removal time. Lookups stay inside the space, because an account can hold many fields
-  that share a title.
+  creates three, the columns of the folder's table: Pipeline, whose answers are the
+  pipelines and "Repeat an earlier run", with `allowOtherValues` turned off, since it
+  defaults to on for dropdowns, and `config` changes its answers to match; Results, the
+  run's address; and Expiration, the date that holds each run's removal time, the one
+  thing people change once a run has started. Lookups stay inside the space, because an
+  account can hold many fields that share a title. Wrike's API can't delete a field, so
+  `config` forgets the IDs of fields an earlier gnoto made for questions, and it and `lint`
+  name any field the space still has under a question's title, for a person to delete,
+  since a question the form maps to one is read as unanswered.
+- **Answers in the description:** every question but Pipeline leaves its answer in the
+  task's description, where Wrike puts an answer the form maps nowhere else. Wrike writes
+  each as the question's title in bold, the answer on the lines below, and a blank line
+  between, in the form's order, leaving out the questions the form hid, as in
+  `<b>Settings</b><br />Default<br /><br /><b>Attach the sample sheet.</b><br />six_samples.tsv<br />`,
+  a real task's from `cmmr/nextflow`. `wrike_task_answers` splits it on the bold titles,
+  then strips tags and decodes entities, so an answer's own text can't pose as a question,
+  and reads several answers to one question whether Wrike puts them on lines of their own
+  or on one line. `gnoto wrike` matches each by `options.yaml`'s exact `question`, and checks
+  it against the option's labels as before, so a description edited by hand can't ask for
+  more than the form offers. An option with a default is a required question on the form,
+  starting at that answer, so every request has at least Dashboard Retention, and a request
+  whose description lacks a required answer is turned down, naming it, rather than run
+  with defaults, which catches a form or Wrike that writes answers elsewhere. Pipeline is
+  read from the description too when the form left it there.
 - **Webhook:** it subscribes to `TaskCreated` for new requests, `TaskDeleted`, and
   `TaskCustomFieldChanged` for edits to the Expiration date. Webhooks can't be edited, so
   `config` compares the events and replaces the webhook if they differ, deleting the old one
   first to avoid double delivery.
 - **Request form:** `config` prints a checklist from `options.yaml`, giving each
-  question's title, type and answers, and when the form shows it. It then finds the form
-  through the [read endpoints](https://developers.wrike.com/llms.txt), compares its
-  questions with the fields by title, and records its ID. `lint` repeats the comparison and
-  warns on drift. The form creates its task in "gnoto Jobs" with the status Submitted.
+  question's title, type and answers, when the form shows it, whether it's required and
+  what it starts at, and that only Pipeline's answer goes to a field. A question several
+  pipelines ask is asked once, with one title, one set of answers and one default, and
+  Dashboard Retention is asked of a repeat too. It then finds the form through the
+  [read endpoints](https://developers.wrike.com/llms.txt), compares each question's title,
+  type, answers, whether it's required and its default, and records the form's ID. `lint`
+  repeats the comparison and warns on drift. Those endpoints don't say where a question's
+  answer goes, so that isn't compared. The form creates its task in "gnoto Jobs" with the
+  status Submitted.
 - **Statuses:** `config` creates these in the workflow.
 
   | Status | Wrike group | Set by |
@@ -1821,6 +1846,11 @@ which run from their Apptainer files by SHA-256, as the notes on `containers.con
   ([quotas](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html)),
   so a bigger deliverables zip needs a download test, or a link straight to S3. Deferred
   by Daniel on 2026-11-05.
+- **Answers in a real task's description:** how Wrike writes a checkbox question with
+  several answers, and an optional question left blank. `wrike_task_answers` reads every
+  layout that seemed likely, and a blank or missing answer counts as unanswered, but the
+  only real description seen is one with two single answers. The first form request on
+  the cluster settles it.
 - **Wrike custom field rights:** whether creating a custom field needs admin rights, as
   creating a workflow does. The reference pages list scopes but no admin requirement.
   CMMR's own rollout isn't affected, because Daniel administers its Wrike, AWS and GitHub

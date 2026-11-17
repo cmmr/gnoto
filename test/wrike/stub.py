@@ -14,10 +14,26 @@ Test helpers, which need no token:
   POST /_test/fail?count=N&code=C   the next N API calls answer C
   GET  /_test/state                  the whole state, as JSON
   POST /_test/form                   adds a request form: a JSON body with
-                                     title, spaceId and pages
+                                     title, spaceId and pages, and, which
+                                     Wrike's API doesn't show, _folderId and
+                                     _status for its tasks, and each
+                                     question's _map: "title", or
+                                     {"customField": <id>}, or by default
+                                     the description
+  POST /_test/submit                 submits a form, as a requester does: a
+                                     JSON body with form, its ID, answers,
+                                     each question's title to its answer or
+                                     list of answers, leaving out those the
+                                     form hid, attachment, {name, content},
+                                     and author. The task gets each answer
+                                     where the question maps it, the rest in
+                                     its description in the shape Wrike
+                                     writes, and the attachment's name there
+                                     too.
   POST /_test/reset                  forgets everything
 """
 
+import html
 import itertools
 import json
 import random
@@ -66,6 +82,54 @@ def as_json(value):
 def task_view(task, fields=()):
     view = {k: v for k, v in task.items() if k not in ('comments', 'attachmentIds')}
     return view
+
+
+def new_task(folder, title, description='', status=None, fields=(), author=None):
+    task = {'id': new_id('MASTUBTASK', 12), 'title': title, 'description': description,
+            'customStatusId': status, 'customFields': list(fields), 'parentIds': [folder],
+            'authorIds': [author or BOT['id']], 'scope': 'WsTask', 'createdDate': now(),
+            'comments': [], 'attachmentIds': []}
+    STATE['tasks'][task['id']] = task
+    return task
+
+
+def attach(task, name, raw):
+    att = {'id': new_id('IEATT'), 'name': name, 'taskId': task['id'], 'size': len(raw),
+           'content': raw.decode('latin-1')}
+    STATE['attachments'][att['id']] = att
+    task['attachmentIds'].append(att['id'])
+    return att
+
+
+def submit(body):
+    """A form's task, as Wrike makes it: each answer where its question maps
+    it, and the rest in the description, as the question's title in bold and
+    the answer below, in the form's order. A real task's description:
+    <b>Settings</b><br />Default<br /><br /><b>Attach the sample sheet.</b><br />six_samples.tsv<br />"""
+    form = STATE['forms'][body['form']]
+    answers, upload = body.get('answers', {}), body.get('attachment')
+    title, fields, blocks = '', [], []
+    for question in (q for page in form['pages'] for q in page['fields']):
+        if question['type'] == 'Attachment':
+            if upload:
+                blocks.append(f"<b>{html.escape(question['title'])}</b><br />{html.escape(upload['name'])}<br />")
+            continue
+        answer = answers.get(question['title'])
+        values = [str(v) for v in (answer if isinstance(answer, list) else [answer]) if v not in (None, '')]
+        if not values:
+            continue
+        where = question.get('_map', 'description')
+        if where == 'title':
+            title = values[0]
+        elif isinstance(where, dict):
+            fields.append({'id': where['customField'], 'value': values[0] if len(values) == 1 else json.dumps(values)})
+        else:
+            blocks.append(f"<b>{html.escape(question['title'])}</b><br />{html.escape(', '.join(values))}<br />")
+    task = new_task(form['_folderId'], title, '<br />'.join(blocks), form.get('_status'), fields,
+                    body.get('author'))
+    if upload:
+        attach(task, upload['name'], upload['content'].encode('latin-1'))
+    return {'formId': form['id'], 'projectId': form['_folderId'], 'taskId': task['id']}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -149,6 +213,8 @@ class Handler(BaseHTTPRequestHandler):
             form['id'] = new_id('IEFORM')
             STATE['forms'][form['id']] = form
             return self.data('requestForms', [form])
+        if path == '/_test/submit':
+            return self.data('requestFormSubmits', [submit(json.loads(raw))])
         return self.error(404, path)
 
     def api(self, verb, parts, p, raw):
@@ -223,16 +289,19 @@ class Handler(BaseHTTPRequestHandler):
             case ('GET', ['request_forms', rid]):
                 return self.data('requestForms', [s['forms'][rid]])
             case ('POST', ['folders', fid, 'tasks']):
-                task = {'id': new_id('MASTUBTASK', 12), 'title': p['title'], 'description': p.get('description', ''),
-                        'customStatusId': p.get('customStatus'), 'customFields': as_json(p.get('customFields')) or [],
-                        'parentIds': [fid], 'authorIds': [p.get('_author', BOT['id'])], 'scope': 'WsTask',
-                        'createdDate': now(), 'comments': [], 'attachmentIds': []}
-                s['tasks'][task['id']] = task
+                task = new_task(fid, p['title'], p.get('description', ''), p.get('customStatus'),
+                                as_json(p.get('customFields')) or [], p.get('_author'))
                 return self.data('tasks', [task_view(task)])
             case ('GET', ['folders', fid, 'tasks']):
                 tasks = [task_view(t) for t in s['tasks'].values() if fid in t['parentIds'] and t['scope'] == 'WsTask']
                 return self.answer(200, {'kind': 'tasks', 'data': tasks})
             case ('GET', ['tasks', tid]):
+                # The optional fields Wrike's reference lists for reading tasks by
+                # ID. Custom fields, parents and the description come anyway.
+                allowed = {'cascadingFields', 'customItemTypeId', 'billingType', 'attachmentCount', 'workScheduleId',
+                           'responsiblePlaceholderIds', 'effortAllocation', 'recurrent', 'finance'}
+                if set(as_json(p.get('fields')) or []) - allowed:
+                    return self.error(400, f'Parameter fields value is invalid: {p["fields"]}')
                 return self.data('tasks', [task_view(s['tasks'][tid])])
             case ('PUT', ['tasks', tid]):
                 task = s['tasks'][tid]
@@ -260,10 +329,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.data('attachments', [{k: v for k, v in s['attachments'][a].items() if k != 'content'}
                                                  for a in ids])
             case ('POST', ['tasks', tid, 'attachments']):
-                att = {'id': new_id('IEATT'), 'name': self.headers.get('X-File-Name'), 'taskId': tid,
-                       'size': len(raw), 'content': raw.decode('latin-1')}
-                s['attachments'][att['id']] = att
-                s['tasks'][tid]['attachmentIds'].append(att['id'])
+                att = attach(s['tasks'][tid], self.headers.get('X-File-Name'), raw)
                 return self.data('attachments', [{k: v for k, v in att.items() if k != 'content'}])
             case ('GET', ['attachments', aid, 'download']):
                 return self.answer(200, s['attachments'][aid]['content'].encode('latin-1'), 'application/octet-stream')

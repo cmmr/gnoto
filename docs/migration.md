@@ -1261,7 +1261,8 @@ What's built:
   to `Failed`. The followup reports how a run ended: its status, a comment with the link or
   the reason, and the Results and Expiration fields. `resume` moves the task back to
   `Running`.
-- **`gnoto wrike [task_id]`,** `service/wrike/task_handler.sh`. A waiting task's answers
+- **`gnoto wrike [task_id]`,** `service/wrike/task_handler.sh`. A waiting task's answers,
+  Pipeline from its field and the rest from the task's description since 2026-11-16,
   become a job file through each option's labels in `options.yaml`, with its one
   samplesheet attachment beside it, and run through the same checks and submission as
   `run`, as a form request, so each FASTQ must sit under `core.input_roots`, which `lint`
@@ -1317,10 +1318,11 @@ What's built:
   and `lint` reports a unit whose template has changed, as after an upgrade, which now
   restarts the listener when run as the units' account on their host.
 - **Configuration.** `gnoto config wrike` adopts or creates the "gnoto" space, the "gnoto"
-  workflow with its six statuses, "gnoto Jobs", the fields, Pipeline, Previous Run, Results
-  and Expiration, and one per question in the pipelines' `options.yaml`, a question two
-  pipelines ask being one field, and the webhook when SQS is set up. It prints the form's
-  checklist, then finds "gnoto Request" by name and compares its questions. `config s3` and
+  workflow with its six statuses, "gnoto Jobs", the fields Pipeline, Results and
+  Expiration (until 2026-11-16, also Previous Run and one per question in the pipelines'
+  `options.yaml`), and the webhook when SQS is set up. It prints the form's checklist, a
+  question two pipelines ask being asked once, then finds "gnoto Request" by name and
+  compares its questions. `config s3` and
   `config sqs` check the bucket and queue, or with `--deploy [--profile=<name>]` build the
   stacks `gnoto-iam`, `gnoto-s3` and `gnoto-sqs` from `service/aws/stacks/`, writing their
   outputs to `generated.yaml` and printing the IAM user's first key once; with
@@ -1472,6 +1474,44 @@ Then, also at his call, getting S3 and SQS running takes one command each:
   `checks/integrations.sh --publish`, its 45, now making the stand-in queue after
   `config aws --on` writes the keys, and checking that `lint` knows every setting
   `gnoto config` wrote.
+
+Then, at Daniel's call (2026-11-16), once `config wrike`'s plan on the cluster showed twelve
+custom fields, most of them one pipeline's, a gnoto task carries only Pipeline, Results and
+Expiration, and every other answer stays in the task's description, as decisions.md says.
+None of the earlier plan's fields had been created in the real Wrike.
+
+- **Reading the description,** `wrike_task_answers` in `service/wrike/tasks.sh`, in jq,
+  from the layout of a real form task's description in `cmmr/nextflow`'s
+  `docs/wrike/webhook_bridge.md`, since Wrike's help doesn't show one. `gnoto wrike` reads
+  each option by its question's title, Pipeline from its field or, failing that, the
+  description, and turns a request down when an option with a default, now a required
+  question, has no answer there. Dashboard Retention is asked of a repeat too, and
+  `wrike_submitted` sets a repeat's Pipeline to the pipeline it runs. A repeat handed to a
+  version from before this is turned down, since that version reads fields.
+- **The form,** from `wrike_questions_spec` in `service/wrike/config.sh`: the checklist
+  says where each answer goes and which questions are required and start where, and the
+  comparison now checks each question's type, whether it's required and its default
+  besides its title and answers. `config wrike` forgets the field IDs it no longer uses,
+  and it and `lint` name a field the space still has under a question's title, to delete
+  by hand, since Wrike's API has no call that deletes a field.
+- **Found on the way:** `gnoto wrike` read a task with `fields=["customFields","parentIds"]`,
+  neither of which Wrike's reference lists for reading a task by ID, and both come back
+  without asking, as the old code's plain read showed. It reads the task plainly now, and
+  the stub refuses a field the reference doesn't list there.
+- **The stub** gives a form's task its answers as Wrike would, through `/_test/submit`:
+  Title as the title, Pipeline in its field, the samplesheet attached and named in the
+  description, and every other answer in the description in the real layout.
+  `test/wrike/form.jq` builds its form from the checklist's questions.
+- **Tests.** `integrations-test.sh` passes 242 checks: the three fields, the forgotten ID,
+  the checklist's lines, each kind of drift, a leftover field named by `config` and `lint`,
+  the description's layouts (lines, one line, a list under `strong`, blanks, entities, an
+  answer posing as a question, a question twice), a missing required answer, Pipeline from
+  the description, a repeat's own retention and its Pipeline once submitted, and a
+  task read plainly. `lib-test.sh` passes 80. The finish test, `checks/integrations.sh`
+  without `--publish`, whose part is unchanged, passes its 43 checks, with its form request
+  now made through the stub's form, Previous Run read from the description, and the task's
+  Pipeline named for the pipeline it ran. A version from before this, in the test bed's
+  version cache, was told apart from one after by its `wrike_task_answers`.
 
 ### Phase 8: public release
 

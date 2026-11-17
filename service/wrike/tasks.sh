@@ -1,11 +1,11 @@
 #
 # tasks.sh - A run's Wrike task: made for a command-line job, kept up as the
-# run goes, and read for the dates people set on it.
+# run goes, and read for a request's answers and the dates people set on it.
 #
 # Sourced by:  lib/env.sh
 # Defines:     wrike_cli_task, wrike_submitted, wrike_submit_failed,
 #              wrike_report_end, wrike_folder_tasks, wrike_task_field,
-#              wrike_sync_dates
+#              wrike_task_answers, wrike_sync_dates
 # Requires:    wrike_call and the helpers in service/wrike/api.sh; run_value,
 #              expiry_get and expiry_sync from service/expire.sh, for the
 #              report and the dates
@@ -40,13 +40,18 @@ wrike_cli_task() {
 }
 
 # What a task learns once its job is submitted, run from the run directory:
-# job.yaml attached, and with S3, the address of the progress page
+# job.yaml attached, with S3 the address of the progress page, and for a
+# repeat of an earlier run, the pipeline it runs in place of "Repeat an
+# earlier run"
 wrike_submitted() {
     local task=$1 uid=${PWD##*/} url
     wrike_update "" POST "tasks/$task/attachments" -H "X-File-Name: job.yaml" \
         -H "Content-Type: application/octet-stream" --data-binary "@$PWD/job.yaml"
     url=$(publish_results_url "$uid")
     [[ -z $url ]] || wrike_set_field "$task" results "$url"
+    if [[ -n ${JOB_PIPELINE:-} ]] && grep -q '^# Repeats run ' job.yaml 2> /dev/null; then
+        wrike_set_field "$task" pipeline "$JOB_PIPELINE"
+    fi
 }
 
 # A job whose submission failed: its task moves to Failed, saying why
@@ -124,6 +129,27 @@ wrike_task_field() {
     [[ -n $id ]] || return 0
     jq -r --arg id "$id" '((.data[0] // .) | .customFields[]? | select(.id == $id) | .value) // ""
         | if startswith("[") then (try (fromjson | join(",")) catch .) else . end' <<< "$1" | head -n 1
+}
+
+# The answers a request form wrote into a task's description, as a JSON object
+# of each question's title to its answer. Wrike writes every answer the form
+# doesn't map elsewhere as the question's title in bold, then the answer on the
+# lines below, in the form's order, and leaves out the questions the form hid.
+# Several answers come back comma-separated, whether Wrike put them on lines of
+# their own or on one. Tags go and entities are decoded only after the split
+# on bold titles, so an answer's own text can't pose as a question.
+wrike_task_answers() {
+    jq -c '
+        def text: gsub("<[^>]*>"; "") | gsub("&nbsp;|&#160;"; " ") | gsub("&lt;"; "<") | gsub("&gt;"; ">")
+            | gsub("&quot;"; "\"") | gsub("&#39;|&#x27;|&apos;"; [39] | implode) | gsub("&amp;"; "&")
+            | sub("^\\s+"; "") | sub("\\s+$"; "");
+        ((.data[0] // .).description // "")
+        | gsub("(?i)<br\\s*/?>|</p\\s*>|</li\\s*>|</div\\s*>"; "\n")
+        | gsub("(?i)<(?<end>/?)(b|strong)(\\s[^>]*)?>"; "<\(.end)b>")
+        | [splits("<b>")][1:]
+        | map(index("</b>") as $i | select($i != null) | {q: (.[:$i] | text), a: .[$i + 4:]})
+        | reduce .[] as $x ({}; if $x.q == "" or has($x.q) then . else
+            .[$x.q] = ([$x.a | split("\n")[] | split(",")[] | text | select(. != "")] | join(",")) end)' <<< "$1"
 }
 
 # Copies each task's Expiration date into its run's expiry file, for runs

@@ -1,7 +1,7 @@
 # options.yaml - The options gnoto offers for taxprofiler. gnoto new and start
 # write a job file from it, lint checks a job's answers against it, and
 # pipeline.sh reads the answers through form_answer. Phase 7's config wrike
-# makes the request form's fields from it.
+# prints the request form's questions from it.
 #
 # Each option has a key, and:
 #   in        top, for gnoto's own options, or section, for those under the

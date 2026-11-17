@@ -24,7 +24,10 @@
 # one of the same key waiting there, so a replay never sets an older status
 # over a newer one, and one that succeeds clears it.
 
-# The Pipeline field's answer that repeats an earlier run on new samples
+# The request form's own questions, which no options.yaml asks, and the
+# Pipeline answer that repeats an earlier run on new samples
+WRIKE_PIPELINE_QUESTION="Pipeline"
+WRIKE_PREVIOUS_QUESTION="Previous Run"
 WRIKE_REPEAT_ANSWER="Repeat an earlier run"
 
 WRIKE_TRIES=${WRIKE_TRIES:-5}
@@ -138,7 +141,7 @@ wrike_status_id() {
     printf '%s' "${!name:-}"
 }
 
-# A custom field's ID by its key, such as expiration or picrust
+# A custom field's ID by its key: pipeline, results or expiration
 wrike_field_id() {
     local name=WRIKE_FIELDS_${1^^}
     printf '%s' "${!name:-}"
