@@ -225,22 +225,23 @@ check "the webhook, for the listener's events" "TaskCreated,TaskCustomFieldChang
 check "the salt" "yes" "$([[ -n ${RUN_ID_SALT:-} ]] && echo yes)"
 check "generated.yaml is 660" "660" "$(stat -c %a "$WORK/data/generated.yaml")"
 check "it prints the form's checklist" "yes" "$(has "$out" 'create a request form named "gnoto Request"')"
-check "in the form builder's words, its response settings, answers in the description" "yes yes" \
-    "$(has "$out" 'Create task, Set status to Submitted, and Save') $(has "$out" "Leave each question's \"Add answer to\" at")"
-check "page 1: Title, then Pipeline, its answer to its custom field" "yes yes yes" \
+check "in the form builder's words, its response settings" "yes yes yes" \
+    "$(has "$out" "  Create task") $(has "$out" "  Set status to: Submitted") $(has "$out" "  Save to: gnoto Jobs")"
+check "answers in the description unless a question says otherwise" "yes" "$(has "$out" '"Add answer to" at Description')"
+check "Title, then Pipeline, its answer to its custom field" "yes yes yes" \
     "$(has "$out" "  1. Title: Single line text") $(has "$out" "  2. Pipeline: Single answer") $(has "$out" "     Add answer to: Pipeline, the custom field")"
-check "each pipeline's option redirecting to a page of its own" "ampliseq 2,biobakery 3,taxprofiler 4" \
-    "$(sed -n 's/^       \([a-z]*\): Redirect, Go to a new page, which is page \([0-9]\)$/\1 \2/p' <<< "$out" | paste -sd ,)"
-check "a repeat's one question its follow-up" "yes yes" \
-    "$(has "$out" "       Repeat an earlier run: Add follow-up question, Single line text") $(has "$out" "         Previous Run: Single line text")"
+check "each of its options with its follow-up questions" "ampliseq,biobakery,taxprofiler,Repeat an earlier run" \
+    "$(sed -n 's/^       \([^ ].*\)$/\1/p' <<< "$out" | paste -sd ,)"
+check "ampliseq's four" "4" "$(sed -n '/^       ampliseq$/,/^       biobakery$/p' <<< "$out" | grep -c '^         [a-d]\. Ampliseq --')"
+check "a question two pipelines ask under each, first, as in options.yaml" "2" \
+    "$(grep -c '^         a\. Host Removal: Single answer$' <<< "$out")"
+check "required, preselected" "yes" "$(has "$out" "            Options: None, PhiX (preselected), Human + PhiX, Mouse + PhiX")"
+check "one without a default optional" "yes" \
+    "$(sed -n '/^         b\. Instrument Platform/,/^  3\./p' <<< "$out" | grep -q '^            Answer required: off$' && echo yes)"
+check "a repeat's Previous Run" "yes" \
+    "$(sed -n '/^       Repeat an earlier run$/,/^  3\./p' <<< "$out" | grep -q '^         a\. Previous Run: Single line text$' && echo yes)"
 check "then one every request asks, a repeat too, required and preselected" "yes yes" \
     "$(has "$out" "  4. Dashboard Retention: Single answer") $(has "$out" "     Options: 1 Month, 3 Months (preselected), 6 Months, 12 Months, 24 Months, Unlimited")"
-check "every page submitting the form" "4" "$(grep -c '^  After page Page [0-9]: Submit form$' <<< "$out")"
-check "ampliseq's page, its four" "4" "$(sed -n '/^Page 2, titled "ampliseq"$/,/^  After page/p' <<< "$out" | grep -c '^  [0-9]\. Ampliseq --')"
-check "a question two pipelines ask on each page, in options.yaml's order" "2" "$(grep -c '^  1\. Host Removal: Single answer$' <<< "$out")"
-check "required, preselected" "yes" "$(has "$out" "     Options: None, PhiX (preselected), Human + PhiX, Mouse + PhiX")"
-check "one without a default optional" "yes" \
-    "$(sed -n '/^  2\. Instrument Platform/,/^  After page/p' <<< "$out" | grep -q '^     Answer required: off$' && echo yes)"
 questions=$(wrike_questions_spec)
 form=$(jq -c --arg space "$WRIKE_SPACE_ID" --arg folder "$WRIKE_FOLDER_ID" --arg status "$(wrike_status_id submitted)" \
     --argjson fields "$(jq -cn --arg id "$(wrike_field_id pipeline)" '{pipeline: $id}')" -f "$CODE/test/wrike/form.jq" <<< "$questions")

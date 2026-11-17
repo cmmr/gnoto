@@ -1545,18 +1545,18 @@ Pipeline worked. So:
   and `lint` checks, and was stopped in its first job, which other containers had slowed
   to a crawl; its jobs don't touch this change.
 
-Then, at Daniel's call, the form's checklist follows Wrike's form builder, which this
-session tried as the bot on 2026-11-17 in an unsaved draft, then discarded. The builder's
-labels are now the checklist's (Single line text, Single answer, Multiple answers,
-Attachment, Description, Options, "Preselect this option by default", "Answer
-required", "Add answer to", Redirect, "Go to a new page", "After page …: Submit
-form"), and its layout the builder's: page 1, then a page for each pipeline with
-several questions of its own, which its Pipeline option redirects to, and an option's
-one question as its follow-up, since the builder allows one follow-up per option. The
-questions keep each pipeline's `options.yaml` order (`rank` in `wrike_questions_spec`),
-and the comparison checks every copy of a question on several pages. The checks of the
-checklist and the comparison in `integrations-test.sh` were run against the image's
-output, 19 of them, without the test bed.
+Then, at Daniel's call, the form's checklist sets out the data to enter in the fields of
+Wrike's form builder, which this session tried as the bot on 2026-11-17 in an unsaved
+draft, then discarded: the response settings, and each question's type (Single line
+text, Single answer, Multiple answers, Attachment), Description, Options with the one to
+preselect, "Answer required" and "Add answer to". Each of Pipeline's options has its
+follow-up questions under it, any number of them (`e39e335` had wrongly put a pipeline's
+questions on pages of their own, having missed the builder's "+ Follow-up question"
+under an option's first follow-up). They keep each pipeline's `options.yaml` order
+(`rank` in `wrike_questions_spec`), and the comparison checks every copy of a question
+asked under several options. The checks of the checklist and the comparison in
+`integrations-test.sh` were run against the image's output, 19 of them, without the test
+bed.
 
 ### Phase 8: public release
 

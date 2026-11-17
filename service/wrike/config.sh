@@ -179,21 +179,24 @@ wrike_find_webhooks() {
 }
 
 # The checklist for building the request form by hand, from the questions, in
-# the words of Wrike's form builder. Page 1 asks what every request asks, and
-# Pipeline's branching sends each option to the questions only it asks: a
-# follow-up question for one, or a page of their own for several, since an
-# option can have only one follow-up. A question several pipelines ask is on
-# each of their pages. Every page ends by submitting the form.
+# the words of Wrike's form builder: one page, with Pipeline's options each
+# followed by the questions only it asks, as its follow-up questions, in its
+# options.yaml's order. A question several pipelines ask follows each of
+# their options. The questions every request asks come last.
 wrike_form_checklist() {
     local questions=$1
     cat << EOF
 
 Build the request form in Wrike by hand: gnoto can read forms, but not make them.
-In the "$WRIKE_SPACE_TITLE" space's settings, under Request forms, create a request form named "$WRIKE_FORM_TITLE",
-with these response settings: Create task, Set status to Submitted, and Save to "$WRIKE_FOLDER_TITLE".
-Give it these pages and questions, each question titled exactly as written, with exactly
-the options listed. Leave each question's "Add answer to" at Description, where gnoto
-reads the answer, unless it says otherwise.
+In the "$WRIKE_SPACE_TITLE" space, create a request form named "$WRIKE_FORM_TITLE".
+
+Response settings
+  Create task
+  Set status to: Submitted
+  Save to: $WRIKE_FOLDER_TITLE
+
+Questions, each titled exactly as written, with exactly the options listed, and
+"Add answer to" at Description, where gnoto reads the answer, unless it says otherwise:
 EOF
     jq -r '
         def kind: {DropDown: "Single answer", Multiple: "Multiple answers", Text: "Single line text"}[.type];
@@ -210,28 +213,17 @@ EOF
         | [$pipeline.values[] as $answer | {answer: $answer,
             questions: ([.[] | select(.key != "pipeline" and (.pipelines | length) < $all and any(.pipelines[]; . == $answer))]
                 | sort_by(.rank[$answer] // 0))}]
-        | . as $branches
-        | [.[] | select(.questions | length > 1)] as $paged
-        | ($paged | to_entries | map({(.value.answer): (.key + 2)}) | add // {}) as $page
-        | "", "Page 1",
-          "  1. Title: Single line text", "     Description: \"Names the results.\"", "     Answer required: on",
+        | "  1. Title: Single line text", "     Description: \"Names the results.\"", "     Answer required: on",
           "     Add answer to: Title",
           ($pipeline | block("  2. "; "     ")),
-          "     Branching for each option, from the icon beside it:",
-          ($branches[]
-              | if (.questions | length) == 0 then "       \(.answer): none"
-                elif (.questions | length) == 1 then "       \(.answer): Add follow-up question, \(.questions[0] | kind)",
-                    (.questions[0] | block("         "; "           "))
-                else "       \(.answer): Redirect, Go to a new page, which is page \($page[.answer])" end),
+          "     Follow-up questions:",
+          (.[] | "       \(.answer)" + (if .questions == [] then ": none" else "" end),
+              (.questions | to_entries[] | ([.key + 97] | implode) as $letter | .value
+                  | block("         \($letter). "; "            "))),
           "  3. Samplesheet: Attachment",
           "     Description: \"Tab-separated, no header: sample, fastq1, fastq2. Omit fastq2 for single-end.\"",
           "     Answer required: on",
-          ($always | to_entries[] | (.key + 4) as $n | .value | block("  \($n). "; "     ")),
-          "  After page Page 1: Submit form",
-          ($paged[] | $page[.answer] as $n
-              | "", "Page \($n), titled \"\(.answer)\"",
-                (.questions | to_entries[] | (.key + 1) as $i | .value | block("  \($i). "; "     ")),
-                "  After page Page \($n): Submit form")' <<< "$questions"
+          ($always | to_entries[] | (.key + 4) as $n | .value | block("  \($n). "; "     "))' <<< "$questions"
     echo
     echo "Then run $(gnoto_command config wrike) again, which finds the form and checks its questions."
 }
