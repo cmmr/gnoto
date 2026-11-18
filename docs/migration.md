@@ -1600,8 +1600,11 @@ of the last two notes.
   read and cancelled, the space's default left alone, a second run leaving the request be;
   the folder suggested; the guide's form read clean, and each kind of problem; the answers
   by key; and the job files, from `[pipeline]`, the Pipeline field, or neither.
-  `lib-test.sh` passes 80. The site builds with `mkdocs build --strict` in
-  `python:3.15-slim`, and was looked at in the desktop app's browser.
+  `lib-test.sh` passes 80 and `pipelines-test.sh` 25. The finish test,
+  `checks/integrations.sh`, passes its 42 checks, with Wrike set up in the stub as a
+  person would, the guide's form and a test request, before `config wrike --folder`. The
+  site builds with `mkdocs build --strict` in `python:3.15-slim`, was looked at in the
+  desktop app's browser, and is published.
 
 ### Phase 8: public release
 
