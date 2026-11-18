@@ -5,13 +5,13 @@
 # Sourced by:  lib/env.sh
 # Defines:     wrike_cli_task, wrike_submitted, wrike_submit_failed,
 #              wrike_report_end, wrike_folder_tasks, wrike_task_field,
-#              wrike_task_answers, wrike_sync_dates
+#              wrike_task_answers, wrike_pipeline_word, wrike_sync_dates
 # Requires:    wrike_call and the helpers in service/wrike/api.sh; run_value,
 #              expiry_get and expiry_sync from service/expire.sh, for the
 #              report and the dates
 # Env:         WRIKE_FOLDER_ID and the IDs in generated.yaml
 #
-# A job from the command line gets its task in "gnoto Jobs" before it's
+# A job from the command line gets its task in gnoto's folder before it's
 # submitted, created in the Running status, so gnoto wrike never takes it for a
 # request waiting to start. Its uid comes from the task's ID, as a form
 # request's does, so everything after treats the two alike. When Wrike is set
@@ -40,18 +40,16 @@ wrike_cli_task() {
 }
 
 # What a task learns once its job is submitted, run from the run directory:
-# job.yaml attached, with S3 the address of the progress page, and for a
-# repeat of an earlier run, the pipeline it runs in place of "Repeat an
-# earlier run"
+# job.yaml attached, with S3 the address of the progress page, and for a form
+# request, the pipeline it runs, which a command-line job's task has from the
+# start
 wrike_submitted() {
     local task=$1 uid=${PWD##*/} url
     wrike_update "" POST "tasks/$task/attachments" -H "X-File-Name: job.yaml" \
         -H "Content-Type: application/octet-stream" --data-binary "@$PWD/job.yaml"
     url=$(publish_results_url "$uid")
     [[ -z $url ]] || wrike_set_field "$task" results "$url"
-    if [[ -n ${JOB_PIPELINE:-} ]] && grep -q '^# Repeats run ' job.yaml 2> /dev/null; then
-        wrike_set_field "$task" pipeline "$JOB_PIPELINE"
-    fi
+    [[ -z ${JOB_UID:-} || -z ${JOB_PIPELINE:-} ]] || wrike_set_field "$task" pipeline "$JOB_PIPELINE"
 }
 
 # A job whose submission failed: its task moves to Failed, saying why
@@ -107,8 +105,8 @@ wrike_report_end() {
     wrike_comment "$task" "$text"
 }
 
-# Every task in "gnoto Jobs", a compact JSON object a line, with its custom
-# fields and authors, a page at a time
+# Every task in gnoto's folder, wrike.folder, a compact JSON object a line,
+# with its custom fields and authors, a page at a time
 wrike_folder_tasks() {
     local token="" json args
     while :; do
@@ -132,14 +130,18 @@ wrike_task_field() {
 }
 
 # The answers a request form wrote into a task's description, as a JSON object
-# of each question's title to its answer. Wrike writes every answer the form
-# doesn't map elsewhere as the question's title in bold, then the answer on the
-# lines below, in the form's order, and leaves out the questions the form hid.
+# of each question's key to its answer: the key in the brackets of its title,
+# such as --retention, the gnoto start option it answers. Wrike writes every
+# answer the form doesn't map elsewhere as the question's title in bold, then
+# the answer on the lines below, in the form's order, and leaves out the
+# questions the form hid. A question with no key in its title is left out.
 # Several answers come back comma-separated, whether Wrike put them on lines of
 # their own or on one. Tags go and entities are decoded only after the split
-# on bold titles, so an answer's own text can't pose as a question.
+# on bold titles, so an answer's own text can't pose as a question. With
+# titles, wrike_task_answers <task> titles prints the questions' whole titles,
+# keyed or not, as a JSON array.
 wrike_task_answers() {
-    jq -c '
+    jq -c --arg mode "${2:-}" '
         def text: gsub("<[^>]*>"; "") | gsub("&nbsp;|&#160;"; " ") | gsub("&lt;"; "<") | gsub("&gt;"; ">")
             | gsub("&quot;"; "\"") | gsub("&#39;|&#x27;|&apos;"; [39] | implode) | gsub("&amp;"; "&")
             | sub("^\\s+"; "") | sub("\\s+$"; "");
@@ -147,9 +149,19 @@ wrike_task_answers() {
         | gsub("(?i)<br\\s*/?>|</p\\s*>|</li\\s*>|</div\\s*>"; "\n")
         | gsub("(?i)<(?<end>/?)(b|strong)(\\s[^>]*)?>"; "<\(.end)b>")
         | [splits("<b>")][1:]
-        | map(index("</b>") as $i | select($i != null) | {q: (.[:$i] | text), a: .[$i + 4:]})
-        | reduce .[] as $x ({}; if $x.q == "" or has($x.q) then . else
-            .[$x.q] = ([$x.a | split("\n")[] | split(",")[] | text | select(. != "")] | join(",")) end)' <<< "$1"
+        | map(index("</b>") as $i | select($i != null) | {title: (.[:$i] | text), a: .[$i + 4:]})
+        | if $mode == "titles" then [.[].title | select(. != "")]
+          else map(.key = (.title | capture("\\[(?<k>[^\\]]+)\\]").k? // ""))
+            | reduce .[] as $x ({}; if $x.key == "" or has($x.key) then . else
+                .[$x.key] = ([$x.a | split("\n")[] | split(",")[] | text | select(. != "")] | join(", ")) end)
+          end' <<< "$1"
+}
+
+# A [pipeline] answer, or the Pipeline field, as the pipeline it names: its
+# first word, in lower case, so the form can say more after it
+wrike_pipeline_word() {
+    local word=${1,,}
+    [[ $word =~ ^[[:space:]]*([a-z0-9_]+) ]] && printf '%s' "${BASH_REMATCH[1]}"
 }
 
 # Copies each task's Expiration date into its run's expiry file, for runs
@@ -157,7 +169,7 @@ wrike_task_answers() {
 # the folder's tasks itself when given none. Prints what changed.
 wrike_sync_dates() {
     local tasks=${1-} task id uid
-    [[ -n $tasks ]] || tasks=$(wrike_folder_tasks) || { warn "Couldn't list the tasks in \"gnoto Jobs\", so no dates were copied."; return 0; }
+    [[ -n $tasks ]] || tasks=$(wrike_folder_tasks) || { warn "Couldn't list the tasks in \"${WRIKE_FOLDER:-}\", so no dates were copied."; return 0; }
     while IFS= read -r task; do
         [[ -n $task ]] || continue
         id=$(jq -r '.id // empty' <<< "$task")

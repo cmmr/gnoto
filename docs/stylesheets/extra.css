@@ -1,0 +1,5 @@
+/* Long text to copy wraps in its block, rather than scrolling */
+.md-typeset pre > code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

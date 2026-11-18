@@ -1317,12 +1317,13 @@ What's built:
   journal. `gnoto config systemd [--move]` installs the units as user units, with linger,
   and `lint` reports a unit whose template has changed, as after an upgrade, which now
   restarts the listener when run as the units' account on their host.
-- **Configuration.** `gnoto config wrike` adopts or creates the "gnoto" space, the "gnoto"
+- **Configuration.** `gnoto config wrike` adopted or created the "gnoto" space, the "gnoto"
   workflow with its six statuses, "gnoto Jobs", the fields Pipeline, Results and
   Expiration (until 2026-11-16, also Previous Run and one per question in the pipelines'
-  `options.yaml`), and the webhook when SQS is set up. It prints the form's checklist, a
-  question two pipelines ask being asked once, then finds "gnoto Request" by name and
-  compares its questions. `config s3` and
+  `options.yaml`), and the webhook when SQS is set up. It printed the form's checklist, a
+  question two pipelines ask being asked once, then found "gnoto Request" by name and
+  compared its questions. Since 2026-11-17 a person sets Wrike up, and `config wrike` takes
+  it up from the folder, as the last of these notes says. `config s3` and
   `config sqs` check the bucket and queue, or with `--deploy [--profile=<name>]` build the
   stacks `gnoto-iam`, `gnoto-s3` and `gnoto-sqs` from `service/aws/stacks/`, writing their
   outputs to `generated.yaml` and printing the IAM user's first key once; with
@@ -1558,6 +1559,50 @@ asked under several options. The checks of the checklist and the comparison in
 `integrations-test.sh` were run against the image's output, 19 of them, without the test
 bed.
 
+Then, at Daniel's call (2026-11-17), a person sets Wrike up first, from a guide on the docs
+site, and `config wrike` only takes it up. That replaced the checklist and the fixed form
+of the last two notes.
+
+- **The guide,** [Setting up Wrike](https://cmmr.github.io/gnoto/wrike/) (`docs/wrike.md`),
+  on the docs site brought forward from phase 8: `mkdocs.yml` (Material, with
+  `content.code.copy`, and `docs/stylesheets/extra.css` wrapping long blocks),
+  `requirements-docs.txt` (MkDocs 1.6.1, mkdocs-material 9.8.1, pymdown-extensions 13.1)
+  and `.github/workflows/docs.yml`, which publishes to GitHub Pages from `main`, on
+  Python 3.15. It says what gnoto needs, and why a space of its own is best though any
+  folder will do; the six statuses; the steps; how gnoto reads a request; a table of what
+  it reads; and an example form, with each piece of text in its own block to copy.
+  `docs/`'s developer pages stay out of the site.
+- **The form,** built as its owner likes. A question gnoto reads names the `gnoto start`
+  option it answers in brackets, and `wrike_task_answers` keys answers by them;
+  `wrike_form_keys` lists what gnoto reads, from `options.yaml`, with `[pipeline]` (answers
+  read by their first word, `wrike_pipeline_word`), `[--previous_run]` for `repeat`,
+  `[--title]` and `[--samplesheet]`. An option the form doesn't ask takes its default, so
+  the required-answer check went. `wrike_form_problems` reads a form for a key gnoto
+  start doesn't take, a type that doesn't fit, or an answer gnoto doesn't know.
+  `options.yaml`'s `question` and the checklist went with the fixed form.
+- **`config wrike`** asks only for `wrike.folder`, by name or Wrike link (`GET /ids`),
+  suggesting the newest folder the bot can see, and finds the space from it. Wrike's API
+  says neither where a form saves nor which form made a task, so a test request, the
+  folder's newest task with a bracketed question, gives the workflow, the one its status
+  is in, and the form, the one with the most of its questions. It makes the three fields
+  as the space's admin, runs a write test in the folder, makes the webhook, shows what it
+  read from the test request, comments so on it and moves it to Cancelled. It no longer
+  makes a space, workflow or folder, nor sets the space's default workflow. A request's
+  Pipeline field is set when its job is submitted, and a repeat is handed only to a
+  version that has `wrike_pipeline_word`.
+- **The stub** gained Wrike's `GET /ids`, folders read by ID with their creation dates and
+  a link, the account's forms, finer task times, a follow-up asked under several options
+  answered once, and `/_test/workflow` keeping a status's ID by its name.
+- **Tests.** `integrations-test.sh` passes 254 checks: the bot named by its user type; no
+  folder, a name in two spaces, a folder by its link with no request or workflow yet; a
+  workflow lacking a status; a bot not the space's admin; then the space, workflow and form
+  found from the folder and test request, the fields, the write test, the test request
+  read and cancelled, the space's default left alone, a second run leaving the request be;
+  the folder suggested; the guide's form read clean, and each kind of problem; the answers
+  by key; and the job files, from `[pipeline]`, the Pipeline field, or neither.
+  `lib-test.sh` passes 80. The site builds with `mkdocs build --strict` in
+  `python:3.15-slim`, and was looked at in the desktop app's browser.
+
 ### Phase 8: public release
 
 - Rewrite the docs for gnoto, cleaning them as they move. The old `docs/wrike/*` and
@@ -1638,7 +1683,7 @@ in step.
 | `.env` | `lib/config/`, `lib/env.sh` | 2 | Settings and sourcing split. Don't copy the values |
 | `README.md` | `README.md` | 8 | Written early, on 2026-11-09 at Daniel's request: what gnoto is and the problems it solves, for outside readers. Phase 8 updates its install steps and status, and links the docs site, which holds the detail |
 | `dev.md` | Not copied | | Holds emails and rule IDs. Move anything useful into `docs/` |
-| `mkdocs.yml`, `docs_hooks.py`, `requirements-docs.txt`, `.github/workflows/docs.yml` | Same paths | 8 | Update the repo name and URLs |
+| `mkdocs.yml`, `docs_hooks.py`, `requirements-docs.txt`, `.github/workflows/docs.yml` | Same paths | 7 | Done (2026-11-17) for the Wrike guide: `mkdocs.yml`, `requirements-docs.txt` and `docs.yml`, without `docs_hooks.py`, which phase 8 brings if its pages link repository files |
 | `images/bot_100px.png`, `images/bot_large.png` | `docs/images/` or similar | 8 | Note that `images/` now means Nix recipes |
 
 ### Core scripts

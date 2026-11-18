@@ -1,0 +1,74 @@
+# mkdocs.yml - gnoto's documentation site, cmmr.github.io/gnoto, which
+# .github/workflows/docs.yml builds and publishes. The site holds the guides
+# for people setting gnoto up. docs/'s design, decisions, migration and
+# fixtures pages are the developers', read on GitHub.
+
+site_name: gnoto
+site_description: CMMR's microbiome pipelines as one installable tool, in which every run is exactly reproducible.
+site_url: https://cmmr.github.io/gnoto/
+repo_url: https://github.com/cmmr/gnoto
+repo_name: cmmr/gnoto
+edit_uri: edit/main/docs/
+
+exclude_docs: |
+  design.md
+  decisions.md
+  migration.md
+  fixtures.md
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Overview: index.md
+  - Setting up Wrike: wrike.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+plugins:
+  - search
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/cmmr/gnoto

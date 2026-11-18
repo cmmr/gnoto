@@ -280,7 +280,7 @@ config_args "$DIR" slurm --on --job_time=48.h > /dev/null
 check "config: --on with a setting" "true 48.h" "$(yq '(.slurm.enabled | tostring) + " " + .slurm.job_time' "$DIR/config.yaml")"
 config_args "$DIR" wrike --poll_minutes=0 > /dev/null
 check "config: a new section with a setting is on, without the settings gnoto fills in" \
-    '{"enabled":true,"api_token":"","poll_minutes":0,"api_url":"https://www.wrike.com/api/v4"}' \
+    '{"enabled":true,"api_token":"","poll_minutes":0,"api_url":"https://www.wrike.com/api/v4","folder":""}' \
     "$(yq -o=json -I=0 .wrike "$DIR/config.yaml")"
 config_args "$DIR" wrike --webhook_secret=mine > /dev/null
 check "config: such a setting is written when it's given" "mine" "$(yq .wrike.webhook_secret "$DIR/config.yaml")"

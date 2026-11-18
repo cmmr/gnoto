@@ -15,9 +15,11 @@
 #            directory, and the 16s-v4 fixture and the databases job.sh
 #            --small needs there
 #
-# Sets up the aws and wrike sections of the install's config.yaml and its
-# Wrike objects in the stub, runs the SQS listener in the background, and
-# stops it at the end. Takes about 40 minutes, an hour with --publish.
+# Sets up the aws section of the install's config.yaml, and Wrike in the stub
+# as a person would, with the guide's example form and a test request, before
+# gnoto config wrike takes it up from the folder. Runs the SQS listener in the
+# background, and stops it at the end. Takes about 40 minutes, an hour with
+# --publish.
 
 set -u
 
@@ -118,22 +120,35 @@ $GNOTO config s3 --on --bucket=gnoto-results --results_base_url="$S3/itest" --ru
 $GNOTO config sqs --on --queue_url="$QUEUE" --webhook_url=https://hooks.example.invalid/wrike >> config.log 2>&1
 in_image "gnoto_aws sqs create-queue --queue-name gnoto > /dev/null"
 in_image "gnoto_aws sqs purge-queue --queue-url $QUEUE > /dev/null"
+# Wrike, set up by a person as the guide says: the space, with the bot its
+# admin, its folder, its own workflow, the guide's example form, and a test
+# request made with the form
+api() {
+    stub "$1" "/api/v4/$2" -H 'Authorization: bearer stub-token' "${@:3}"
+}
+SPACE=$(api POST spaces --data-urlencode "title=gnoto" --data-urlencode "accessType=Private" | jq -r '.data[0].id')
+FOLDER=$(api POST "folders/$SPACE/folders" --data-urlencode "title=gnoto Jobs" | jq -r '.data[0].id')
+WF=$(stub POST /_test/workflow -d "{\"spaceId\": \"$SPACE\", \"name\": \"gnoto\", \"statuses\": [
+    {\"name\": \"Submitted\", \"group\": \"Active\", \"color\": \"Blue\"}, {\"name\": \"Running\", \"group\": \"Active\", \"color\": \"Turquoise\"},
+    {\"name\": \"Completed\", \"group\": \"Completed\", \"color\": \"Green\"}, {\"name\": \"Failed\", \"group\": \"Cancelled\", \"color\": \"Red\"},
+    {\"name\": \"Cancelled\", \"group\": \"Cancelled\", \"color\": \"Gray\"}, {\"name\": \"Expired\", \"group\": \"Completed\", \"color\": \"Brown\"}]}" |
+    jq -r '.data[0].id')
+SUBMITTED=$(stub GET /_test/state | jq -r --arg wf "$WF" '.workflows[$wf].customStatuses[] | select(.name == "Submitted") | .id')
+FORM=$(stub POST /_test/form -d "$(in_image "jq -cn --arg space '$SPACE' --arg folder '$FOLDER' --arg status '$SUBMITTED' \
+    -f \"\$GNOTO_CODE_DIR/test/wrike/form.jq\"")" | jq -r '.data[0].id')
+stub POST /_test/submit -d "{\"form\": \"$FORM\", \"author\": \"KUREQUEST\", \"attachment\": {\"name\": \"test.tsv\", \"content\": \"x\\ty\\n\"},
+    \"answers\": {\"Title [--title]\": \"Test request\", \"Pipeline [pipeline]\": \"ampliseq: 16S rRNA amplicons\",
+        \"Dashboard retention [--retention]\": \"3 Months\"}}" > /dev/null
 $GNOTO config wrike --api_url="$STUB/api/v4" --api_token=stub-token --webhook_secret=testbed-secret \
-    --poll_minutes=5 --yes >> config.log 2>&1
-check "config wrike prints the form's checklist" "yes" "$(grep -q 'create a request form named "gnoto Request"' config.log && echo yes)"
+    --poll_minutes=5 --folder="gnoto Jobs" --yes >> config.log 2>&1
+check "config wrike finds the space, workflow and form from the folder and its test request" "yes" \
+    "$(grep -q "gnoto's folder is \"gnoto Jobs\", in the space \"gnoto\". Its workflow is \"gnoto\", and its request form \"gnoto Request\"." config.log && echo yes)"
 check "with the custom fields Pipeline, Results and Expiration alone" "Expiration,Pipeline,Results" \
     "$(stub GET /_test/state | jq -r '[.fields[].title] | sort | join(",")')"
-FORM=$(in_image 'source "$GNOTO_CODE_DIR/lib/jobfile.sh"; source "$GNOTO_CODE_DIR/service/wrike/config.sh"
-    wrike_questions_spec | jq -c --arg space "$WRIKE_SPACE_ID" --arg folder "$WRIKE_FOLDER_ID" \
-        --arg status "$(wrike_status_id submitted)" --argjson fields "{\"pipeline\": \"$(wrike_field_id pipeline)\"}" \
-        -f "$GNOTO_CODE_DIR/test/wrike/form.jq"')
-check "the checklist's questions can be read" "yes" "$([[ $FORM == *Pipeline* ]] && echo yes)"
-stub POST /_test/form -d "$FORM" > /dev/null
-$GNOTO config wrike --yes > config2.log 2>&1
-check "config wrike finds the form, which matches" "yes" "$(grep -q 'matches gnoto' config2.log && echo yes)"
+check "and can read the form" "yes" "$(grep -q 'Wrike is ready: gnoto can read the form "gnoto Request".' config.log && echo yes)"
 $GNOTO lint > lint.log 2>&1
 check "lint passes Wrike, S3 and SQS" "yes yes yes" \
-    "$(grep -q 'OK    wrike: the request form matches' lint.log && echo yes) $(grep -q 'OK    s3: .* serves what' lint.log && echo yes) $(grep -q 'OK    sqs: ' lint.log && echo yes)"
+    "$(grep -q 'OK    wrike: gnoto can read the request form' lint.log && echo yes) $(grep -q 'OK    s3: .* serves what' lint.log && echo yes) $(grep -q 'OK    sqs: ' lint.log && echo yes)"
 check "and knows every setting gnoto config wrote" "" "$(grep -e "isn't a setting" -e "no section" lint.log)"
 $GNOTO _listen > listener.log 2>&1 &
 LISTENER=$!
@@ -172,12 +187,13 @@ check "and its Expiration date" "$(grep -o 'remove_utc: "[0-9-]*' "$DATA_DIR/exp
     "$(jq -r --arg t "$TASK_A" '.tasks[$t].customFields[] | select(.value | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) | .value' <<< "$TASKS")"
 
 echo "a request from the Wrike form, repeating it on the same samples"
-TASK_B=$(stub POST /_test/submit -d "$(jq -cn --arg form "$(in_image 'printf %s "$WRIKE_FORM_ID"')" --arg uid "$UID_A" \
+TASK_B=$(stub POST /_test/submit -d "$(jq -cn --arg form "$FORM" --arg uid "$UID_A" \
     --arg sheet "$(< v4.tsv)"$'\n' '{form: $form, author: "KUREQUEST", attachment: {name: "samples.tsv", content: $sheet},
-        answers: {Title: "16S V4 form", Pipeline: "Repeat an earlier run", "Previous Run": $uid, "Dashboard Retention": "1 Month"}}')" |
+        answers: {"Title [--title]": "16S V4 form", "Pipeline [pipeline]": "repeat: new samples, with an earlier run'"'"'s settings",
+            "Previous run [--previous_run]": $uid, "Dashboard retention [--retention]": "1 Month"}}')" |
     jq -r '.data[0].taskId')
-check "the form puts Previous Run in the task's description" "yes" \
-    "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].description' | grep -qF "<b>Previous Run</b><br />$UID_A<br />" && echo yes)"
+check "the form puts its answers in the task's description" "yes" \
+    "$(stub GET /_test/state | jq -r --arg t "$TASK_B" '.tasks[$t].description' | grep -qF "<b>Previous run [--previous_run]</b><br />$UID_A<br />" && echo yes)"
 send_event "[{\"taskId\":\"$TASK_B\",\"eventType\":\"TaskCreated\",\"webhookId\":\"x\",\"eventAuthorId\":\"KUREQUEST\"}]"
 UID_B=$(task_uid "$TASK_B")
 for (( i = 0; i < 60; i++ )); do

@@ -74,7 +74,7 @@ FAIL = {'count': 0, 'code': 500}
 def reset():
     STATE.clear()
     STATE.update(spaces={}, workflows={}, folders={}, fields={}, tasks={}, webhooks={}, forms={},
-                 attachments={}, calls=[], bot_admin=True)
+                 attachments={}, calls=[], bot_admin=True, legacy={})
 
 
 def bot():
@@ -96,6 +96,12 @@ def now():
     return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
 
+def stamp():
+    """now(), to the microsecond, so things made a moment apart sort apart"""
+    t = time.time()
+    return time.strftime('%Y-%m-%dT%H:%M:%S', time.gmtime(t)) + f'.{int(t % 1 * 1e6):06d}Z'
+
+
 def as_json(value):
     if value is None:
         return None
@@ -113,7 +119,7 @@ def task_view(task, fields=()):
 def new_task(folder, title, description='', status=None, fields=(), author=None):
     task = {'id': new_id('MASTUBTASK', 12), 'title': title, 'description': description,
             'customStatusId': status, 'customFields': list(fields), 'parentIds': [folder],
-            'authorIds': [author or BOT['id']], 'scope': 'WsTask', 'createdDate': now(),
+            'authorIds': [author or BOT['id']], 'scope': 'WsTask', 'createdDate': stamp(),
             'comments': [], 'attachmentIds': []}
     STATE['tasks'][task['id']] = task
     return task
@@ -134,8 +140,12 @@ def submit(body):
     <b>Settings</b><br />Default<br /><br /><b>Attach the sample sheet.</b><br />six_samples.tsv<br />"""
     form = STATE['forms'][body['form']]
     answers, upload = body.get('answers', {}), body.get('attachment')
-    title, fields, blocks = '', [], []
+    title, fields, blocks, seen = '', [], [], set()
     for question in (q for page in form['pages'] for q in page['fields']):
+        # A follow-up asked under several options is answered under one
+        if question['title'] in seen:
+            continue
+        seen.add(question['title'])
         if question['type'] == 'Attachment':
             if upload:
                 blocks.append(f"<b>{html.escape(question['title'])}</b><br />{html.escape(upload['name'])}<br />")
@@ -252,7 +262,10 @@ class Handler(BaseHTTPRequestHandler):
                 wf = {'id': new_id('IEWF'), 'name': body['name'], 'spaceId': body['spaceId'], 'standard': False,
                       'hidden': False, 'customStatuses': []}
                 STATE['workflows'][wf['id']] = wf
-            wf['customStatuses'] = [{'id': new_id('IEST'), 'hidden': False, **x} for x in body['statuses']]
+            # A status kept by name keeps its ID, as one edited in Wrike does
+            had = {x['name']: x['id'] for x in wf['customStatuses']}
+            wf['customStatuses'] = [{'id': had.get(x['name']) or new_id('IEST'), 'hidden': False, **x}
+                                    for x in body['statuses']]
             return self.data('workflows', [wf])
         if path == '/_test/members':
             body = json.loads(raw)
@@ -332,10 +345,20 @@ class Handler(BaseHTTPRequestHandler):
                 return self.data('folders', [f for f in s['folders'].values() if f['spaceId'] == sid])
             case ('POST', ['folders', parent, 'folders']):
                 space = parent if parent in s['spaces'] else s['folders'][parent]['spaceId']
+                # Its link names it by the number of Wrike's older API
+                legacy = str(4600000000 + next(IDS))
                 folder = {'id': new_id('MQFOLDER', 12), 'title': p['title'], 'spaceId': space,
-                          'scope': 'WsFolder', 'parentIds': [parent]}
+                          'scope': 'WsFolder', 'parentIds': [parent], 'createdDate': stamp(),
+                          'permalink': f'https://www.wrike.com/open.htm?id={legacy}'}
                 s['folders'][folder['id']] = folder
+                s['legacy'][legacy] = folder['id']
                 return self.data('folders', [folder])
+            case ('GET', ['folders', ids]):
+                # By ID, several at once, which alone says when each was made
+                return self.data('folders', [s['folders'][f] for f in ids.split(',')])
+            case ('GET', ['ids']):
+                return self.data('ids', [{'id': s['legacy'][i], 'apiV2Id': i} for i in as_json(p['ids'])
+                                         if i in s['legacy']])
             case ('GET', ['spaces', sid, 'customfields']):
                 return self.data('customfields', [f for f in s['fields'].values() if f.get('spaceId') == sid])
             case ('POST', ['customfields']):
@@ -364,6 +387,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.data('webhooks', [])
             case ('GET', ['spaces', sid, 'request_forms']):
                 return self.data('requestForms', [f for f in s['forms'].values() if f.get('spaceId') == sid])
+            case ('GET', ['request_forms']):
+                return self.data('requestForms', list(s['forms'].values()))
             case ('GET', ['request_forms', rid]):
                 return self.data('requestForms', [s['forms'][rid]])
             case ('POST', ['folders', fid, 'tasks']):

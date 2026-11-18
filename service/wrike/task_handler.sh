@@ -12,22 +12,26 @@
 #
 # Usage:  gnoto wrike [task_id]
 #
-# A task is waiting when it's in "gnoto Jobs" with the status Submitted, and
+# A task is waiting when it's in gnoto's folder with the status Submitted, and
 # has no run directory or history yet. For each, this turns the task's answers
 # into a job file, through each option's labels in options.yaml, with the
 # samplesheet attached to it, and runs it through the same checks and
-# submission as gnoto run, fetching missing databases without asking. Pipeline
-# is a custom field, and every other answer is in the task's description,
-# under its question's title, as wrike_task_answers reads it. A request that
-# fails its checks moves to Failed, with what failed in a comment, which also
-# takes it off the waiting list. A request that repeats an earlier run takes
-# that run's job.yaml from history/, so it runs at that run's version, with
-# its answers, on the new samplesheet.
+# submission as gnoto run, fetching missing databases without asking. Each
+# answer is in the task's description, under a question whose title names the
+# gnoto start option it answers in brackets, as wrike_task_answers reads it:
+# [pipeline], whose first word is the pipeline, and an option such as
+# [--retention] or [--ampliseq.picrust]. One the form doesn't ask takes its
+# default. The Pipeline field stands in for [pipeline] when that's missing. A
+# request that fails its checks moves to Failed, with what failed in a
+# comment, which also takes it off the waiting list. A request that repeats an
+# earlier run, the one its [--previous_run] names, takes that run's job.yaml
+# from history/, so it runs at that run's version, with its answers, on the
+# new samplesheet.
 #
 # Form requests run as the account running this, usually the service account,
 # so each FASTQ must sit under core.input_roots.
 #
-# Without a task ID, it scans "gnoto Jobs": starts every waiting task, copies
+# Without a task ID, it scans gnoto's folder: starts every waiting task, copies
 # each Expiration date into its run's expiry file, removes the runs whose task
 # has been deleted, and reactivates the webhook if Wrike has suspended it.
 # Each task is handled in a subshell, so one that fails leaves the rest.
@@ -47,36 +51,20 @@ wrike_reject() {
     log "Task $task was turned down: $why"
 }
 
-# A question's title on the form, by its option's key, from the first
-# pipeline that asks it
-wrike_question_title() {
-    local pipeline title
-    for pipeline in $(pipeline_names); do
-        title=$(options_json "$pipeline" | jq -r --arg key "$1" 'first(.[] | select(.key == $key) | .question) // empty')
-        [[ -z $title ]] || { printf '%s' "$title"; return 0; }
-    done
-}
-
 # The --<key>=<value> arguments gnoto new takes, from a request's answers to a
 # pipeline's options, into ARG_KEYS and ARG_VALUES: wrike_job_args <answers,
-# as wrike_task_answers gives them> <pipeline>. Prints what's wrong with an
-# answer, and returns 1.
+# as wrike_task_answers gives them> <pipeline>. Each option is read by the key
+# gnoto start takes it by, --<key> for one in: top, --<pipeline>.<key> for one
+# in its section. Prints what's wrong with an answer, and returns 1.
 wrike_job_args() {
-    local answers=$1 pipeline=$2 options key in required question field value labels raw part parts=()
+    local answers=$1 pipeline=$2 options key in arg field value labels raw part parts=()
     options=$(options_json "$pipeline")
-    while IFS=$'\t' read -r key in required question; do
+    while IFS=$'\t' read -r key in; do
         [[ -n $key && $key != title && $key != samplesheet ]] || continue
-        raw=$(jq -r --arg question "$question" '.[$question] // ""' <<< "$answers")
-        if [[ -z $raw ]]; then
-            # The form always answers an option with a default, so a missing
-            # answer means the description isn't as gnoto reads it
-            if [[ $required == required ]]; then
-                printf 'its description has no answer to "%s", which the form always asks of %s. The form must leave that answer in the description, under that title.' \
-                    "$question" "$pipeline"
-                return 1
-            fi
-            continue
-        fi
+        arg=$key
+        [[ $in == top ]] || arg=$pipeline.$key
+        raw=$(jq -r --arg key "--$arg" '.[$key] // ""' <<< "$answers")
+        [[ -n $raw ]] || continue
         # An answer is one of the labels the form offers. Reading it back
         # through them also refuses anything else, whatever reached the
         # description.
@@ -91,20 +79,15 @@ wrike_job_args() {
             [[ -n $part ]] || continue
             field=$(jq -r --arg label "$part" '.[] | select(.label == $label) | .value' <<< "$labels")
             if [[ -z $field ]]; then
-                printf '"%s" isn'"'"'t an answer the form offers for %s.' "$(wrike_quote "$part")" "$key"
+                printf '"%s" isn'"'"'t an answer gnoto takes for --%s.' "$(wrike_quote "$part")" "$arg"
                 return 1
             fi
             value+="${value:+,}$field"
         done
         [[ -n $value ]] || continue
-        if [[ $in == top ]]; then
-            ARG_KEYS+=("$key")
-        else
-            ARG_KEYS+=("$pipeline.$key")
-        fi
+        ARG_KEYS+=("$arg")
         ARG_VALUES+=("$value")
-    done < <(jq -r '.[] | [.key, .in, (if .default == null or .default == "" then "optional" else "required" end),
-        (.question // "")] | @tsv' <<< "$options")
+    done < <(jq -r '.[] | [.key, .in] | @tsv' <<< "$options")
 }
 
 # Writes a task's job file and samplesheet into <dir>, as job.yaml and
@@ -114,11 +97,10 @@ wrike_job_file() {
     local task=$1 json=$2 dir=$3 answers pipeline title retention previous attachments count id name history why yaml
     title=$(jq -r '.data[0].title // ""' <<< "$json" | head -n 1)
     answers=$(wrike_task_answers "$json")
-    # Pipeline is a custom field, and read from the description when the form
-    # left it there
-    pipeline=$(wrike_task_field "$json" pipeline)
-    [[ -n $pipeline ]] || pipeline=$(jq -r --arg q "$WRIKE_PIPELINE_QUESTION" '.[$q] // ""' <<< "$answers")
-    previous=$(jq -r --arg q "$WRIKE_PREVIOUS_QUESTION" '.[$q] // ""' <<< "$answers")
+    pipeline=$(jq -r '.pipeline // ""' <<< "$answers")
+    [[ -n $pipeline ]] || pipeline=$(wrike_task_field "$json" pipeline)
+    pipeline=$(wrike_pipeline_word "$pipeline")
+    previous=$(jq -r '.["--previous_run"] // ""' <<< "$answers")
 
     attachments=$(wrike_call GET "tasks/$task/attachments") || return 2
     count=$(jq '[.data[]?] | length' <<< "$attachments")
@@ -138,7 +120,7 @@ wrike_job_file() {
         previous=${previous,,}
         [[ $previous =~ (^|/)([a-z2-7]{8})(-[a-z2-7]{16})?(/|$) ]] && previous=${BASH_REMATCH[2]}
         if [[ -z $previous ]]; then
-            echo "it repeats an earlier run, and its description has no answer to \"$WRIKE_PREVIOUS_QUESTION\", which names the run."
+            echo "it repeats an earlier run, and its description names none: the form needs a question with [--previous_run] in its title."
             return 1
         elif ! is_valid_uid "$previous"; then
             echo "it repeats an earlier run, and \"$(wrike_quote "$previous")\" isn't a run's ID: eight letters and digits, as in its results address."
@@ -151,7 +133,7 @@ wrike_job_file() {
                 | del(.schema, .repository, .commit, .outputs, .inputs, .databases, .dev)' "$history/job.yaml"
         } > "$dir/job.yaml" || { echo "run $previous's job.yaml can't be read."; return 1; }
         # Unanswered, the earlier run's retention stands
-        retention=$(jq -r --arg q "$(wrike_question_title retention)" '.[$q] // ""' <<< "$answers")
+        retention=$(jq -r '.["--retention"] // ""' <<< "$answers")
         if [[ -n $retention ]]; then
             RETENTION=$retention yq -i '.retention = strenv(RETENTION)' "$dir/job.yaml" ||
                 { echo "run $previous's job.yaml can't be read."; return 1; }
@@ -160,7 +142,7 @@ wrike_job_file() {
     fi
 
     if [[ -z $pipeline ]]; then
-        echo "it has no answer to \"$WRIKE_PIPELINE_QUESTION\"."
+        echo "it names no pipeline: the form needs a question with [pipeline] in its title."
         return 1
     elif [[ ! $pipeline =~ ^[a-z][a-z0-9_]*$ || ! -f $CODE_DIR/pipelines/$pipeline/pipeline.sh ]]; then
         echo "\"$(wrike_quote "$pipeline")\" isn't a pipeline. The pipelines are $(pipeline_names | paste -sd ' ' | sed 's/ /, /g')."
@@ -206,8 +188,9 @@ wrike_other_version() {
     version_fetch "${repository:-$CODE_REPOSITORY}" "$ref" ||
         fail "Can't fetch gnoto at $ref, which task $task runs at, so it waits for the next scan."
     exec 8>&-
-    # Versions before answers moved to the description read them from fields
-    if ! grep -q '^wrike_task_answers()' "$DATA_DIR/versions/$ref/service/wrike/tasks.sh" 2> /dev/null; then
+    # Versions before answers were read by the options in their questions'
+    # brackets read them from fields, or by whole titles
+    if ! grep -q '^wrike_pipeline_word()' "$DATA_DIR/versions/$ref/service/wrike/tasks.sh" 2> /dev/null; then
         wrike_reject "$task" "run $previous was made by a version of gnoto that can't take a request from this form. Repeat it from the command line, from its job.yaml, with the new samplesheet."
         return 3
     fi
@@ -317,7 +300,7 @@ wrike_scan_gone() {
 wrike_scan() {
     local tasks listed task id uid started=0
     wrike_webhook_check
-    tasks=$(wrike_folder_tasks) || fail "Can't list the tasks in \"gnoto Jobs\", so nothing was scanned."
+    tasks=$(wrike_folder_tasks) || fail "Can't list the tasks in \"${WRIKE_FOLDER:-}\", so nothing was scanned."
     listed=$(jq -r '.id // empty' <<< "$tasks")
     while IFS= read -r task; do
         [[ -n $task ]] || continue
@@ -331,7 +314,7 @@ wrike_scan() {
     done <<< "$tasks"
     wrike_sync_dates "$tasks"
     wrike_scan_gone "$listed"
-    log "Scanned \"gnoto Jobs\": $(grep -c . <<< "$listed" || :) tasks, $started waiting."
+    log "Scanned \"${WRIKE_FOLDER:-}\": $(grep -c . <<< "$listed" || :) tasks, $started waiting."
 }
 
 # gnoto wrike [task_id]

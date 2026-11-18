@@ -1,104 +1,121 @@
 #
-# config.sh - gnoto config wrike: sets up gnoto's part of Wrike, and lint's
-# checks of it.
+# config.sh - gnoto config wrike: takes up the Wrike objects a person set up
+# for gnoto, checks the bot can work in them, and lint's checks of them.
 #
 # Sourced by:  lib/config.sh and lib/lint.sh
-# Defines:     config_wrike_step, wrike_questions_spec, wrike_fields_spec,
-#              wrike_webhook_secret, lint_wrike, WRIKE_WEBHOOK_EVENTS
+# Defines:     config_wrike_step, config_wrike_suggest, wrike_form_keys,
+#              wrike_fields_spec, wrike_form_problems, wrike_webhook_secret,
+#              lint_wrike, WRIKE_WEBHOOK_EVENTS, WRIKE_GUIDE
 # Requires:    wrike_call from service/wrike/api.sh; generated_set,
 #              config_confirm and run_id_salt from lib/config.sh; options_json
 #              and pipeline_names from lib/jobfile.sh; lint_ok, lint_warn and
 #              lint_fail from lib/lint.sh
 #
-# Each object is found by its name and adopted when it exists, or else is
-# created after the plan is shown and accepted, and its ID goes to
-# generated.yaml. So the step is safe to repeat, and --dry-run stops after the
-# plan. A bot that isn't an account admin can't make a workflow or change its
-# statuses, and often not a space, so then this lists what a person must make
-# first, the space, with the bot its admin, and the space's own workflow, and
-# stops:
+# A person sets up Wrike first, as the guide at WRIKE_GUIDE says: a space, or
+# any space gnoto may share, with the bot its admin; a folder in it where
+# gnoto's tasks go; a workflow with gnoto's six statuses; a request form, built
+# however they like, whose questions name the gnoto start option each answers
+# in brackets, such as [--retention], and which saves its tasks to the folder
+# as Submitted; and a test request made with the form. wrike.folder names the
+# folder, by its name or its Wrike link, and this finds the rest from it:
 #
-#   space      "gnoto", whose tasks take the gnoto workflow by default
-#   workflow   "gnoto", with the statuses Submitted, Running, Completed,
-#              Failed, Cancelled and Expired: the space's own, or else the
-#              account's, which only an admin bot makes
-#   folder     "gnoto Jobs", in the space, where requests arrive
-#   fields     in the space: Pipeline, which the form fills, and Results and
-#              Expiration, which gnoto fills. Pipeline's answers are kept to
-#              the pipelines and the repeat, with no others allowed.
-#   webhook    on "gnoto Jobs", to aws.sqs.webhook_url, when SQS is set up, for
+#   space      the one whose folders include it
+#   request    the folder's newest task whose description names an option in
+#              brackets: the test request
+#   workflow   the one the test request's status is in, or without one, the
+#              one with gnoto's six statuses, the space's own first
+#   form       the one whose questions the test request answers
+#
+# and records their IDs in generated.yaml. Then, once the plan is shown and
+# accepted:
+#
+#   fields     creates the custom fields Pipeline, Results and Expiration in
+#              the space, or takes up those it has. gnoto fills all three.
+#   test       creates a task in the folder with a gnoto status, sets its
+#              fields, comments on it and attaches a file to it, then deletes
+#              it, which shows the bot can do all gnoto does there
+#   webhook    on the folder, to aws.sqs.webhook_url, when SQS is set up, for
 #              WRIKE_WEBHOOK_EVENTS. Webhooks can't be edited, so one with other
 #              events is deleted before its replacement is made, so no event
 #              arrives twice.
+#   request    says what gnoto read from the test request, in a comment on it
+#              and here, and moves it to Cancelled, so it never runs
 #
-# Every other question on the request form, one for each in the pipelines'
-# options.yaml but Title and Samplesheet, which are the task's title and
-# attachment, writes its answer into the task's description, where gnoto reads
-# it. A question several pipelines ask is asked once. Wrike's API can't make a
-# request form, so this prints a checklist for one, then looks for it by name,
-# records it, and compares its questions with the checklist. lint repeats the
-# comparison. Wrike's API can't delete a custom field either, so a field the
-# space still has for a question is named, to delete by hand.
+# Then it reads the form for problems: a key gnoto start doesn't take, a type
+# that doesn't fit, or an answer gnoto doesn't know. lint repeats that check.
 
 # Keep in step with the case statement in service/wrike/listener.sh: an event
 # the webhook doesn't subscribe to never arrives, with nothing in any log
 WRIKE_WEBHOOK_EVENTS="TaskCreated,TaskDeleted,TaskCustomFieldChanged"
-WRIKE_SPACE_TITLE="gnoto"
-WRIKE_WORKFLOW_NAME="gnoto"
-WRIKE_FOLDER_TITLE="gnoto Jobs"
-WRIKE_FORM_TITLE="gnoto Request"
+WRIKE_GUIDE="https://cmmr.github.io/gnoto/wrike/"
 # name, group and color of each status, in order
 WRIKE_STATUSES=("Submitted Active Blue" "Running Active Turquoise" "Completed Completed Green"
     "Failed Cancelled Red" "Cancelled Cancelled Gray" "Expired Completed Brown")
 
-# The request form's questions after Title and Samplesheet, in order, as a
-# JSON array of {key, title, type, values, help, pipelines, rank, required,
-# default, field}. pipelines are the Pipeline answers the form shows a
-# question for, and rank its place in each pipeline's options.yaml.
-# An option with a default is required, starting at that answer, and so is
-# always in the description of a request that names its pipeline. Only
-# Pipeline maps to a custom field. Fails when two pipelines ask one question
-# with different titles, answers or defaults.
-wrike_questions_spec() {
+# Every bracketed key gnoto reads from a request, as a JSON object of each key
+# to {type, values, pipelines}: [pipeline], whose answers start with a
+# pipeline's name or repeat, [--previous_run], [--title] and [--samplesheet],
+# and each option in the pipelines' options.yaml as gnoto start takes it,
+# --<key> for one in: top and --<pipeline>.<key> for one in its section.
+# values are the answers gnoto knows, an option's labels where it has them.
+# Fails when two pipelines take one top option with different answers.
+wrike_form_keys() {
     local pipeline all="[]" options
     for pipeline in $(pipeline_names); do
         options=$(options_json "$pipeline")
-        all=$(jq -c --arg pipeline "$pipeline" --argjson options "$options" '. + [$options | to_entries[]
-            | .key as $rank | .value
+        all=$(jq -c --arg pipeline "$pipeline" --argjson options "$options" '. + [$options[]
             | select(.key != "title" and .key != "samplesheet")
             | ((.labels // {}) | with_entries(.key |= tostring)) as $labels
-            | {key, title: .question, type: (if .multiple then "Multiple" else "DropDown" end),
-               values: [(.values // [])[] | tostring | ($labels[.] // .)], help: (.help // ""),
-               required: (.default != null and .default != ""),
-               default: (if .default == null then "" else (.default | tostring | ($labels[.] // .)) end),
-               pipelines: [$pipeline], rank: {($pipeline): $rank}, field: false}]' <<< "$all")
+            | {key: (if .in == "top" then "--\(.key)" else "--\($pipeline).\(.key)" end),
+               type: (if .values == null then "Text" elif .multiple then "Multiple" else "DropDown" end),
+               values: [(.values // [])[] | tostring | ($labels[.] // .)], pipelines: [$pipeline]}]' <<< "$all")
     done
-    jq -c --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" --arg repeat "$WRIKE_REPEAT_ANSWER" \
-        --arg pipeline "$WRIKE_PIPELINE_QUESTION" --arg previous "$WRIKE_PREVIOUS_QUESTION" '
+    jq -c --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" --arg repeat "$WRIKE_REPEAT_ANSWER" '
         group_by(.key) | map(
-            if (map([.title, .values, .type, .default]) | unique | length) > 1
-            then error("The option \(.[0].key) is asked differently by \(map(.pipelines[0]) | join(" and ")): one question must have one title, one set of answers and one default")
-            else .[0] + {pipelines: map(.pipelines[0]), rank: (map(.rank) | add)} end)
-        # A repeat keeps the answers of its earlier run, but for how long its results are kept
-        | map(if .key == "retention" then .pipelines += [$repeat] else . end)
-        | [{key: "pipeline", title: $pipeline, type: "DropDown", values: ($pipelines + [$repeat]),
-            help: "Which analysis to run, or to repeat an earlier run on new samples", pipelines: [],
-            rank: {}, required: true, default: "", field: true},
-           {key: "previous_run", title: $previous, type: "Text", values: [],
-            help: "The earlier run to repeat: its eight-character ID, or its results address", pipelines: [$repeat],
-            rank: {}, required: true, default: "", field: false}]
-          + sort_by([(.pipelines | length) != ($pipelines | length) + 1, .title])' <<< "$all"
+            if (map([.type, .values]) | unique | length) > 1
+            then error("The option \(.[0].key) is taken differently by \(map(.pipelines[0]) | join(" and ")): one key must have one set of answers")
+            else {(.[0].key): (.[0] + {pipelines: map(.pipelines[0])} | del(.key))} end)
+        | add + {
+            pipeline: {type: "DropDown", values: ($pipelines + [$repeat]), pipelines: $pipelines},
+            "--previous_run": {type: "Text", values: [], pipelines: [$repeat]},
+            "--title": {type: "Text", values: [], pipelines: $pipelines},
+            "--samplesheet": {type: "Attachment", values: [], pipelines: $pipelines}}' <<< "$all"
 }
 
-# The custom fields gnoto reads or writes, as a JSON array of {key, title,
-# type, values}: the questions that map to one, then Results and Expiration,
-# which gnoto fills and no question asks
+# The custom fields gnoto fills, as a JSON array of {key, title, type, values}
 wrike_fields_spec() {
-    local questions
-    questions=$(wrike_questions_spec) || return 1
-    jq -c '[.[] | select(.field) | {key, title, type, values}]
-        + [{key: "results", title: "Results", type: "Text", values: []},
-           {key: "expiration", title: "Expiration", type: "Date", values: []}]' <<< "$questions"
+    jq -cn --argjson pipelines "$(pipeline_names | jq -R . | jq -sc .)" '
+        [{key: "pipeline", title: "Pipeline", type: "DropDown", values: $pipelines},
+         {key: "results", title: "Results", type: "Text", values: []},
+         {key: "expiration", title: "Expiration", type: "Date", values: []}]'
+}
+
+# What gnoto can't read past in a request form: a line each. A question is
+# read by the key in its title's brackets, and one without is left alone. An
+# answer to [pipeline] is read by its first word, so it can say more after it.
+wrike_form_problems() {
+    local form=$1 keys=$2
+    jq -r --argjson keys "$keys" '
+        {ComboBox: "DropDown", CheckBox: "Multiple", TextField: "Text", TextArea: "Text", Attachment: "Attachment"} as $kinds
+        | {DropDown: "Single answer", Multiple: "Multiple answers", Text: "Single line text", Attachment: "Attachment"} as $names
+        | [.data[0].pages[]?.fields[]? | {title, type, items: [.items[]?.title],
+            key: ((.title // "") | capture("\\[(?<k>[^\\]]+)\\]").k? // null)}] as $form
+        | [($form[] | select(.key != null) | . as $q | $keys[$q.key] as $want
+            | ($kinds[$q.type] // "") as $kind
+            | if $want == null then "\"\($q.title)\": gnoto start has no \($q.key)"
+              else
+                (if $kind != $want.type then
+                    "\"\($q.title)\" is \($names[$kind] // $q.type), and gnoto reads it as \($names[$want.type])" else empty end),
+                (if $want.values != [] then
+                    ($q.items[] | . as $item
+                     | (if $q.key == "pipeline" then (ascii_downcase | capture("^(?<w>[a-z0-9_]+)").w? // "") else . end) as $answer
+                     | select(all($want.values[]; . != $answer))
+                     | "\"\($q.title)\" offers \"\($item)\", and gnoto takes " + ($want.values | join(", ")))
+                 else empty end)
+              end),
+           (if any($form[]; .key == "pipeline") then empty
+            else "the form has no question with [pipeline] in its title, so gnoto finds no pipeline in its requests" end)]
+        | unique[]' <<< "$form"
 }
 
 # The secret Wrike signs the webhook's deliveries with, which the SQS stack's
@@ -117,12 +134,15 @@ wrike_me() {
             | [.id, "\(.firstName // "") \(.lastName // "")", ($p.role // ""), (($p.admin // false) or ($p.owner // false))] | @tsv'
 }
 
-# A user's type in the account, such as Regular User or Admin, or nothing
+# A user's type in the account, such as Regular User or Admin, with its
+# article, or nothing: wrike_user_type <user> <admin true|false>
 wrike_user_type() {
-    local type
+    local type title=""
     type=$(wrike_call GET "users/$1" 2> /dev/null | jq -r '.data[0].userTypeId // empty')
-    [[ -n $type ]] || return 0
-    wrike_call GET "user_types" 2> /dev/null | jq -r --arg id "$type" 'first(.data[]? | select(.id == $id) | .title) // empty'
+    [[ -z $type ]] ||
+        title=$(wrike_call GET "user_types" 2> /dev/null | jq -r --arg id "$type" 'first(.data[]? | select(.id == $id) | .title) // empty')
+    [[ -n $title || $2 != true ]] || title="account admin"
+    [[ -z $title ]] || printf '%s %s' "$([[ $title == [AEIOUaeiou]* ]] && echo an || echo a)" "$title"
 }
 
 # Whether a user is an admin of a space: wrike_space_admin <space> <user>
@@ -131,39 +151,33 @@ wrike_space_admin() {
         jq -e --arg user "$2" 'any(.data[0].members[]?; .id == $user and .isManager)' > /dev/null
 }
 
-# Statuses as the checklist names them: "Submitted (Active, Blue), ..."
-wrike_status_text() {
-    local status name group color text=""
-    for status in "$@"; do
-        read -r name group color <<< "$status"
-        text+="${text:+, }$name ($group, $color)"
-    done
-    printf '%s' "$text"
+# The spaces the bot can see, as compact JSON of {id, title}
+wrike_spaces() {
+    wrike_call GET "spaces" | jq -c '[.data[]? | {id, title}]'
 }
 
-# The space's ID, by title, or nothing
-wrike_find_space() {
-    wrike_call GET "spaces" | jq -r --arg title "$WRIKE_SPACE_TITLE" 'first(.data[]? | select(.title == $title) | .id) // empty'
+# A space's folders, as compact JSON of {id, title}, without its own root
+# folder, which has its title, or what's in the recycle bin
+wrike_folders() {
+    wrike_call GET "spaces/$1/folders" | jq -c '[.data[]? | select((.scope // "WsFolder") == "WsFolder") | {id, title}]'
 }
 
-# The workflow, by name, as compact JSON, or nothing: wrike_find_workflow
-# [space]. A space's own workflows, which a person makes, list apart from the
-# account's, which an admin bot makes.
-wrike_find_workflow() {
-    local found=""
-    if [[ -n ${1:-} ]]; then
-        found=$(wrike_call GET "spaces/$1/workflows" |
-            jq -c --arg name "$WRIKE_WORKFLOW_NAME" 'first(.data[]? | select(.name == $name)) // empty') || return 1
-    fi
-    [[ -n $found ]] ||
-        found=$(wrike_call GET "workflows" | jq -c --arg name "$WRIKE_WORKFLOW_NAME" 'first(.data[]? | select(.name == $name)) // empty') ||
-        return 1
-    printf '%s' "$found"
+# The workflows a space's tasks can take, as compact JSON: its own, which only
+# its own list shows, then the account's
+wrike_workflows() {
+    local own account
+    own=$(wrike_call GET "spaces/$1/workflows" | jq -c '[.data[]?]') || return 1
+    account=$(wrike_call GET "workflows" | jq -c '[.data[]?]') || return 1
+    jq -cn --argjson own "$own" --argjson account "$account" '$own + $account'
 }
 
-wrike_find_folder() {
-    wrike_call GET "spaces/$1/folders" |
-        jq -r --arg title "$WRIKE_FOLDER_TITLE" 'first(.data[]? | select(.title == $title and (.scope // "WsFolder") != "RbFolder") | .id) // empty'
+# The request forms a space has, then those of the account, as compact JSON
+# of {id, title}
+wrike_forms() {
+    local own account
+    own=$(wrike_call GET "spaces/$1/request_forms" | jq -c '[.data[]? | {id, title}]') || return 1
+    account=$(wrike_call GET "request_forms" 2> /dev/null | jq -c '[.data[]? | {id, title}]') || account="[]"
+    jq -cn --argjson own "$own" --argjson account "$account" '$own + $account | unique_by(.id)'
 }
 
 # The space's custom fields as compact JSON
@@ -178,221 +192,228 @@ wrike_find_webhooks() {
         '.data[]? | select(.folderId == $folder and .hookUrl == $url)'
 }
 
-# The checklist for building the request form by hand, from the questions, in
-# the words of Wrike's form builder: one page, with Pipeline's options each
-# followed by the questions only it asks, as its follow-up questions, in its
-# options.yaml's order. A question several pipelines ask follows each of
-# their options. The questions every request asks come last.
-wrike_form_checklist() {
-    local questions=$1
-    cat << EOF
-
-Build the request form in Wrike by hand: gnoto can read forms, but not make them.
-In the "$WRIKE_SPACE_TITLE" space, create a request form named "$WRIKE_FORM_TITLE".
-
-Response settings
-  Create task
-  Set status to: Submitted
-  Save to: $WRIKE_FOLDER_TITLE
-
-Questions, each titled exactly as written, with exactly the options listed, and
-"Add answer to" at Description, where gnoto reads the answer, unless it says otherwise:
-EOF
-    jq -r '
-        def kind: {DropDown: "Single answer", Multiple: "Multiple answers", Text: "Single line text"}[.type];
-        def detail: (if .help != "" then "Description: \"\(.help)\"" else empty end),
-            (.default as $default | if .values != [] then
-                "Options: " + ([.values[] | if . == $default then "\(.) (preselected)" else . end] | join(", "))
-             else empty end),
-            "Answer required: " + (if .required then "on" else "off" end),
-            (if .field then "Add answer to: \(.title), the custom field" else empty end);
-        def block($first; $pad): "\($first)\(.title): \(kind)", (detail | $pad + .);
-        first(.[] | select(.key == "pipeline")) as $pipeline
-        | ($pipeline.values | length) as $all
-        | [.[] | select(.key != "pipeline" and (.pipelines | length) >= $all)] as $always
-        | [$pipeline.values[] as $answer | {answer: $answer,
-            questions: ([.[] | select(.key != "pipeline" and (.pipelines | length) < $all and any(.pipelines[]; . == $answer))]
-                | sort_by(.rank[$answer] // 0))}]
-        | "  1. Title: Single line text", "     Description: \"Names the results.\"", "     Answer required: on",
-          "     Add answer to: Title",
-          ($pipeline | block("  2. "; "     ")),
-          "     Follow-up questions:",
-          (.[] | "       \(.answer)" + (if .questions == [] then ": none" else "" end),
-              (.questions | to_entries[] | ([.key + 97] | implode) as $letter | .value
-                  | block("         \($letter). "; "            "))),
-          "  3. Samplesheet: Attachment",
-          "     Description: \"Tab-separated, no header: sample, fastq1, fastq2. Omit fastq2 for single-end.\"",
-          "     Answer required: on",
-          ($always | to_entries[] | (.key + 4) as $n | .value | block("  \($n). "; "     "))' <<< "$questions"
-    echo
-    echo "Then run $(gnoto_command config wrike) again, which finds the form and checks its questions."
+# The titles in a list, quoted and comma-separated, for a message
+wrike_titles() {
+    jq -r '[.[] | "\"\(.title // .name)\""] | if . == [] then "none" else join(", ") end' <<< "$1"
 }
 
-# What differs between the form and the questions: a line each. A question
-# asked under several answers is checked each time. Wrike's API doesn't say
-# where a question's answer goes, so that isn't compared.
-wrike_form_drift() {
-    local form=$1 questions=$2
-    jq -r --argjson spec "$questions" '
-        {DropDown: "ComboBox", Multiple: "CheckBox", Text: "TextField"} as $types
-        | {ComboBox: "Single answer", CheckBox: "Multiple answers", TextField: "Single line text", TextArea: "Paragraph"} as $names
-        | [.data[0].pages[]?.fields[]? | {title, type, mandatory: (.mandatory // false),
-            items: [.items[]?.title], chosen: [.items[]? | select(.selectedByDefault) | .title]}] as $form
-        | [$spec[] | . as $want
-           | [$form[] | select(.title == $want.title)] as $asked
-           | if $asked == [] then "the form has no question \"\($want.title)\""
-             else $asked[] as $q
-               | (if $q.type != $types[$want.type] and ($want.type != "Text" or $q.type != "TextArea") then
-                     "the form asks \"\($want.title)\" as \($names[$q.type] // $q.type), not \($names[$types[$want.type]])" else empty end),
-                 (if $want.values != [] and ($q.items | sort) != ($want.values | sort) then
-                     "the form offers \"\($want.title)\" the answers \($q.items | join(", ")), not \($want.values | join(", "))" else empty end),
-                 (if $want.required and ($q.mandatory | not) then "the form should require \"\($want.title)\"" else empty end),
-                 (if $want.default != "" and $q.chosen != [$want.default] then
-                     "the form should select \($want.default) by default in \"\($want.title)\"" else empty end)
-             end]
-        | unique[]' <<< "$form"
+# Every folder the bot can see, in every space, as compact JSON of {id, title,
+# space, spaceTitle, createdDate}. Only a folder read by its ID says when it
+# was made, so they're read a hundred at a time.
+wrike_all_folders() {
+    local spaces=$1 space title folders all="[]" ids dated="[]" i
+    while IFS=$'\t' read -r space title; do
+        [[ -n $space ]] || continue
+        folders=$(wrike_folders "$space") || return 1
+        all=$(jq -c --argjson more "$folders" --arg space "$space" --arg title "$title" \
+            '. + [$more[] | . + {space: $space, spaceTitle: $title}]' <<< "$all")
+    done < <(jq -r '.[] | [.id, .title] | @tsv' <<< "$spaces")
+    for (( i = 0; i < $(jq length <<< "$all"); i += 100 )); do
+        ids=$(jq -r --argjson i "$i" '[.[$i:$i + 100][].id] | join(",")' <<< "$all")
+        dated=$(jq -c --argjson more "$(wrike_call GET "folders/$ids" | jq -c '[.data[]? | {id, createdDate}]')" \
+            '. + $more' <<< "$dated") || return 1
+    done
+    jq -c --argjson dated "$dated" '($dated | map({(.id): .createdDate}) | add // {}) as $when
+        | map(. + {createdDate: ($when[.id] // "")})' <<< "$all"
 }
 
-# The space's custom fields that a question has the title of, and gnoto
-# doesn't use: the old way of carrying an answer, which the form may still
-# map that question to. A line each.
-wrike_leftover_fields() {
-    local existing=$1 questions=$2 fields=$3
-    jq -r --argjson questions "$questions" --argjson fields "$fields" '
-        .[] | .title as $title
-        | select(any($questions[]; .title == $title) and (any($fields[]; .title == $title) | not)) | $title' <<< "$existing"
+# The folders a setting names, as compact JSON: by its name, or by its Wrike
+# link, whose number Wrike turns into its ID. A link names one folder, and a
+# name may name several, in different spaces.
+wrike_named_folders() {
+    local wanted=$1 folders=$2 legacy id="" link='(/folder/|[?&#]id=)([0-9]+)'
+    if [[ $wanted =~ $link ]]; then
+        legacy=${BASH_REMATCH[2]}
+        id=$(wrike_call GET "ids" -G --data-urlencode "ids=[\"$legacy\"]" --data-urlencode "type=ApiV2Folder" |
+            jq -r '.data[0].id // empty') || return 1
+    fi
+    jq -c --arg id "$id" --arg title "$wanted" \
+        'map(select(if $id != "" then .id == $id else .title == $title end))' <<< "$folders"
+}
+
+# What config wrike suggests for the folder: the one named, when the bot can
+# see it, or else the newest it can see, with what else there is listed above
+# the question
+config_wrike_suggest() {
+    local current folders
+    [[ $1 == folder ]] || return 1
+    local WRIKE_API_TOKEN=${CONFIG_NEW[api_token]:-${WRIKE_API_TOKEN:-}}
+    local WRIKE_API_URL=${CONFIG_NEW[api_url]:-${WRIKE_API_URL:-}}
+    current=${CONFIG_NEW[folder]:-${WRIKE_FOLDER:-}}
+    [[ -n $WRIKE_API_TOKEN && -n $WRIKE_API_URL ]] || { printf '%s' "$current"; return 0; }
+    folders=$(wrike_all_folders "$(wrike_spaces 2> /dev/null)" 2> /dev/null) || { printf '%s' "$current"; return 0; }
+    echo "  The bot sees these folders, the newest last: $(wrike_titles \
+        "$(jq -c 'sort_by(.createdDate) | map({title: "\(.title) (in \(.spaceTitle))"})' <<< "$folders")")" >&2
+    if [[ -n $current && $(wrike_named_folders "$current" "$folders" 2> /dev/null | jq length) -eq 1 ]]; then
+        printf '%s' "$current"
+    else
+        jq -r 'sort_by(.createdDate) | last | .title // empty' <<< "$folders"
+    fi
+}
+
+# The folder's newest task that a request form made, as compact JSON with its
+# description: one whose description names an option in brackets
+wrike_test_request() {
+    wrike_call GET "folders/$1/tasks" -G --data-urlencode 'fields=["description"]' --data-urlencode "pageSize=1000" |
+        jq -c '[.data[]? | select((.description // "") | test("\\[(--)?[a-z][a-z0-9_.]*\\]"))] | sort_by(.createdDate) | last // empty'
+}
+
+# The form a request came from, out of the forms the bot can see, as
+# {id, title}: the one with the most of the questions its description answers
+wrike_request_form() {
+    local request=$1 forms=$2 titles form questions best="" most=0 count
+    titles=$(wrike_task_answers "$request" titles)
+    while IFS= read -r form; do
+        [[ -n $form ]] || continue
+        questions=$(wrike_call GET "request_forms/$(jq -r .id <<< "$form")" 2> /dev/null |
+            jq -c '[.data[0].pages[]?.fields[]?.title]') || continue
+        count=$(jq --argjson questions "$questions" '[.[] | select(. as $t | $questions | index($t))] | length' <<< "$titles")
+        if (( count > most )); then
+            most=$count
+            best=$form
+        fi
+    done < <(jq -c '.[]' <<< "$forms")
+    printf '%s' "$best"
+}
+
+# Creates a task in the folder, as gnoto does a command-line job's, sets its
+# fields, comments on it and attaches a file to it, then deletes it. Prints
+# what the bot couldn't do, and returns 1.
+wrike_write_test() {
+    local folder=$1 json task why=""
+    json=$(wrike_call POST "folders/$folder/tasks" --data-urlencode "title=gnoto config wrike's test, safe to delete" \
+        --data-urlencode "description=A test of what gnoto does in this folder." \
+        --data-urlencode "customStatus=$(wrike_status_id running)" \
+        --data-urlencode "customFields=$(jq -cn --arg p "$(wrike_field_id pipeline)" --arg r "$(wrike_field_id results)" \
+            --arg e "$(wrike_field_id expiration)" --arg pipeline "$(pipeline_names | head -n 1)" --arg date "$(date -u +%F)" \
+            '[{id: $p, value: $pipeline}, {id: $r, value: "https://example.invalid/gnoto-test/"}, {id: $e, value: $date}]')") ||
+        { echo "create a task there with a gnoto status and its fields, as above"; return 1; }
+    task=$(jq -r '.data[0].id // empty' <<< "$json")
+    is_valid_wrike_id "$task" || { echo "create a task there: Wrike named none"; return 1; }
+    wrike_call POST "tasks/$task/comments" --data-urlencode "plainText=true" \
+        --data-urlencode "text=gnoto config wrike's test comment." > /dev/null 2>&1 || why="comment on a task there"
+    [[ -n $why ]] || printf 'gnoto config wrike test\n' | wrike_call POST "tasks/$task/attachments" -H "X-File-Name: gnoto-test.txt" \
+        -H "Content-Type: application/octet-stream" --data-binary @- > /dev/null 2>&1 || why="attach a file to a task there"
+    wrike_call DELETE "tasks/$task" > /dev/null 2>&1 ||
+        warn "The test task couldn't be deleted. Delete \"gnoto config wrike's test, safe to delete\" in Wrike by hand."
+    [[ -z $why ]] || { echo "$why"; return 1; }
 }
 
 # gnoto config wrike, once its settings are written
 config_wrike_step() {
-    local me bot bot_name role admin kind name space workflow folder fields spec plan=() status group color have id field
-    local existing questions leftover webhooks hook form forms drift missing=() steps=() i
+    local me bot bot_name role admin kind name group color status spaces folders matches folder space space_title
+    local request="" workflows workflow forms form="" form_title="" fields existing have id field plan=() missing=()
+    local webhooks hook problems why answers heard submitted uid test_request=""
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     [[ -n ${WRIKE_API_TOKEN:-} ]] || fail "Set wrike.api_token first, the bot account's API token."
+    [[ -n ${WRIKE_FOLDER:-} ]] || fail "Set wrike.folder first, the folder gnoto's tasks go in, by its name or its Wrike link."
     run_id_salt
     me=$(wrike_me) || fail "Wrike refused the token, as above."
     IFS=$'\t' read -r bot bot_name role admin <<< "$me"
     [[ $role != Collaborator ]] || fail "The bot account, $bot_name, is a Collaborator, and those can't create tasks. Give it a full license."
     generated_set wrike.bot_id "$bot"
-    kind=$(wrike_user_type "$bot")
-    if [[ -n $kind ]]; then
-        kind="$([[ $kind == [AEIOUaeiou]* ]] && echo an || echo a) $kind"
-    elif [[ $admin == true ]]; then
-        kind="an account admin"
-    fi
+    kind=$(wrike_user_type "$bot" "$admin")
     echo "Wrike's bot account is $bot_name${kind:+, $kind}." >&2
 
-    space=$(wrike_find_space) || fail "Can't list Wrike's spaces."
-    workflow=$(wrike_find_workflow "$space") || fail "Can't list Wrike's workflows."
-    [[ -n $space ]] || plan+=("Create the space \"$WRIKE_SPACE_TITLE\"")
-    [[ -n $workflow ]] || plan+=("Create the workflow \"$WRIKE_WORKFLOW_NAME\"")
+    # The folder, and its space
+    spaces=$(wrike_spaces) || fail "Can't list Wrike's spaces."
+    folders=$(wrike_all_folders "$spaces") || fail "Can't list the spaces' folders."
+    matches=$(wrike_named_folders "$WRIKE_FOLDER" "$folders") || fail "Wrike can't say which folder the link \"$WRIKE_FOLDER\" is."
+    case $(jq length <<< "$matches") in
+        0) fail "$bot_name can't see a folder \"$WRIKE_FOLDER\". It sees $(wrike_titles "$folders"). Set up Wrike as $WRIKE_GUIDE says, with $bot_name in the space, and give the folder's name or link with $(gnoto_command config wrike --folder=\"name\")." ;;
+        1) ;;
+        *) fail "More than one folder is named \"$WRIKE_FOLDER\", in $(wrike_titles "$(jq -c 'map({title: .spaceTitle})' <<< "$matches")"). Give the one gnoto should use by its Wrike link, with $(gnoto_command config wrike --folder=\"link\")." ;;
+    esac
+    folder=$(jq -r '.[0].id' <<< "$matches")
+    space=$(jq -r '.[0].space' <<< "$matches")
+    space_title=$(jq -r '.[0].spaceTitle' <<< "$matches")
+
+    # The test request, and from it the workflow and form
+    request=$(wrike_test_request "$folder") || fail "Can't list the tasks in \"$WRIKE_FOLDER\"."
+    workflows=$(wrike_workflows "$space") || fail "Can't list Wrike's workflows."
+    if [[ -n $request ]]; then
+        workflow=$(jq -c --arg status "$(jq -r '.customStatusId // ""' <<< "$request")" \
+            'first(.[] | select(any(.customStatuses[]?; .id == $status))) // empty' <<< "$workflows")
+        [[ -n $workflow ]] ||
+            fail "The test request \"$(jq -r .title <<< "$request")\" has a status in no workflow $bot_name can see. The form must set its requests to the status Submitted, in the workflow with gnoto's statuses."
+        forms=$(wrike_forms "$space") || fail "Can't list the space's request forms."
+        form=$(wrike_request_form "$request" "$forms")
+        form_title=$(jq -r '.title // empty' <<< "${form:-null}")
+        form=$(jq -r '.id // empty' <<< "${form:-null}")
+    else
+        # Without a request, the workflow with gnoto's statuses: the space's
+        # own first, as its default for tasks if it has several
+        workflow=$(jq -c --arg default "$(wrike_call GET "spaces/$space" | jq -r '.data[0].defaultTaskWorkflowId // ""')" \
+            --argjson names "$(printf '%s\n' "${WRIKE_STATUSES[@]%% *}" | jq -R . | jq -sc .)" '
+            [.[] | select([.customStatuses[]?.name] as $have | all($names[]; . as $n | $have | index($n)))]
+            | (first(.[] | select(.id == $default)) // first(.[])) // empty' <<< "$workflows")
+        [[ -n $workflow ]] ||
+            fail "No request is in \"$WRIKE_FOLDER\" yet, and no workflow $bot_name can see has gnoto's six statuses. Set up the workflow and form, and submit a test request with the form, as $WRIKE_GUIDE says."
+    fi
     for status in "${WRIKE_STATUSES[@]}"; do
         read -r name group color <<< "$status"
-        if [[ -z $workflow ]] || ! jq -e --arg name "$name" 'any(.customStatuses[]?; .name == $name)' <<< "$workflow" > /dev/null; then
-            plan+=("Add the status $name, in the group $group, to the workflow")
-            missing+=("$status")
-        fi
+        jq -e --arg name "$name" 'any(.customStatuses[]?; .name == $name)' <<< "$workflow" > /dev/null ||
+            missing+=("$name ($group)")
     done
+    (( ${#missing[@]} == 0 )) ||
+        fail "The workflow \"$(jq -r .name <<< "$workflow")\", which the test request is in, lacks gnoto's $(lint_list "${missing[@]}"). Give it those, named exactly so, in Wrike, as $WRIKE_GUIDE says."
+    if [[ -n $request ]]; then
+        [[ -n $form ]] ||
+            fail "None of the request forms $bot_name can see asks the questions the request \"$(jq -r .title <<< "$request")\" answers. The form must be in the space \"$space_title\", or the account's."
+        # A request gnoto hasn't run, still Submitted, is the test request. One
+        # it ran or that moved on, after an earlier run of this, only shows
+        # the workflow and form.
+        submitted=$(jq -r 'first(.customStatuses[] | select(.name == "Submitted") | .id)' <<< "$workflow")
+        uid=$(derive_uid "$(jq -r .id <<< "$request")") || fail "There's no uid for a request: RUN_ID_SALT isn't set."
+        if [[ -e $DATA_DIR/runs/$uid || -e $DATA_DIR/history/$uid ]]; then
+            test_request=""
+        elif [[ $(jq -r .customStatusId <<< "$request") == "$submitted" ]]; then
+            test_request=$request
+        elif [[ -z ${WRIKE_FORM_ID:-} ]]; then
+            fail "The request \"$(jq -r .title <<< "$request")\" isn't Submitted, and gnoto starts only Submitted requests. Set the form's status for its tasks to Submitted, and submit a test request with it."
+        fi
+    fi
+    echo "gnoto's folder is \"$WRIKE_FOLDER\", in the space \"$space_title\". Its workflow is \"$(jq -r .name <<< "$workflow")\"${form_title:+, and its request form \"$form_title\"}." >&2
 
-    # A bot that isn't an account admin can't make a workflow or change its
-    # statuses, and many accounts keep it from making spaces. As the space's
-    # admin it can make the rest, so a person makes the space and its own
-    # workflow first.
-    if [[ $admin != true ]]; then
-        if [[ -z $space ]] || ! wrike_space_admin "$space" "$bot"; then
-            steps+=("Create the space \"$WRIKE_SPACE_TITLE\", unless it exists, and add $bot_name to it as a space admin.")
-        fi
-        if [[ -z $workflow ]]; then
-            steps+=("In the space's settings, under Workflows, create the workflow \"$WRIKE_WORKFLOW_NAME\" with these statuses, named exactly so, with their groups: $(wrike_status_text "${WRIKE_STATUSES[@]}").")
-        elif (( ${#missing[@]} > 0 )); then
-            steps+=("In the space's settings, under Workflows, give the workflow \"$WRIKE_WORKFLOW_NAME\" these statuses, named exactly so, with their groups: $(wrike_status_text "${missing[@]}").")
-        fi
-        if (( ${#steps[@]} > 0 )); then
-            echo "$bot_name is${kind:+ $kind,} not an account admin, so it can't make a workflow or change one, or"
-            echo "in many accounts a space. With your own Wrike account, do this:"
-            for i in "${!steps[@]}"; do
-                printf '  %d. %s\n' $((i + 1)) "${steps[i]}"
-            done
-            fail "Wrike needs those first. Then run $(gnoto_command config wrike) again, which makes the rest as $bot_name."
-        fi
-    fi
-    if [[ -n $space ]]; then
-        folder=$(wrike_find_folder "$space") || fail "Can't list the space's folders."
-        existing=$(wrike_space_fields "$space") || fail "Can't list the space's custom fields."
-    else
-        folder="" existing="[]"
-    fi
-    [[ -n $folder ]] || plan+=("Create the folder \"$WRIKE_FOLDER_TITLE\" in the space")
-    questions=$(wrike_questions_spec) && spec=$(wrike_fields_spec) ||
-        fail "The pipelines' options.yaml can't be made into the request form's questions, as above."
+    # The fields gnoto fills
+    fields=$(wrike_fields_spec)
+    existing=$(wrike_space_fields "$space") || fail "Can't list the space's custom fields."
     while IFS= read -r field; do
         have=$(jq -c --arg title "$(jq -r .title <<< "$field")" 'first(.[] | select(.title == $title)) // empty' <<< "$existing")
         if [[ -z $have ]]; then
-            plan+=("Create the custom field \"$(jq -r .title <<< "$field")\", $(jq -r '.type + (if .values != [] then " of " + (.values | join(", ")) else "" end)' <<< "$field")")
+            plan+=("Create the custom field \"$(jq -r .title <<< "$field")\", $(jq -r '.type + (if .values != [] then " of " + (.values | join(", ")) else "" end)' <<< "$field"), in the space")
         elif [[ $(jq -r .type <<< "$have") != "$(jq -r .type <<< "$field")" ]]; then
             fail "The space has a field \"$(jq -r .title <<< "$field")\" of type $(jq -r .type <<< "$have"), and gnoto needs one of type $(jq -r .type <<< "$field"). Rename or remove it in Wrike."
         elif [[ $(jq -c '.values | sort' <<< "$have") != "$(jq -c '.values | sort' <<< "$field")" ]]; then
             plan+=("Change the answers of the field \"$(jq -r .title <<< "$field")\" to $(jq -r '.values | join(", ")' <<< "$field")")
         fi
-    done < <(jq -c '.[]' <<< "$spec")
+    done < <(jq -c '.[]' <<< "$fields")
+    if (( ${#plan[@]} > 0 )) && [[ $admin != true ]] && ! wrike_space_admin "$space" "$bot"; then
+        fail "$bot_name makes gnoto's custom fields as the space's admin, and it isn't one. Make it an admin of \"$space_title\", as $WRIKE_GUIDE says, and run this again."
+    fi
+    plan+=("Test, in \"$WRIKE_FOLDER\", that $bot_name can create a task with a gnoto status, set its fields, comment and attach a file, then delete it")
     if sqs_on && [[ -n ${AWS_SQS_WEBHOOK_URL:-} ]]; then
-        if [[ -n $folder ]]; then
-            webhooks=$(wrike_find_webhooks "$folder" "$AWS_SQS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
-        else
-            webhooks=""
-        fi
+        webhooks=$(wrike_find_webhooks "$folder" "$AWS_SQS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
         if [[ -z $webhooks ]]; then
-            plan+=("Create the webhook on \"$WRIKE_FOLDER_TITLE\" to $AWS_SQS_WEBHOOK_URL, for $WRIKE_WEBHOOK_EVENTS")
+            plan+=("Create the webhook on \"$WRIKE_FOLDER\" to $AWS_SQS_WEBHOOK_URL, for $WRIKE_WEBHOOK_EVENTS")
         elif [[ $(jq -sc 'map(.events | sort | join(",")) | unique' <<< "$webhooks") != "$(jq -cn --arg e "$WRIKE_WEBHOOK_EVENTS" '[$e | split(",") | sort | join(",")]')" ||
             $(grep -c . <<< "$webhooks") -gt 1 ]]; then
-            plan+=("Replace the webhook on \"$WRIKE_FOLDER_TITLE\", deleting the old one first, for $WRIKE_WEBHOOK_EVENTS")
+            plan+=("Replace the webhook on \"$WRIKE_FOLDER\", deleting the old one first, for $WRIKE_WEBHOOK_EVENTS")
         fi
     fi
+    [[ -z $test_request ]] ||
+        plan+=("Comment on the test request \"$(jq -r .title <<< "$test_request")\" with what gnoto read from it, and move it to Cancelled, so it never runs")
+    config_confirm "in Wrike, as $bot_name" "${plan[@]}" || exit 0
 
-    if (( ${#plan[@]} > 0 )); then
-        config_confirm "in Wrike, as $bot_name" "${plan[@]}" || exit 0
-    fi
-
-    # The workflow and its statuses
-    if [[ -z $workflow ]]; then
-        workflow=$(wrike_call POST "workflows" --data-urlencode "name=$WRIKE_WORKFLOW_NAME" | jq -c '.data[0]') ||
-            fail "Wrike didn't create the workflow. If the bot isn't an admin, have an admin create a workflow named \"$WRIKE_WORKFLOW_NAME\", and run this again."
-    fi
+    generated_set wrike.space_id "$space"
+    generated_set wrike.folder_id "$folder"
     generated_set wrike.workflow_id "$(jq -r .id <<< "$workflow")"
     for status in "${WRIKE_STATUSES[@]}"; do
-        read -r name group color <<< "$status"
-        id=$(jq -r --arg name "$name" 'first(.customStatuses[]? | select(.name == $name) | .id) // empty' <<< "$workflow")
-        if [[ -z $id ]]; then
-            workflow=$(wrike_call PUT "workflows/$WRIKE_WORKFLOW_ID" --data-urlencode \
-                "customStatus=$(jq -cn --arg name "$name" --arg group "$group" --arg color "$color" \
-                '{name: $name, group: $group, color: $color, hidden: false}')" | jq -c '.data[0]') ||
-                fail "Wrike didn't add the status $name to the workflow."
-            id=$(jq -r --arg name "$name" 'first(.customStatuses[]? | select(.name == $name) | .id) // empty' <<< "$workflow")
-            [[ -n $id ]] || fail "Wrike didn't add the status $name to the workflow."
-        fi
-        generated_set "wrike.statuses.${name,,}" "$id"
+        name=${status%% *}
+        generated_set "wrike.statuses.${name,,}" "$(jq -r --arg name "$name" 'first(.customStatuses[] | select(.name == $name) | .id)' <<< "$workflow")"
     done
+    generated_set wrike.form_id "$form"
 
-    # The space, whose tasks take the workflow, and the folder
-    if [[ -z $space ]]; then
-        space=$(wrike_call POST "spaces" --data-urlencode "title=$WRIKE_SPACE_TITLE" --data-urlencode "accessType=Public" \
-            --data-urlencode "defaultTaskWorkflowId=$WRIKE_WORKFLOW_ID" | jq -r '.data[0].id // empty') ||
-            fail "Wrike didn't create the space."
-        [[ -n $space ]] || fail "Wrike didn't create the space."
-    elif [[ $(wrike_call GET "spaces/$space" | jq -r '.data[0].defaultTaskWorkflowId // ""') != "$WRIKE_WORKFLOW_ID" ]]; then
-        wrike_call PUT "spaces/$space" --data-urlencode "defaultTaskWorkflowId=$WRIKE_WORKFLOW_ID" > /dev/null ||
-            warn "The space's tasks don't take the gnoto workflow by default. The form must still set the status Submitted."
-    fi
-    generated_set wrike.space_id "$space"
-    if [[ -z $folder ]]; then
-        folder=$(wrike_call POST "folders/$space/folders" --data-urlencode "title=$WRIKE_FOLDER_TITLE" |
-            jq -r '.data[0].id // empty') || fail "Wrike didn't create the folder."
-        [[ -n $folder ]] || fail "Wrike didn't create the folder."
-    fi
-    generated_set wrike.folder_id "$folder"
-
-    # The fields
-    existing=$(wrike_space_fields "$space") || fail "Can't list the space's custom fields."
     while IFS= read -r field; do
         have=$(jq -c --arg title "$(jq -r .title <<< "$field")" 'first(.[] | select(.title == $title)) // empty' <<< "$existing")
         if [[ -z $have ]]; then
@@ -410,21 +431,13 @@ config_wrike_step() {
         fi
         [[ -n $id ]] || fail "Wrike didn't create the field \"$(jq -r .title <<< "$field")\"."
         generated_set "wrike.fields.$(jq -r .key <<< "$field")" "$id"
-    done < <(jq -c '.[]' <<< "$spec")
-    # Fields gnoto once made for questions whose answers now go to the description
-    while IFS= read -r field; do
-        [[ -z $field ]] || generated_set "wrike.fields.$field" ""
-    done < <({ yq -o=json '.wrike.fields // {}' "$DATA_DIR/generated.yaml" 2> /dev/null || echo "{}"; } |
-        jq -r --argjson spec "$spec" 'keys[] | select(. as $key | all($spec[]; .key != $key))')
-    leftover=$(wrike_leftover_fields "$existing" "$questions" "$spec")
-    if [[ -n $leftover ]]; then
-        echo "The space has custom fields for questions whose answers go to the task's description now:"
-        sed 's/^/  /' <<< "$leftover"
-        echo "A question the form maps to one of them is read as unanswered. Wrike's API can't delete a"
-        echo "field, so delete them by hand in Wrike, which also takes them off the form."
-    fi
+    done < <(jq -c '.[]' <<< "$fields")
+    source "$CODE_DIR/lib/env.sh"
 
-    # The webhook
+    why=$(wrike_write_test "$folder") ||
+        fail "$bot_name couldn't $why. It needs to edit tasks in \"$WRIKE_FOLDER\": share the folder with it, with a role that can, and run this again."
+    echo "$bot_name can create, change, comment on and attach to tasks in \"$WRIKE_FOLDER\"." >&2
+
     if sqs_on && [[ -n ${AWS_SQS_WEBHOOK_URL:-} ]]; then
         webhooks=$(wrike_find_webhooks "$folder" "$AWS_SQS_WEBHOOK_URL") || fail "Can't list Wrike's webhooks."
         hook=""
@@ -446,27 +459,33 @@ config_wrike_step() {
         generated_set wrike.webhook_id "$hook"
     fi
 
-    # The form, made by hand
-    forms=$(wrike_call GET "spaces/$space/request_forms") || fail "Can't list the space's request forms."
-    form=$(jq -r --arg title "$WRIKE_FORM_TITLE" 'first(.data[]? | select(.title == $title) | .id) // empty' <<< "$forms")
-    if [[ -z $form ]]; then
-        wrike_form_checklist "$questions"
+    if [[ -z $request ]]; then
+        echo "Wrike is ready for jobs from the command line. Requests from a form need one, saving to \"$WRIKE_FOLDER\" as Submitted, and a test request made with it, as $WRIKE_GUIDE says. Then run this again."
         return 0
     fi
-    generated_set wrike.form_id "$form"
-    drift=$(wrike_form_drift "$(wrike_call GET "request_forms/$form")" "$questions") || drift=""
-    if [[ -n $drift ]]; then
-        echo "The form \"$WRIKE_FORM_TITLE\" differs from gnoto's questions:"
-        sed 's/^/  /' <<< "$drift"
-        wrike_form_checklist "$questions"
+    # What gnoto read from the test request, on it and here
+    if [[ -n $test_request ]]; then
+        answers=$(wrike_task_answers "$test_request")
+        heard=$(jq -r 'to_entries[] | "  \(.key): \(.value)"' <<< "$answers")
+        echo "From the test request \"$(jq -r .title <<< "$test_request")\", gnoto read:"
+        printf '%s\n' "${heard:-  nothing}"
+        wrike_comment "$(jq -r .id <<< "$test_request")" "gnoto config wrike read this test request, and moved it to Cancelled so it never runs. It read:
+${heard:-  nothing}"
+        wrike_set_status "$(jq -r .id <<< "$test_request")" Cancelled
+    fi
+    problems=$(wrike_form_problems "$(wrike_call GET "request_forms/$form")" "$(wrike_form_keys)") || problems=""
+    if [[ -n $problems ]]; then
+        echo "Wrike is ready, but gnoto can't read all of the form \"$form_title\":"
+        sed 's/^/  /' <<< "$problems"
+        echo "$WRIKE_GUIDE says how a form's questions name what they answer."
         return 0
     fi
-    echo "Wrike is ready: the form \"$WRIKE_FORM_TITLE\" matches gnoto's questions."
+    echo "Wrike is ready: gnoto can read the form \"$form_title\"."
 }
 
 # lint's Wrike checks
 lint_wrike() {
-    local me bot name role admin kind questions spec leftover drift json status field missing=()
+    local me bot name role admin kind problems json status field missing=()
     [[ ${WRIKE_ENABLED:-false} == true ]] || return 0
     if [[ -z ${WRIKE_API_TOKEN:-} ]]; then
         lint_fail "wrike: is on, and wrike.api_token isn't set. $(gnoto_command config wrike) asks for it"
@@ -480,9 +499,8 @@ lint_wrike() {
     if [[ $role == Collaborator ]]; then
         lint_fail "wrike: the bot account, $name, is a Collaborator, and those can't create tasks"
     else
-        kind=$(wrike_user_type "$bot")
-        [[ -n $kind || $admin != true ]] || kind="account admin"
-        lint_ok "wrike: the bot account is $name${kind:+, $([[ $kind == [AEIOUaeiou]* ]] && echo an || echo a) $kind}"
+        kind=$(wrike_user_type "$bot" "$admin")
+        lint_ok "wrike: the bot account is $name${kind:+, $kind}"
     fi
     [[ -n ${INPUT_ROOTS:-} ]] ||
         lint_fail "wrike: core.input_roots isn't set, and form requests may read FASTQs only under it. $(gnoto_command config core --input_roots=/path)"
@@ -493,27 +511,20 @@ lint_wrike() {
     for status in "${WRIKE_STATUSES[@]}"; do
         [[ -n $(wrike_status_id "${status%% *}") ]] || missing+=("status ${status%% *}")
     done
-    questions=$(wrike_questions_spec 2> /dev/null) || questions="[]"
-    spec=$(wrike_fields_spec 2> /dev/null) || spec="[]"
     while IFS= read -r field; do
         [[ -z $field || -n $(wrike_field_id "$field") ]] || missing+=("field $field")
-    done < <(jq -r '.[].key' <<< "$spec")
+    done < <(wrike_fields_spec | jq -r '.[].key')
     if (( ${#missing[@]} > 0 )); then
         lint_fail "wrike: generated.yaml lacks the $(lint_list "${missing[@]}"). Run: $(gnoto_command config wrike)"
     fi
-    if [[ -n ${WRIKE_SPACE_ID:-} ]] && json=$(wrike_space_fields "$WRIKE_SPACE_ID" 2> /dev/null); then
-        leftover=$(wrike_leftover_fields "$json" "$questions" "$spec")
-        [[ -z $leftover ]] ||
-            lint_warn "wrike: the space has custom fields for questions whose answers go to the description now, and a question the form maps to one is read as unanswered. Delete them in Wrike: $(paste -sd ';' <<< "$leftover" | sed 's/;/, /g')"
-    fi
     if [[ -z ${WRIKE_FORM_ID:-} ]]; then
-        lint_warn "wrike: no request form \"$WRIKE_FORM_TITLE\" found yet. $(gnoto_command config wrike) prints its checklist"
+        lint_warn "wrike: no request form is set up, so requests come only from the command line. $WRIKE_GUIDE says how to build one"
     elif json=$(wrike_call GET "request_forms/$WRIKE_FORM_ID" 2> /dev/null); then
-        drift=$(wrike_form_drift "$json" "$questions")
-        if [[ -n $drift ]]; then
-            lint_warn "wrike: the request form differs from options.yaml: $(paste -sd ';' <<< "$drift" | sed 's/;/; /g')"
+        problems=$(wrike_form_problems "$json" "$(wrike_form_keys 2> /dev/null || echo "{}")")
+        if [[ -n $problems ]]; then
+            lint_warn "wrike: gnoto can't read all of the request form: $(paste -sd ';' <<< "$problems" | sed 's/;/; /g')"
         else
-            lint_ok "wrike: the request form matches options.yaml"
+            lint_ok "wrike: gnoto can read the request form"
         fi
     else
         lint_warn "wrike: the request form recorded in generated.yaml can't be read"

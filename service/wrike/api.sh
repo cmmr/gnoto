@@ -24,11 +24,9 @@
 # one of the same key waiting there, so a replay never sets an older status
 # over a newer one, and one that succeeds clears it.
 
-# The request form's own questions, which no options.yaml asks, and the
-# Pipeline answer that repeats an earlier run on new samples
-WRIKE_PIPELINE_QUESTION="Pipeline"
-WRIKE_PREVIOUS_QUESTION="Previous Run"
-WRIKE_REPEAT_ANSWER="Repeat an earlier run"
+# The answer to a request form's [pipeline] that repeats an earlier run on new
+# samples, the run its [--previous_run] names, as an answer's first word
+WRIKE_REPEAT_ANSWER="repeat"
 
 WRIKE_TRIES=${WRIKE_TRIES:-5}
 WRIKE_WAIT=${WRIKE_WAIT:-2}
